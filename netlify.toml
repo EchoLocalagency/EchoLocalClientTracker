@@ -5,6 +5,7 @@
 [build.environment]
   NEXT_PUBLIC_SUPABASE_URL = "https://yhxovsxpwnrdsgcuzyam.supabase.co"
   NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloeG92c3hwd25yZHNnY3V6eWFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2NDY4MzUsImV4cCI6MjA4NzIyMjgzNX0.qzNw2HBYmw-EfNLeFSN79-4PyqARu5al0ci87nfpFSk"
+  SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloeG92c3hwd25yZHNnY3V6eWFtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTY0NjgzNSwiZXhwIjoyMDg3MjIyODM1fQ.-jscr51C1H77KrflZo3wPTyZZ9gZ6N6s6r-OpY_esQA"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
