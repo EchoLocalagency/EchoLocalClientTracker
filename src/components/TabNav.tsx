@@ -1,0 +1,66 @@
+'use client';
+
+import { TabId } from '@/lib/types';
+
+interface Tab {
+  id: TabId;
+  label: string;
+  disabled?: boolean;
+}
+
+const tabs: Tab[] = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'seo', label: 'SEO Performance' },
+  { id: 'health', label: 'Website Health' },
+  { id: 'conversions', label: 'Conversions' },
+  { id: 'gbp', label: 'GBP', disabled: true },
+  { id: 'reports', label: 'Reports', disabled: true },
+];
+
+interface TabNavProps {
+  activeTab: TabId;
+  onTabChange: (tab: TabId) => void;
+}
+
+export default function TabNav({ activeTab, onTabChange }: TabNavProps) {
+  return (
+    <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--border)', marginBottom: 24 }}>
+      {tabs.map((tab) => (
+        <button
+          key={tab.id}
+          onClick={() => !tab.disabled && onTabChange(tab.id)}
+          style={{
+            padding: '12px 20px',
+            background: 'none',
+            border: 'none',
+            borderBottom: activeTab === tab.id ? '2px solid var(--accent-teal)' : '2px solid transparent',
+            color: tab.disabled
+              ? 'rgba(136, 146, 164, 0.4)'
+              : activeTab === tab.id
+              ? 'var(--accent-teal)'
+              : 'var(--text-muted)',
+            fontSize: 14,
+            fontWeight: activeTab === tab.id ? 600 : 400,
+            cursor: tab.disabled ? 'not-allowed' : 'pointer',
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            if (!tab.disabled && activeTab !== tab.id) {
+              e.currentTarget.style.color = 'var(--text-primary)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!tab.disabled && activeTab !== tab.id) {
+              e.currentTarget.style.color = 'var(--text-muted)';
+            }
+          }}
+        >
+          {tab.label}
+          {tab.disabled && (
+            <span style={{ fontSize: 10, marginLeft: 6, opacity: 0.5 }}>soon</span>
+          )}
+        </button>
+      ))}
+    </div>
+  );
+}
