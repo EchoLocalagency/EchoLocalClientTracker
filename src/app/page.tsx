@@ -122,7 +122,7 @@ export default function Dashboard() {
   }, [activeClient, latestReport, reports.length]);
 
   const hasFormTracking = activeClient?.slug === 'integrity-pro-washers';
-  const sidebarWidth = sidebarCollapsed ? 60 : 240;
+  const sidebarWidth = sidebarCollapsed ? 68 : 260;
 
   if (!activeClient) {
     return (
