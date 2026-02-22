@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Client, Report, GscQuery, TabId } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
-import { mockClients, mockReports, getMockQueries } from '@/lib/mock-data';
 import Sidebar from '@/components/Sidebar';
 import TabNav from '@/components/TabNav';
 import OverviewTab from '@/components/tabs/OverviewTab';
@@ -21,9 +20,8 @@ export default function Dashboard() {
   const [reports, setReports] = useState<Report[]>([]);
   const [queries, setQueries] = useState<GscQuery[]>([]);
   const [loading, setLoading] = useState(true);
-  const [useMock, setUseMock] = useState(false);
 
-  // Load clients from Supabase, fall back to mock
+  // Load clients from Supabase
   useEffect(() => {
     async function loadClients() {
       const { data, error } = await supabase
@@ -31,14 +29,13 @@ export default function Dashboard() {
         .select('*')
         .order('name');
 
-      if (error || !data || data.length === 0) {
-        setClients(mockClients);
-        setActiveClient(mockClients[0]);
-        setUseMock(true);
-      } else {
+      if (error) {
+        console.error('Clients fetch error:', error);
+        return;
+      }
+      if (data && data.length > 0) {
         setClients(data);
         setActiveClient(data[0]);
-        setUseMock(false);
       }
     }
     loadClients();
@@ -51,16 +48,6 @@ export default function Dashboard() {
     async function loadReports() {
       setLoading(true);
 
-      if (useMock) {
-        setReports(
-          mockReports
-            .filter((r) => r.client_id === activeClient!.id)
-            .sort((a, b) => a.run_date.localeCompare(b.run_date))
-        );
-        setLoading(false);
-        return;
-      }
-
       const { data, error } = await supabase
         .from('reports')
         .select('*')
@@ -70,22 +57,14 @@ export default function Dashboard() {
       if (error) {
         console.error('Reports fetch error:', error);
         setReports([]);
-      } else if (!data || data.length === 0) {
-        // No live data yet — fall back to mock for this client
-        const mockId = activeClient!.slug === 'integrity-pro-washers' ? '1' : '2';
-        setReports(
-          mockReports
-            .filter((r) => r.client_id === mockId)
-            .sort((a, b) => a.run_date.localeCompare(b.run_date))
-        );
       } else {
-        setReports(data);
+        setReports(data || []);
       }
       setLoading(false);
     }
 
     loadReports();
-  }, [activeClient, useMock]);
+  }, [activeClient]);
 
   const latestReport = reports.length > 0 ? reports[reports.length - 1] : null;
 
@@ -97,29 +76,22 @@ export default function Dashboard() {
     }
 
     async function loadQueries() {
-      if (useMock) {
-        const mockId = activeClient!.slug === 'integrity-pro-washers' ? '1' : '2';
-        setQueries(getMockQueries(mockId, latestReport!.id, latestReport!.run_date));
-        return;
-      }
-
       const { data, error } = await supabase
         .from('gsc_queries')
         .select('*')
         .eq('report_id', latestReport!.id)
         .order('impressions', { ascending: false });
 
-      if (error || !data || data.length === 0) {
-        // Fall back to mock queries
-        const mockId = activeClient!.slug === 'integrity-pro-washers' ? '1' : '2';
-        setQueries(getMockQueries(mockId, latestReport!.id, latestReport!.run_date));
+      if (error) {
+        console.error('Queries fetch error:', error);
+        setQueries([]);
       } else {
-        setQueries(data);
+        setQueries(data || []);
       }
     }
 
     loadQueries();
-  }, [activeClient, latestReport, useMock]);
+  }, [activeClient, latestReport]);
 
   const hasFormTracking = activeClient?.slug === 'integrity-pro-washers';
   const sidebarWidth = sidebarCollapsed ? 60 : 240;
@@ -155,11 +127,6 @@ export default function Dashboard() {
             <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{activeClient.name}</h1>
             <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
               {activeClient.website}
-              {useMock && (
-                <span style={{ marginLeft: 12, color: 'var(--accent-gold)', fontSize: 11 }}>
-                  Sample data — run reports to populate
-                </span>
-              )}
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
