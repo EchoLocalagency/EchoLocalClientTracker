@@ -1,16 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Client, Report, GscQuery, TabId } from '@/lib/types';
+import { Client, Report, GscQuery, TabId, TimeRange } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
+import { useFilteredReports } from '@/hooks/useFilteredReports';
 import Sidebar from '@/components/Sidebar';
 import TabNav from '@/components/TabNav';
+import TimeRangeFilter from '@/components/TimeRangeFilter';
 import OverviewTab from '@/components/tabs/OverviewTab';
 import SeoTab from '@/components/tabs/SeoTab';
 import HealthTab from '@/components/tabs/HealthTab';
 import ConversionsTab from '@/components/tabs/ConversionsTab';
 import GbpTab from '@/components/tabs/GbpTab';
-import ReportsTab from '@/components/tabs/ReportsTab';
+import SummaryTab from '@/components/tabs/SummaryTab';
 
 export default function Dashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -19,7 +21,13 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [reports, setReports] = useState<Report[]>([]);
   const [queries, setQueries] = useState<GscQuery[]>([]);
+  const [prevQueries, setPrevQueries] = useState<GscQuery[]>([]);
+  const [timeRange, setTimeRange] = useState<TimeRange>('3m');
   const [loading, setLoading] = useState(true);
+
+  const filteredReports = useFilteredReports(reports, timeRange);
+  const latestReport = reports.length > 0 ? reports[reports.length - 1] : null;
+  const firstReport = reports.length > 0 ? reports[0] : null;
 
   // Load clients from Supabase
   useEffect(() => {
@@ -66,12 +74,11 @@ export default function Dashboard() {
     loadReports();
   }, [activeClient]);
 
-  const latestReport = reports.length > 0 ? reports[reports.length - 1] : null;
-
-  // Load queries for latest report
+  // Load queries for latest report + previous report
   useEffect(() => {
     if (!activeClient || !latestReport) {
       setQueries([]);
+      setPrevQueries([]);
       return;
     }
 
@@ -90,8 +97,29 @@ export default function Dashboard() {
       }
     }
 
+    async function loadPrevQueries() {
+      if (reports.length < 2) {
+        setPrevQueries([]);
+        return;
+      }
+      const prevReport = reports[reports.length - 2];
+      const { data, error } = await supabase
+        .from('gsc_queries')
+        .select('*')
+        .eq('report_id', prevReport.id)
+        .order('impressions', { ascending: false });
+
+      if (error) {
+        console.error('Prev queries fetch error:', error);
+        setPrevQueries([]);
+      } else {
+        setPrevQueries(data || []);
+      }
+    }
+
     loadQueries();
-  }, [activeClient, latestReport]);
+    loadPrevQueries();
+  }, [activeClient, latestReport, reports.length]);
 
   const hasFormTracking = activeClient?.slug === 'integrity-pro-washers';
   const sidebarWidth = sidebarCollapsed ? 60 : 240;
@@ -129,10 +157,13 @@ export default function Dashboard() {
               {activeClient.website}
             </div>
           </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Last updated</div>
-            <div style={{ fontSize: 13, fontWeight: 500 }}>
-              {latestReport ? latestReport.run_date : 'No data'}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+            <TimeRangeFilter value={timeRange} onChange={setTimeRange} />
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Last updated</div>
+              <div style={{ fontSize: 13, fontWeight: 500, fontFamily: 'var(--font-mono)' }}>
+                {latestReport ? latestReport.run_date : 'No data'}
+              </div>
             </div>
           </div>
         </header>
@@ -146,19 +177,21 @@ export default function Dashboard() {
           ) : (
             <>
               {activeTab === 'overview' && (
-                <OverviewTab reports={reports} latestReport={latestReport} />
+                <OverviewTab reports={filteredReports} latestReport={latestReport} allReports={reports} />
               )}
               {activeTab === 'seo' && (
-                <SeoTab reports={reports} queries={queries} latestReport={latestReport} />
+                <SeoTab reports={filteredReports} queries={queries} latestReport={latestReport} prevQueries={prevQueries} />
               )}
               {activeTab === 'health' && (
-                <HealthTab reports={reports} latestReport={latestReport} />
+                <HealthTab reports={filteredReports} latestReport={latestReport} />
               )}
               {activeTab === 'conversions' && (
-                <ConversionsTab reports={reports} latestReport={latestReport} hasFormTracking={hasFormTracking} />
+                <ConversionsTab reports={filteredReports} latestReport={latestReport} hasFormTracking={hasFormTracking} />
               )}
               {activeTab === 'gbp' && <GbpTab />}
-              {activeTab === 'reports' && <ReportsTab />}
+              {activeTab === 'summary' && (
+                <SummaryTab latestReport={latestReport} firstReport={firstReport} clientName={activeClient.name} />
+              )}
             </>
           )}
         </div>

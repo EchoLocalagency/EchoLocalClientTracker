@@ -3,15 +3,22 @@
 :root {
   --bg-primary: #0A0F1E;
   --bg-surface: #0F1629;
+  --bg-depth: #0D1220;
   --bg-sidebar: #001F3F;
   --border: #1E2A3A;
   --accent-teal: #00CED1;
   --accent-teal-hover: #00B4B4;
+  --accent-teal-dim: rgba(0, 206, 209, 0.08);
+  --accent-teal-border: rgba(0, 206, 209, 0.2);
   --accent-gold: #FFD700;
   --text-primary: #F5F5F5;
   --text-muted: #8892A4;
   --success: #28a745;
   --danger: #dc3545;
+  --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius-card: 10px;
+  --shadow-glow: 0 0 24px rgba(0, 206, 209, 0.06);
 }
 
 * {
@@ -19,9 +26,9 @@
 }
 
 body {
-  background: var(--bg-primary);
+  background: linear-gradient(180deg, #080C18 0%, var(--bg-primary) 40%);
   color: var(--text-primary);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-sans);
   margin: 0;
   min-height: 100vh;
 }
@@ -47,7 +54,23 @@ body {
 .recharts-text {
   fill: var(--text-muted) !important;
   font-size: 12px !important;
+  font-family: var(--font-mono) !important;
 }
 .recharts-tooltip-wrapper {
   outline: none !important;
+}
+
+/* Brush styling */
+.recharts-brush .recharts-brush-slide {
+  fill: var(--accent-teal-dim);
+  stroke: var(--accent-teal-border);
+}
+.recharts-brush .recharts-brush-traveller rect {
+  fill: var(--accent-teal);
+  rx: 3;
+}
+.recharts-brush text {
+  fill: var(--text-muted) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
 }

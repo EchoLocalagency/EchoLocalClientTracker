@@ -14,7 +14,7 @@ const tabs: Tab[] = [
   { id: 'health', label: 'Website Health' },
   { id: 'conversions', label: 'Conversions' },
   { id: 'gbp', label: 'GBP', disabled: true },
-  { id: 'reports', label: 'Reports', disabled: true },
+  { id: 'summary', label: 'Summary' },
 ];
 
 interface TabNavProps {

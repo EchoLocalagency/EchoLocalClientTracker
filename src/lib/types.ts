@@ -52,4 +52,6 @@ export interface GscQuery {
   position: number;
 }
 
-export type TabId = 'overview' | 'seo' | 'health' | 'conversions' | 'gbp' | 'reports';
+export type TabId = 'overview' | 'seo' | 'health' | 'conversions' | 'gbp' | 'summary';
+
+export type TimeRange = '4w' | '3m' | '6m' | 'all';

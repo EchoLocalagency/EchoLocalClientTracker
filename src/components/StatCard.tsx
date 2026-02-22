@@ -1,17 +1,58 @@
 'use client';
 
-import { calcDelta, formatDelta, formatNumber } from '@/lib/utils';
+import { calcDelta, formatDelta, formatNumber, Velocity } from '@/lib/utils';
+import VelocityBadge from './VelocityBadge';
 
 interface StatCardProps {
   label: string;
   value: number | null;
   previous?: number | null;
   format?: 'number' | 'position' | 'score';
-  invertDelta?: boolean; // for metrics where lower is better (position)
+  invertDelta?: boolean;
   alert?: string | null;
+  baseline?: number | null;
+  baselineDate?: string | null;
+  sparklineData?: number[];
+  velocityLabel?: Velocity | null;
 }
 
-export default function StatCard({ label, value, previous, format = 'number', invertDelta = false, alert }: StatCardProps) {
+function Sparkline({ data }: { data: number[] }) {
+  if (data.length < 2) return null;
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+  const range = max - min || 1;
+  const w = 80;
+  const h = 28;
+  const padding = 2;
+
+  const points = data.map((v, i) => {
+    const x = padding + (i / (data.length - 1)) * (w - padding * 2);
+    const y = h - padding - ((v - min) / range) * (h - padding * 2);
+    return `${x},${y}`;
+  }).join(' ');
+
+  const last = data[data.length - 1];
+  const prev = data[data.length - 2];
+  const color = last >= prev ? 'var(--success)' : 'var(--danger)';
+
+  return (
+    <svg width={w} height={h} style={{ display: 'block' }}>
+      <polyline
+        points={points}
+        fill="none"
+        stroke={color}
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export default function StatCard({
+  label, value, previous, format = 'number', invertDelta = false, alert,
+  baseline, baselineDate, sparklineData, velocityLabel,
+}: StatCardProps) {
   const delta = calcDelta(value, previous ?? null);
   const isPositive = invertDelta ? (delta != null && delta < 0) : (delta != null && delta > 0);
   const isNegative = invertDelta ? (delta != null && delta > 0) : (delta != null && delta < 0);
@@ -27,35 +68,46 @@ export default function StatCard({ label, value, previous, format = 'number', in
     displayValue = formatNumber(value);
   }
 
+  const baselineDelta = baseline != null && value != null && baseline > 0
+    ? calcDelta(value, baseline)
+    : null;
+
   return (
     <div
       style={{
         background: 'var(--bg-surface)',
         border: '1px solid var(--border)',
-        borderRadius: 8,
+        borderRadius: 'var(--radius-card)',
         padding: '20px 24px',
         position: 'relative',
         transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = 'rgba(0, 206, 209, 0.3)';
-        e.currentTarget.style.boxShadow = '0 0 20px rgba(0, 206, 209, 0.05)';
+        e.currentTarget.style.borderColor = 'var(--accent-teal-border)';
+        e.currentTarget.style.boxShadow = 'var(--shadow-glow)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.borderColor = 'var(--border)';
         e.currentTarget.style.boxShadow = 'none';
       }}
     >
-      <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 500, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-        {label}
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8,
+      }}>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+          {label}
+        </div>
+        {velocityLabel && <VelocityBadge velocity={velocityLabel} />}
       </div>
+
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
-        <div style={{ fontSize: 32, fontWeight: 700, lineHeight: 1 }}>{displayValue}</div>
+        <div style={{ fontSize: 32, fontWeight: 700, lineHeight: 1, fontFamily: 'var(--font-mono)' }}>{displayValue}</div>
         {delta != null && (
           <span
             style={{
               fontSize: 13,
               fontWeight: 600,
+              fontFamily: 'var(--font-mono)',
               padding: '2px 8px',
               borderRadius: 12,
               background: isPositive ? 'rgba(40, 167, 69, 0.15)' : isNegative ? 'rgba(220, 53, 69, 0.15)' : 'rgba(136, 146, 164, 0.15)',
@@ -66,6 +118,19 @@ export default function StatCard({ label, value, previous, format = 'number', in
           </span>
         )}
       </div>
+
+      {sparklineData && sparklineData.length >= 2 && (
+        <div style={{ marginTop: 10 }}>
+          <Sparkline data={sparklineData} />
+        </div>
+      )}
+
+      {baselineDelta != null && baselineDate && (
+        <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+          {formatDelta(baselineDelta)} since {baselineDate}
+        </div>
+      )}
+
       {alert && (
         <div style={{ marginTop: 8, fontSize: 12, color: 'var(--accent-gold)', display: 'flex', alignItems: 'center', gap: 4 }}>
           <span style={{ fontSize: 14 }}>!</span> {alert}

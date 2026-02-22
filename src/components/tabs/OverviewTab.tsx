@@ -1,8 +1,11 @@
 'use client';
 
-import { Report, GscQuery } from '@/lib/types';
+import { Report } from '@/lib/types';
+import { parseMetricValue, calcHealthScore, calcVelocity } from '@/lib/utils';
 import StatCard from '@/components/StatCard';
-import { parseMetricValue } from '@/lib/utils';
+import HealthScoreCard from '@/components/HealthScoreCard';
+import AlertBanner, { AlertItem } from '@/components/AlertBanner';
+import ChartTooltip from '@/components/ChartTooltip';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -11,46 +14,77 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  Brush,
 } from 'recharts';
-import ChartTooltip from '@/components/ChartTooltip';
 
 interface OverviewTabProps {
   reports: Report[];
   latestReport: Report | null;
+  allReports?: Report[];
 }
 
-export default function OverviewTab({ reports, latestReport }: OverviewTabProps) {
+export default function OverviewTab({ reports, latestReport, allReports }: OverviewTabProps) {
   if (!latestReport) {
     return <div style={{ color: 'var(--text-muted)', padding: 40, textAlign: 'center' }}>No data yet. Run your first report to see metrics here.</div>;
   }
 
   const r = latestReport;
+  const firstReport = allReports && allReports.length > 0 ? allReports[0] : null;
+  const baselineDate = firstReport
+    ? new Date(firstReport.run_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    : null;
+
+  const { score, factors } = calcHealthScore(r);
+
   const mobileScore = r.psi_mobile_score;
   const lcpMobile = parseMetricValue(r.psi_lcp_mobile);
 
-  const alerts: string[] = [];
-  if (mobileScore != null && mobileScore < 50) alerts.push(`Mobile speed score is ${mobileScore} (below 50)`);
-  if (lcpMobile != null && lcpMobile > 4) alerts.push(`Mobile LCP is ${r.psi_lcp_mobile} (above 4s)`);
+  const alerts: AlertItem[] = [];
+  if (mobileScore != null && mobileScore < 50) {
+    alerts.push({ severity: 'critical', message: `Mobile speed score is ${mobileScore} (below 50)`, hint: 'Consider image optimization and reducing JS bundle size' });
+  }
+  if (lcpMobile != null && lcpMobile > 4) {
+    alerts.push({ severity: 'critical', message: `Mobile LCP is ${r.psi_lcp_mobile} (above 4s)`, hint: 'Largest Contentful Paint affects Core Web Vitals ranking' });
+  }
   const organicDelta = r.ga4_organic != null && r.ga4_organic_prev != null && r.ga4_organic_prev > 0
     ? ((r.ga4_organic - r.ga4_organic_prev) / r.ga4_organic_prev) * 100
     : null;
-  if (organicDelta != null && organicDelta < -20) alerts.push(`Organic sessions dropped ${Math.abs(organicDelta).toFixed(0)}%`);
+  if (organicDelta != null && organicDelta < -20) {
+    alerts.push({ severity: 'warning', message: `Organic sessions dropped ${Math.abs(organicDelta).toFixed(0)}%`, hint: 'Check for algorithm updates or indexing issues in GSC' });
+  }
 
-  const chartData = reports
-    .sort((a, b) => a.run_date.localeCompare(b.run_date))
-    .map((rep) => ({
-      date: new Date(rep.run_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      impressions: rep.gsc_impressions ?? 0,
-    }));
+  // Chart data — already sorted by useFilteredReports
+  const chartData = reports.map((rep) => ({
+    date: new Date(rep.run_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    impressions: rep.gsc_impressions ?? 0,
+    periodStart: rep.period_start,
+    periodEnd: rep.period_end,
+  }));
+
+  // Sparkline + velocity data from all reports
+  const source = allReports && allReports.length > 0 ? allReports : reports;
+  const organicSeries = source.map((rep) => rep.ga4_organic ?? 0);
+  const impressionsSeries = source.map((rep) => rep.gsc_impressions ?? 0);
+  const phoneSeries = source.map((rep) => rep.ga4_phone_clicks ?? 0);
+
+  const organicVelocity = calcVelocity(organicSeries);
+  const impressionsVelocity = calcVelocity(impressionsSeries);
+
+  const brushStart = Math.max(0, chartData.length - 8);
 
   return (
     <div>
+      {/* Health Score */}
+      <div style={{ marginBottom: 24 }}>
+        <HealthScoreCard score={score} factors={factors} />
+      </div>
+
       {/* Hero chart: GSC impressions trend */}
       <div
         style={{
           background: 'var(--bg-surface)',
           border: '1px solid var(--border)',
-          borderRadius: 8,
+          borderRadius: 'var(--radius-card)',
           padding: '24px',
           marginBottom: 24,
         }}
@@ -61,7 +95,7 @@ export default function OverviewTab({ reports, latestReport }: OverviewTabProps)
         <div style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 20 }}>
           How much more are you showing up on Google
         </div>
-        <div style={{ height: 240 }}>
+        <div style={{ height: chartData.length > 6 ? 280 : 240 }}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
               <defs>
@@ -73,7 +107,20 @@ export default function OverviewTab({ reports, latestReport }: OverviewTabProps)
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} />
-              <Tooltip content={<ChartTooltip />} />
+              <Tooltip
+                content={({ active, payload, label }) => {
+                  const data = payload?.[0]?.payload;
+                  return (
+                    <ChartTooltip
+                      active={active}
+                      payload={payload as any}
+                      label={String(label ?? '')}
+                      periodStart={data?.periodStart}
+                      periodEnd={data?.periodEnd}
+                    />
+                  );
+                }}
+              />
               <Area
                 type="monotone"
                 dataKey="impressions"
@@ -81,7 +128,18 @@ export default function OverviewTab({ reports, latestReport }: OverviewTabProps)
                 strokeWidth={2}
                 fill="url(#impressionsGrad)"
                 name="Impressions"
+                isAnimationActive={false}
+                activeDot={{ r: 5, stroke: '#00CED1', strokeWidth: 2, fill: 'var(--bg-surface)' }}
               />
+              {chartData.length > 6 && (
+                <Brush
+                  dataKey="date"
+                  height={24}
+                  stroke="var(--border)"
+                  fill="var(--bg-depth)"
+                  startIndex={brushStart}
+                />
+              )}
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -93,16 +151,27 @@ export default function OverviewTab({ reports, latestReport }: OverviewTabProps)
           label="Organic Sessions"
           value={r.ga4_organic}
           previous={r.ga4_organic_prev}
+          baseline={firstReport?.ga4_organic}
+          baselineDate={baselineDate}
+          sparklineData={organicSeries}
+          velocityLabel={organicVelocity}
         />
         <StatCard
           label="Search Impressions"
           value={r.gsc_impressions}
           previous={r.gsc_impressions_prev}
+          baseline={firstReport?.gsc_impressions}
+          baselineDate={baselineDate}
+          sparklineData={impressionsSeries}
+          velocityLabel={impressionsVelocity}
         />
         <StatCard
           label="Phone Clicks"
           value={r.ga4_phone_clicks}
           previous={r.ga4_phone_clicks_prev}
+          baseline={firstReport?.ga4_phone_clicks}
+          baselineDate={baselineDate}
+          sparklineData={phoneSeries}
         />
         <StatCard
           label="Mobile Speed Score"
@@ -113,25 +182,7 @@ export default function OverviewTab({ reports, latestReport }: OverviewTabProps)
       </div>
 
       {/* Alerts */}
-      {alerts.length > 0 && (
-        <div
-          style={{
-            background: 'rgba(255, 215, 0, 0.08)',
-            border: '1px solid rgba(255, 215, 0, 0.2)',
-            borderRadius: 8,
-            padding: '16px 20px',
-          }}
-        >
-          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent-gold)', marginBottom: 8 }}>
-            Attention Needed
-          </div>
-          {alerts.map((alert, i) => (
-            <div key={i} style={{ fontSize: 13, color: 'var(--text-primary)', marginBottom: 4, paddingLeft: 12 }}>
-              - {alert}
-            </div>
-          ))}
-        </div>
-      )}
+      <AlertBanner alerts={alerts} />
     </div>
   );
 }
