@@ -66,6 +66,10 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
   const organicSeries = source.map((rep) => rep.ga4_organic ?? 0);
   const impressionsSeries = source.map((rep) => rep.gsc_impressions ?? 0);
   const phoneSeries = source.map((rep) => rep.ga4_phone_clicks ?? 0);
+  const gbpImpressionsSeries = source.map((rep) => rep.gbp_total_impressions ?? 0);
+  const gbpCallsSeries = source.map((rep) => rep.gbp_call_clicks ?? 0);
+  const gbpWebsiteSeries = source.map((rep) => rep.gbp_website_clicks ?? 0);
+  const hasGbp = (r.gbp_total_impressions ?? 0) > 0;
 
   const organicVelocity = calcVelocity(organicSeries);
   const impressionsVelocity = calcVelocity(impressionsSeries);
@@ -179,6 +183,36 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
           format="score"
           alert={mobileScore != null && mobileScore < 50 ? 'Below threshold' : null}
         />
+        {hasGbp && (
+          <StatCard
+            label="GBP Impressions"
+            value={r.gbp_total_impressions}
+            previous={r.gbp_total_impressions_prev}
+            baseline={firstReport?.gbp_total_impressions}
+            baselineDate={baselineDate}
+            sparklineData={gbpImpressionsSeries}
+          />
+        )}
+        {hasGbp && (
+          <StatCard
+            label="GBP Call Clicks"
+            value={r.gbp_call_clicks}
+            previous={r.gbp_call_clicks_prev}
+            baseline={firstReport?.gbp_call_clicks}
+            baselineDate={baselineDate}
+            sparklineData={gbpCallsSeries}
+          />
+        )}
+        {hasGbp && (
+          <StatCard
+            label="GBP Website Clicks"
+            value={r.gbp_website_clicks}
+            previous={r.gbp_website_clicks_prev}
+            baseline={firstReport?.gbp_website_clicks}
+            baselineDate={baselineDate}
+            sparklineData={gbpWebsiteSeries}
+          />
+        )}
       </div>
 
       {/* Alerts */}
