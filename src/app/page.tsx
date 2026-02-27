@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Client, Report, GscQuery, TabId, TimeRange } from '@/lib/types';
+import { Client, Report, GscQuery, GbpKeyword, TabId, TimeRange } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 import { useFilteredReports } from '@/hooks/useFilteredReports';
 import Sidebar from '@/components/Sidebar';
@@ -22,6 +22,7 @@ export default function Dashboard() {
   const [reports, setReports] = useState<Report[]>([]);
   const [queries, setQueries] = useState<GscQuery[]>([]);
   const [prevQueries, setPrevQueries] = useState<GscQuery[]>([]);
+  const [gbpKeywords, setGbpKeywords] = useState<GbpKeyword[]>([]);
   const [timeRange, setTimeRange] = useState<TimeRange>('3m');
   const [loading, setLoading] = useState(true);
 
@@ -74,11 +75,12 @@ export default function Dashboard() {
     loadReports();
   }, [activeClient]);
 
-  // Load queries for latest report + previous report
+  // Load queries + GBP keywords for latest report + previous report
   useEffect(() => {
     if (!activeClient || !latestReport) {
       setQueries([]);
       setPrevQueries([]);
+      setGbpKeywords([]);
       return;
     }
 
@@ -117,8 +119,24 @@ export default function Dashboard() {
       }
     }
 
+    async function loadGbpKeywords() {
+      const { data, error } = await supabase
+        .from('gbp_keywords')
+        .select('*')
+        .eq('report_id', latestReport!.id)
+        .order('impressions', { ascending: false });
+
+      if (error) {
+        console.error('GBP keywords fetch error:', error);
+        setGbpKeywords([]);
+      } else {
+        setGbpKeywords(data || []);
+      }
+    }
+
     loadQueries();
     loadPrevQueries();
+    loadGbpKeywords();
   }, [activeClient, latestReport, reports.length]);
 
   const hasFormTracking = activeClient?.slug === 'integrity-pro-washers';
@@ -189,7 +207,7 @@ export default function Dashboard() {
                 <ConversionsTab reports={filteredReports} latestReport={latestReport} hasFormTracking={hasFormTracking} />
               )}
               {activeTab === 'gbp' && (
-                <GbpTab reports={filteredReports} latestReport={latestReport} />
+                <GbpTab reports={filteredReports} latestReport={latestReport} gbpKeywords={gbpKeywords} />
               )}
               {activeTab === 'summary' && (
                 <SummaryTab latestReport={latestReport} firstReport={firstReport} clientName={activeClient.name} />

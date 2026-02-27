@@ -1,6 +1,6 @@
 'use client';
 
-import { Report } from '@/lib/types';
+import { Report, GbpKeyword } from '@/lib/types';
 import StatCard from '@/components/StatCard';
 import {
   ResponsiveContainer,
@@ -16,9 +16,10 @@ import ChartTooltip from '@/components/ChartTooltip';
 interface GbpTabProps {
   reports: Report[];
   latestReport: Report | null;
+  gbpKeywords?: GbpKeyword[];
 }
 
-export default function GbpTab({ reports, latestReport }: GbpTabProps) {
+export default function GbpTab({ reports, latestReport, gbpKeywords = [] }: GbpTabProps) {
   const hasData = latestReport && (latestReport.gbp_total_impressions ?? 0) > 0;
 
   if (!hasData) {
@@ -154,6 +155,36 @@ export default function GbpTab({ reports, latestReport }: GbpTabProps) {
         </div>
       )}
 
+      {/* Search Keywords table */}
+      {gbpKeywords.length > 0 && (
+        <div style={{
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius-card)',
+          padding: '24px',
+        }}>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>GBP Search Keywords</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>
+            What people searched to find this listing
+          </div>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                <th style={{ textAlign: 'left', padding: '8px 12px', fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Keyword</th>
+                <th style={{ textAlign: 'right', padding: '8px 12px', fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Impressions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {gbpKeywords.map((kw, i) => (
+                <tr key={kw.id || i} style={{ borderBottom: '1px solid var(--border)' }}>
+                  <td style={{ padding: '10px 12px', fontSize: 13 }}>{kw.keyword}</td>
+                  <td style={{ padding: '10px 12px', fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-mono)', textAlign: 'right' }}>{kw.impressions.toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

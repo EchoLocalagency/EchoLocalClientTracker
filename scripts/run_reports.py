@@ -252,6 +252,44 @@ def pull_gbp(creds, location_id, start, end):
         "direction_requests": totals["BUSINESS_DIRECTION_REQUESTS"],
     }
 
+# ── GBP Search Keywords ───────────────────────────────────────────
+
+def pull_gbp_keywords(creds, location_id, year, month):
+    """Pull GBP search keywords, trying current month then falling back up to 3 months."""
+    service = build("businessprofileperformance", "v1", credentials=creds, cache_discovery=False)
+
+    # Try the requested month first, then fall back to previous months
+    # (Google often hasn't processed the current month yet)
+    for offset in range(4):
+        m = month - offset
+        y = year
+        while m < 1:
+            m += 12
+            y -= 1
+
+        result = service.locations().searchkeywords().impressions().monthly().list(
+            parent=location_id,
+            monthlyRange_startMonth_year=y,
+            monthlyRange_startMonth_month=m,
+            monthlyRange_endMonth_year=y,
+            monthlyRange_endMonth_month=m,
+        ).execute()
+
+        kws = result.get("searchKeywordsCounts", [])
+        if kws:
+            keywords = []
+            for kw in kws:
+                keyword = kw.get("searchKeyword", "")
+                value = int(kw.get("insightsValue", {}).get("value", 0))
+                if keyword:
+                    keywords.append({"keyword": keyword, "impressions": value})
+            keywords.sort(key=lambda x: x["impressions"], reverse=True)
+            print(f"    (using {y}-{m:02d} data)")
+            return keywords
+
+    return []
+
+
 # ── GHL Form Submissions ───────────────────────────────────────────────
 
 def pull_ghl_forms(ghl_token, location_id, form_name, start, end):
@@ -450,8 +488,21 @@ def run_report(client, creds, today):
                              "call_clicks": 0, "call_clicks_prev": 0,
                              "website_clicks": 0, "website_clicks_prev": 0,
                              "direction_requests": 0, "direction_requests_prev": 0}
+
+        # GBP Search Keywords (monthly granularity)
+        print(f"  Pulling GBP search keywords...")
+        try:
+            gbp_keywords = pull_gbp_keywords(creds, client["gbp_location"], period_end.year, period_end.month)
+            report["gbp_keywords"] = gbp_keywords
+            print(f"    Found {len(gbp_keywords)} keywords")
+            for kw in gbp_keywords[:5]:
+                print(f"      {kw['keyword']}: {kw['impressions']} impressions")
+        except Exception as e:
+            print(f"    GBP Keywords ERROR: {e}")
+            report["gbp_keywords"] = []
     else:
         report["gbp"] = None
+        report["gbp_keywords"] = []
 
     # ── Analysis ──
     report["flags"] = []
@@ -591,6 +642,24 @@ def push_to_supabase(report):
             ]
             sb.table("gsc_queries").insert(query_rows).execute()
             print(f"  Supabase: {len(query_rows)} queries inserted")
+
+        # Delete old GBP keywords for this report, then insert fresh
+        sb.table("gbp_keywords").delete().eq("report_id", report_id).execute()
+
+        gbp_keywords = report.get("gbp_keywords", [])
+        if gbp_keywords:
+            kw_rows = [
+                {
+                    "report_id": report_id,
+                    "client_id": client_id,
+                    "run_date": report["date"],
+                    "keyword": kw["keyword"],
+                    "impressions": kw["impressions"],
+                }
+                for kw in gbp_keywords
+            ]
+            sb.table("gbp_keywords").insert(kw_rows).execute()
+            print(f"  Supabase: {len(kw_rows)} GBP keywords inserted")
     else:
         print(f"  Supabase: upsert returned no data")
 

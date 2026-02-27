@@ -64,6 +64,15 @@ export interface GscQuery {
   position: number;
 }
 
+export interface GbpKeyword {
+  id: string;
+  report_id: string;
+  client_id: string;
+  run_date: string;
+  keyword: string;
+  impressions: number;
+}
+
 export type TabId = 'overview' | 'seo' | 'health' | 'conversions' | 'gbp' | 'summary';
 
 export type TimeRange = '4w' | '3m' | '6m' | 'all';
