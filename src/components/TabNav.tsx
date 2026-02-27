@@ -13,7 +13,7 @@ const tabs: Tab[] = [
   { id: 'seo', label: 'SEO Performance' },
   { id: 'health', label: 'Website Health' },
   { id: 'conversions', label: 'Conversions' },
-  { id: 'gbp', label: 'GBP', disabled: true },
+  { id: 'gbp', label: 'GBP' },
   { id: 'summary', label: 'Summary' },
 ];
 

@@ -188,7 +188,9 @@ export default function Dashboard() {
               {activeTab === 'conversions' && (
                 <ConversionsTab reports={filteredReports} latestReport={latestReport} hasFormTracking={hasFormTracking} />
               )}
-              {activeTab === 'gbp' && <GbpTab />}
+              {activeTab === 'gbp' && (
+                <GbpTab reports={filteredReports} latestReport={latestReport} />
+              )}
               {activeTab === 'summary' && (
                 <SummaryTab latestReport={latestReport} firstReport={firstReport} clientName={activeClient.name} />
               )}

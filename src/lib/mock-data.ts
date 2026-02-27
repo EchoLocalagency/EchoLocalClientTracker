@@ -101,6 +101,18 @@ function generateReports(clientId: string, baseMetrics: {
       psi_cls_desktop: (0.05 + Math.random() * 0.03).toFixed(3),
       psi_tbt_mobile: Math.round(800 - i * 50 + Math.random() * 100) + ' ms',
       psi_tbt_desktop: Math.round(200 - i * 15 + Math.random() * 50) + ' ms',
+      gbp_maps_impressions: 0,
+      gbp_maps_impressions_prev: 0,
+      gbp_search_impressions: 0,
+      gbp_search_impressions_prev: 0,
+      gbp_total_impressions: 0,
+      gbp_total_impressions_prev: 0,
+      gbp_call_clicks: 0,
+      gbp_call_clicks_prev: 0,
+      gbp_website_clicks: 0,
+      gbp_website_clicks_prev: 0,
+      gbp_direction_requests: 0,
+      gbp_direction_requests_prev: 0,
       created_at: runDate.toISOString(),
     });
 

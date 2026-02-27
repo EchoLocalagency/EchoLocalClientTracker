@@ -111,14 +111,14 @@
     ]
   },
   "pagespeed": {
-    "mobile_score": 65,
-    "desktop_score": 81,
-    "lcp_mobile": "18.4\u00a0s",
-    "lcp_desktop": "3.1\u00a0s",
-    "cls_mobile": "0",
+    "mobile_score": 67,
+    "desktop_score": 96,
+    "lcp_mobile": "18.1\u00a0s",
+    "lcp_desktop": "1.2\u00a0s",
+    "cls_mobile": "0.109",
     "cls_desktop": "0.023",
-    "tbt_mobile": "100\u00a0ms",
-    "tbt_desktop": "50\u00a0ms"
+    "tbt_mobile": "20\u00a0ms",
+    "tbt_desktop": "30\u00a0ms"
   },
   "ghl_form_submits": 0,
   "ghl_form_submits_prev": 1,
@@ -137,7 +137,7 @@
     "direction_requests_prev": 0
   },
   "flags": [
-    "Mobile LCP is 18.4\u00a0s \u2014 above 4s threshold"
+    "Mobile LCP is 18.1\u00a0s \u2014 above 4s threshold"
   ],
   "conversion_rate": 0.0
 }

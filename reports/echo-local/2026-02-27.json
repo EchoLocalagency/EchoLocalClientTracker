@@ -33,19 +33,18 @@
     ]
   },
   "pagespeed": {
-    "mobile_score": 37,
-    "desktop_score": 45,
-    "lcp_mobile": "14.3\u00a0s",
-    "lcp_desktop": "3.1\u00a0s",
-    "cls_mobile": "0",
-    "cls_desktop": "0.011",
-    "tbt_mobile": "1,060\u00a0ms",
-    "tbt_desktop": "930\u00a0ms"
+    "mobile_score": 0,
+    "desktop_score": 0,
+    "lcp_mobile": "",
+    "lcp_desktop": "",
+    "cls_mobile": "",
+    "cls_desktop": "",
+    "tbt_mobile": "",
+    "tbt_desktop": ""
   },
   "gbp": null,
   "flags": [
-    "Mobile speed score critically low (37)",
-    "Mobile LCP is 14.3\u00a0s \u2014 above 4s threshold"
+    "Mobile speed score critically low (0)"
   ],
   "conversion_rate": 0.0
 }

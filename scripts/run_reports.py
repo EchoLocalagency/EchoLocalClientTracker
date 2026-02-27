@@ -546,6 +546,23 @@ def push_to_supabase(report):
         "psi_tbt_desktop": ps["tbt_desktop"],
     }
 
+    gbp = report.get("gbp")
+    if gbp:
+        report_row.update({
+            "gbp_maps_impressions": gbp["maps_impressions"],
+            "gbp_maps_impressions_prev": gbp["maps_impressions_prev"],
+            "gbp_search_impressions": gbp["search_impressions"],
+            "gbp_search_impressions_prev": gbp["search_impressions_prev"],
+            "gbp_total_impressions": gbp["total_impressions"],
+            "gbp_total_impressions_prev": gbp["total_impressions_prev"],
+            "gbp_call_clicks": gbp["call_clicks"],
+            "gbp_call_clicks_prev": gbp["call_clicks_prev"],
+            "gbp_website_clicks": gbp["website_clicks"],
+            "gbp_website_clicks_prev": gbp["website_clicks_prev"],
+            "gbp_direction_requests": gbp["direction_requests"],
+            "gbp_direction_requests_prev": gbp["direction_requests_prev"],
+        })
+
     resp = sb.table("reports").upsert(
         report_row,
         on_conflict="client_id,run_date"

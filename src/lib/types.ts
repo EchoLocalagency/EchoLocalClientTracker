@@ -38,6 +38,18 @@ export interface Report {
   psi_cls_desktop: string | null;
   psi_tbt_mobile: string | null;
   psi_tbt_desktop: string | null;
+  gbp_maps_impressions: number | null;
+  gbp_maps_impressions_prev: number | null;
+  gbp_search_impressions: number | null;
+  gbp_search_impressions_prev: number | null;
+  gbp_total_impressions: number | null;
+  gbp_total_impressions_prev: number | null;
+  gbp_call_clicks: number | null;
+  gbp_call_clicks_prev: number | null;
+  gbp_website_clicks: number | null;
+  gbp_website_clicks_prev: number | null;
+  gbp_direction_requests: number | null;
+  gbp_direction_requests_prev: number | null;
   created_at: string;
 }
 
