@@ -48,7 +48,6 @@ export default function GbpTab({ reports, latestReport }: GbpTabProps) {
       search: r.gbp_search_impressions ?? 0,
       calls: r.gbp_call_clicks ?? 0,
       website: r.gbp_website_clicks ?? 0,
-      directions: r.gbp_direction_requests ?? 0,
     }));
 
   // Sparkline data arrays
@@ -56,7 +55,6 @@ export default function GbpTab({ reports, latestReport }: GbpTabProps) {
   const impressionsSpark = sorted.map((r) => r.gbp_total_impressions ?? 0);
   const callsSpark = sorted.map((r) => r.gbp_call_clicks ?? 0);
   const websiteSpark = sorted.map((r) => r.gbp_website_clicks ?? 0);
-  const directionsSpark = sorted.map((r) => r.gbp_direction_requests ?? 0);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -89,12 +87,6 @@ export default function GbpTab({ reports, latestReport }: GbpTabProps) {
           value={latestReport.gbp_website_clicks}
           previous={latestReport.gbp_website_clicks_prev}
           sparklineData={websiteSpark}
-        />
-        <StatCard
-          label="Direction Requests"
-          value={latestReport.gbp_direction_requests}
-          previous={latestReport.gbp_direction_requests_prev}
-          sparklineData={directionsSpark}
         />
       </div>
 
@@ -162,26 +154,6 @@ export default function GbpTab({ reports, latestReport }: GbpTabProps) {
         </div>
       )}
 
-      {/* Direction Requests chart */}
-      {chartData.length > 1 && (
-        <div style={{
-          background: 'var(--bg-surface)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-card)',
-          padding: '24px',
-        }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>Direction Requests Over Time</div>
-          <ResponsiveContainer width="100%" height={260}>
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="date" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
-              <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} allowDecimals={false} />
-              <Tooltip content={<ChartTooltip />} />
-              <Line type="monotone" dataKey="directions" name="Direction Requests" stroke="var(--accent-gold)" strokeWidth={2} dot={{ r: 3, fill: 'var(--accent-gold)' }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      )}
     </div>
   );
 }
