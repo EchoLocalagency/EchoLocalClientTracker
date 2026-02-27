@@ -10,11 +10,14 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Brush,
+  Legend,
 } from 'recharts';
 
 interface OverviewTabProps {
@@ -59,6 +62,14 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
     impressions: rep.gsc_impressions ?? 0,
     periodStart: rep.period_start,
     periodEnd: rep.period_end,
+  }));
+
+  // GBP chart data
+  const gbpChartData = reports.map((rep) => ({
+    date: new Date(rep.run_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    impressions: rep.gbp_total_impressions ?? 0,
+    calls: rep.gbp_call_clicks ?? 0,
+    website: rep.gbp_website_clicks ?? 0,
   }));
 
   // Sparkline + velocity data from all reports
@@ -148,6 +159,75 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
           </ResponsiveContainer>
         </div>
       </div>
+
+      {/* GBP Overview chart */}
+      {hasGbp && gbpChartData.length > 1 && (
+        <div
+          style={{
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-card)',
+            padding: '24px',
+            marginBottom: 24,
+          }}
+        >
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.03em', marginBottom: 4 }}>
+            Google Business Profile Performance
+          </div>
+          <div style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 20 }}>
+            Impressions, calls, and website clicks from your GBP listing
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={gbpChartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="date" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
+              <YAxis
+                yAxisId="left"
+                tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+                allowDecimals={false}
+              />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+                allowDecimals={false}
+              />
+              <Tooltip content={<ChartTooltip />} />
+              <Legend
+                wrapperStyle={{ fontSize: 12, color: 'var(--text-muted)' }}
+              />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="impressions"
+                name="Impressions"
+                stroke="var(--accent-teal)"
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4 }}
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="calls"
+                name="Call Clicks"
+                stroke="var(--success)"
+                strokeWidth={2}
+                dot={{ r: 3, fill: 'var(--success)' }}
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="website"
+                name="Website Clicks"
+                stroke="var(--accent-gold)"
+                strokeWidth={2}
+                dot={{ r: 3, fill: 'var(--accent-gold)' }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
       {/* Stat cards grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
