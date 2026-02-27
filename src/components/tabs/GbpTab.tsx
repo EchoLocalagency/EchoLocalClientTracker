@@ -120,7 +120,7 @@ export default function GbpTab({ reports, latestReport }: GbpTabProps) {
         </div>
       )}
 
-      {/* Actions chart */}
+      {/* Call Clicks chart */}
       {chartData.length > 1 && (
         <div style={{
           background: 'var(--bg-surface)',
@@ -128,16 +128,56 @@ export default function GbpTab({ reports, latestReport }: GbpTabProps) {
           borderRadius: 'var(--radius-card)',
           padding: '24px',
         }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>GBP Actions Over Time</div>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>Call Clicks Over Time</div>
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis dataKey="date" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
-              <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
+              <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} allowDecimals={false} />
               <Tooltip content={<ChartTooltip />} />
-              <Line type="monotone" dataKey="website" name="Website Clicks" stroke="var(--accent-teal)" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="calls" name="Call Clicks" stroke="var(--success)" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="directions" name="Directions" stroke="var(--accent-gold)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="calls" name="Call Clicks" stroke="var(--success)" strokeWidth={2} dot={{ r: 3, fill: 'var(--success)' }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      {/* Website Clicks chart */}
+      {chartData.length > 1 && (
+        <div style={{
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius-card)',
+          padding: '24px',
+        }}>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>Website Clicks Over Time</div>
+          <ResponsiveContainer width="100%" height={260}>
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="date" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
+              <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} allowDecimals={false} />
+              <Tooltip content={<ChartTooltip />} />
+              <Line type="monotone" dataKey="website" name="Website Clicks" stroke="var(--accent-teal)" strokeWidth={2} dot={{ r: 3, fill: 'var(--accent-teal)' }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      {/* Direction Requests chart */}
+      {chartData.length > 1 && (
+        <div style={{
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius-card)',
+          padding: '24px',
+        }}>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>Direction Requests Over Time</div>
+          <ResponsiveContainer width="100%" height={260}>
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="date" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
+              <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} allowDecimals={false} />
+              <Tooltip content={<ChartTooltip />} />
+              <Line type="monotone" dataKey="directions" name="Direction Requests" stroke="var(--accent-gold)" strokeWidth={2} dot={{ r: 3, fill: 'var(--accent-gold)' }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
