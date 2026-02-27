@@ -1,0 +1,49 @@
+{
+  "client": "Echo Local",
+  "slug": "echo-local",
+  "date": "2026-02-26",
+  "period_start": "2026-02-10",
+  "period_end": "2026-02-23",
+  "prev_start": "2026-01-27",
+  "prev_end": "2026-02-09",
+  "ga4": {
+    "sessions": 1,
+    "sessions_prev": 0,
+    "organic": 0,
+    "organic_prev": 0,
+    "phone_clicks": 0,
+    "phone_clicks_prev": 0,
+    "form_submits": 0,
+    "form_submits_prev": 0
+  },
+  "gsc": {
+    "impressions": 1,
+    "impressions_prev": 0,
+    "clicks": 0,
+    "clicks_prev": 0,
+    "avg_position": 9,
+    "avg_position_prev": 0,
+    "top_queries": [
+      {
+        "query": "echo local",
+        "impressions": 1,
+        "clicks": 0,
+        "position": 9
+      }
+    ]
+  },
+  "pagespeed": {
+    "mobile_score": 0,
+    "desktop_score": 0,
+    "lcp_mobile": "",
+    "lcp_desktop": "",
+    "cls_mobile": "",
+    "cls_desktop": "",
+    "tbt_mobile": "",
+    "tbt_desktop": ""
+  },
+  "flags": [
+    "Mobile speed score critically low (0)"
+  ],
+  "conversion_rate": 0.0
+}

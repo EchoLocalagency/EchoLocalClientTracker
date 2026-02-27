@@ -1,0 +1,93 @@
+{
+  "client": "Integrity Pro Washers",
+  "slug": "integrity-pro-washers",
+  "date": "2026-02-24",
+  "period_start": "2026-02-08",
+  "period_end": "2026-02-21",
+  "prev_start": "2026-01-25",
+  "prev_end": "2026-02-07",
+  "ga4": {
+    "sessions": 94,
+    "sessions_prev": 7,
+    "organic": 25,
+    "organic_prev": 0,
+    "phone_clicks": 0,
+    "phone_clicks_prev": 0,
+    "form_submits": 1,
+    "form_submits_prev": 0
+  },
+  "gsc": {
+    "impressions": 44,
+    "impressions_prev": 0,
+    "clicks": 1,
+    "clicks_prev": 0,
+    "avg_position": 26.1,
+    "avg_position_prev": 0,
+    "top_queries": [
+      {
+        "query": "bay area pro washers",
+        "impressions": 2,
+        "clicks": 0,
+        "position": 25
+      },
+      {
+        "query": "commercial power washing san diego",
+        "impressions": 1,
+        "clicks": 0,
+        "position": 14
+      },
+      {
+        "query": "integrity pro",
+        "impressions": 3,
+        "clicks": 0,
+        "position": 7.7
+      },
+      {
+        "query": "pressure washing in san diego",
+        "impressions": 1,
+        "clicks": 0,
+        "position": 13
+      },
+      {
+        "query": "pressure washing san diego",
+        "impressions": 12,
+        "clicks": 0,
+        "position": 17.8
+      },
+      {
+        "query": "pressure washing, san diego, california, united states",
+        "impressions": 2,
+        "clicks": 0,
+        "position": 16.5
+      },
+      {
+        "query": "san diego pressure washing",
+        "impressions": 2,
+        "clicks": 0,
+        "position": 15.5
+      },
+      {
+        "query": "softwashpros",
+        "impressions": 2,
+        "clicks": 0,
+        "position": 8
+      }
+    ]
+  },
+  "pagespeed": {
+    "mobile_score": 64,
+    "desktop_score": 93,
+    "lcp_mobile": "13.1\u00a0s",
+    "lcp_desktop": "1.7\u00a0s",
+    "cls_mobile": "0",
+    "cls_desktop": "0.045",
+    "tbt_mobile": "20\u00a0ms",
+    "tbt_desktop": "20\u00a0ms"
+  },
+  "ghl_form_submits": 1,
+  "ghl_form_submits_prev": 0,
+  "flags": [
+    "Mobile LCP is 13.1\u00a0s \u2014 above 4s threshold"
+  ],
+  "conversion_rate": 1.1
+}

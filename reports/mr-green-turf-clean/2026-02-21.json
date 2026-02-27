@@ -1,0 +1,42 @@
+{
+  "client": "Mr Green Turf Clean",
+  "slug": "mr-green-turf-clean",
+  "date": "2026-02-21",
+  "period_start": "2026-02-05",
+  "period_end": "2026-02-18",
+  "prev_start": "2026-01-22",
+  "prev_end": "2026-02-04",
+  "ga4": {
+    "sessions": 42,
+    "sessions_prev": 0,
+    "organic": 14,
+    "organic_prev": 0,
+    "phone_clicks": 0,
+    "phone_clicks_prev": 0,
+    "form_submits": 0,
+    "form_submits_prev": 0
+  },
+  "gsc": {
+    "impressions": 0,
+    "impressions_prev": 0,
+    "clicks": 0,
+    "clicks_prev": 0,
+    "avg_position": 0,
+    "avg_position_prev": 0,
+    "top_queries": []
+  },
+  "pagespeed": {
+    "mobile_score": 77,
+    "desktop_score": 97,
+    "lcp_mobile": "4.1\u00a0s",
+    "lcp_desktop": "1.1\u00a0s",
+    "cls_mobile": "0.087",
+    "cls_desktop": "0.036",
+    "tbt_mobile": "40\u00a0ms",
+    "tbt_desktop": "10\u00a0ms"
+  },
+  "flags": [
+    "Mobile LCP is 4.1\u00a0s \u2014 above 4s threshold"
+  ],
+  "conversion_rate": 0.0
+}

@@ -1,0 +1,49 @@
+{
+  "client": "Mr Green Turf Clean",
+  "slug": "mr-green-turf-clean",
+  "date": "2026-02-24",
+  "period_start": "2026-02-08",
+  "period_end": "2026-02-21",
+  "prev_start": "2026-01-25",
+  "prev_end": "2026-02-07",
+  "ga4": {
+    "sessions": 80,
+    "sessions_prev": 0,
+    "organic": 24,
+    "organic_prev": 0,
+    "phone_clicks": 0,
+    "phone_clicks_prev": 0,
+    "form_submits": 1,
+    "form_submits_prev": 0
+  },
+  "gsc": {
+    "impressions": 14,
+    "impressions_prev": 0,
+    "clicks": 0,
+    "clicks_prev": 0,
+    "avg_position": 11,
+    "avg_position_prev": 0,
+    "top_queries": [
+      {
+        "query": "turf cleaning service san diego",
+        "impressions": 2,
+        "clicks": 0,
+        "position": 46
+      }
+    ]
+  },
+  "pagespeed": {
+    "mobile_score": 83,
+    "desktop_score": 98,
+    "lcp_mobile": "3.4\u00a0s",
+    "lcp_desktop": "0.9\u00a0s",
+    "cls_mobile": "0.083",
+    "cls_desktop": "0.02",
+    "tbt_mobile": "10\u00a0ms",
+    "tbt_desktop": "70\u00a0ms"
+  },
+  "ghl_form_submits": 1,
+  "ghl_form_submits_prev": 0,
+  "flags": [],
+  "conversion_rate": 1.2
+}

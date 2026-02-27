@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Integrity Pro Washers",
+    "slug": "integrity-pro-washers",
+    "ga4_property": "properties/523647807",
+    "ga4_measurement_id": "G-ZRN8DS9JP9",
+    "gsc_url": "https://integrityprowashers.com/",
+    "website": "https://integrityprowashers.com/",
+    "github": "https://github.com/EchoLocalagency/IntegrityProWashing",
+    "phone": "+16198874442",
+    "conversion_events": ["phone_click", "form_submit"],
+    "ghl_token": "pit-f56b0c0b-98a2-4b0b-8c1e-4ac99673d8d3",
+    "ghl_location_id": "KwsH04X22oBXm8Ugdqb8",
+    "ghl_form_name": "website form",
+    "gbp_location": "locations/3810638775821930387"
+  },
+  {
+    "name": "Mr Green Turf Clean",
+    "slug": "mr-green-turf-clean",
+    "ga4_property": "properties/524866087",
+    "ga4_measurement_id": "G-PGEDP44QR4",
+    "gsc_url": "https://mrgreenturfclean.com/",
+    "website": "https://mrgreenturfclean.com/",
+    "github": "https://github.com/EchoLocalagency/MrGreenTurfClean",
+    "phone": "+18587035676",
+    "conversion_events": ["phone_click", "form_submit"],
+    "ghl_token": "pit-79751817-ab14-4413-8bb0-bed5512e7ab1",
+    "ghl_location_id": "3m3jhkEz2xInUprxbRzX",
+    "ghl_form_name": "website form",
+    "gbp_location": "locations/5141565760909944493"
+  },
+  {
+    "name": "Echo Local",
+    "slug": "echo-local",
+    "ga4_property": "properties/525743404",
+    "ga4_measurement_id": "G-W3YSYJBLR5",
+    "ga4_stream_id": "13656570564",
+    "gsc_url": "sc-domain:echolocalagency.com",
+    "website": "https://echolocalagency.com/",
+    "github": "https://github.com/EchoLocalagency/Echo-local-website",
+    "phone": "+18313327837",
+    "conversion_events": ["phone_click", "form_submit"],
+    "ghl_token": "",
+    "ghl_location_id": "",
+    "ghl_form_name": ""
+  },
+  {
+    "name": "Primal Plates",
+    "slug": "primal-plates",
+    "ga4_property": "properties/525738042",
+    "ga4_measurement_id": "G-M679XN6BL5",
+    "ga4_stream_id": "13660979674",
+    "gsc_url": "https://primal-plates.com/",
+    "website": "https://primal-plates.com/",
+    "github": "https://github.com/EchoLocalagency/PrimalPlates",
+    "phone": "",
+    "conversion_events": ["form_submit"],
+    "ghl_token": "",
+    "ghl_location_id": "",
+    "ghl_form_name": ""
+  }
+]

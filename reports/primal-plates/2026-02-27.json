@@ -1,0 +1,43 @@
+{
+  "client": "Primal Plates",
+  "slug": "primal-plates",
+  "date": "2026-02-27",
+  "period_start": "2026-02-11",
+  "period_end": "2026-02-24",
+  "prev_start": "2026-01-28",
+  "prev_end": "2026-02-10",
+  "ga4": {
+    "sessions": 37,
+    "sessions_prev": 0,
+    "organic": 0,
+    "organic_prev": 0,
+    "phone_clicks": 0,
+    "phone_clicks_prev": 0,
+    "form_submits": 0,
+    "form_submits_prev": 0
+  },
+  "gsc": {
+    "impressions": 0,
+    "impressions_prev": 0,
+    "clicks": 0,
+    "clicks_prev": 0,
+    "avg_position": 0,
+    "avg_position_prev": 0,
+    "top_queries": []
+  },
+  "pagespeed": {
+    "mobile_score": 73,
+    "desktop_score": 98,
+    "lcp_mobile": "6.3\u00a0s",
+    "lcp_desktop": "0.8\u00a0s",
+    "cls_mobile": "0.004",
+    "cls_desktop": "0.009",
+    "tbt_mobile": "110\u00a0ms",
+    "tbt_desktop": "110\u00a0ms"
+  },
+  "gbp": null,
+  "flags": [
+    "Mobile LCP is 6.3\u00a0s \u2014 above 4s threshold"
+  ],
+  "conversion_rate": 0.0
+}

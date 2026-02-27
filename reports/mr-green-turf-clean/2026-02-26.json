@@ -1,0 +1,63 @@
+{
+  "client": "Mr Green Turf Clean",
+  "slug": "mr-green-turf-clean",
+  "date": "2026-02-26",
+  "period_start": "2026-02-10",
+  "period_end": "2026-02-23",
+  "prev_start": "2026-01-27",
+  "prev_end": "2026-02-09",
+  "ga4": {
+    "sessions": 101,
+    "sessions_prev": 0,
+    "organic": 36,
+    "organic_prev": 0,
+    "phone_clicks": 0,
+    "phone_clicks_prev": 0,
+    "form_submits": 3,
+    "form_submits_prev": 0
+  },
+  "gsc": {
+    "impressions": 36,
+    "impressions_prev": 0,
+    "clicks": 0,
+    "clicks_prev": 0,
+    "avg_position": 22.4,
+    "avg_position_prev": 0,
+    "top_queries": [
+      {
+        "query": "artificial grass cleaning san diego",
+        "impressions": 2,
+        "clicks": 0,
+        "position": 82.5
+      },
+      {
+        "query": "artificial turf cleaning san diego",
+        "impressions": 7,
+        "clicks": 0,
+        "position": 55.7
+      },
+      {
+        "query": "turf cleaning service san diego",
+        "impressions": 2,
+        "clicks": 0,
+        "position": 46
+      }
+    ]
+  },
+  "pagespeed": {
+    "mobile_score": 64,
+    "desktop_score": 75,
+    "lcp_mobile": "8.4\u00a0s",
+    "lcp_desktop": "1.6\u00a0s",
+    "cls_mobile": "0",
+    "cls_desktop": "0.036",
+    "tbt_mobile": "70\u00a0ms",
+    "tbt_desktop": "390\u00a0ms"
+  },
+  "ghl_form_submits": 3,
+  "ghl_form_submits_prev": 0,
+  "flags": [
+    "Mobile LCP is 8.4\u00a0s \u2014 above 4s threshold"
+  ],
+  "conversion_rate": 3.0
+}

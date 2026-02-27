@@ -1,0 +1,115 @@
+{
+  "client": "Integrity Pro Washers",
+  "slug": "integrity-pro-washers",
+  "date": "2026-02-26",
+  "period_start": "2026-02-10",
+  "period_end": "2026-02-23",
+  "prev_start": "2026-01-27",
+  "prev_end": "2026-02-09",
+  "ga4": {
+    "sessions": 92,
+    "sessions_prev": 16,
+    "organic": 25,
+    "organic_prev": 3,
+    "phone_clicks": 0,
+    "phone_clicks_prev": 0,
+    "form_submits": 0,
+    "form_submits_prev": 1
+  },
+  "gsc": {
+    "impressions": 76,
+    "impressions_prev": 0,
+    "clicks": 2,
+    "clicks_prev": 0,
+    "avg_position": 42.2,
+    "avg_position_prev": 0,
+    "top_queries": [
+      {
+        "query": "bay area pro washers",
+        "impressions": 3,
+        "clicks": 0,
+        "position": 26.7
+      },
+      {
+        "query": "commercial power washing san diego",
+        "impressions": 1,
+        "clicks": 0,
+        "position": 14
+      },
+      {
+        "query": "integrity pro",
+        "impressions": 3,
+        "clicks": 0,
+        "position": 7.7
+      },
+      {
+        "query": "pressure washing company del mar ca",
+        "impressions": 2,
+        "clicks": 0,
+        "position": 90.5
+      },
+      {
+        "query": "pressure washing company san diego ca",
+        "impressions": 3,
+        "clicks": 0,
+        "position": 20.3
+      },
+      {
+        "query": "pressure washing in san diego",
+        "impressions": 1,
+        "clicks": 0,
+        "position": 13
+      },
+      {
+        "query": "pressure washing san diego",
+        "impressions": 15,
+        "clicks": 0,
+        "position": 17.5
+      },
+      {
+        "query": "pressure washing services del mar ca",
+        "impressions": 1,
+        "clicks": 0,
+        "position": 95
+      },
+      {
+        "query": "pressure washing services san diego ca",
+        "impressions": 1,
+        "clicks": 0,
+        "position": 95
+      },
+      {
+        "query": "pressure washing, san diego, california, united states",
+        "impressions": 2,
+        "clicks": 0,
+        "position": 16.5
+      },
+      {
+        "query": "san diego pressure washing",
+        "impressions": 5,
+        "clicks": 0,
+        "position": 20.8
+      },
+      {
+        "query": "softwashpros",
+        "impressions": 2,
+        "clicks": 0,
+        "position": 8
+      }
+    ]
+  },
+  "pagespeed": {
+    "mobile_score": 80,
+    "desktop_score": 97,
+    "lcp_mobile": "4.0\u00a0s",
+    "lcp_desktop": "1.1\u00a0s",
+    "cls_mobile": "0.051",
+    "cls_desktop": "0.023",
+    "tbt_mobile": "50\u00a0ms",
+    "tbt_desktop": "10\u00a0ms"
+  },
+  "ghl_form_submits": 0,
+  "ghl_form_submits_prev": 1,
+  "flags": [],
+  "conversion_rate": 0.0
+}
