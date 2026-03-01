@@ -4,8 +4,8 @@ import { Report } from '@/lib/types';
 import StatCard from '@/components/StatCard';
 import {
   ResponsiveContainer,
-  BarChart,
-  Bar,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -91,20 +91,34 @@ export default function ConversionsTab({ reports, latestReport, hasFormTracking 
 
       {/* Phone clicks over time */}
       <div style={chartStyle}>
-        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 16 }}>Conversions Per Period</div>
-        <div style={{ height: 240 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 16 }}>Conversions Over Time</div>
+        <div style={{ height: 280 }}>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={phoneData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" />
+            <AreaChart data={phoneData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="gradWebsite" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#E8FF00" stopOpacity={0.4} />
+                  <stop offset="100%" stopColor="#E8FF00" stopOpacity={0.02} />
+                </linearGradient>
+                <linearGradient id="gradGBP" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#00CED1" stopOpacity={0.4} />
+                  <stop offset="100%" stopColor="#00CED1" stopOpacity={0.02} />
+                </linearGradient>
+                <linearGradient id="gradForms" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#a78bfa" stopOpacity={0.4} />
+                  <stop offset="100%" stopColor="#a78bfa" stopOpacity={0.02} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
               <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
+              <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
               <Tooltip content={<ChartTooltip />} />
-              <Bar dataKey="Website Calls" stackId="calls" fill="#E8FF00" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="GBP Calls" stackId="calls" fill="#00CED1" radius={[4, 4, 0, 0]} />
+              <Area type="monotone" dataKey="Website Calls" stroke="#E8FF00" strokeWidth={2} fill="url(#gradWebsite)" dot={{ r: 4, fill: '#E8FF00', strokeWidth: 0 }} activeDot={{ r: 6 }} />
+              <Area type="monotone" dataKey="GBP Calls" stroke="#00CED1" strokeWidth={2} fill="url(#gradGBP)" dot={{ r: 4, fill: '#00CED1', strokeWidth: 0 }} activeDot={{ r: 6 }} />
               {hasFormTracking && (
-                <Bar dataKey="forms" fill="var(--text-primary)" radius={[4, 4, 0, 0]} name="Form Submits" />
+                <Area type="monotone" dataKey="forms" name="Form Submits" stroke="#a78bfa" strokeWidth={2} fill="url(#gradForms)" dot={{ r: 4, fill: '#a78bfa', strokeWidth: 0 }} activeDot={{ r: 6 }} />
               )}
-            </BarChart>
+            </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>
