@@ -177,14 +177,14 @@
     ]
   },
   "pagespeed": {
-    "mobile_score": 65,
-    "desktop_score": 96,
-    "lcp_mobile": "8.4\u00a0s",
-    "lcp_desktop": "1.1\u00a0s",
-    "cls_mobile": "0",
+    "mobile_score": 79,
+    "desktop_score": 99,
+    "lcp_mobile": "3.4\u00a0s",
+    "lcp_desktop": "0.7\u00a0s",
+    "cls_mobile": "0.087",
     "cls_desktop": "0.02",
-    "tbt_mobile": "60\u00a0ms",
-    "tbt_desktop": "40\u00a0ms"
+    "tbt_mobile": "40\u00a0ms",
+    "tbt_desktop": "10\u00a0ms"
   },
   "ghl_form_submits": 3,
   "ghl_form_submits_prev": 0,
@@ -202,8 +202,40 @@
     "direction_requests": 0,
     "direction_requests_prev": 0
   },
-  "flags": [
-    "Mobile LCP is 8.4\u00a0s \u2014 above 4s threshold"
+  "gbp_keywords": [
+    {
+      "keyword": "turf cleaning san diego",
+      "impressions": 34
+    },
+    {
+      "keyword": "artificial turf cleaning san diego coat",
+      "impressions": 0
+    },
+    {
+      "keyword": "green turf",
+      "impressions": 0
+    },
+    {
+      "keyword": "mr clean turf green goo",
+      "impressions": 0
+    },
+    {
+      "keyword": "mr. green turf clean",
+      "impressions": 0
+    },
+    {
+      "keyword": "san diego turf cleaning",
+      "impressions": 0
+    },
+    {
+      "keyword": "turf cleaning",
+      "impressions": 0
+    },
+    {
+      "keyword": "turf cleaning services",
+      "impressions": 0
+    }
   ],
+  "flags": [],
   "conversion_rate": 2.6
 }

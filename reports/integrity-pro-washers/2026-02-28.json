@@ -1,40 +1,46 @@
 {
   "client": "Integrity Pro Washers",
   "slug": "integrity-pro-washers",
-  "date": "2026-02-27",
-  "period_start": "2026-02-11",
-  "period_end": "2026-02-24",
-  "prev_start": "2026-01-28",
-  "prev_end": "2026-02-10",
+  "date": "2026-02-28",
+  "period_start": "2026-02-12",
+  "period_end": "2026-02-25",
+  "prev_start": "2026-01-29",
+  "prev_end": "2026-02-11",
   "ga4": {
-    "sessions": 89,
-    "sessions_prev": 25,
+    "sessions": 85,
+    "sessions_prev": 33,
     "organic": 25,
-    "organic_prev": 5,
+    "organic_prev": 7,
     "phone_clicks": 0,
     "phone_clicks_prev": 0,
     "form_submits": 0,
     "form_submits_prev": 1
   },
   "gsc": {
-    "impressions": 105,
+    "impressions": 143,
     "impressions_prev": 0,
     "clicks": 2,
     "clicks_prev": 0,
-    "avg_position": 42.2,
+    "avg_position": 40.6,
     "avg_position_prev": 0,
     "top_queries": [
       {
         "query": "bay area pro washers",
-        "impressions": 4,
+        "impressions": 5,
         "clicks": 0,
-        "position": 26.8
+        "position": 26.2
       },
       {
         "query": "commercial power washing san diego",
+        "impressions": 3,
+        "clicks": 0,
+        "position": 60.7
+      },
+      {
+        "query": "integrity cleaning",
         "impressions": 1,
         "clicks": 0,
-        "position": 14
+        "position": 16
       },
       {
         "query": "integrity pressure washing",
@@ -50,15 +56,21 @@
       },
       {
         "query": "power washing san diego",
+        "impressions": 7,
+        "clicks": 0,
+        "position": 63
+      },
+      {
+        "query": "pressure cleaning san diego ca",
         "impressions": 1,
         "clicks": 0,
-        "position": 66
+        "position": 16
       },
       {
         "query": "pressure washing company del mar ca",
-        "impressions": 2,
+        "impressions": 4,
         "clicks": 0,
-        "position": 90.5
+        "position": 94.8
       },
       {
         "query": "pressure washing company san diego ca",
@@ -74,9 +86,9 @@
       },
       {
         "query": "pressure washing san diego",
-        "impressions": 20,
+        "impressions": 28,
         "clicks": 0,
-        "position": 17.9
+        "position": 18.4
       },
       {
         "query": "pressure washing services del mar ca",
@@ -111,24 +123,24 @@
     ]
   },
   "pagespeed": {
-    "mobile_score": 62,
+    "mobile_score": 82,
     "desktop_score": 98,
-    "lcp_mobile": "18.2\u00a0s",
+    "lcp_mobile": "3.7\u00a0s",
     "lcp_desktop": "1.0\u00a0s",
-    "cls_mobile": "0",
+    "cls_mobile": "0.07",
     "cls_desktop": "0.023",
-    "tbt_mobile": "150\u00a0ms",
+    "tbt_mobile": "120\u00a0ms",
     "tbt_desktop": "10\u00a0ms"
   },
   "ghl_form_submits": 0,
   "ghl_form_submits_prev": 1,
   "gbp": {
-    "maps_impressions": 8,
+    "maps_impressions": 10,
     "maps_impressions_prev": 17,
-    "search_impressions": 52,
-    "search_impressions_prev": 79,
-    "total_impressions": 60,
-    "total_impressions_prev": 96,
+    "search_impressions": 60,
+    "search_impressions_prev": 74,
+    "total_impressions": 70,
+    "total_impressions_prev": 91,
     "call_clicks": 1,
     "call_clicks_prev": 0,
     "website_clicks": 1,
@@ -150,8 +162,6 @@
       "impressions": 0
     }
   ],
-  "flags": [
-    "Mobile LCP is 18.2\u00a0s \u2014 above 4s threshold"
-  ],
+  "flags": [],
   "conversion_rate": 0.0
 }

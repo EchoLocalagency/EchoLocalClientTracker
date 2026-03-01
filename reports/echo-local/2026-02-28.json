@@ -1,11 +1,11 @@
 {
   "client": "Echo Local",
   "slug": "echo-local",
-  "date": "2026-02-27",
-  "period_start": "2026-02-11",
-  "period_end": "2026-02-24",
-  "prev_start": "2026-01-28",
-  "prev_end": "2026-02-10",
+  "date": "2026-02-28",
+  "period_start": "2026-02-12",
+  "period_end": "2026-02-25",
+  "prev_start": "2026-01-29",
+  "prev_end": "2026-02-11",
   "ga4": {
     "sessions": 1,
     "sessions_prev": 0,
@@ -17,11 +17,11 @@
     "form_submits_prev": 0
   },
   "gsc": {
-    "impressions": 2,
+    "impressions": 7,
     "impressions_prev": 0,
     "clicks": 0,
     "clicks_prev": 0,
-    "avg_position": 5,
+    "avg_position": 2.9,
     "avg_position_prev": 0,
     "top_queries": [
       {

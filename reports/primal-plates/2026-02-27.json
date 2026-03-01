@@ -26,18 +26,19 @@
     "top_queries": []
   },
   "pagespeed": {
-    "mobile_score": 76,
-    "desktop_score": 96,
-    "lcp_mobile": "5.7\u00a0s",
+    "mobile_score": 67,
+    "desktop_score": 93,
+    "lcp_mobile": "7.8\u00a0s",
     "lcp_desktop": "0.9\u00a0s",
-    "cls_mobile": "0.005",
+    "cls_mobile": "0",
     "cls_desktop": "0.009",
     "tbt_mobile": "60\u00a0ms",
-    "tbt_desktop": "150\u00a0ms"
+    "tbt_desktop": "190\u00a0ms"
   },
   "gbp": null,
+  "gbp_keywords": [],
   "flags": [
-    "Mobile LCP is 5.7\u00a0s \u2014 above 4s threshold"
+    "Mobile LCP is 7.8\u00a0s \u2014 above 4s threshold"
   ],
   "conversion_rate": 0.0
 }

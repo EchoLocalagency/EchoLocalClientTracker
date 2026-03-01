@@ -174,6 +174,53 @@ def pull_gsc(creds, site_url, start, end):
         "top_queries": top_queries,
     }
 
+
+def pull_gsc_target_keywords(creds, site_url, target_kws, start, end):
+    """Query GSC explicitly for each target keyword. Returns ranking data regardless
+    of whether the keyword appears in the top-N organic results."""
+    service = build("searchconsole", "v1", credentials=creds, cache_discovery=False)
+    results = []
+    for kw in target_kws:
+        resp = service.searchanalytics().query(
+            siteUrl=site_url,
+            body={
+                "startDate": str(start),
+                "endDate": str(end),
+                "dimensions": ["query"],
+                "dimensionFilterGroups": [{
+                    "filters": [{
+                        "dimension": "query",
+                        "operator": "contains",
+                        "expression": kw,
+                    }]
+                }],
+                "rowLimit": 10,
+                "orderBy": [{"fieldName": "impressions", "sortOrder": "DESCENDING"}],
+            }
+        ).execute()
+
+        rows = resp.get("rows", [])
+        if rows:
+            total_impressions = sum(int(r.get("impressions", 0)) for r in rows)
+            total_clicks = sum(int(r.get("clicks", 0)) for r in rows)
+            avg_pos = sum(r.get("position", 0) for r in rows) / len(rows)
+            results.append({
+                "keyword": kw,
+                "impressions": total_impressions,
+                "clicks": total_clicks,
+                "position": round(avg_pos, 1),
+                "status": "ranking",
+            })
+        else:
+            results.append({
+                "keyword": kw,
+                "impressions": 0,
+                "clicks": 0,
+                "position": None,
+                "status": "not ranking",
+            })
+    return results
+
 # ── PageSpeed ───────────────────────────────────────────────────────────
 
 def pull_pagespeed(url):
@@ -303,6 +350,8 @@ def pull_ghl_forms(ghl_token, location_id, form_name, start, end):
         f"https://services.leadconnectorhq.com/forms/?locationId={location_id}",
         headers=headers, timeout=15,
     )
+    if forms_resp.status_code == 401:
+        raise Exception(f"GHL TOKEN EXPIRED or INVALID for location {location_id} -- regenerate in GHL dashboard and update clients.json")
     if forms_resp.status_code != 200:
         raise Exception(f"Forms list failed: {forms_resp.status_code}")
 
@@ -359,6 +408,7 @@ def run_report(client, creds, today):
     prev_end = period_start - timedelta(days=1)
     prev_start = prev_end - timedelta(days=13)
 
+    primary_market = client.get("primary_market", "")
     report = {
         "client": name,
         "slug": slug,
@@ -367,7 +417,10 @@ def run_report(client, creds, today):
         "period_end": str(period_end),
         "prev_start": str(prev_start),
         "prev_end": str(prev_end),
+        "primary_market": primary_market,
     }
+    if primary_market:
+        print(f"  Primary Market: {primary_market}")
 
     # ── GA4 ──
     print(f"  Pulling GA4...")
@@ -410,6 +463,28 @@ def run_report(client, creds, today):
         print(f"    Clicks: {gsc_current['clicks']} (prev: {gsc_prev['clicks']})")
         print(f"    Avg Position: {gsc_current['avg_position']} (prev: {gsc_prev['avg_position']})")
         print(f"    Top queries: {len(gsc_current['top_queries'])}")
+
+        # Dedicated target keyword tracking
+        target_kws = client.get("target_keywords", [])
+        if target_kws:
+            print(f"  Pulling target keyword rankings ({len(target_kws)} keywords)...")
+            try:
+                target_rankings = pull_gsc_target_keywords(
+                    creds, client["gsc_url"], target_kws, period_start, period_end)
+                report["target_keyword_rankings"] = target_rankings
+                ranking = [r for r in target_rankings if r["status"] == "ranking"]
+                not_ranking = [r for r in target_rankings if r["status"] == "not ranking"]
+                print(f"    {len(ranking)} ranking / {len(not_ranking)} not yet ranking")
+                for r in sorted(ranking, key=lambda x: (x["position"] or 999)):
+                    pos_str = f"pos {r['position']:.1f}" if r["position"] else "--"
+                    print(f"      [RANKING]     {r['keyword']:<40} {pos_str:<10} {r['impressions']} impr  {r['clicks']} clicks")
+                for r in not_ranking:
+                    print(f"      [NOT RANKING] {r['keyword']}")
+            except Exception as e:
+                print(f"    Target keyword ERROR: {e}")
+                report["target_keyword_rankings"] = []
+        else:
+            report["target_keyword_rankings"] = []
     except Exception as e:
         print(f"    GSC ERROR: {e}")
         report["gsc"] = {"impressions": 0, "impressions_prev": 0, "clicks": 0, "clicks_prev": 0,

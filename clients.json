@@ -9,7 +9,7 @@
     "github": "https://github.com/EchoLocalagency/IntegrityProWashing",
     "phone": "+16198874442",
     "conversion_events": ["phone_click", "form_submit"],
-    "ghl_token": "pit-f56b0c0b-98a2-4b0b-8c1e-4ac99673d8d3",
+    "ghl_token": "pit-89db996b-2e9b-48a8-bf3d-458eae1b1dd4",
     "ghl_location_id": "KwsH04X22oBXm8Ugdqb8",
     "ghl_form_name": "website form",
     "gbp_location": "locations/3810638775821930387"
@@ -24,10 +24,32 @@
     "github": "https://github.com/EchoLocalagency/MrGreenTurfClean",
     "phone": "+18587035676",
     "conversion_events": ["phone_click", "form_submit"],
-    "ghl_token": "pit-79751817-ab14-4413-8bb0-bed5512e7ab1",
+    "ghl_token": "pit-fb1003e4-66c8-4354-80e7-a8c4355d76e5",
     "ghl_location_id": "3m3jhkEz2xInUprxbRzX",
     "ghl_form_name": "website form",
-    "gbp_location": "locations/5141565760909944493"
+    "gbp_location": "locations/5141565760909944493",
+    "website_local_path": "/Users/brianegan/Desktop/Mr Green turf Clean Client file/Mr. Green Turf Clean/website",
+    "primary_market": "Poway, CA",
+    "target_keywords": [
+      "turf cleaning poway",
+      "artificial turf cleaning poway",
+      "dog turf cleaning poway",
+      "synthetic turf cleaning poway",
+      "artificial grass cleaning poway",
+      "pet turf cleaning poway",
+      "turf sanitizing poway",
+      "turf cleaning near me",
+      "artificial turf cleaning near me",
+      "turf cleaning rancho bernardo",
+      "turf cleaning 4s ranch",
+      "turf cleaning scripps ranch",
+      "turf cleaning penasquitos",
+      "turf cleaning carmel mountain",
+      "artificial turf cleaning san diego",
+      "turf cleaning san diego",
+      "mr green turf clean",
+      "mr green turf"
+    ]
   },
   {
     "name": "Echo Local",
