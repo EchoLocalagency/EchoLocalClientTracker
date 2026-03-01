@@ -30,7 +30,7 @@ export default function ConversionsTab({ reports, latestReport, hasFormTracking 
   const totalCallsPrev = (r: Report) => (r.ga4_phone_clicks_prev ?? 0) + (r.gbp_call_clicks_prev ?? 0);
 
   const phoneData = sorted.map((r) => ({
-    date: new Date(r.run_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    date: new Date(r.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     'Website Calls': r.ga4_phone_clicks ?? 0,
     'GBP Calls': r.gbp_call_clicks ?? 0,
     forms: r.ga4_form_submits ?? 0,

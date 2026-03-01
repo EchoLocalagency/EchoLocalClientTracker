@@ -21,7 +21,7 @@ export function useFilteredReports(reports: Report[], timeRange: TimeRange): Rep
   return useMemo(() => {
     const cutoff = getCutoffDate(timeRange);
     const filtered = cutoff
-      ? reports.filter((r) => new Date(r.run_date) >= cutoff)
+      ? reports.filter((r) => new Date(r.run_date + 'T00:00:00') >= cutoff)
       : [...reports];
     return filtered.sort((a, b) => a.run_date.localeCompare(b.run_date));
   }, [reports, timeRange]);

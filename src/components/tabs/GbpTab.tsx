@@ -42,7 +42,7 @@ export default function GbpTab({ reports, latestReport, gbpKeywords = [] }: GbpT
   const chartData = [...reports]
     .sort((a, b) => a.run_date.localeCompare(b.run_date))
     .map((r) => ({
-      date: new Date(r.run_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      date: new Date(r.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
       impressions: r.gbp_total_impressions ?? 0,
       maps: r.gbp_maps_impressions ?? 0,
       search: r.gbp_search_impressions ?? 0,

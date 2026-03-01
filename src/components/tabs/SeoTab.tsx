@@ -26,19 +26,19 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries }: 
   }
 
   const impressionsData = reports.map((r) => ({
-    date: new Date(r.run_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    date: new Date(r.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     impressions: r.gsc_impressions ?? 0,
     clicks: r.gsc_clicks ?? 0,
   }));
 
   const organicData = reports.map((r) => ({
-    date: new Date(r.run_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    date: new Date(r.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     organic: r.ga4_organic ?? 0,
     total: r.ga4_sessions ?? 0,
   }));
 
   const positionData = reports.map((r) => ({
-    date: new Date(r.run_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    date: new Date(r.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     position: r.gsc_avg_position ?? 0,
   }));
 
