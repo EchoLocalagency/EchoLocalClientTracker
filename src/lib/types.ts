@@ -7,6 +7,18 @@ export interface Client {
   website: string | null;
   github: string | null;
   phone: string | null;
+  target_keywords: string[] | null;
+  service_areas: string[] | null;
+  drive_folder_id: string | null;
+  website_local_path: string | null;
+  gbp_location: string | null;
+  ghl_token: string | null;
+  ghl_location_id: string | null;
+  ghl_form_name: string | null;
+  primary_market: string | null;
+  conversion_events: Record<string, string> | null;
+  ga4_measurement_id: string | null;
+  seo_engine_enabled: boolean | null;
   created_at: string;
 }
 
@@ -99,4 +111,5 @@ export interface SeoBrainDecision {
 
 export type TabId = 'overview' | 'seo' | 'conversions' | 'gbp' | 'seo-engine' | 'summary';
 export type SeoEngineSubTab = 'action-feed' | 'brain-decisions' | 'keyword-tracker' | 'outcome-patterns';
+export type SeoEngineTabId = 'clients' | 'actions' | 'brain' | 'keywords';
 export type TimeRange = '4w' | '3m' | '6m' | 'all';
