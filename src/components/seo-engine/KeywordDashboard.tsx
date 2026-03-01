@@ -1,7 +1,6 @@
 'use client';
 
 import { SeoAction } from '@/lib/types';
-import { seo } from '@/lib/seo-theme';
 import ClusterProgress from './ClusterProgress';
 import KeywordOpportunities from './KeywordOpportunities';
 
@@ -33,7 +32,7 @@ function TrendSparkline({ values }: { values: number[] }) {
 
   const last = values[values.length - 1];
   const prev = values[values.length - 2];
-  const color = last >= prev ? seo.accent : seo.danger;
+  const color = last >= prev ? 'var(--success)' : 'var(--danger)';
 
   return (
     <svg width={w} height={h} style={{ display: 'block' }}>
@@ -89,7 +88,7 @@ export default function KeywordDashboard({ actions }: KeywordDashboardProps) {
 
   if (actions.length === 0) {
     return (
-      <div style={{ color: seo.textMuted, padding: 40, textAlign: 'center' }}>
+      <div style={{ color: 'var(--text-secondary)', padding: 40, textAlign: 'center' }}>
         No keyword data yet. Keywords will be tracked once SEO actions target specific terms.
       </div>
     );
@@ -104,7 +103,7 @@ export default function KeywordDashboard({ actions }: KeywordDashboardProps) {
         <StatBox
           label="Avg Impact"
           value={rows.length > 0 ? (rows.reduce((s, r) => s + r.totalImpact, 0) / rows.length).toFixed(1) : '0'}
-          color={rows.reduce((s, r) => s + r.totalImpact, 0) > 0 ? seo.accent : seo.danger}
+          color={rows.reduce((s, r) => s + r.totalImpact, 0) > 0 ? 'var(--success)' : 'var(--danger)'}
         />
         <StatBox label="Action Types" value={new Set(actions.map(a => a.action_type)).size.toString()} />
       </div>
@@ -113,18 +112,18 @@ export default function KeywordDashboard({ actions }: KeywordDashboardProps) {
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 20, marginBottom: 24 }}>
         {/* Rankings table */}
         <div style={{
-          background: seo.surface,
-          border: `1px solid ${seo.border}`,
-          borderRadius: seo.radiusCard,
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius-card)',
           padding: '24px',
         }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: seo.text, marginBottom: 16 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 16 }}>
             Keyword Rankings
           </div>
           {rows.length > 0 ? (
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
-                <tr style={{ borderBottom: `1px solid ${seo.border}` }}>
+                <tr style={{ borderBottom: '1px solid var(--border)' }}>
                   <th style={thStyle}>Keyword</th>
                   <th style={{ ...thStyle, textAlign: 'right' }}>Actions</th>
                   <th style={{ ...thStyle, textAlign: 'right' }}>Total Impact</th>
@@ -134,17 +133,17 @@ export default function KeywordDashboard({ actions }: KeywordDashboardProps) {
               </thead>
               <tbody>
                 {rows.map(row => (
-                  <tr key={row.keyword} style={{ borderBottom: `1px solid ${seo.border}` }}>
-                    <td style={{ padding: '10px 12px', fontWeight: 500, color: seo.text }}>
+                  <tr key={row.keyword} style={{ borderBottom: '1px solid var(--border)' }}>
+                    <td style={{ padding: '10px 12px', fontWeight: 500, color: 'var(--text-primary)' }}>
                       {row.keyword}
                     </td>
-                    <td style={{ padding: '10px 12px', textAlign: 'right', fontFamily: seo.fontMono, color: seo.textMuted }}>
+                    <td style={{ padding: '10px 12px', textAlign: 'right', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
                       {row.actionCount}
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'right' }}>
                       <span style={{
-                        fontFamily: seo.fontMono, fontWeight: 600,
-                        color: row.totalImpact > 0 ? seo.accent : row.totalImpact < 0 ? seo.danger : seo.textMuted,
+                        fontFamily: 'var(--font-mono)', fontWeight: 600,
+                        color: row.totalImpact > 0 ? 'var(--success)' : row.totalImpact < 0 ? 'var(--danger)' : 'var(--text-secondary)',
                       }}>
                         {row.totalImpact > 0 ? '+' : ''}{row.totalImpact}
                       </span>
@@ -156,9 +155,9 @@ export default function KeywordDashboard({ actions }: KeywordDashboardProps) {
                       <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                         {row.actionTypes.map(type => (
                           <span key={type} style={{
-                            fontSize: 9, fontFamily: seo.fontMono,
+                            fontSize: 9, fontFamily: 'var(--font-mono)',
                             padding: '2px 6px', borderRadius: 4,
-                            background: seo.deep, color: seo.textMuted,
+                            background: 'var(--bg-depth)', color: 'var(--text-secondary)',
                             textTransform: 'uppercase',
                           }}>
                             {type.replace(/_/g, ' ')}
@@ -171,7 +170,7 @@ export default function KeywordDashboard({ actions }: KeywordDashboardProps) {
               </tbody>
             </table>
           ) : (
-            <div style={{ color: seo.textMuted, fontSize: 12 }}>No keyword data</div>
+            <div style={{ color: 'var(--text-secondary)', fontSize: 12 }}>No keyword data</div>
           )}
         </div>
 
@@ -188,7 +187,7 @@ export default function KeywordDashboard({ actions }: KeywordDashboardProps) {
 const thStyle: React.CSSProperties = {
   textAlign: 'left',
   padding: '8px 12px',
-  color: seo.textMuted,
+  color: 'var(--text-secondary)',
   fontWeight: 500,
   fontSize: 11,
   textTransform: 'uppercase',
@@ -198,15 +197,15 @@ const thStyle: React.CSSProperties = {
 function StatBox({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
     <div style={{
-      background: seo.surface,
-      border: `1px solid ${seo.border}`,
-      borderRadius: seo.radiusCard,
+      background: 'var(--bg-surface)',
+      border: '1px solid var(--border)',
+      borderRadius: 'var(--radius-card)',
       padding: '16px 20px',
     }}>
-      <div style={{ fontSize: 11, color: seo.textMuted, textTransform: 'uppercase', letterSpacing: '0.03em', marginBottom: 6 }}>
+      <div style={{ fontSize: 11, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.03em', marginBottom: 6 }}>
         {label}
       </div>
-      <div style={{ fontSize: 28, fontWeight: 700, fontFamily: seo.fontMono, color: color || seo.accent }}>
+      <div style={{ fontSize: 28, fontWeight: 700, fontFamily: 'var(--font-mono)', color: color || 'var(--accent)' }}>
         {value}
       </div>
     </div>

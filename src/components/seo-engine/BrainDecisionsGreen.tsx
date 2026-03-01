@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { SeoBrainDecision } from '@/lib/types';
-import { seo } from '@/lib/seo-theme';
 
 interface BrainDecisionsGreenProps {
   decisions: SeoBrainDecision[];
@@ -13,7 +12,7 @@ export default function BrainDecisionsGreen({ decisions }: BrainDecisionsGreenPr
 
   if (decisions.length === 0) {
     return (
-      <div style={{ color: seo.textMuted, padding: 40, textAlign: 'center' }}>
+      <div style={{ color: 'var(--text-secondary)', padding: 40, textAlign: 'center' }}>
         No brain decisions recorded yet. Decisions will appear here after the SEO Engine analyzes data.
       </div>
     );
@@ -28,28 +27,28 @@ export default function BrainDecisionsGreen({ decisions }: BrainDecisionsGreenPr
           <div
             key={decision.id}
             style={{
-              background: seo.surface,
-              border: `1px solid ${seo.border}`,
-              borderRadius: seo.radiusCard,
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-card)',
               padding: '16px 20px',
               cursor: 'pointer',
               transition: 'border-color 0.15s ease',
             }}
             onClick={() => setExpandedId(isExpanded ? null : decision.id)}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = seo.accentBorder; }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = seo.border; }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--accent-border)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
           >
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 8 }}>
-              <div style={{ fontSize: 11, color: seo.textMuted, fontFamily: seo.fontMono }}>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
                 {new Date(decision.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
               </div>
               <div style={{
-                fontSize: 11, fontWeight: 600, fontFamily: seo.fontMono, color: seo.accent,
+                fontSize: 11, fontWeight: 600, fontFamily: 'var(--font-mono)', color: 'var(--accent)',
               }}>
                 {decision.actions_proposed} actions proposed
               </div>
-              <span style={{ fontSize: 12, color: seo.textMuted, marginLeft: 'auto' }}>
+              <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 'auto' }}>
                 {isExpanded ? '\u25B2' : '\u25BC'}
               </span>
             </div>
@@ -59,9 +58,9 @@ export default function BrainDecisionsGreen({ decisions }: BrainDecisionsGreenPr
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
                 {decision.actions_chosen.map((action, i) => (
                   <span key={i} style={{
-                    fontSize: 10, fontWeight: 600, fontFamily: seo.fontMono,
+                    fontSize: 10, fontWeight: 600, fontFamily: 'var(--font-mono)',
                     padding: '3px 10px', borderRadius: 12,
-                    background: seo.accentGlow, color: seo.accent,
+                    background: 'var(--accent-glow)', color: 'var(--accent)',
                     textTransform: 'uppercase',
                   }}>
                     {action.replace(/_/g, ' ')}
@@ -74,12 +73,12 @@ export default function BrainDecisionsGreen({ decisions }: BrainDecisionsGreenPr
             {isExpanded && (
               <div style={{
                 marginTop: 12, paddingTop: 12,
-                borderTop: `1px solid ${seo.border}`,
+                borderTop: '1px solid var(--border)',
               }}>
                 {/* Input stats */}
                 <div style={{ marginBottom: 12 }}>
                   <div style={{
-                    fontSize: 11, fontWeight: 600, color: seo.textMuted,
+                    fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)',
                     textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8,
                   }}>
                     Input Data
@@ -91,15 +90,15 @@ export default function BrainDecisionsGreen({ decisions }: BrainDecisionsGreenPr
                   }}>
                     {Object.entries(decision.input_stats).map(([key, val]) => (
                       <div key={key} style={{
-                        background: seo.deep,
+                        background: 'var(--bg-depth)',
                         borderRadius: 6,
                         padding: '8px 12px',
-                        border: `1px solid ${seo.border}`,
+                        border: '1px solid var(--border)',
                       }}>
-                        <div style={{ fontSize: 10, color: seo.textMuted, textTransform: 'uppercase', marginBottom: 4 }}>
+                        <div style={{ fontSize: 10, color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: 4 }}>
                           {key.replace(/_/g, ' ')}
                         </div>
-                        <div style={{ fontSize: 14, fontWeight: 600, fontFamily: seo.fontMono, color: seo.text }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>
                           {typeof val === 'number' ? val.toLocaleString() : String(val)}
                         </div>
                       </div>
@@ -111,19 +110,19 @@ export default function BrainDecisionsGreen({ decisions }: BrainDecisionsGreenPr
                 {decision.reasoning && (
                   <div>
                     <div style={{
-                      fontSize: 11, fontWeight: 600, color: seo.textMuted,
+                      fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)',
                       textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8,
                     }}>
                       Reasoning
                     </div>
                     <div style={{
-                      fontSize: 12, color: seo.textMuted,
-                      lineHeight: 1.6, fontFamily: seo.fontMono,
+                      fontSize: 12, color: 'var(--text-secondary)',
+                      lineHeight: 1.6, fontFamily: 'var(--font-mono)',
                       whiteSpace: 'pre-wrap',
-                      background: seo.deep,
+                      background: 'var(--bg-depth)',
                       padding: '12px 16px',
                       borderRadius: 8,
-                      border: `1px solid ${seo.border}`,
+                      border: '1px solid var(--border)',
                     }}>
                       {decision.reasoning}
                     </div>

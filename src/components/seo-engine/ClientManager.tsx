@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Client } from '@/lib/types';
-import { seo } from '@/lib/seo-theme';
 import { supabase } from '@/lib/supabase';
 import ClientForm from './ClientForm';
 
@@ -62,7 +61,7 @@ export default function ClientManager({ clients, activeClient, onSelectClient, o
     <div>
       {/* Header row */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <div style={{ fontSize: 13, color: seo.textMuted }}>
+        <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
           {clients.length} client{clients.length !== 1 ? 's' : ''} configured
         </div>
         <button
@@ -70,16 +69,16 @@ export default function ClientManager({ clients, activeClient, onSelectClient, o
           style={{
             padding: '8px 20px',
             fontSize: 12, fontWeight: 600,
-            fontFamily: seo.fontMono,
-            background: seo.accent,
-            color: seo.bg,
+            fontFamily: 'var(--font-mono)',
+            background: 'var(--accent)',
+            color: '#000',
             border: 'none',
             borderRadius: 8,
             cursor: 'pointer',
             transition: 'background 0.15s ease',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = seo.accentDim; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = seo.accent; }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent-dim)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--accent)'; }}
         >
           + Add Client
         </button>
@@ -97,42 +96,42 @@ export default function ClientManager({ clients, activeClient, onSelectClient, o
             <div
               key={client.id}
               style={{
-                background: seo.surface,
-                border: `1px solid ${isActive ? seo.accentBorder : seo.border}`,
-                borderRadius: seo.radiusCard,
+                background: 'var(--bg-surface)',
+                border: `1px solid ${isActive ? 'var(--accent-border)' : 'var(--border)'}`,
+                borderRadius: 'var(--radius-card)',
                 padding: '20px 24px',
                 cursor: 'pointer',
                 transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
-                boxShadow: isActive ? seo.shadowGlow : 'none',
+                boxShadow: isActive ? 'var(--shadow-glow)' : 'none',
               }}
               onClick={() => onSelectClient(client)}
               onMouseEnter={(e) => {
                 if (!isActive) {
-                  e.currentTarget.style.borderColor = seo.accentBorder;
+                  e.currentTarget.style.borderColor = 'var(--accent-border)';
                 }
               }}
               onMouseLeave={(e) => {
                 if (!isActive) {
-                  e.currentTarget.style.borderColor = seo.border;
+                  e.currentTarget.style.borderColor = 'var(--border)';
                 }
               }}
             >
               {/* Client header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                 <div>
-                  <div style={{ fontSize: 15, fontWeight: 600, color: seo.text, marginBottom: 4 }}>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>
                     {client.name}
                   </div>
-                  <div style={{ fontSize: 11, color: seo.textMuted, fontFamily: seo.fontMono }}>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
                     {client.slug}
                   </div>
                 </div>
                 <div style={{
-                  fontSize: 9, fontWeight: 700, fontFamily: seo.fontMono,
+                  fontSize: 9, fontWeight: 700, fontFamily: 'var(--font-mono)',
                   padding: '3px 10px', borderRadius: 12,
                   textTransform: 'uppercase', letterSpacing: '0.04em',
-                  background: client.seo_engine_enabled ? seo.accentGlow : 'rgba(255,255,255,0.05)',
-                  color: client.seo_engine_enabled ? seo.accent : seo.textMuted,
+                  background: client.seo_engine_enabled ? 'rgba(0, 230, 118, 0.12)' : 'rgba(255,255,255,0.05)',
+                  color: client.seo_engine_enabled ? 'var(--success)' : 'var(--text-secondary)',
                 }}>
                   {client.seo_engine_enabled ? 'Active' : 'Inactive'}
                 </div>
@@ -151,16 +150,16 @@ export default function ClientManager({ clients, activeClient, onSelectClient, o
                 <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 12 }}>
                   {client.target_keywords.slice(0, 4).map((kw, i) => (
                     <span key={i} style={{
-                      fontSize: 9, fontFamily: seo.fontMono,
+                      fontSize: 9, fontFamily: 'var(--font-mono)',
                       padding: '2px 8px', borderRadius: 6,
-                      background: seo.deep, color: seo.textMuted,
-                      border: `1px solid ${seo.border}`,
+                      background: 'var(--bg-depth)', color: 'var(--text-secondary)',
+                      border: '1px solid var(--border)',
                     }}>
                       {kw}
                     </span>
                   ))}
                   {client.target_keywords.length > 4 && (
-                    <span style={{ fontSize: 9, color: seo.textMuted, fontFamily: seo.fontMono, padding: '2px 4px' }}>
+                    <span style={{ fontSize: 9, color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', padding: '2px 4px' }}>
                       +{client.target_keywords.length - 4} more
                     </span>
                   )}
@@ -173,19 +172,19 @@ export default function ClientManager({ clients, activeClient, onSelectClient, o
                   onClick={(e) => { e.stopPropagation(); handleEdit(client); }}
                   style={{
                     padding: '6px 14px', fontSize: 11, fontWeight: 600,
-                    fontFamily: seo.fontMono,
+                    fontFamily: 'var(--font-mono)',
                     background: 'transparent',
-                    border: `1px solid ${seo.border}`,
-                    borderRadius: 6, color: seo.textMuted, cursor: 'pointer',
+                    border: '1px solid var(--border)',
+                    borderRadius: 6, color: 'var(--text-secondary)', cursor: 'pointer',
                     transition: 'all 0.15s ease',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = seo.accentBorder;
-                    e.currentTarget.style.color = seo.text;
+                    e.currentTarget.style.borderColor = 'var(--accent-border)';
+                    e.currentTarget.style.color = 'var(--text-primary)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = seo.border;
-                    e.currentTarget.style.color = seo.textMuted;
+                    e.currentTarget.style.borderColor = 'var(--border)';
+                    e.currentTarget.style.color = 'var(--text-secondary)';
                   }}
                 >
                   Edit
@@ -194,19 +193,19 @@ export default function ClientManager({ clients, activeClient, onSelectClient, o
                   onClick={(e) => { e.stopPropagation(); handleDelete(client); }}
                   style={{
                     padding: '6px 14px', fontSize: 11, fontWeight: 600,
-                    fontFamily: seo.fontMono,
+                    fontFamily: 'var(--font-mono)',
                     background: 'transparent',
-                    border: `1px solid ${seo.border}`,
-                    borderRadius: 6, color: seo.textMuted, cursor: 'pointer',
+                    border: '1px solid var(--border)',
+                    borderRadius: 6, color: 'var(--text-secondary)', cursor: 'pointer',
                     transition: 'all 0.15s ease',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 82, 82, 0.4)';
-                    e.currentTarget.style.color = seo.danger;
+                    e.currentTarget.style.borderColor = 'rgba(255, 61, 87, 0.4)';
+                    e.currentTarget.style.color = 'var(--danger)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = seo.border;
-                    e.currentTarget.style.color = seo.textMuted;
+                    e.currentTarget.style.borderColor = 'var(--border)';
+                    e.currentTarget.style.color = 'var(--text-secondary)';
                   }}
                 >
                   Delete
@@ -223,12 +222,12 @@ export default function ClientManager({ clients, activeClient, onSelectClient, o
 function InfoItem({ label, value }: { label: string; value: string | null | undefined }) {
   return (
     <div>
-      <div style={{ fontSize: 9, color: seo.textMuted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>
+      <div style={{ fontSize: 9, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>
         {label}
       </div>
       <div style={{
-        fontSize: 12, fontFamily: seo.fontMono,
-        color: value ? seo.text : 'rgba(129, 199, 132, 0.3)',
+        fontSize: 12, fontFamily: 'var(--font-mono)',
+        color: value ? 'var(--text-primary)' : 'rgba(138, 143, 152, 0.3)',
         overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
       }}>
         {value || '--'}

@@ -18,22 +18,6 @@
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   --radius-card: 10px;
   --shadow-glow: 0 0 24px rgba(232, 255, 0, 0.06);
-
-  /* SEO Engine green theme */
-  --seo-bg: #0A0F0A;
-  --seo-surface: #0F1A0F;
-  --seo-deep: #141F14;
-  --seo-accent: #00E676;
-  --seo-accent-dim: #00C853;
-  --seo-accent-glow: rgba(0, 230, 118, 0.15);
-  --seo-accent-border: rgba(0, 230, 118, 0.25);
-  --seo-text: #E8F5E9;
-  --seo-text-muted: #81C784;
-  --seo-border: #1B2E1B;
-  --seo-danger: #FF5252;
-  --seo-warning: #FFD740;
-  --seo-radius-card: 10px;
-  --seo-shadow-glow: 0 0 24px rgba(0, 230, 118, 0.06);
 }
 
 * {

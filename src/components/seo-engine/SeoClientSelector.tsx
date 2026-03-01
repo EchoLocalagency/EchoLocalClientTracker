@@ -1,7 +1,6 @@
 'use client';
 
 import { Client } from '@/lib/types';
-import { seo } from '@/lib/seo-theme';
 
 interface SeoClientSelectorProps {
   clients: Client[];
@@ -17,8 +16,8 @@ export default function SeoClientSelector({
   return (
     <aside style={{
       width: collapsed ? 68 : 260,
-      background: seo.bg,
-      borderRight: `1px solid ${seo.border}`,
+      background: 'var(--bg-sidebar)',
+      borderRight: '1px solid var(--border)',
       display: 'flex',
       flexDirection: 'column',
       transition: 'width 0.25s ease',
@@ -32,16 +31,16 @@ export default function SeoClientSelector({
       {/* Brand */}
       <div style={{
         padding: collapsed ? '20px 12px' : '24px 24px',
-        borderBottom: `1px solid ${seo.border}`,
+        borderBottom: '1px solid var(--border)',
       }}>
         {collapsed ? (
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <div style={{
               width: 32, height: 32, borderRadius: 6,
-              background: seo.accent,
+              background: 'var(--accent)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 14, fontWeight: 700, color: seo.bg,
-              fontFamily: seo.fontMono,
+              fontSize: 14, fontWeight: 700, color: '#000',
+              fontFamily: 'var(--font-mono)',
             }}>
               SE
             </div>
@@ -50,25 +49,25 @@ export default function SeoClientSelector({
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{
               width: 38, height: 38, borderRadius: 8,
-              background: seo.accent,
+              background: 'var(--accent)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 15, fontWeight: 700, color: seo.bg,
-              fontFamily: seo.fontMono,
+              fontSize: 15, fontWeight: 700, color: '#000',
+              fontFamily: 'var(--font-mono)',
             }}>
               SE
             </div>
             <div>
               <div style={{
                 fontSize: 15, fontWeight: 700,
-                fontFamily: seo.fontSans,
-                color: seo.accent,
+                fontFamily: 'var(--font-sans)',
+                color: 'var(--accent)',
                 letterSpacing: '-0.01em',
               }}>
                 SEO Engine
               </div>
               <div style={{
-                fontSize: 10, fontFamily: seo.fontMono,
-                color: seo.textMuted,
+                fontSize: 10, fontFamily: 'var(--font-mono)',
+                color: 'var(--text-secondary)',
                 marginTop: 1, letterSpacing: '0.08em',
                 textTransform: 'uppercase',
               }}>
@@ -86,13 +85,13 @@ export default function SeoClientSelector({
           display: 'flex', alignItems: 'center', gap: 8,
           padding: collapsed ? '12px 0' : '12px 24px',
           justifyContent: collapsed ? 'center' : 'flex-start',
-          fontSize: 12, color: seo.textMuted,
+          fontSize: 12, color: 'var(--text-secondary)',
           textDecoration: 'none',
-          borderBottom: `1px solid ${seo.border}`,
+          borderBottom: '1px solid var(--border)',
           transition: 'color 0.15s ease',
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.color = seo.accent; }}
-        onMouseLeave={(e) => { e.currentTarget.style.color = seo.textMuted; }}
+        onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; }}
       >
         {collapsed ? '\u2039' : '\u2039 Dashboard'}
       </a>
@@ -102,8 +101,8 @@ export default function SeoClientSelector({
         {!collapsed && (
           <div style={{
             fontSize: 10, fontWeight: 600,
-            fontFamily: seo.fontMono,
-            color: seo.textMuted,
+            fontFamily: 'var(--font-mono)',
+            color: 'var(--text-secondary)',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
             marginBottom: 12, paddingLeft: 10,
@@ -123,37 +122,37 @@ export default function SeoClientSelector({
                 width: '100%',
                 padding: collapsed ? '10px 0' : '10px 12px',
                 justifyContent: collapsed ? 'center' : 'flex-start',
-                background: isActive ? seo.accentGlow : 'transparent',
-                border: isActive ? `1px solid ${seo.accentBorder}` : '1px solid transparent',
+                background: isActive ? 'var(--accent-glow)' : 'transparent',
+                border: isActive ? '1px solid var(--accent-border)' : '1px solid transparent',
                 borderRadius: 8,
                 cursor: 'pointer',
-                color: isActive ? seo.text : seo.textMuted,
+                color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
                 fontSize: 13, fontWeight: isActive ? 600 : 400,
                 marginBottom: 4,
                 transition: 'all 0.2s ease',
                 textAlign: 'left',
-                fontFamily: seo.fontSans,
+                fontFamily: 'var(--font-sans)',
               }}
               onMouseEnter={(e) => {
                 if (!isActive) {
                   e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
-                  e.currentTarget.style.color = seo.text;
+                  e.currentTarget.style.color = 'var(--text-primary)';
                 }
               }}
               onMouseLeave={(e) => {
                 if (!isActive) {
                   e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.color = seo.textMuted;
+                  e.currentTarget.style.color = 'var(--text-secondary)';
                 }
               }}
             >
               <div style={{
                 width: 30, height: 30, borderRadius: 8,
-                background: isActive ? seo.accent : 'rgba(255, 255, 255, 0.06)',
-                color: isActive ? seo.bg : seo.textMuted,
+                background: isActive ? 'var(--accent)' : 'rgba(255, 255, 255, 0.06)',
+                color: isActive ? '#000' : 'var(--text-secondary)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 11, fontWeight: 700,
-                fontFamily: seo.fontMono,
+                fontFamily: 'var(--font-mono)',
                 flexShrink: 0,
                 border: isActive ? 'none' : '1px solid rgba(255, 255, 255, 0.06)',
               }}>
@@ -170,8 +169,8 @@ export default function SeoClientSelector({
                   </span>
                   {client.seo_engine_enabled && (
                     <span style={{
-                      fontSize: 9, fontFamily: seo.fontMono,
-                      color: seo.accent, textTransform: 'uppercase',
+                      fontSize: 9, fontFamily: 'var(--font-mono)',
+                      color: 'var(--success)', textTransform: 'uppercase',
                       letterSpacing: '0.05em',
                     }}>
                       active
@@ -189,20 +188,20 @@ export default function SeoClientSelector({
         onClick={onToggle}
         style={{
           padding: '14px', border: 'none',
-          borderTop: `1px solid ${seo.border}`,
+          borderTop: '1px solid var(--border)',
           background: 'transparent',
-          color: seo.textMuted,
+          color: 'var(--text-secondary)',
           cursor: 'pointer', fontSize: 14,
           display: 'flex', justifyContent: 'center',
           transition: 'all 0.15s ease',
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = seo.accentGlow;
-          e.currentTarget.style.color = seo.accent;
+          e.currentTarget.style.background = 'var(--accent-glow)';
+          e.currentTarget.style.color = 'var(--accent)';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.background = 'transparent';
-          e.currentTarget.style.color = seo.textMuted;
+          e.currentTarget.style.color = 'var(--text-secondary)';
         }}
       >
         {collapsed ? '\u203A' : '\u2039'}

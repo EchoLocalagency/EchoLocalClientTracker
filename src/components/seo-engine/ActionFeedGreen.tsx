@@ -2,31 +2,30 @@
 
 import { useState } from 'react';
 import { SeoAction } from '@/lib/types';
-import { seo } from '@/lib/seo-theme';
 
 interface ActionFeedGreenProps {
   actions: SeoAction[];
 }
 
 const typeColors: Record<string, string> = {
-  blog_post: '#00E676',
-  gbp_post: '#69F0AE',
-  meta_update: '#81C784',
-  internal_link: '#E8F5E9',
-  schema_markup: '#00C853',
+  blog_post: '#E8FF00',
+  gbp_post: '#00E676',
+  meta_update: '#8A8F98',
+  internal_link: '#F0F2F5',
+  schema_markup: '#B8CC00',
 };
 
 function getTypeColor(type: string): string {
-  return typeColors[type] || seo.accent;
+  return typeColors[type] || '#E8FF00';
 }
 
 function getStatusStyle(status: string): { bg: string; color: string } {
   switch (status) {
-    case 'completed': return { bg: 'rgba(0, 230, 118, 0.12)', color: seo.accent };
-    case 'pending': return { bg: 'rgba(255, 215, 64, 0.12)', color: seo.warning };
-    case 'failed': return { bg: 'rgba(255, 82, 82, 0.12)', color: seo.danger };
-    case 'dry_run': return { bg: 'rgba(129, 199, 132, 0.12)', color: seo.textMuted };
-    default: return { bg: 'rgba(129, 199, 132, 0.12)', color: seo.textMuted };
+    case 'completed': return { bg: 'rgba(0, 230, 118, 0.12)', color: 'var(--success)' };
+    case 'pending': return { bg: 'rgba(232, 255, 0, 0.12)', color: 'var(--accent)' };
+    case 'failed': return { bg: 'rgba(255, 61, 87, 0.12)', color: 'var(--danger)' };
+    case 'dry_run': return { bg: 'rgba(138, 143, 152, 0.12)', color: 'var(--text-secondary)' };
+    default: return { bg: 'rgba(138, 143, 152, 0.12)', color: 'var(--text-secondary)' };
   }
 }
 
@@ -44,7 +43,7 @@ export default function ActionFeedGreen({ actions }: ActionFeedGreenProps) {
 
   if (actions.length === 0) {
     return (
-      <div style={{ color: seo.textMuted, padding: 40, textAlign: 'center' }}>
+      <div style={{ color: 'var(--text-secondary)', padding: 40, textAlign: 'center' }}>
         No SEO actions recorded yet. Actions will appear here once the SEO Engine runs.
       </div>
     );
@@ -61,12 +60,12 @@ export default function ActionFeedGreen({ actions }: ActionFeedGreenProps) {
               onClick={() => setFilterType(type)}
               style={{
                 padding: '6px 14px', fontSize: 11, fontWeight: 600,
-                fontFamily: seo.fontMono,
+                fontFamily: 'var(--font-mono)',
                 border: '1px solid',
-                borderColor: filterType === type ? seo.accent : seo.border,
+                borderColor: filterType === type ? 'var(--accent)' : 'var(--border)',
                 borderRadius: 20,
-                background: filterType === type ? seo.accentGlow : 'transparent',
-                color: filterType === type ? seo.accent : seo.textMuted,
+                background: filterType === type ? 'var(--accent-glow)' : 'transparent',
+                color: filterType === type ? 'var(--accent)' : 'var(--text-secondary)',
                 cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.03em',
               }}
             >
@@ -74,7 +73,7 @@ export default function ActionFeedGreen({ actions }: ActionFeedGreenProps) {
             </button>
           ))}
         </div>
-        <div style={{ width: 1, height: 20, background: seo.border }} />
+        <div style={{ width: 1, height: 20, background: 'var(--border)' }} />
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {statuses.map(status => (
             <button
@@ -82,12 +81,12 @@ export default function ActionFeedGreen({ actions }: ActionFeedGreenProps) {
               onClick={() => setFilterStatus(status)}
               style={{
                 padding: '6px 14px', fontSize: 11, fontWeight: 600,
-                fontFamily: seo.fontMono,
+                fontFamily: 'var(--font-mono)',
                 border: '1px solid',
-                borderColor: filterStatus === status ? seo.accent : seo.border,
+                borderColor: filterStatus === status ? 'var(--accent)' : 'var(--border)',
                 borderRadius: 20,
-                background: filterStatus === status ? seo.accentGlow : 'transparent',
-                color: filterStatus === status ? seo.accent : seo.textMuted,
+                background: filterStatus === status ? 'var(--accent-glow)' : 'transparent',
+                color: filterStatus === status ? 'var(--accent)' : 'var(--text-secondary)',
                 cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.03em',
               }}
             >
@@ -98,7 +97,7 @@ export default function ActionFeedGreen({ actions }: ActionFeedGreenProps) {
       </div>
 
       {/* Results count */}
-      <div style={{ fontSize: 11, color: seo.textMuted, fontFamily: seo.fontMono, marginBottom: 12 }}>
+      <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', marginBottom: 12 }}>
         {filtered.length} action{filtered.length !== 1 ? 's' : ''}
       </div>
 
@@ -113,24 +112,24 @@ export default function ActionFeedGreen({ actions }: ActionFeedGreenProps) {
             <div
               key={action.id}
               style={{
-                background: seo.surface,
-                border: `1px solid ${seo.border}`,
-                borderRadius: seo.radiusCard,
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-card)',
                 padding: '16px 20px',
                 cursor: 'pointer',
                 transition: 'border-color 0.15s ease',
               }}
               onClick={() => setExpandedId(isExpanded ? null : action.id)}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = seo.accentBorder; }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = seo.border; }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--accent-border)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
             >
               {/* Header row */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                <div style={{ fontSize: 11, color: seo.textMuted, fontFamily: seo.fontMono, flexShrink: 0 }}>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', flexShrink: 0 }}>
                   {new Date(action.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                 </div>
                 <span style={{
-                  fontSize: 10, fontWeight: 700, fontFamily: seo.fontMono,
+                  fontSize: 10, fontWeight: 700, fontFamily: 'var(--font-mono)',
                   padding: '3px 10px', borderRadius: 12,
                   background: `${typeColor}20`, color: typeColor,
                   textTransform: 'uppercase', letterSpacing: '0.04em',
@@ -138,7 +137,7 @@ export default function ActionFeedGreen({ actions }: ActionFeedGreenProps) {
                   {action.action_type.replace(/_/g, ' ')}
                 </span>
                 <span style={{
-                  fontSize: 10, fontWeight: 600, fontFamily: seo.fontMono,
+                  fontSize: 10, fontWeight: 600, fontFamily: 'var(--font-mono)',
                   padding: '3px 10px', borderRadius: 12,
                   background: statusStyle.bg, color: statusStyle.color,
                   textTransform: 'uppercase', marginLeft: 'auto',
@@ -147,19 +146,19 @@ export default function ActionFeedGreen({ actions }: ActionFeedGreenProps) {
                 </span>
                 {action.impact_score != null && (
                   <span style={{
-                    fontSize: 13, fontWeight: 700, fontFamily: seo.fontMono,
-                    color: action.impact_score > 0 ? seo.accent : action.impact_score < 0 ? seo.danger : seo.textMuted,
+                    fontSize: 13, fontWeight: 700, fontFamily: 'var(--font-mono)',
+                    color: action.impact_score > 0 ? 'var(--success)' : action.impact_score < 0 ? 'var(--danger)' : 'var(--text-secondary)',
                   }}>
                     {action.impact_score > 0 ? '+' : ''}{action.impact_score}
                   </span>
                 )}
-                <span style={{ fontSize: 12, color: seo.textMuted, marginLeft: 4 }}>
+                <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 4 }}>
                   {isExpanded ? '\u25B2' : '\u25BC'}
                 </span>
               </div>
 
               {/* Description */}
-              <div style={{ fontSize: 13, color: seo.text, marginBottom: 8 }}>
+              <div style={{ fontSize: 13, color: 'var(--text-primary)', marginBottom: 8 }}>
                 {action.description}
               </div>
 
@@ -168,10 +167,10 @@ export default function ActionFeedGreen({ actions }: ActionFeedGreenProps) {
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   {action.target_keywords.map((kw, i) => (
                     <span key={i} style={{
-                      fontSize: 10, fontFamily: seo.fontMono,
+                      fontSize: 10, fontFamily: 'var(--font-mono)',
                       padding: '2px 8px', borderRadius: 6,
-                      background: seo.deep, color: seo.textMuted,
-                      border: `1px solid ${seo.border}`,
+                      background: 'var(--bg-depth)', color: 'var(--text-secondary)',
+                      border: '1px solid var(--border)',
                     }}>
                       {kw}
                     </span>
@@ -183,9 +182,9 @@ export default function ActionFeedGreen({ actions }: ActionFeedGreenProps) {
               {isExpanded && action.content_summary && (
                 <div style={{
                   marginTop: 12, paddingTop: 12,
-                  borderTop: `1px solid ${seo.border}`,
-                  fontSize: 12, color: seo.textMuted,
-                  lineHeight: 1.6, fontFamily: seo.fontMono,
+                  borderTop: '1px solid var(--border)',
+                  fontSize: 12, color: 'var(--text-secondary)',
+                  lineHeight: 1.6, fontFamily: 'var(--font-mono)',
                   whiteSpace: 'pre-wrap',
                 }}>
                   {action.content_summary}

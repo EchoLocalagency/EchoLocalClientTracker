@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Client, SeoAction, SeoBrainDecision, SeoEngineTabId } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
-import { seo } from '@/lib/seo-theme';
 import SeoEngineLayout from '@/components/seo-engine/SeoEngineLayout';
 import SeoClientSelector from '@/components/seo-engine/SeoClientSelector';
 import SeoTabNav from '@/components/seo-engine/SeoTabNav';
@@ -101,8 +100,8 @@ export default function SeoEnginePage() {
     return (
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        height: '100vh', color: seo.textMuted, background: seo.bg,
-        fontFamily: seo.fontSans,
+        height: '100vh', color: 'var(--text-secondary)', background: 'var(--bg-primary)',
+        fontFamily: 'var(--font-sans)',
       }}>
         Loading...
       </div>
@@ -125,27 +124,28 @@ export default function SeoEnginePage() {
       {/* Header */}
       <header style={{
         padding: '20px 32px',
-        borderBottom: `1px solid ${seo.border}`,
+        borderBottom: '1px solid var(--border)',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
       }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: seo.text }}>
+          <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
             SEO Engine
           </h1>
           {activeClient && (
-            <div style={{ fontSize: 12, color: seo.textMuted, marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
               {activeClient.name} {activeClient.website ? `-- ${activeClient.website}` : ''}
             </div>
           )}
         </div>
         <div style={{
-          fontSize: 10, fontFamily: seo.fontMono,
-          color: seo.textMuted, textTransform: 'uppercase',
+          fontSize: 10, fontFamily: 'var(--font-mono)',
+          color: activeClient?.seo_engine_enabled ? 'var(--success)' : 'var(--text-secondary)',
+          textTransform: 'uppercase',
           letterSpacing: '0.08em',
           padding: '6px 14px',
-          border: `1px solid ${seo.border}`,
+          border: '1px solid var(--border)',
           borderRadius: 20,
         }}>
           {activeClient?.seo_engine_enabled ? 'Engine Active' : 'Engine Inactive'}

@@ -1,7 +1,6 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { seo } from '@/lib/seo-theme';
 
 interface SeoEngineLayoutProps {
   sidebar: ReactNode;
@@ -14,9 +13,9 @@ export default function SeoEngineLayout({ sidebar, children, sidebarWidth }: Seo
     <div style={{
       display: 'flex',
       minHeight: '100vh',
-      background: seo.bg,
-      color: seo.text,
-      fontFamily: seo.fontSans,
+      background: 'var(--bg-primary)',
+      color: 'var(--text-primary)',
+      fontFamily: 'var(--font-sans)',
     }}>
       {sidebar}
       <main style={{

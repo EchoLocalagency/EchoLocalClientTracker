@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Client } from '@/lib/types';
-import { seo } from '@/lib/seo-theme';
 import { supabase } from '@/lib/supabase';
 
 interface ClientFormProps {
@@ -115,11 +114,11 @@ export default function ClientForm({ client, onSave, onCancel }: ClientFormProps
     width: '100%',
     padding: '10px 14px',
     fontSize: 13,
-    fontFamily: seo.fontMono,
-    background: seo.deep,
-    border: `1px solid ${seo.border}`,
+    fontFamily: 'var(--font-mono)',
+    background: 'var(--bg-depth)',
+    border: '1px solid var(--border)',
     borderRadius: 6,
-    color: seo.text,
+    color: 'var(--text-primary)',
     outline: 'none',
     transition: 'border-color 0.15s ease',
   };
@@ -127,7 +126,7 @@ export default function ClientForm({ client, onSave, onCancel }: ClientFormProps
   const labelStyle = {
     fontSize: 11,
     fontWeight: 600 as const,
-    color: seo.textMuted,
+    color: 'var(--text-secondary)',
     textTransform: 'uppercase' as const,
     letterSpacing: '0.05em',
     marginBottom: 6,
@@ -138,16 +137,16 @@ export default function ClientForm({ client, onSave, onCancel }: ClientFormProps
     <form onSubmit={handleSubmit}>
       {/* Form header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: seo.text }}>
+        <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
           {isEdit ? `Edit ${client!.name}` : 'Add New Client'}
         </h2>
         <button
           type="button"
           onClick={onCancel}
           style={{
-            padding: '6px 14px', fontSize: 12, fontFamily: seo.fontMono,
-            background: 'transparent', border: `1px solid ${seo.border}`,
-            borderRadius: 6, color: seo.textMuted, cursor: 'pointer',
+            padding: '6px 14px', fontSize: 12, fontFamily: 'var(--font-mono)',
+            background: 'transparent', border: '1px solid var(--border)',
+            borderRadius: 6, color: 'var(--text-secondary)', cursor: 'pointer',
           }}
         >
           Cancel
@@ -157,9 +156,9 @@ export default function ClientForm({ client, onSave, onCancel }: ClientFormProps
       {error && (
         <div style={{
           padding: '10px 16px', marginBottom: 20,
-          background: 'rgba(255, 82, 82, 0.1)',
-          border: `1px solid rgba(255, 82, 82, 0.3)`,
-          borderRadius: 8, color: seo.danger, fontSize: 13,
+          background: 'rgba(255, 61, 87, 0.1)',
+          border: '1px solid rgba(255, 61, 87, 0.3)',
+          borderRadius: 8, color: 'var(--danger)', fontSize: 13,
         }}>
           {error}
         </div>
@@ -223,10 +222,10 @@ export default function ClientForm({ client, onSave, onCancel }: ClientFormProps
                 placeholder="pressure washing oceanside, power washing san marcos, driveway cleaning vista"
                 rows={3}
                 style={{ ...inputStyle, resize: 'vertical' as const }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = seo.accent; }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = seo.border; }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--accent)'; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
               />
-              <div style={{ fontSize: 10, color: seo.textMuted, marginTop: 4 }}>Comma-separated</div>
+              <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 4 }}>Comma-separated</div>
             </div>
             <div>
               <label style={labelStyle}>Service Areas</label>
@@ -236,19 +235,19 @@ export default function ClientForm({ client, onSave, onCancel }: ClientFormProps
                 placeholder="Oceanside, Carlsbad, Vista, San Marcos"
                 rows={2}
                 style={{ ...inputStyle, resize: 'vertical' as const }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = seo.accent; }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = seo.border; }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--accent)'; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
               />
-              <div style={{ fontSize: 10, color: seo.textMuted, marginTop: 4 }}>Comma-separated</div>
+              <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 4 }}>Comma-separated</div>
             </div>
             <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
               <input
                 type="checkbox"
                 checked={form.seo_engine_enabled}
                 onChange={(e) => update('seo_engine_enabled', e.target.checked)}
-                style={{ accentColor: seo.accent, width: 16, height: 16 }}
+                style={{ accentColor: 'var(--accent)', width: 16, height: 16 }}
               />
-              <span style={{ fontSize: 13, color: seo.text }}>Enable SEO Engine for this client</span>
+              <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>Enable SEO Engine for this client</span>
             </label>
           </div>
         </FormSection>
@@ -262,15 +261,15 @@ export default function ClientForm({ client, onSave, onCancel }: ClientFormProps
           style={{
             padding: '10px 28px',
             fontSize: 13, fontWeight: 600,
-            fontFamily: seo.fontMono,
-            background: saving ? seo.accentDim : seo.accent,
-            color: seo.bg,
+            fontFamily: 'var(--font-mono)',
+            background: saving ? 'var(--accent-dim)' : 'var(--accent)',
+            color: '#000',
             border: 'none', borderRadius: 8,
             cursor: saving ? 'not-allowed' : 'pointer',
             transition: 'background 0.15s ease',
           }}
-          onMouseEnter={(e) => { if (!saving) e.currentTarget.style.background = seo.accentDim; }}
-          onMouseLeave={(e) => { if (!saving) e.currentTarget.style.background = seo.accent; }}
+          onMouseEnter={(e) => { if (!saving) e.currentTarget.style.background = 'var(--accent-dim)'; }}
+          onMouseLeave={(e) => { if (!saving) e.currentTarget.style.background = 'var(--accent)'; }}
         >
           {saving ? 'Saving...' : isEdit ? 'Save Changes' : 'Create Client'}
         </button>
@@ -280,10 +279,10 @@ export default function ClientForm({ client, onSave, onCancel }: ClientFormProps
           style={{
             padding: '10px 28px',
             fontSize: 13, fontWeight: 600,
-            fontFamily: seo.fontMono,
+            fontFamily: 'var(--font-mono)',
             background: 'transparent',
-            color: seo.textMuted,
-            border: `1px solid ${seo.border}`,
+            color: 'var(--text-secondary)',
+            border: '1px solid var(--border)',
             borderRadius: 8, cursor: 'pointer',
           }}
         >
@@ -297,15 +296,15 @@ export default function ClientForm({ client, onSave, onCancel }: ClientFormProps
 function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div style={{
-      background: seo.surface,
-      border: `1px solid ${seo.border}`,
-      borderRadius: seo.radiusCard,
+      background: 'var(--bg-surface)',
+      border: '1px solid var(--border)',
+      borderRadius: 'var(--radius-card)',
       padding: '20px 24px',
     }}>
       <div style={{
-        fontSize: 13, fontWeight: 600, color: seo.accent,
+        fontSize: 13, fontWeight: 600, color: 'var(--accent)',
         marginBottom: 16, paddingBottom: 8,
-        borderBottom: `1px solid ${seo.border}`,
+        borderBottom: '1px solid var(--border)',
       }}>
         {title}
       </div>
@@ -328,7 +327,7 @@ function Field({
   return (
     <div>
       <label style={labelStyle}>
-        {label}{required && <span style={{ color: seo.danger, marginLeft: 2 }}>*</span>}
+        {label}{required && <span style={{ color: 'var(--danger)', marginLeft: 2 }}>*</span>}
       </label>
       <input
         type="text"
@@ -337,8 +336,8 @@ function Field({
         placeholder={placeholder}
         required={required}
         style={style}
-        onFocus={(e) => { e.currentTarget.style.borderColor = seo.accent; }}
-        onBlur={(e) => { e.currentTarget.style.borderColor = seo.border; }}
+        onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--accent)'; }}
+        onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
       />
     </div>
   );

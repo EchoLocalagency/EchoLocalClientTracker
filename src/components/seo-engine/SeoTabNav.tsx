@@ -1,7 +1,6 @@
 'use client';
 
 import { SeoEngineTabId } from '@/lib/types';
-import { seo } from '@/lib/seo-theme';
 
 interface SeoTab {
   id: SeoEngineTabId;
@@ -24,7 +23,7 @@ export default function SeoTabNav({ activeTab, onTabChange }: SeoTabNavProps) {
   return (
     <div style={{
       display: 'flex', gap: 0,
-      borderBottom: `1px solid ${seo.border}`,
+      borderBottom: '1px solid var(--border)',
       marginBottom: 24,
     }}>
       {tabs.map((tab) => (
@@ -36,23 +35,23 @@ export default function SeoTabNav({ activeTab, onTabChange }: SeoTabNavProps) {
             background: 'none',
             border: 'none',
             borderBottom: activeTab === tab.id
-              ? `2px solid ${seo.accent}`
+              ? '2px solid var(--accent)'
               : '2px solid transparent',
-            color: activeTab === tab.id ? seo.accent : seo.textMuted,
+            color: activeTab === tab.id ? 'var(--accent)' : 'var(--text-secondary)',
             fontSize: 14,
             fontWeight: activeTab === tab.id ? 600 : 400,
-            fontFamily: seo.fontSans,
+            fontFamily: 'var(--font-sans)',
             cursor: 'pointer',
             transition: 'all 0.15s ease',
           }}
           onMouseEnter={(e) => {
             if (activeTab !== tab.id) {
-              e.currentTarget.style.color = seo.text;
+              e.currentTarget.style.color = 'var(--text-primary)';
             }
           }}
           onMouseLeave={(e) => {
             if (activeTab !== tab.id) {
-              e.currentTarget.style.color = seo.textMuted;
+              e.currentTarget.style.color = 'var(--text-secondary)';
             }
           }}
         >
