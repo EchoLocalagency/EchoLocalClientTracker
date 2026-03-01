@@ -26,14 +26,19 @@ export default function ConversionsTab({ reports, latestReport, hasFormTracking 
 
   const sorted = reports.sort((a, b) => a.run_date.localeCompare(b.run_date));
 
+  const totalCalls = (r: Report) => (r.ga4_phone_clicks ?? 0) + (r.gbp_call_clicks ?? 0);
+  const totalCallsPrev = (r: Report) => (r.ga4_phone_clicks_prev ?? 0) + (r.gbp_call_clicks_prev ?? 0);
+
   const phoneData = sorted.map((r) => ({
     date: new Date(r.run_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    calls: r.ga4_phone_clicks ?? 0,
+    'Website Calls': r.ga4_phone_clicks ?? 0,
+    'GBP Calls': r.gbp_call_clicks ?? 0,
     forms: r.ga4_form_submits ?? 0,
   }));
 
-  const conversionRate = latestReport.ga4_phone_clicks != null && latestReport.ga4_sessions != null && latestReport.ga4_sessions > 0
-    ? ((latestReport.ga4_phone_clicks / latestReport.ga4_sessions) * 100).toFixed(1) + '%'
+  const latestTotal = totalCalls(latestReport);
+  const conversionRate = latestTotal > 0 && latestReport.ga4_sessions != null && latestReport.ga4_sessions > 0
+    ? ((latestTotal / latestReport.ga4_sessions) * 100).toFixed(1) + '%'
     : '--';
 
   const chartStyle = {
@@ -49,9 +54,19 @@ export default function ConversionsTab({ reports, latestReport, hasFormTracking 
       {/* Stat cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
         <StatCard
-          label="Phone Clicks"
+          label="Total Phone Clicks"
+          value={latestTotal}
+          previous={totalCallsPrev(latestReport)}
+        />
+        <StatCard
+          label="Website Calls"
           value={latestReport.ga4_phone_clicks}
           previous={latestReport.ga4_phone_clicks_prev}
+        />
+        <StatCard
+          label="GBP Calls"
+          value={latestReport.gbp_call_clicks}
+          previous={latestReport.gbp_call_clicks_prev}
         />
         {hasFormTracking && (
           <StatCard
@@ -76,7 +91,7 @@ export default function ConversionsTab({ reports, latestReport, hasFormTracking 
 
       {/* Phone clicks over time */}
       <div style={chartStyle}>
-        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 16 }}>Phone Clicks Per Period</div>
+        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 16 }}>Conversions Per Period</div>
         <div style={{ height: 240 }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={phoneData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
@@ -84,7 +99,8 @@ export default function ConversionsTab({ reports, latestReport, hasFormTracking 
               <XAxis dataKey="date" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip content={<ChartTooltip />} />
-              <Bar dataKey="calls" fill="#E8FF00" radius={[4, 4, 0, 0]} name="Phone Clicks" />
+              <Bar dataKey="Website Calls" stackId="calls" fill="#E8FF00" radius={[0, 0, 0, 0]} />
+              <Bar dataKey="GBP Calls" stackId="calls" fill="#00CED1" radius={[4, 4, 0, 0]} />
               {hasFormTracking && (
                 <Bar dataKey="forms" fill="var(--text-primary)" radius={[4, 4, 0, 0]} name="Form Submits" />
               )}
@@ -101,21 +117,26 @@ export default function ConversionsTab({ reports, latestReport, hasFormTracking 
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
               <th style={{ textAlign: 'left', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Period</th>
               <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Sessions</th>
-              <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Phone Clicks</th>
+              <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Website Calls</th>
+              <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>GBP Calls</th>
+              <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Total Calls</th>
               {hasFormTracking && <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Form Submits</th>}
               <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Conv. Rate</th>
             </tr>
           </thead>
           <tbody>
             {sorted.slice().reverse().map((r) => {
-              const rate = r.ga4_phone_clicks != null && r.ga4_sessions != null && r.ga4_sessions > 0
-                ? ((r.ga4_phone_clicks / r.ga4_sessions) * 100).toFixed(1) + '%'
+              const total = totalCalls(r);
+              const rate = total > 0 && r.ga4_sessions != null && r.ga4_sessions > 0
+                ? ((total / r.ga4_sessions) * 100).toFixed(1) + '%'
                 : '--';
               return (
                 <tr key={r.id} style={{ borderBottom: '1px solid var(--border)' }}>
                   <td style={{ padding: '10px 12px' }}>{r.run_date}</td>
                   <td style={{ padding: '10px 12px', textAlign: 'right', color: 'var(--text-secondary)' }}>{r.ga4_sessions?.toLocaleString() ?? '--'}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'right' }}>{r.ga4_phone_clicks ?? '--'}</td>
+                  <td style={{ padding: '10px 12px', textAlign: 'right' }}>{r.ga4_phone_clicks ?? 0}</td>
+                  <td style={{ padding: '10px 12px', textAlign: 'right', color: '#00CED1' }}>{r.gbp_call_clicks ?? 0}</td>
+                  <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 600 }}>{total}</td>
                   {hasFormTracking && <td style={{ padding: '10px 12px', textAlign: 'right' }}>{r.ga4_form_submits ?? '--'}</td>}
                   <td style={{ padding: '10px 12px', textAlign: 'right', color: 'var(--accent)' }}>{rate}</td>
                 </tr>
