@@ -14,7 +14,7 @@ export default function SummaryTab({ latestReport, firstReport, clientName }: Su
   const [copied, setCopied] = useState(false);
 
   if (!latestReport) {
-    return <div style={{ color: 'var(--text-muted)', padding: 40, textAlign: 'center' }}>No data yet. Run your first report to generate a summary.</div>;
+    return <div style={{ color: 'var(--text-secondary)', padding: 40, textAlign: 'center' }}>No data yet. Run your first report to generate a summary.</div>;
   }
 
   const summary = generateSummary(latestReport, firstReport, clientName);
@@ -25,7 +25,6 @@ export default function SummaryTab({ latestReport, firstReport, clientName }: Su
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // fallback
       const textarea = document.createElement('textarea');
       textarea.value = summary;
       document.body.appendChild(textarea);
@@ -53,8 +52,8 @@ export default function SummaryTab({ latestReport, firstReport, clientName }: Su
             fontSize: 12,
             fontWeight: 600,
             fontFamily: 'var(--font-mono)',
-            background: copied ? 'var(--success)' : 'var(--accent-teal)',
-            color: copied ? '#fff' : 'var(--bg-primary)',
+            background: copied ? 'var(--success)' : 'var(--accent)',
+            color: '#000',
             border: 'none',
             borderRadius: 6,
             cursor: 'pointer',

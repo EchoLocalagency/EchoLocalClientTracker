@@ -11,9 +11,9 @@ interface Tab {
 const tabs: Tab[] = [
   { id: 'overview', label: 'Overview' },
   { id: 'seo', label: 'SEO Performance' },
-  { id: 'health', label: 'Website Health' },
   { id: 'conversions', label: 'Conversions' },
   { id: 'gbp', label: 'GBP' },
+  { id: 'seo-engine', label: 'SEO Engine' },
   { id: 'summary', label: 'Summary' },
 ];
 
@@ -33,12 +33,12 @@ export default function TabNav({ activeTab, onTabChange }: TabNavProps) {
             padding: '12px 20px',
             background: 'none',
             border: 'none',
-            borderBottom: activeTab === tab.id ? '2px solid var(--accent-teal)' : '2px solid transparent',
+            borderBottom: activeTab === tab.id ? '2px solid var(--accent)' : '2px solid transparent',
             color: tab.disabled
-              ? 'rgba(136, 146, 164, 0.4)'
+              ? 'rgba(138, 143, 152, 0.4)'
               : activeTab === tab.id
-              ? 'var(--accent-teal)'
-              : 'var(--text-muted)',
+              ? 'var(--accent)'
+              : 'var(--text-secondary)',
             fontSize: 14,
             fontWeight: activeTab === tab.id ? 600 : 400,
             cursor: tab.disabled ? 'not-allowed' : 'pointer',
@@ -51,7 +51,7 @@ export default function TabNav({ activeTab, onTabChange }: TabNavProps) {
           }}
           onMouseLeave={(e) => {
             if (!tab.disabled && activeTab !== tab.id) {
-              e.currentTarget.style.color = 'var(--text-muted)';
+              e.currentTarget.style.color = 'var(--text-secondary)';
             }
           }}
         >

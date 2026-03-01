@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Client, Report, GscQuery, GbpKeyword, TabId, TimeRange } from '@/lib/types';
+import { Client, Report, GscQuery, GbpKeyword, SeoAction, SeoBrainDecision, TabId, TimeRange } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 import { useFilteredReports } from '@/hooks/useFilteredReports';
 import Sidebar from '@/components/Sidebar';
@@ -9,9 +9,9 @@ import TabNav from '@/components/TabNav';
 import TimeRangeFilter from '@/components/TimeRangeFilter';
 import OverviewTab from '@/components/tabs/OverviewTab';
 import SeoTab from '@/components/tabs/SeoTab';
-import HealthTab from '@/components/tabs/HealthTab';
 import ConversionsTab from '@/components/tabs/ConversionsTab';
 import GbpTab from '@/components/tabs/GbpTab';
+import SeoEngineTab from '@/components/tabs/SeoEngineTab';
 import SummaryTab from '@/components/tabs/SummaryTab';
 
 export default function Dashboard() {
@@ -23,6 +23,8 @@ export default function Dashboard() {
   const [queries, setQueries] = useState<GscQuery[]>([]);
   const [prevQueries, setPrevQueries] = useState<GscQuery[]>([]);
   const [gbpKeywords, setGbpKeywords] = useState<GbpKeyword[]>([]);
+  const [seoActions, setSeoActions] = useState<SeoAction[]>([]);
+  const [brainDecisions, setBrainDecisions] = useState<SeoBrainDecision[]>([]);
   const [timeRange, setTimeRange] = useState<TimeRange>('3m');
   const [loading, setLoading] = useState(true);
 
@@ -139,12 +141,56 @@ export default function Dashboard() {
     loadGbpKeywords();
   }, [activeClient, latestReport, reports.length]);
 
+  // Load SEO Engine data
+  useEffect(() => {
+    if (!activeClient) {
+      setSeoActions([]);
+      setBrainDecisions([]);
+      return;
+    }
+
+    async function loadSeoActions() {
+      const { data, error } = await supabase
+        .from('seo_actions')
+        .select('*')
+        .eq('client_id', activeClient!.id)
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      if (error) {
+        console.error('SEO actions fetch error:', error);
+        setSeoActions([]);
+      } else {
+        setSeoActions(data || []);
+      }
+    }
+
+    async function loadBrainDecisions() {
+      const { data, error } = await supabase
+        .from('seo_brain_decisions')
+        .select('*')
+        .eq('client_id', activeClient!.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) {
+        console.error('Brain decisions fetch error:', error);
+        setBrainDecisions([]);
+      } else {
+        setBrainDecisions(data || []);
+      }
+    }
+
+    loadSeoActions();
+    loadBrainDecisions();
+  }, [activeClient]);
+
   const hasFormTracking = activeClient?.slug === 'integrity-pro-washers';
   const sidebarWidth = sidebarCollapsed ? 68 : 260;
 
   if (!activeClient) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: 'var(--text-muted)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: 'var(--text-secondary)' }}>
         Loading...
       </div>
     );
@@ -171,14 +217,14 @@ export default function Dashboard() {
         }}>
           <div>
             <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{activeClient.name}</h1>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
               {activeClient.website}
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
             <TimeRangeFilter value={timeRange} onChange={setTimeRange} />
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Last updated</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Last updated</div>
               <div style={{ fontSize: 13, fontWeight: 500, fontFamily: 'var(--font-mono)' }}>
                 {latestReport ? latestReport.run_date : 'No data'}
               </div>
@@ -191,7 +237,7 @@ export default function Dashboard() {
           <TabNav activeTab={activeTab} onTabChange={setActiveTab} />
 
           {loading ? (
-            <div style={{ color: 'var(--text-muted)', padding: 40, textAlign: 'center' }}>Loading...</div>
+            <div style={{ color: 'var(--text-secondary)', padding: 40, textAlign: 'center' }}>Loading...</div>
           ) : (
             <>
               {activeTab === 'overview' && (
@@ -200,14 +246,14 @@ export default function Dashboard() {
               {activeTab === 'seo' && (
                 <SeoTab reports={filteredReports} queries={queries} latestReport={latestReport} prevQueries={prevQueries} />
               )}
-              {activeTab === 'health' && (
-                <HealthTab reports={filteredReports} latestReport={latestReport} />
-              )}
               {activeTab === 'conversions' && (
                 <ConversionsTab reports={filteredReports} latestReport={latestReport} hasFormTracking={hasFormTracking} />
               )}
               {activeTab === 'gbp' && (
                 <GbpTab reports={filteredReports} latestReport={latestReport} gbpKeywords={gbpKeywords} />
+              )}
+              {activeTab === 'seo-engine' && (
+                <SeoEngineTab actions={seoActions} decisions={brainDecisions} />
               )}
               {activeTab === 'summary' && (
                 <SummaryTab latestReport={latestReport} firstReport={firstReport} clientName={activeClient.name} />

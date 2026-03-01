@@ -1,24 +1,23 @@
 @import "tailwindcss";
 
 :root {
-  --bg-primary: #0A0F1E;
-  --bg-surface: #0F1629;
-  --bg-depth: #0D1220;
-  --bg-sidebar: #001F3F;
-  --border: #1E2A3A;
-  --accent-teal: #00CED1;
-  --accent-teal-hover: #00B4B4;
-  --accent-teal-dim: rgba(0, 206, 209, 0.08);
-  --accent-teal-border: rgba(0, 206, 209, 0.2);
-  --accent-gold: #FFD700;
-  --text-primary: #F5F5F5;
-  --text-muted: #8892A4;
-  --success: #28a745;
-  --danger: #dc3545;
+  --bg-primary: #000000;
+  --bg-surface: #0A0A0A;
+  --bg-depth: #111111;
+  --bg-sidebar: #050505;
+  --border: #1A1A1A;
+  --accent: #E8FF00;
+  --accent-dim: #B8CC00;
+  --accent-glow: rgba(232, 255, 0, 0.08);
+  --accent-border: rgba(232, 255, 0, 0.2);
+  --text-primary: #F0F2F5;
+  --text-secondary: #8A8F98;
+  --success: #00E676;
+  --danger: #FF3D57;
   --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   --radius-card: 10px;
-  --shadow-glow: 0 0 24px rgba(0, 206, 209, 0.06);
+  --shadow-glow: 0 0 24px rgba(232, 255, 0, 0.06);
 }
 
 * {
@@ -26,7 +25,7 @@
 }
 
 body {
-  background: linear-gradient(180deg, #080C18 0%, var(--bg-primary) 40%);
+  background: #000000;
   color: var(--text-primary);
   font-family: var(--font-sans);
   margin: 0;
@@ -44,7 +43,7 @@ body {
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  background: var(--text-secondary);
 }
 
 .recharts-cartesian-grid-horizontal line,
@@ -52,7 +51,7 @@ body {
   stroke: var(--border) !important;
 }
 .recharts-text {
-  fill: var(--text-muted) !important;
+  fill: var(--text-secondary) !important;
   font-size: 12px !important;
   font-family: var(--font-mono) !important;
 }
@@ -62,15 +61,15 @@ body {
 
 /* Brush styling */
 .recharts-brush .recharts-brush-slide {
-  fill: var(--accent-teal-dim);
-  stroke: var(--accent-teal-border);
+  fill: var(--accent-glow);
+  stroke: var(--accent-border);
 }
 .recharts-brush .recharts-brush-traveller rect {
-  fill: var(--accent-teal);
+  fill: var(--accent);
   rx: 3;
 }
 .recharts-brush text {
-  fill: var(--text-muted) !important;
+  fill: var(--text-secondary) !important;
   font-family: var(--font-mono) !important;
   font-size: 10px !important;
 }

@@ -31,8 +31,8 @@ export default function TimeRangeFilter({ value, onChange }: TimeRangeFilterProp
             borderRadius: 6,
             cursor: 'pointer',
             transition: 'all 0.15s ease',
-            background: value === opt.value ? 'var(--accent-teal)' : 'transparent',
-            color: value === opt.value ? 'var(--bg-primary)' : 'var(--text-muted)',
+            background: value === opt.value ? 'var(--accent)' : 'transparent',
+            color: value === opt.value ? '#000' : 'var(--text-secondary)',
           }}
         >
           {opt.label}

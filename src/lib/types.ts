@@ -73,6 +73,30 @@ export interface GbpKeyword {
   impressions: number;
 }
 
-export type TabId = 'overview' | 'seo' | 'health' | 'conversions' | 'gbp' | 'summary';
+export interface SeoAction {
+  id: string;
+  client_id: string;
+  run_id: string;
+  action_type: string;
+  description: string;
+  target_keywords: string[];
+  status: string;
+  impact_score: number | null;
+  content_summary: string | null;
+  created_at: string;
+}
 
+export interface SeoBrainDecision {
+  id: string;
+  client_id: string;
+  run_id: string;
+  input_stats: Record<string, unknown>;
+  actions_proposed: number;
+  actions_chosen: string[];
+  reasoning: string | null;
+  created_at: string;
+}
+
+export type TabId = 'overview' | 'seo' | 'conversions' | 'gbp' | 'seo-engine' | 'summary';
+export type SeoEngineSubTab = 'action-feed' | 'brain-decisions' | 'keyword-tracker' | 'outcome-patterns';
 export type TimeRange = '4w' | '3m' | '6m' | 'all';

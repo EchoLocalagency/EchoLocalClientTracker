@@ -83,7 +83,7 @@ export default function StatCard({
         transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = 'var(--accent-teal-border)';
+        e.currentTarget.style.borderColor = 'var(--accent-border)';
         e.currentTarget.style.boxShadow = 'var(--shadow-glow)';
       }}
       onMouseLeave={(e) => {
@@ -94,14 +94,14 @@ export default function StatCard({
       <div style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8,
       }}>
-        <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.03em' }}>
           {label}
         </div>
         {velocityLabel && <VelocityBadge velocity={velocityLabel} />}
       </div>
 
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
-        <div style={{ fontSize: 32, fontWeight: 700, lineHeight: 1, fontFamily: 'var(--font-mono)' }}>{displayValue}</div>
+        <div style={{ fontSize: 32, fontWeight: 700, lineHeight: 1, fontFamily: 'var(--font-mono)', color: 'var(--accent)' }}>{displayValue}</div>
         {delta != null && (
           <span
             style={{
@@ -110,8 +110,8 @@ export default function StatCard({
               fontFamily: 'var(--font-mono)',
               padding: '2px 8px',
               borderRadius: 12,
-              background: isPositive ? 'rgba(40, 167, 69, 0.15)' : isNegative ? 'rgba(220, 53, 69, 0.15)' : 'rgba(136, 146, 164, 0.15)',
-              color: isPositive ? 'var(--success)' : isNegative ? 'var(--danger)' : 'var(--text-muted)',
+              background: isPositive ? 'rgba(0, 230, 118, 0.15)' : isNegative ? 'rgba(255, 61, 87, 0.15)' : 'rgba(138, 143, 152, 0.15)',
+              color: isPositive ? 'var(--success)' : isNegative ? 'var(--danger)' : 'var(--text-secondary)',
             }}
           >
             {formatDelta(delta)}
@@ -126,13 +126,13 @@ export default function StatCard({
       )}
 
       {baselineDelta != null && baselineDate && (
-        <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+        <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
           {formatDelta(baselineDelta)} since {baselineDate}
         </div>
       )}
 
       {alert && (
-        <div style={{ marginTop: 8, fontSize: 12, color: 'var(--accent-gold)', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ marginTop: 8, fontSize: 12, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 4 }}>
           <span style={{ fontSize: 14 }}>!</span> {alert}
         </div>
       )}

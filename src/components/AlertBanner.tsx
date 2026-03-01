@@ -14,9 +14,9 @@ export default function AlertBanner({ alerts }: AlertBannerProps) {
   if (alerts.length === 0) return null;
 
   const hasCritical = alerts.some((a) => a.severity === 'critical');
-  const borderColor = hasCritical ? 'rgba(220, 53, 69, 0.3)' : 'rgba(255, 215, 0, 0.2)';
-  const bgColor = hasCritical ? 'rgba(220, 53, 69, 0.06)' : 'rgba(255, 215, 0, 0.06)';
-  const titleColor = hasCritical ? 'var(--danger)' : 'var(--accent-gold)';
+  const borderColor = hasCritical ? 'rgba(255, 61, 87, 0.3)' : 'rgba(232, 255, 0, 0.2)';
+  const bgColor = hasCritical ? 'rgba(255, 61, 87, 0.06)' : 'rgba(232, 255, 0, 0.06)';
+  const titleColor = hasCritical ? 'var(--danger)' : 'var(--accent)';
 
   return (
     <div style={{
@@ -37,13 +37,13 @@ export default function AlertBanner({ alerts }: AlertBannerProps) {
             display: 'flex',
             gap: 8,
           }}>
-            <span style={{ color: alert.severity === 'critical' ? 'var(--danger)' : 'var(--accent-gold)' }}>
+            <span style={{ color: alert.severity === 'critical' ? 'var(--danger)' : 'var(--accent)' }}>
               {alert.severity === 'critical' ? '!!' : '!'}
             </span>
             <span>{alert.message}</span>
           </div>
           {alert.hint && (
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', paddingLeft: 28, marginTop: 2 }}>
+            <div style={{ fontSize: 11, color: 'var(--text-secondary)', paddingLeft: 28, marginTop: 2 }}>
               {alert.hint}
             </div>
           )}

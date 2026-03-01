@@ -9,8 +9,8 @@ interface HealthScoreCardProps {
 
 function getScoreColor(score: number): string {
   if (score >= 80) return 'var(--success)';
-  if (score >= 60) return 'var(--accent-teal)';
-  if (score >= 40) return 'var(--accent-gold)';
+  if (score >= 60) return 'var(--accent)';
+  if (score >= 40) return 'var(--accent-dim)';
   return 'var(--danger)';
 }
 
@@ -64,7 +64,7 @@ export default function HealthScoreCard({ score, factors }: HealthScoreCardProps
           justifyContent: 'center',
         }}>
           <div style={{ fontSize: 32, fontWeight: 700, fontFamily: 'var(--font-mono)', color }}>{score}</div>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Health</div>
+          <div style={{ fontSize: 10, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Health</div>
         </div>
       </div>
 
@@ -73,7 +73,7 @@ export default function HealthScoreCard({ score, factors }: HealthScoreCardProps
         <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Score Breakdown</div>
         {factors.map((f) => (
           <div key={f.label} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)', width: 110, flexShrink: 0 }}>{f.label}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', width: 110, flexShrink: 0 }}>{f.label}</div>
             <div style={{
               flex: 1,
               height: 4,
@@ -88,7 +88,7 @@ export default function HealthScoreCard({ score, factors }: HealthScoreCardProps
                 borderRadius: 2,
               }} />
             </div>
-            <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', width: 28, textAlign: 'right' }}>{f.score}</div>
+            <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', width: 28, textAlign: 'right' }}>{f.score}</div>
           </div>
         ))}
       </div>

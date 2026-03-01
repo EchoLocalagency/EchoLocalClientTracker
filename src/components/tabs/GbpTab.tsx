@@ -32,14 +32,13 @@ export default function GbpTab({ reports, latestReport, gbpKeywords = [] }: GbpT
         textAlign: 'center',
       }}>
         <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>Google Business Profile</div>
-        <div style={{ fontSize: 14, color: 'var(--text-muted)' }}>
+        <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
           No GBP data available for this client yet.
         </div>
       </div>
     );
   }
 
-  // Chart data
   const chartData = [...reports]
     .sort((a, b) => a.run_date.localeCompare(b.run_date))
     .map((r) => ({
@@ -51,7 +50,6 @@ export default function GbpTab({ reports, latestReport, gbpKeywords = [] }: GbpT
       website: r.gbp_website_clicks ?? 0,
     }));
 
-  // Sparkline data arrays
   const sorted = [...reports].sort((a, b) => a.run_date.localeCompare(b.run_date));
   const impressionsSpark = sorted.map((r) => r.gbp_total_impressions ?? 0);
   const callsSpark = sorted.map((r) => r.gbp_call_clicks ?? 0);
@@ -103,11 +101,11 @@ export default function GbpTab({ reports, latestReport, gbpKeywords = [] }: GbpT
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="date" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
-              <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
+              <XAxis dataKey="date" tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} />
+              <YAxis tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} />
               <Tooltip content={<ChartTooltip />} />
-              <Line type="monotone" dataKey="search" name="Search" stroke="var(--accent-teal)" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="maps" name="Maps" stroke="var(--accent-gold)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="search" name="Search" stroke="var(--accent)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="maps" name="Maps" stroke="var(--text-primary)" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -125,8 +123,8 @@ export default function GbpTab({ reports, latestReport, gbpKeywords = [] }: GbpT
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="date" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
-              <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} allowDecimals={false} />
+              <XAxis dataKey="date" tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} />
+              <YAxis tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} allowDecimals={false} />
               <Tooltip content={<ChartTooltip />} />
               <Line type="monotone" dataKey="calls" name="Call Clicks" stroke="var(--success)" strokeWidth={2} dot={{ r: 3, fill: 'var(--success)' }} />
             </LineChart>
@@ -146,10 +144,10 @@ export default function GbpTab({ reports, latestReport, gbpKeywords = [] }: GbpT
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="date" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
-              <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} allowDecimals={false} />
+              <XAxis dataKey="date" tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} />
+              <YAxis tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} allowDecimals={false} />
               <Tooltip content={<ChartTooltip />} />
-              <Line type="monotone" dataKey="website" name="Website Clicks" stroke="var(--accent-teal)" strokeWidth={2} dot={{ r: 3, fill: 'var(--accent-teal)' }} />
+              <Line type="monotone" dataKey="website" name="Website Clicks" stroke="var(--accent)" strokeWidth={2} dot={{ r: 3, fill: 'var(--accent)' }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -164,14 +162,14 @@ export default function GbpTab({ reports, latestReport, gbpKeywords = [] }: GbpT
           padding: '24px',
         }}>
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>GBP Search Keywords</div>
-          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>
             What people searched to find this listing
           </div>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                <th style={{ textAlign: 'left', padding: '8px 12px', fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Keyword</th>
-                <th style={{ textAlign: 'right', padding: '8px 12px', fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Impressions</th>
+                <th style={{ textAlign: 'left', padding: '8px 12px', fontSize: 11, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Keyword</th>
+                <th style={{ textAlign: 'right', padding: '8px 12px', fontSize: 11, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Impressions</th>
               </tr>
             </thead>
             <tbody>

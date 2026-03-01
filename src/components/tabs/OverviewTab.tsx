@@ -28,7 +28,7 @@ interface OverviewTabProps {
 
 export default function OverviewTab({ reports, latestReport, allReports }: OverviewTabProps) {
   if (!latestReport) {
-    return <div style={{ color: 'var(--text-muted)', padding: 40, textAlign: 'center' }}>No data yet. Run your first report to see metrics here.</div>;
+    return <div style={{ color: 'var(--text-secondary)', padding: 40, textAlign: 'center' }}>No data yet. Run your first report to see metrics here.</div>;
   }
 
   const r = latestReport;
@@ -56,7 +56,7 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
     alerts.push({ severity: 'warning', message: `Organic sessions dropped ${Math.abs(organicDelta).toFixed(0)}%`, hint: 'Check for algorithm updates or indexing issues in GSC' });
   }
 
-  // Chart data — already sorted by useFilteredReports
+  // Chart data
   const chartData = reports.map((rep) => ({
     date: new Date(rep.run_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     impressions: rep.gsc_impressions ?? 0,
@@ -87,11 +87,57 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
 
   const brushStart = Math.max(0, chartData.length - 8);
 
+  // PSI metrics for absorbed Health row
+  const psiMobile = r.psi_mobile_score;
+  const psiDesktop = r.psi_desktop_score;
+  const lcpVal = r.psi_lcp_mobile;
+  const clsVal = r.psi_cls_mobile;
+
+  function psiColor(score: number | null): string {
+    if (score == null) return 'var(--text-secondary)';
+    if (score >= 80) return 'var(--success)';
+    if (score >= 50) return 'var(--accent-dim)';
+    return 'var(--danger)';
+  }
+
+  function metricColor(val: string | null, good: number, mid: number): string {
+    const num = parseMetricValue(val);
+    if (num == null) return 'var(--text-secondary)';
+    if (num <= good) return 'var(--success)';
+    if (num <= mid) return 'var(--accent-dim)';
+    return 'var(--danger)';
+  }
+
   return (
     <div>
       {/* Health Score */}
       <div style={{ marginBottom: 24 }}>
         <HealthScoreCard score={score} factors={factors} />
+      </div>
+
+      {/* Absorbed Health metrics - compact row */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: 12,
+        marginBottom: 24,
+      }}>
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-card)', padding: '14px 18px' }}>
+          <div style={{ fontSize: 10, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>Mobile PSI</div>
+          <div style={{ fontSize: 22, fontWeight: 700, fontFamily: 'var(--font-mono)', color: psiColor(psiMobile) }}>{psiMobile ?? '--'}</div>
+        </div>
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-card)', padding: '14px 18px' }}>
+          <div style={{ fontSize: 10, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>Desktop PSI</div>
+          <div style={{ fontSize: 22, fontWeight: 700, fontFamily: 'var(--font-mono)', color: psiColor(psiDesktop) }}>{psiDesktop ?? '--'}</div>
+        </div>
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-card)', padding: '14px 18px' }}>
+          <div style={{ fontSize: 10, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>LCP (Mobile)</div>
+          <div style={{ fontSize: 22, fontWeight: 700, fontFamily: 'var(--font-mono)', color: metricColor(lcpVal, 2.5, 4) }}>{lcpVal ?? '--'}</div>
+        </div>
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-card)', padding: '14px 18px' }}>
+          <div style={{ fontSize: 10, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>CLS (Mobile)</div>
+          <div style={{ fontSize: 22, fontWeight: 700, fontFamily: 'var(--font-mono)', color: metricColor(clsVal, 0.1, 0.25) }}>{clsVal ?? '--'}</div>
+        </div>
       </div>
 
       {/* Hero chart: GSC impressions trend */}
@@ -104,10 +150,10 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
           marginBottom: 24,
         }}
       >
-        <div style={{ fontSize: 12, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.03em', marginBottom: 4 }}>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.03em', marginBottom: 4 }}>
           Google Search Impressions Over Time
         </div>
-        <div style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 20 }}>
+        <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 20 }}>
           How much more are you showing up on Google
         </div>
         <div style={{ height: chartData.length > 6 ? 280 : 240 }}>
@@ -115,8 +161,8 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
             <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="impressionsGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#00CED1" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#00CED1" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#E8FF00" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#E8FF00" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" />
@@ -139,12 +185,12 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
               <Area
                 type="monotone"
                 dataKey="impressions"
-                stroke="#00CED1"
+                stroke="#E8FF00"
                 strokeWidth={2}
                 fill="url(#impressionsGrad)"
                 name="Impressions"
                 isAnimationActive={false}
-                activeDot={{ r: 5, stroke: '#00CED1', strokeWidth: 2, fill: 'var(--bg-surface)' }}
+                activeDot={{ r: 5, stroke: '#E8FF00', strokeWidth: 2, fill: 'var(--bg-surface)' }}
               />
               {chartData.length > 6 && (
                 <Brush
@@ -171,37 +217,37 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
             marginBottom: 24,
           }}
         >
-          <div style={{ fontSize: 12, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.03em', marginBottom: 4 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.03em', marginBottom: 4 }}>
             Google Business Profile Performance
           </div>
-          <div style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 20 }}>
+          <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 20 }}>
             Impressions, calls, and website clicks from your GBP listing
           </div>
           <ResponsiveContainer width="100%" height={280}>
             <LineChart data={gbpChartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="date" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
+              <XAxis dataKey="date" tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} />
               <YAxis
                 yAxisId="left"
-                tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+                tick={{ fill: 'var(--text-secondary)', fontSize: 11 }}
                 allowDecimals={false}
               />
               <YAxis
                 yAxisId="right"
                 orientation="right"
-                tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+                tick={{ fill: 'var(--text-secondary)', fontSize: 11 }}
                 allowDecimals={false}
               />
               <Tooltip content={<ChartTooltip />} />
               <Legend
-                wrapperStyle={{ fontSize: 12, color: 'var(--text-muted)' }}
+                wrapperStyle={{ fontSize: 12, color: 'var(--text-secondary)' }}
               />
               <Line
                 yAxisId="left"
                 type="monotone"
                 dataKey="impressions"
                 name="Impressions"
-                stroke="var(--accent-teal)"
+                stroke="var(--accent)"
                 strokeWidth={2}
                 dot={false}
                 activeDot={{ r: 4 }}
@@ -220,9 +266,9 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
                 type="monotone"
                 dataKey="website"
                 name="Website Clicks"
-                stroke="var(--accent-gold)"
+                stroke="var(--text-primary)"
                 strokeWidth={2}
-                dot={{ r: 3, fill: 'var(--accent-gold)' }}
+                dot={{ r: 3, fill: 'var(--text-primary)' }}
               />
             </LineChart>
           </ResponsiveContainer>
