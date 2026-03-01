@@ -3,6 +3,8 @@ Blog Engine
 ===========
 Generates blog posts from the brain's output, writes HTML files,
 updates sitemap.xml and blog/index.html, then commits + pushes via git.
+
+Supports multiple client sites via SITE_CONFIG.
 """
 
 import os
@@ -13,9 +15,27 @@ from pathlib import Path
 
 TEMPLATE_DIR = Path(__file__).resolve().parent.parent / "templates"
 
+# Site configs keyed by client slug
+SITE_CONFIG = {
+    "mr-green-turf-clean": {
+        "domain": "mrgreenturfclean.com",
+        "template": "blog_template.html",
+        "website_path": os.path.expanduser("~/Desktop/Mr green Wesbite 2/website"),
+    },
+    "integrity-pro-washers": {
+        "domain": "integrityprowashers.com",
+        "template": "blog_template_integrity.html",
+        "website_path": os.path.expanduser(
+            "~/Desktop/Intergrity Pro Pressure Washing client File/"
+            "Integrity Pro Pressure washing/website"
+        ),
+    },
+}
+
 
 def generate_blog_post(title, slug, meta_description, body_content,
-                       website_path, action_id=None, dry_run=True):
+                       website_path=None, action_id=None, dry_run=True,
+                       client_slug=None):
     """Generate a blog post HTML file and update sitemap + blog index.
 
     Args:
@@ -23,24 +43,36 @@ def generate_blog_post(title, slug, meta_description, body_content,
         slug: URL slug (e.g. "how-to-clean-artificial-turf")
         meta_description: Under 160 chars
         body_content: Full HTML body content (goes inside <article>)
-        website_path: Path to the website root directory
+        website_path: Path to the website root directory (optional if client_slug given)
         action_id: seo_actions ID for commit message traceability
         dry_run: If True, generates file but doesn't commit/push
+        client_slug: Client slug to look up site config
 
     Returns:
         dict with file_path and commit_sha (if live)
     """
-    website_path = Path(website_path)
+    # Resolve site config
+    config = SITE_CONFIG.get(client_slug, {}) if client_slug else {}
+    domain = config.get("domain", "mrgreenturfclean.com")
+    template_name = config.get("template", "blog_template.html")
+
+    if website_path:
+        website_path = Path(website_path)
+    elif config.get("website_path"):
+        website_path = Path(config["website_path"])
+    else:
+        raise ValueError("Either website_path or a valid client_slug is required")
+
     blog_dir = website_path / "blog"
     blog_dir.mkdir(exist_ok=True)
 
     # Load template
-    template_path = TEMPLATE_DIR / "blog_template.html"
+    template_path = TEMPLATE_DIR / template_name
     template = template_path.read_text()
 
     # Fill placeholders
     publish_date = str(date.today())
-    canonical_url = f"https://mrgreenturfclean.com/blog/{slug}.html"
+    canonical_url = f"https://{domain}/blog/{slug}.html"
     breadcrumb_title = title.split("|")[0].strip() if "|" in title else title
 
     html = template.replace("{{title}}", title)
@@ -57,7 +89,7 @@ def generate_blog_post(title, slug, meta_description, body_content,
     print(f"  [blog_engine] Written: {post_path}")
 
     # Update sitemap
-    _update_sitemap(website_path, slug, publish_date)
+    _update_sitemap(website_path, slug, publish_date, domain)
 
     # Update blog index
     _update_blog_index(website_path, title, slug, meta_description, publish_date)
@@ -80,7 +112,7 @@ def generate_blog_post(title, slug, meta_description, body_content,
     return result
 
 
-def _update_sitemap(website_path, slug, publish_date):
+def _update_sitemap(website_path, slug, publish_date, domain="mrgreenturfclean.com"):
     """Append blog post URL to sitemap.xml."""
     sitemap_path = website_path / "sitemap.xml"
     if not sitemap_path.exists():
@@ -90,7 +122,7 @@ def _update_sitemap(website_path, slug, publish_date):
     new_entry = f"""
     <!-- Blog: {slug} -->
     <url>
-        <loc>https://mrgreenturfclean.com/blog/{slug}.html</loc>
+        <loc>https://{domain}/blog/{slug}.html</loc>
         <lastmod>{publish_date}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
@@ -110,8 +142,8 @@ def _update_blog_index(website_path, title, slug, description, publish_date):
     """Add a post card to blog/index.html."""
     index_path = website_path / "blog" / "index.html"
     if not index_path.exists():
-        # Create a basic blog index if it doesn't exist
-        _create_blog_index(website_path)
+        print(f"  [blog_engine] Warning: blog/index.html not found at {index_path}")
+        return
 
     content = index_path.read_text()
 
@@ -132,62 +164,23 @@ def _update_blog_index(website_path, title, slug, description, publish_date):
     if f"{slug}.html" in content:
         return
 
-    # Insert after the blog-grid opening div
+    # Remove "no posts yet" placeholder if present
+    content = re.sub(
+        r'<p[^>]*class="[^"]*no-posts[^"]*"[^>]*>.*?</p>\s*',
+        '',
+        content,
+        flags=re.DOTALL,
+    )
+
+    # Insert after the blog-grid opening marker
     marker = '<!-- BLOG-POSTS -->'
     if marker in content:
         content = content.replace(marker, f"{marker}\n{card_html}")
     else:
-        # Fallback: insert before the grid closing div
         content = content.replace("<!-- /BLOG-POSTS -->", f"{card_html}\n                <!-- /BLOG-POSTS -->")
 
     index_path.write_text(content)
     print(f"  [blog_engine] Blog index updated")
-
-
-def _create_blog_index(website_path):
-    """Create the blog/index.html listing page."""
-    template_path = TEMPLATE_DIR / "blog_template.html"
-    template = template_path.read_text()
-
-    # Modify the template for the index page
-    index_content = template.replace("{{title}}", "Blog | Mr. Green Turf Clean")
-    index_content = index_content.replace("{{meta_description}}", "Tips, guides, and insights about artificial turf cleaning and maintenance from Mr. Green Turf Clean in San Diego County.")
-    index_content = index_content.replace("{{canonical_url}}", "https://mrgreenturfclean.com/blog/")
-    index_content = index_content.replace("{{og_title}}", "Blog | Mr. Green Turf Clean")
-    index_content = index_content.replace("{{breadcrumb_title}}", "Blog")
-    index_content = index_content.replace("{{publish_date}}", str(date.today()))
-
-    # Replace the body_content placeholder with a blog grid
-    blog_grid = """
-                <div class="section-header fade-in">
-                    <p class="section-header__label">From Our Team</p>
-                    <h2 class="section-header__title">Turf Care Tips & Insights</h2>
-                    <p class="section-header__subtitle">Expert advice on artificial turf cleaning, maintenance, and care from our San Diego team.</p>
-                </div>
-                <div class="grid grid--2" style="gap: var(--space-md);">
-                <!-- BLOG-POSTS -->
-                <!-- /BLOG-POSTS -->
-                </div>"""
-
-    index_content = index_content.replace("{{body_content}}", blog_grid)
-
-    # Fix breadcrumbs for index (remove third level)
-    index_content = index_content.replace(
-        '<li class="breadcrumbs__item"><span class="breadcrumbs__current">Blog</span></li>',
-        '<li class="breadcrumbs__item"><span class="breadcrumbs__current">Blog</span></li>'
-    )
-
-    # Remove the BlogPosting schema (not appropriate for index)
-    index_content = re.sub(
-        r'<script type="application/ld\+json">\s*\{[^}]*"@type":\s*"BlogPosting"[^<]*</script>',
-        '',
-        index_content,
-        flags=re.DOTALL,
-    )
-
-    index_path = website_path / "blog" / "index.html"
-    index_path.write_text(index_content)
-    print(f"  [blog_engine] Created blog index: {index_path}")
 
 
 def _git_commit_push(website_path, message, action_id=None):
