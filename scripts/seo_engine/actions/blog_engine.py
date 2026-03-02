@@ -20,15 +20,17 @@ SITE_CONFIG = {
     "mr-green-turf-clean": {
         "domain": "mrgreenturfclean.com",
         "template": "blog_template.html",
-        "website_path": os.path.expanduser("~/Desktop/Mr green Wesbite 2/website"),
+        "website_path": "/Users/brianegan/Desktop/Mr green Wesbite 2/website",
     },
     "integrity-pro-washers": {
         "domain": "integrityprowashers.com",
         "template": "blog_template_integrity.html",
-        "website_path": os.path.expanduser(
-            "~/Desktop/Intergrity Pro Pressure Washing client File/"
-            "Integrity Pro Pressure washing/website"
-        ),
+        "website_path": "/Users/brianegan/Desktop/Intergrity Pro Pressure Washing client File/Integrity Pro Pressure washing/website",
+    },
+    "echo-local": {
+        "domain": "echolocalagency.com",
+        "template": "blog_template_echo_local.html",
+        "website_path": "/Users/brianegan/Desktop/Echo Local/Echo Local website",
     },
 }
 

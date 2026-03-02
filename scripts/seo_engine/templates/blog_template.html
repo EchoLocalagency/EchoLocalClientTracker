@@ -52,13 +52,15 @@
         "headline": "{{title}}",
         "description": "{{meta_description}}",
         "author": {
-            "@type": "Organization",
-            "name": "Mr. Green Turf Clean",
-            "url": "https://mrgreenturfclean.com/"
+            "@type": "Person",
+            "name": "James Peck",
+            "url": "https://mrgreenturfclean.com/about.html",
+            "jobTitle": "Owner, Mr. Green Turf Clean"
         },
         "publisher": {
             "@type": "Organization",
             "name": "Mr. Green Turf Clean",
+            "url": "https://mrgreenturfclean.com/",
             "logo": {
                 "@type": "ImageObject",
                 "url": "https://mrgreenturfclean.com/assets/images/logo.png"
@@ -69,6 +71,10 @@
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "{{canonical_url}}"
+        },
+        "speakable": {
+            "@type": "SpeakableSpecification",
+            "cssSelector": [".answer-capsule", "h1", "h2"]
         }
     }
     </script>
@@ -110,8 +116,15 @@
                         </ul>
                     </li>
                     <li role="none"><a href="../service-areas.html" role="menuitem">Service Areas</a></li>
-                    <li role="none"><a href="../about.html" role="menuitem">About</a></li>
-                    <li role="none"><a href="./" role="menuitem" class="active">Blog</a></li>
+                    <li role="none" class="nav-dropdown">
+                        <a href="../about.html" role="menuitem" class="active" aria-haspopup="true" aria-expanded="false">About
+                            <svg class="nav-dropdown__arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+                        </a>
+                        <ul class="nav-dropdown__menu" role="menu">
+                            <li role="none"><a href="../about.html" role="menuitem">About Us</a></li>
+                            <li role="none"><a href="./" role="menuitem" class="active">Blog</a></li>
+                        </ul>
+                    </li>
                     <li role="none"><a href="../contact.html" role="menuitem">Contact</a></li>
                 </ul>
                 <button class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
@@ -139,6 +152,13 @@
     <main id="main-content">
         <article class="section">
             <div class="container" style="max-width: var(--container-narrow);">
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(0,0,0,0.1);">
+                    <div>
+                        <p style="font-weight: 600; margin: 0;">James Peck</p>
+                        <p style="font-size: 0.85rem; color: var(--clr-text-secondary, #666); margin: 0;">Owner, Mr. Green Turf Clean - Professional turf care specialist serving San Diego County since 2023.</p>
+                    </div>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--clr-text-secondary, #666); margin-bottom: 1.5rem;">Last updated: {{publish_date}}</p>
                 {{body_content}}
             </div>
         </article>

@@ -23,7 +23,8 @@ def _get_sb():
 # ── Actions ────────────────────────────────────────────────────────────
 
 def log_action(client_id, action_type, description, target_keywords,
-               content_summary, metadata, baseline_metrics):
+               content_summary, metadata, baseline_metrics,
+               is_newsjack=False, gbp_media_name=None):
     """Insert an seo_action row and create 3 scheduled followup rows.
 
     Follow-ups scheduled at +10d, +17d, +31d (accounts for GSC 3-day lag).
@@ -44,7 +45,10 @@ def log_action(client_id, action_type, description, target_keywords,
         "baseline_clicks": baseline_metrics.get("clicks"),
         "baseline_gbp_impressions": baseline_metrics.get("gbp_impressions"),
         "status": "active",
+        "is_newsjack": is_newsjack,
     }
+    if gbp_media_name:
+        row["gbp_media_name"] = gbp_media_name
 
     resp = sb.table("seo_actions").insert(row).execute()
     if not resp.data:

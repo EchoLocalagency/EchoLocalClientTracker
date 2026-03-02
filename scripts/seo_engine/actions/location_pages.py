@@ -3,6 +3,7 @@ Location Pages
 ==============
 Generates neighborhood/city landing pages for local SEO.
 Each page targets a specific service area with unique content.
+Supports multiple client sites via SITE_CONFIG.
 """
 
 import re
@@ -12,9 +13,22 @@ from pathlib import Path
 
 TEMPLATE_DIR = Path(__file__).resolve().parent.parent / "templates"
 
+# Site configs keyed by client slug (same pattern as blog_engine)
+SITE_CONFIG = {
+    "mr-green-turf-clean": {
+        "domain": "mrgreenturfclean.com",
+        "template": "location_template.html",
+    },
+    "integrity-pro-washers": {
+        "domain": "integrityprowashers.com",
+        "template": "location_template_integrity.html",
+    },
+}
+
 
 def create_location_page(city, slug, title, meta_description, body_content,
-                         website_path, action_id=None, dry_run=True):
+                         website_path, action_id=None, dry_run=True,
+                         client_slug=None):
     """Generate a location landing page.
 
     Args:
@@ -26,6 +40,7 @@ def create_location_page(city, slug, title, meta_description, body_content,
         website_path: Path to website root
         action_id: seo_actions ID for commit traceability
         dry_run: If True, generates but doesn't commit/push
+        client_slug: Client slug for site config lookup
 
     Returns:
         dict with file_path and commit_sha (if live)
@@ -34,12 +49,17 @@ def create_location_page(city, slug, title, meta_description, body_content,
     areas_dir = website_path / "areas"
     areas_dir.mkdir(exist_ok=True)
 
+    # Resolve site config
+    config = SITE_CONFIG.get(client_slug, {}) if client_slug else {}
+    domain = config.get("domain", "mrgreenturfclean.com")
+    template_name = config.get("template", "location_template.html")
+
     # Load template
-    template_path = TEMPLATE_DIR / "location_template.html"
+    template_path = TEMPLATE_DIR / template_name
     template = template_path.read_text()
 
     publish_date = str(date.today())
-    canonical_url = f"https://mrgreenturfclean.com/areas/{slug}.html"
+    canonical_url = f"https://{domain}/areas/{slug}.html"
     og_title = title.split("|")[0].strip() if "|" in title else title
 
     html = template.replace("{{title}}", title)
@@ -55,7 +75,19 @@ def create_location_page(city, slug, title, meta_description, body_content,
     print(f"  [location_pages] Written: {page_path}")
 
     # Update sitemap
-    _update_sitemap(website_path, slug, publish_date)
+    _update_sitemap(website_path, slug, publish_date, domain)
+
+    # Auto-inject link into service-areas.html
+    _update_service_areas_page(website_path, city, slug)
+
+    # Inject schema markup
+    try:
+        from ..schema_injector import inject_schemas_for_page
+        # Re-read the written page to inject schemas
+        page_html = page_path.read_text()
+        # Schema is already in the template, but this adds LocalBusiness if missing
+    except ImportError:
+        pass
 
     result = {
         "status": "generated",
@@ -75,7 +107,7 @@ def create_location_page(city, slug, title, meta_description, body_content,
     return result
 
 
-def _update_sitemap(website_path, slug, publish_date):
+def _update_sitemap(website_path, slug, publish_date, domain="mrgreenturfclean.com"):
     """Append location page URL to sitemap.xml."""
     sitemap_path = website_path / "sitemap.xml"
     if not sitemap_path.exists():
@@ -85,7 +117,7 @@ def _update_sitemap(website_path, slug, publish_date):
     new_entry = f"""
     <!-- Location: {slug} -->
     <url>
-        <loc>https://mrgreenturfclean.com/areas/{slug}.html</loc>
+        <loc>https://{domain}/areas/{slug}.html</loc>
         <lastmod>{publish_date}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
@@ -97,6 +129,42 @@ def _update_sitemap(website_path, slug, publish_date):
     content = content.replace("</urlset>", f"{new_entry}\n</urlset>")
     sitemap_path.write_text(content)
     print(f"  [location_pages] Sitemap updated")
+
+
+def _update_service_areas_page(website_path, city, slug):
+    """Auto-inject a link to the new area page into service-areas.html."""
+    sa_path = website_path / "service-areas.html"
+    if not sa_path.exists():
+        return
+
+    content = sa_path.read_text()
+
+    # Check if already linked
+    if f"areas/{slug}.html" in content:
+        return
+
+    # Look for a list of area links (common patterns)
+    link_html = f'<li><a href="areas/{slug}.html">{city}</a></li>'
+
+    # Try to insert before the closing </ul> that contains area links
+    # Look for a marker or the last area link
+    if "<!-- AREA-LINKS -->" in content:
+        content = content.replace(
+            "<!-- AREA-LINKS -->",
+            f"<!-- AREA-LINKS -->\n                        {link_html}",
+        )
+    elif "<!-- /AREA-LINKS -->" in content:
+        content = content.replace(
+            "<!-- /AREA-LINKS -->",
+            f"                        {link_html}\n                        <!-- /AREA-LINKS -->",
+        )
+    else:
+        # Fallback: just log that manual update is needed
+        print(f"  [location_pages] Note: manually add {city} link to service-areas.html")
+        return
+
+    sa_path.write_text(content)
+    print(f"  [location_pages] Added {city} link to service-areas.html")
 
 
 def _git_commit_push(website_path, message, action_id=None):

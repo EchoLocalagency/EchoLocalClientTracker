@@ -12,7 +12,34 @@
     "ghl_token": "pit-89db996b-2e9b-48a8-bf3d-458eae1b1dd4",
     "ghl_location_id": "KwsH04X22oBXm8Ugdqb8",
     "ghl_form_name": "website form",
-    "gbp_location": "locations/3810638775821930387"
+    "gbp_location": "locations/3810638775821930387",
+    "website_local_path": "/Users/brianegan/Desktop/Intergrity Pro Pressure Washing client File/Integrity Pro Pressure washing/website",
+    "drive_folder_id": "1-4i_voPwje1ElfNvniO1FeU9yW7ipWCA",
+    "primary_market": "San Diego, CA",
+    "target_keywords": [
+      "pressure washing san diego",
+      "soft washing san diego",
+      "solar panel cleaning san diego",
+      "pressure washing north park",
+      "pressure washing hillcrest",
+      "pressure washing south park",
+      "pressure washing normal heights",
+      "pressure washing university heights",
+      "pressure washing kensington",
+      "soft washing north park",
+      "driveway cleaning san diego",
+      "roof cleaning san diego",
+      "house washing san diego",
+      "gutter cleaning san diego",
+      "integrity pro washers"
+    ],
+    "service_areas": [
+      "North Park", "Hillcrest", "South Park", "Normal Heights",
+      "University Heights", "Kensington", "Mission Hills", "Bankers Hill",
+      "Golden Hill", "City Heights", "Talmadge", "College Area",
+      "La Mesa", "El Cajon", "Santee", "Clairemont",
+      "Pacific Beach", "Ocean Beach", "Point Loma", "Coronado"
+    ]
   },
   {
     "name": "Mr Green Turf Clean",
@@ -28,7 +55,8 @@
     "ghl_location_id": "3m3jhkEz2xInUprxbRzX",
     "ghl_form_name": "website form",
     "gbp_location": "locations/5141565760909944493",
-    "website_local_path": "/Users/brianegan/Desktop/Mr Green turf Clean Client file/Mr. Green Turf Clean/website",
+    "website_local_path": "/Users/brianegan/Desktop/Mr green Wesbite 2/website",
+    "drive_folder_id": "1yx9vLkFDZqlfjOiNoaPfqbdA0Fd-CxRM",
     "primary_market": "Poway, CA",
     "target_keywords": [
       "turf cleaning poway",
@@ -49,6 +77,13 @@
       "turf cleaning san diego",
       "mr green turf clean",
       "mr green turf"
+    ],
+    "service_areas": [
+      "Poway", "Rancho Bernardo", "4S Ranch", "Scripps Ranch",
+      "Penasquitos", "Carmel Mountain", "Sabre Springs", "Rancho Penasquitos",
+      "Del Sur", "Santaluz", "Black Mountain Ranch", "Mira Mesa",
+      "Escondido", "San Marcos", "Vista", "Encinitas",
+      "Carlsbad", "Oceanside", "Fallbrook", "Valley Center"
     ]
   },
   {
@@ -64,7 +99,30 @@
     "conversion_events": ["phone_click", "form_submit"],
     "ghl_token": "",
     "ghl_location_id": "",
-    "ghl_form_name": ""
+    "ghl_form_name": "",
+    "website_local_path": "/Users/brianegan/Desktop/Echo Local/Echo Local website",
+    "primary_market": "San Diego County, CA",
+    "target_keywords": [
+      "SEO for home service businesses san diego",
+      "local SEO for contractors san diego",
+      "SEO agency san diego",
+      "SEO agency oceanside",
+      "local SEO consultant san diego",
+      "SEO for plumbers san diego",
+      "SEO for HVAC san diego",
+      "SEO for landscapers san diego",
+      "Google Business Profile optimization san diego",
+      "home service marketing san diego",
+      "contractor SEO san diego",
+      "small business SEO san diego",
+      "SEO for home service businesses",
+      "automated SEO for contractors"
+    ],
+    "service_areas": [
+      "Oceanside", "Carlsbad", "Encinitas", "San Marcos", "Vista",
+      "Escondido", "San Diego", "Chula Vista", "El Cajon", "La Mesa",
+      "Poway", "Temecula", "Murrieta", "Fallbrook"
+    ]
   },
   {
     "name": "Primal Plates",

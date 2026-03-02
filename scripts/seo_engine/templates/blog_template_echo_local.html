@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-W3YSYJBLR5"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-W3YSYJBLR5');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{title}}</title>
+<meta name="description" content="{{meta_description}}">
+<meta name="author" content="Echo Local">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="{{canonical_url}}">
+<meta name="geo.region" content="US-CA">
+<meta name="geo.placename" content="Oceanside">
+<meta property="og:type" content="article">
+<meta property="og:url" content="{{canonical_url}}">
+<meta property="og:title" content="{{og_title}}">
+<meta property="og:description" content="{{meta_description}}">
+<meta property="og:site_name" content="Echo Local">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{og_title}}">
+<meta name="twitter:description" content="{{meta_description}}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "{{title}}",
+    "description": "{{meta_description}}",
+    "author": {
+        "@type": "Person",
+        "name": "Brian Egan",
+        "url": "https://echolocalagency.com/about.html",
+        "jobTitle": "Founder, Echo Local"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Echo Local",
+        "url": "https://echolocalagency.com/"
+    },
+    "datePublished": "{{publish_date}}",
+    "dateModified": "{{publish_date}}",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "{{canonical_url}}"
+    },
+    "speakable": {
+        "@type": "SpeakableSpecification",
+        "cssSelector": [".answer-capsule", "h1", "h2"]
+    }
+}
+</script>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="container">
+    <a href="../index.html" class="logo">
+      <img src="../assets/logo.png" alt="Echo Local" class="logo-img">
+      ECHO LOCAL
+    </a>
+    <div class="hamburger" id="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../how-it-works.html">How It Works</a></li>
+      <li><a href="../results.html">Results</a></li>
+      <li><a href="../services.html">Services</a></li>
+      <li><a href="../about.html">About</a></li>
+      <li><a href="../contact.html" class="btn">Free SEO Audit</a></li>
+    </ul>
+  </div>
+  <div class="nav-overlay" id="navOverlay"></div>
+</header>
+
+<!-- Breadcrumb -->
+<section style="padding: 1rem 0; background: var(--bg-dark, #0B1120);">
+  <div class="container">
+    <nav aria-label="Breadcrumb" style="font-size: 0.85rem; color: var(--text-on-dark-muted, #888);">
+      <a href="../index.html" style="color: var(--clr-accent, #06B6D4); text-decoration: none;">Home</a>
+      <span style="margin: 0 0.5rem;">/</span>
+      <a href="./" style="color: var(--clr-accent, #06B6D4); text-decoration: none;">Blog</a>
+      <span style="margin: 0 0.5rem;">/</span>
+      <span>{{breadcrumb_title}}</span>
+    </nav>
+  </div>
+</section>
+
+<!-- Article -->
+<section class="section section--dark">
+  <div class="container" style="max-width: 800px;">
+    <article>
+      <h1 style="font-family: var(--font-heading, 'Space Grotesk', sans-serif); margin-bottom: 0.5rem;">{{breadcrumb_title}}</h1>
+      <p style="color: var(--text-on-dark-muted, #888); margin-bottom: 1rem; font-size: 0.9rem;">Published {{publish_date}} by Echo Local</p>
+      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+          <div>
+              <p style="font-weight: 600; margin: 0; color: #fff;">Brian Egan</p>
+              <p style="font-size: 0.85rem; color: var(--text-on-dark-muted, #888); margin: 0;">Founder, Echo Local - Building AI-powered SEO systems for home service businesses in San Diego County.</p>
+          </div>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-on-dark-muted, #888); margin-bottom: 1.5rem;">Last updated: {{publish_date}}</p>
+      {{body_content}}
+    </article>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container">
+    <h2>Want Results Like These for Your Business?</h2>
+    <p>Free SEO audit. No contracts. Just data you can see.</p>
+    <a href="../contact.html" class="btn btn--dark btn--large">Get Your Free Audit</a>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="../index.html" class="logo">ECHO LOCAL</a>
+        <p>AI-powered SEO for home service businesses. Built in Oceanside, CA.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="../how-it-works.html">How It Works</a></li>
+          <li><a href="../results.html">Results</a></li>
+          <li><a href="../services.html">Services</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="../privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="../terms-of-service.html">Terms of Service</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Echo Local. All rights reserved.</p>
+      <p>Oceanside, CA</p>
+    </div>
+  </div>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>

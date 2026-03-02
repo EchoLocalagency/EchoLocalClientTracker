@@ -166,34 +166,61 @@ export default function Sidebar({ clients, activeClient, onSelectClient, collaps
         })}
       </div>
 
-      {/* SEO Engine link */}
-      <a
-        href="/seo-engine"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          padding: collapsed ? '12px 0' : '12px 24px',
-          justifyContent: collapsed ? 'center' : 'flex-start',
-          borderTop: '1px solid var(--border)',
-          fontSize: 12,
-          fontWeight: 600,
-          fontFamily: 'var(--font-mono)',
-          color: 'var(--success)',
-          textDecoration: 'none',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-          transition: 'all 0.15s ease',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background = 'rgba(0, 230, 118, 0.08)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = 'transparent';
-        }}
-      >
-        {collapsed ? 'SE' : 'SEO Engine \u203A'}
-      </a>
+      {/* Engine links */}
+      <div style={{ borderTop: '1px solid var(--border)' }}>
+        <a
+          href="/seo-engine"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: collapsed ? '12px 0' : '12px 24px',
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            fontSize: 12,
+            fontWeight: 600,
+            fontFamily: 'var(--font-mono)',
+            color: 'var(--success)',
+            textDecoration: 'none',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(0, 230, 118, 0.08)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+          }}
+        >
+          {collapsed ? 'SE' : 'SEO Engine \u203A'}
+        </a>
+        <a
+          href="/sales-engine"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: collapsed ? '12px 0' : '12px 24px',
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            fontSize: 12,
+            fontWeight: 600,
+            fontFamily: 'var(--font-mono)',
+            color: 'var(--accent)',
+            textDecoration: 'none',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(232, 255, 0, 0.06)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+          }}
+        >
+          {collapsed ? 'SA' : 'Sales Engine \u203A'}
+        </a>
+      </div>
 
       {/* Collapse toggle */}
       <button

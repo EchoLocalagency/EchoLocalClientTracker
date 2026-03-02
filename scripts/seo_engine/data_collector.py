@@ -177,7 +177,11 @@ def load_latest_report(slug):
     if not report_dir.exists():
         return None
 
-    json_files = sorted(report_dir.glob("*.json"), reverse=True)
+    # Only load date-named reports (YYYY-MM-DD.json), skip research_cache etc.
+    json_files = sorted(
+        [f for f in report_dir.glob("*.json") if f.stem[:4].isdigit()],
+        reverse=True,
+    )
     if not json_files:
         return None
 

@@ -25,6 +25,8 @@ from google.analytics.data_v1beta.types import (
 from googleapiclient.discovery import build
 from supabase import create_client
 
+from run_reports import pull_gbp
+
 load_dotenv()
 REFRESH_TOKEN = os.getenv("GOOGLE_REFRESH_TOKEN")
 CLIENT_ID     = os.getenv("GOOGLE_CLIENT_ID")
@@ -238,6 +240,18 @@ def main():
                 gsc  = {"impressions": 0, "clicks": 0, "avg_position": 0, "top_queries": []}
                 gscp = {"impressions": 0, "clicks": 0, "avg_position": 0, "top_queries": []}
 
+            # GBP (if client has a location configured)
+            gbp_empty = {"maps_impressions": 0, "search_impressions": 0, "total_impressions": 0,
+                         "call_clicks": 0, "website_clicks": 0, "direction_requests": 0}
+            gbp = gbp_empty
+            gbpp = gbp_empty
+            if client.get("gbp_location"):
+                try:
+                    gbp = pull_gbp(creds, client["gbp_location"], w_start, w_end)
+                    gbpp = pull_gbp(creds, client["gbp_location"], prev_start, prev_end)
+                except Exception as e:
+                    print(f"GBP error: {e}")
+
             row = {
                 "client_id":            client_id,
                 "run_date":             logical_run_date,
@@ -265,12 +279,25 @@ def main():
                 "psi_cls_desktop":      psi["desktop"]["cls"] if psi else "",
                 "psi_tbt_mobile":       psi["mobile"]["tbt"] if psi else "",
                 "psi_tbt_desktop":      psi["desktop"]["tbt"] if psi else "",
+                "gbp_maps_impressions":      gbp["maps_impressions"],
+                "gbp_maps_impressions_prev": gbpp["maps_impressions"],
+                "gbp_search_impressions":      gbp["search_impressions"],
+                "gbp_search_impressions_prev": gbpp["search_impressions"],
+                "gbp_total_impressions":      gbp["total_impressions"],
+                "gbp_total_impressions_prev": gbpp["total_impressions"],
+                "gbp_call_clicks":      gbp["call_clicks"],
+                "gbp_call_clicks_prev": gbpp["call_clicks"],
+                "gbp_website_clicks":      gbp["website_clicks"],
+                "gbp_website_clicks_prev": gbpp["website_clicks"],
+                "gbp_direction_requests":      gbp["direction_requests"],
+                "gbp_direction_requests_prev": gbpp["direction_requests"],
             }
 
             result = sb.table("reports").upsert(row, on_conflict="client_id,run_date").execute()
             report_id = result.data[0]["id"] if result.data else None
 
-            print(f"sessions={ga['sessions']} organic={ga['organic']} impressions={gsc['impressions']} clicks={gsc['clicks']}")
+            gbp_str = f" gbp={gbp['total_impressions']}" if gbp["total_impressions"] else ""
+            print(f"sessions={ga['sessions']} organic={ga['organic']} impressions={gsc['impressions']} clicks={gsc['clicks']}{gbp_str}")
 
             # Insert GSC queries
             if report_id and gsc["top_queries"]:
