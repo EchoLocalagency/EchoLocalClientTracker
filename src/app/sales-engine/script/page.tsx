@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 const SCRIPT_SECTIONS = [
   {
@@ -88,207 +88,248 @@ The whole thing runs automatically, every single day. More visibility, more call
   },
 ];
 
-const SECTION_COLORS = [
-  '#00CED1', '#E8FF00', '#FF3D57', '#00E676', '#FF9F43',
-  '#A78BFA', '#38BDF8', '#F472B6', '#34D399', '#FBBF24',
-  '#818CF8', '#FB7185', '#00CED1',
-];
+const ACCENT = '#E8FF00';
 
 export default function ScriptPage() {
-  const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set([1]));
-  const sectionRefs = useRef<Record<number, HTMLDivElement | null>>({});
-
-  const toggleSection = (id: number) => {
-    setExpandedSections(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const scrollToSection = (id: number) => {
-    setExpandedSections(prev => new Set(prev).add(id));
-    setTimeout(() => {
-      const el = sectionRefs.current[id];
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
-  };
+  const [openSection, setOpenSection] = useState<number | null>(null);
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      // Ignore if typing in an input
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      const key = e.key;
-      if (key >= '1' && key <= '9') {
-        scrollToSection(parseInt(key, 10));
-      } else if (key === '0') {
-        scrollToSection(10);
+      if (e.key === 'Escape') {
+        setOpenSection(null);
+        return;
+      }
+      if (e.key >= '1' && e.key <= '9') {
+        setOpenSection(parseInt(e.key, 10));
+      } else if (e.key === '0') {
+        setOpenSection(10);
       }
     }
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  const open = openSection != null ? SCRIPT_SECTIONS.find(s => s.id === openSection) : null;
+
   return (
-    <div style={{ minHeight: '100vh', background: '#0A0F1E', color: '#E8EAED', display: 'flex' }}>
-      {/* Sidebar: section pills */}
-      <nav style={{
-        position: 'sticky',
-        top: 0,
-        height: '100vh',
-        width: 64,
-        flexShrink: 0,
+    <div style={{
+      height: '100vh',
+      width: '100vw',
+      overflow: 'hidden',
+      background: '#0A0F1E',
+      color: '#E8EAED',
+      display: 'flex',
+      flexDirection: 'column',
+      fontFamily: 'var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif)',
+    }}>
+      {/* Header bar */}
+      <div style={{
         display: 'flex',
-        flexDirection: 'column',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        paddingTop: 80,
-        gap: 8,
-        borderRight: '1px solid rgba(255,255,255,0.08)',
+        padding: '10px 20px',
+        borderBottom: `1px solid ${ACCENT}22`,
+        flexShrink: 0,
       }}>
-        {SCRIPT_SECTIONS.map((s, i) => {
-          const isOpen = expandedSections.has(s.id);
-          return (
-            <button
-              key={s.id}
-              onClick={() => scrollToSection(s.id)}
-              title={`${s.id}. ${s.title}`}
-              style={{
+        <div style={{ fontSize: 16, fontWeight: 700, color: ACCENT, fontFamily: 'var(--font-mono, monospace)' }}>
+          CALL SCRIPT
+        </div>
+        <a
+          href="/sales-engine"
+          style={{
+            fontSize: 12,
+            fontFamily: 'var(--font-mono, monospace)',
+            color: 'rgba(255,255,255,0.4)',
+            textDecoration: 'none',
+            padding: '5px 12px',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: 6,
+          }}
+        >
+          &#8249; Sales Engine
+        </a>
+      </div>
+
+      {/* Grid: fills remaining space */}
+      <div style={{
+        flex: 1,
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr 1fr 1fr',
+        gridTemplateRows: '2fr 1fr 1fr 1fr',
+        gap: 6,
+        padding: 6,
+        minHeight: 0,
+      }}>
+        {/* Row 1: Opener (2 cols) + Pitch (2 cols) -- big boxes */}
+        <GridBox id={1} title="The Opener" span={2} accent={ACCENT} onClick={() => setOpenSection(1)} />
+        <GridBox id={2} title="The Pitch" span={2} accent={ACCENT} onClick={() => setOpenSection(2)} />
+
+        {/* Row 2: Objections 3-6 */}
+        <GridBox id={3} title="What's the catch?" accent={ACCENT} onClick={() => setOpenSection(3)} />
+        <GridBox id={4} title="Already have an SEO guy" accent={ACCENT} onClick={() => setOpenSection(4)} />
+        <GridBox id={5} title="Don't need more work" accent={ACCENT} onClick={() => setOpenSection(5)} />
+        <GridBox id={6} title="How do I know it works?" accent={ACCENT} onClick={() => setOpenSection(6)} />
+
+        {/* Row 3: Objections 7-9 + Key Rules */}
+        <GridBox id={7} title="Need to think about it" accent={ACCENT} onClick={() => setOpenSection(7)} />
+        <GridBox id={8} title="Send me some info" accent={ACCENT} onClick={() => setOpenSection(8)} />
+        <GridBox id={9} title="How much after free?" accent={ACCENT} onClick={() => setOpenSection(9)} />
+        <GridBox id={13} title="Key Rules" accent={ACCENT} onClick={() => setOpenSection(13)} />
+
+        {/* Row 4: Closings */}
+        <GridBox id={10} title="Closing - Warm" accent={ACCENT} onClick={() => setOpenSection(10)} />
+        <GridBox id={11} title="Closing - Email" accent={ACCENT} onClick={() => setOpenSection(11)} />
+        <GridBox id={12} title="Closing - No" accent={ACCENT} onClick={() => setOpenSection(12)} />
+        <div /> {/* empty cell */}
+      </div>
+
+      {/* Modal overlay */}
+      {open && (
+        <div
+          onClick={() => setOpenSection(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.85)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100,
+            padding: 40,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: '#0F1420',
+              border: `1px solid ${ACCENT}44`,
+              borderRadius: 14,
+              maxWidth: 700,
+              width: '100%',
+              maxHeight: '80vh',
+              overflowY: 'auto',
+              padding: '32px 36px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 width: 36,
                 height: 36,
                 borderRadius: '50%',
-                border: 'none',
-                background: isOpen ? SECTION_COLORS[i] : 'rgba(255,255,255,0.06)',
-                color: isOpen ? '#0A0F1E' : 'rgba(255,255,255,0.5)',
-                fontSize: 14,
+                background: ACCENT,
+                color: '#0A0F1E',
+                fontSize: 16,
                 fontWeight: 700,
                 fontFamily: 'var(--font-mono, monospace)',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-              }}
-            >
-              {s.id}
-            </button>
-          );
-        })}
-      </nav>
-
-      {/* Main content */}
-      <div style={{ flex: 1, maxWidth: 800, margin: '0 auto', padding: '0 40px 80px' }}>
-        {/* Sticky header */}
-        <header style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 10,
-          background: '#0A0F1E',
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
-          padding: '20px 0',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
-          <div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>Call Script</h1>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 4, fontFamily: 'var(--font-mono, monospace)' }}>
-              Press 1-9 / 0 to jump to sections
+                flexShrink: 0,
+              }}>
+                {open.id}
+              </span>
+              <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>
+                {open.title}
+              </h2>
             </div>
-          </div>
-          <a
-            href="/sales-engine"
-            style={{
-              fontSize: 13,
-              fontFamily: 'var(--font-mono, monospace)',
-              color: 'rgba(255,255,255,0.5)',
-              textDecoration: 'none',
-              padding: '8px 16px',
-              border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: 6,
-            }}
-          >
-            &#8249; Sales Engine
-          </a>
-        </header>
-
-        {/* Sections */}
-        <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {SCRIPT_SECTIONS.map((section, i) => {
-            const isOpen = expandedSections.has(section.id);
-            const color = SECTION_COLORS[i];
-            return (
-              <div
-                key={section.id}
-                ref={el => { sectionRefs.current[section.id] = el; }}
+            <div style={{
+              fontSize: 17,
+              lineHeight: 1.7,
+              color: 'rgba(255,255,255,0.8)',
+              whiteSpace: 'pre-wrap',
+            }}>
+              {open.content}
+            </div>
+            <div style={{ marginTop: 24, textAlign: 'right' }}>
+              <button
+                onClick={() => setOpenSection(null)}
                 style={{
-                  borderRadius: 10,
-                  border: `1px solid ${isOpen ? color + '44' : 'rgba(255,255,255,0.06)'}`,
-                  background: isOpen ? `${color}08` : 'transparent',
-                  transition: 'all 0.2s ease',
+                  fontSize: 13,
+                  fontFamily: 'var(--font-mono, monospace)',
+                  padding: '8px 20px',
+                  borderRadius: 6,
+                  border: `1px solid ${ACCENT}44`,
+                  background: 'transparent',
+                  color: ACCENT,
+                  cursor: 'pointer',
                 }}
               >
-                <button
-                  onClick={() => toggleSection(section.id)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 14,
-                    width: '100%',
-                    padding: '16px 20px',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                  }}
-                >
-                  <span style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: 32,
-                    height: 32,
-                    borderRadius: '50%',
-                    background: isOpen ? color : 'rgba(255,255,255,0.06)',
-                    color: isOpen ? '#0A0F1E' : 'rgba(255,255,255,0.5)',
-                    fontSize: 14,
-                    fontWeight: 700,
-                    fontFamily: 'var(--font-mono, monospace)',
-                    flexShrink: 0,
-                    transition: 'all 0.2s ease',
-                  }}>
-                    {section.id}
-                  </span>
-                  <span style={{
-                    fontSize: 18,
-                    fontWeight: 600,
-                    color: '#E8EAED',
-                    flex: 1,
-                  }}>
-                    {section.title}
-                  </span>
-                  <span style={{
-                    fontSize: 14,
-                    color: 'rgba(255,255,255,0.3)',
-                    transform: isOpen ? 'rotate(90deg)' : 'none',
-                    transition: 'transform 0.15s ease',
-                  }}>
-                    &#9654;
-                  </span>
-                </button>
-                {isOpen && (
-                  <div style={{
-                    padding: '0 20px 20px 66px',
-                    color: 'rgba(255,255,255,0.75)',
-                    lineHeight: 1.7,
-                    whiteSpace: 'pre-wrap',
-                    fontSize: 16,
-                  }}>
-                    {section.content}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                Close (Esc)
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
+  );
+}
+
+function GridBox({
+  id,
+  title,
+  accent,
+  span,
+  onClick,
+}: {
+  id: number;
+  title: string;
+  accent: string;
+  span?: number;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        gridColumn: span ? `span ${span}` : undefined,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10,
+        background: 'rgba(232, 255, 0, 0.04)',
+        border: `1px solid ${accent}22`,
+        borderRadius: 10,
+        cursor: 'pointer',
+        padding: '12px 16px',
+        transition: 'all 0.15s ease',
+        minHeight: 0,
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = 'rgba(232, 255, 0, 0.10)';
+        e.currentTarget.style.borderColor = `${accent}66`;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = 'rgba(232, 255, 0, 0.04)';
+        e.currentTarget.style.borderColor = `${accent}22`;
+      }}
+    >
+      <span style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: span ? 40 : 32,
+        height: span ? 40 : 32,
+        borderRadius: '50%',
+        background: accent,
+        color: '#0A0F1E',
+        fontSize: span ? 18 : 14,
+        fontWeight: 700,
+        fontFamily: 'var(--font-mono, monospace)',
+        flexShrink: 0,
+      }}>
+        {id}
+      </span>
+      <span style={{
+        fontSize: span ? 16 : 13,
+        fontWeight: 600,
+        color: '#E8EAED',
+        textAlign: 'center',
+        lineHeight: 1.3,
+      }}>
+        {title}
+      </span>
+    </button>
   );
 }
