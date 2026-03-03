@@ -114,14 +114,15 @@ function Card({ item, isOpen, onToggle, big }: {
         transition: 'max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease',
       }}>
         <div ref={innerRef} style={{
-          padding: '14px 18px',
-          background: '#0E1325',
+          padding: '18px 22px',
+          background: 'linear-gradient(180deg, #111827 0%, #0E1325 100%)',
           border: `1.5px solid ${A}`,
-          borderTop: 'none',
+          borderTop: `1px solid ${A}33`,
           borderRadius: '0 0 10px 10px',
-          fontSize: 15, lineHeight: 1.65,
-          color: 'rgba(255,255,255,0.82)',
+          fontSize: 16, lineHeight: 1.75, letterSpacing: '0.01em',
+          color: '#F0F0F0',
           whiteSpace: 'pre-wrap',
+          boxShadow: `inset 0 1px 0 ${A}15, 0 4px 20px rgba(0,0,0,0.3)`,
         }}>
           {item.content}
         </div>
