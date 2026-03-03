@@ -43,7 +43,7 @@ interface CallAnalysis {
   strengths: string[] | null;
   improvements: string[] | null;
   coaching_notes: string | null;
-  key_moments: Array<{ timestamp?: string; moment: string; impact: string }>;
+  key_moments: Array<{ id?: number; quote?: string; timestamp?: string; moment: string; impact: string }>;
   analyzed_at: string;
 }
 
@@ -68,94 +68,6 @@ interface DailyReport {
 interface CallWithAnalysis extends SalesCall {
   analysis?: CallAnalysis;
 }
-
-// ── Script sections from cold-call-script.md ──
-
-const SCRIPT_SECTIONS = [
-  {
-    id: 1,
-    title: 'The Opener',
-    content: `"Hey [NAME], this is Brian. I know you're probably busy so I'll keep this quick. I'm a local student out here at Cal State San Marcos -- I built a system that helps turf [or whatever trade] companies get more jobs through Google without paying for ads. I'm looking for a few businesses to try it out with completely free. Got 60 seconds for me to explain how it works?"
-
-If they say yes, go to The Pitch.
-If they say "I'm busy": "Totally get it. When's a better time for a 2 minute call? I'll be quick, I promise."
-If they say "not interested": "No worries at all. Just out of curiosity, are you getting most of your jobs from Google right now or is it mostly word of mouth?"`,
-  },
-  {
-    id: 2,
-    title: 'The Pitch',
-    content: `"So here's the deal. You know your Google Business Profile, the thing that shows up when someone searches for [TRADE] near them? Most businesses set it up once and never touch it again. Google sees that and pushes you down. The businesses getting the most calls are the ones that are active on there every single day.
-
-That's what my system does. It automatically posts your job photos to your GBP, responds to every single review so Google sees you're engaged, seeds Q&A with the questions your customers are actually asking. All without you doing anything.
-
-But here's where it gets good. The system also watches what's working and what's not, 24/7. If a keyword is close to ranking, it adjusts your site to push it over. If a certain type of post is getting more views, it makes more of those. It's a constant feedback loop between your GBP and your website, always improving, always learning what gets you showing up higher.
-
-And then on top of that, it builds out pages for every city you serve. So instead of only showing up in [THEIR CITY], you're showing up in [NEARBY CITY 1], [NEARBY CITY 2], [NEARBY CITY 3]. Every page is another net in the water catching jobs.
-
-The whole thing runs automatically, every single day. More visibility, more calls, more jobs. And right now I'm testing it with a handful of businesses completely free. No cost, no contract, no catch. I just need real businesses to build case studies with."`,
-  },
-  {
-    id: 3,
-    title: "What's the catch?",
-    content: `"Honestly, there isn't one. I'm a college kid who built something that works and I need businesses to prove it. You're doing me the favor by letting me test it on your business. Worst case, you get a free month of work and we part ways."`,
-  },
-  {
-    id: 4,
-    title: 'Already have an SEO guy',
-    content: `"That's great, are you happy with the results? [Let them answer.] The thing that makes this different is it runs every single day automatically. Most agencies set it and forget it. This system is checking what's ranking, what's not, and adjusting daily. And since it's free to try, it's not like you're replacing anything. Think of it as a second opinion."`,
-  },
-  {
-    id: 5,
-    title: "I don't need more work",
-    content: `"That's a great problem to have. But let me ask you this -- are you busy because you're booked solid, or busy because you're running around doing everything yourself? Most guys I talk to are busy but they're not turning down jobs. And the ones that are, they want to be able to pick and choose the higher paying ones. That's what more visibility gets you."`,
-  },
-  {
-    id: 6,
-    title: 'How do I know this works?',
-    content: `"I've got a turf cleaning client who went from basically invisible on Google to the number one result for their main keyword in under 60 days. Same system, same approach. I can show you the data if you want."`,
-  },
-  {
-    id: 7,
-    title: 'I need to think about it',
-    content: `"Totally fair. But just so you know, there's nothing to think about cost-wise because it's free. The only question is whether you want more people finding you on Google. Can I send you a quick email breaking down exactly what we'd do for your business? That way you can look at it on your own time."`,
-  },
-  {
-    id: 8,
-    title: 'Send me some info',
-    content: `"For sure. What's your email? I'll send over a breakdown of where your business stands online right now and exactly what the system would do for you. Fair warning, I'm going to follow up in a couple days to see what you think."`,
-  },
-  {
-    id: 9,
-    title: 'How much after free month?',
-    content: `"Depends on the scope but we're talking a few hundred a month. Way less than ads, and unlike ads it keeps working even between payments. But let's not even worry about that right now. Let me just show you what the system does first and you can decide if the results are worth it."`,
-  },
-  {
-    id: 10,
-    title: 'Closing - Warm',
-    content: `"Cool, so what I'll do is put together a quick breakdown of your online presence right now -- where you're showing up, where you're not, and what the system would do in the first 30 days. Can we hop on a quick call [TOMORROW/THURSDAY/FRIDAY] so I can walk you through it? Takes about 10 minutes."`,
-  },
-  {
-    id: 11,
-    title: 'Closing - Email only',
-    content: `"No problem. I'll send that over today. What's the best email? And is [THEIR NAME] the best person to talk to about this?"`,
-  },
-  {
-    id: 12,
-    title: 'Closing - No',
-    content: `"No worries at all, I appreciate your time. If anything changes, I'm easy to find. Have a good one, [NAME]."`,
-  },
-  {
-    id: 13,
-    title: 'Key Rules',
-    content: `1. Don't say "SEO." Say "getting found on Google" or "showing up when people search." SEO sounds like a sales pitch. The other sounds like a result.
-2. Don't say "services." Say "system." It's one system that does everything automatically. That's the differentiator.
-3. Lead with the student angle. It's disarming. People want to help students. It also explains why it's free without sounding sketchy.
-4. Ask questions, don't lecture. The more they talk, the more you learn, and the more bought in they get.
-5. Always get the next step. Never hang up without either a meeting booked, an email to send, or a follow-up time set.
-6. Match their energy. If they're chill, be chill. If they're direct, be direct. Don't be the overly enthusiastic salesman.
-7. It's free. Remind them. When they hesitate, the answer is always "there's zero risk because it's free."`,
-  },
-];
 
 // ── Constants ──
 
@@ -186,18 +98,20 @@ const OUTCOME_LABELS: Record<string, string> = {
 function renderWithRefs(
   text: string,
   onRefClick: (id: number) => void,
+  keyMoments?: Array<{ id?: number; quote?: string; moment: string; impact: string }>,
 ): React.ReactNode[] {
   const parts = text.split(/(\[\d+\])/g);
   return parts.map((part, i) => {
     const match = part.match(/^\[(\d+)\]$/);
     if (match) {
       const refId = parseInt(match[1], 10);
-      const section = SCRIPT_SECTIONS.find(s => s.id === refId);
+      const moment = keyMoments?.find(m => m.id === refId);
+      const tooltip = moment ? `[${refId}] ${moment.moment}` : `Moment ${refId}`;
       return (
         <span
           key={i}
           onClick={(e) => { e.stopPropagation(); onRefClick(refId); }}
-          title={section ? `${section.id}. ${section.title}` : `Section ${refId}`}
+          title={tooltip}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -307,116 +221,150 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
   );
 }
 
-function ScriptPanel({ highlightedSection, onHighlightClear }: { highlightedSection: number | null; onHighlightClear: () => void }) {
-  const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set());
-  const sectionRefs = useRef<Record<number, HTMLDivElement | null>>({});
+function TranscriptPanel({
+  transcript,
+  keyMoments,
+  highlightedMoment,
+  onHighlightClear,
+}: {
+  transcript: string | null;
+  keyMoments?: Array<{ id?: number; quote?: string; moment: string; impact: string }>;
+  highlightedMoment: number | null;
+  onHighlightClear: () => void;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const highlightRefs = useRef<Record<number, HTMLSpanElement | null>>({});
 
   useEffect(() => {
-    if (highlightedSection != null) {
-      // Expand the section
-      setExpandedSections(prev => new Set(prev).add(highlightedSection));
-      // Scroll to it
-      const el = sectionRefs.current[highlightedSection];
+    if (highlightedMoment != null) {
+      const el = highlightRefs.current[highlightedMoment];
       if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.style.background = 'rgba(232, 255, 0, 0.25)';
+        const timer = setTimeout(() => {
+          el.style.background = 'rgba(232, 255, 0, 0.10)';
+          onHighlightClear();
+        }, 1500);
+        return () => clearTimeout(timer);
       }
-      // Clear highlight after animation
       const timer = setTimeout(onHighlightClear, 1500);
       return () => clearTimeout(timer);
     }
-  }, [highlightedSection, onHighlightClear]);
+  }, [highlightedMoment, onHighlightClear]);
 
-  const toggleSection = (id: number) => {
-    setExpandedSections(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
+  if (!transcript) {
+    return (
+      <div style={{
+        maxHeight: 500,
+        borderLeft: '1px solid var(--border)',
+        paddingLeft: 16,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'var(--text-secondary)',
+        fontSize: 12,
+      }}>
+        No transcript available
+      </div>
+    );
+  }
+
+  // Build highlighted transcript: find each key_moment quote and wrap it
+  const momentsWithQuotes = (keyMoments || []).filter(m => m.id != null && m.quote);
+
+  // Build a renderable version of the transcript with highlights
+  function buildTranscriptNodes(): React.ReactNode[] {
+    if (momentsWithQuotes.length === 0) {
+      return [<span key="plain">{transcript}</span>];
+    }
+
+    // Find all quote positions in the transcript
+    type Mark = { start: number; end: number; id: number; moment: string; impact: string };
+    const marks: Mark[] = [];
+    for (const m of momentsWithQuotes) {
+      const idx = transcript!.toLowerCase().indexOf(m.quote!.toLowerCase());
+      if (idx !== -1) {
+        marks.push({ start: idx, end: idx + m.quote!.length, id: m.id!, moment: m.moment, impact: m.impact });
+      }
+    }
+    marks.sort((a, b) => a.start - b.start);
+
+    // Remove overlaps (keep first occurrence)
+    const cleaned: Mark[] = [];
+    let lastEnd = 0;
+    for (const mark of marks) {
+      if (mark.start >= lastEnd) {
+        cleaned.push(mark);
+        lastEnd = mark.end;
+      }
+    }
+
+    const nodes: React.ReactNode[] = [];
+    let cursor = 0;
+    for (const mark of cleaned) {
+      if (mark.start > cursor) {
+        nodes.push(<span key={`t-${cursor}`}>{transcript!.slice(cursor, mark.start)}</span>);
+      }
+      const impactColor = mark.impact === 'positive' ? 'var(--success)' : mark.impact === 'negative' ? 'var(--danger)' : 'var(--accent)';
+      nodes.push(
+        <span
+          key={`m-${mark.id}`}
+          ref={el => { highlightRefs.current[mark.id] = el; }}
+          title={`[${mark.id}] ${mark.moment}`}
+          style={{
+            background: 'rgba(232, 255, 0, 0.10)',
+            borderRadius: 3,
+            padding: '1px 2px',
+            transition: 'background 0.3s ease',
+            position: 'relative',
+          }}
+        >
+          <span style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 16,
+            height: 16,
+            borderRadius: '50%',
+            background: impactColor,
+            color: '#0A0F1E',
+            fontSize: 9,
+            fontWeight: 700,
+            fontFamily: 'var(--font-mono)',
+            marginRight: 3,
+            verticalAlign: 'middle',
+            lineHeight: 1,
+          }}>
+            {mark.id}
+          </span>
+          {transcript!.slice(mark.start, mark.end)}
+        </span>
+      );
+      cursor = mark.end;
+    }
+    if (cursor < transcript!.length) {
+      nodes.push(<span key={`t-${cursor}`}>{transcript!.slice(cursor)}</span>);
+    }
+    return nodes;
+  }
 
   return (
-    <div style={{
-      maxHeight: 500,
-      overflowY: 'auto',
-      fontSize: 12,
-      borderLeft: '1px solid var(--border)',
-      paddingLeft: 16,
-    }}>
+    <div
+      ref={scrollRef}
+      style={{
+        maxHeight: 500,
+        overflowY: 'auto',
+        fontSize: 12,
+        borderLeft: '1px solid var(--border)',
+        paddingLeft: 16,
+      }}
+    >
       <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: 10 }}>
-        Call Script
+        Transcript
       </div>
-      {SCRIPT_SECTIONS.map(section => {
-        const isOpen = expandedSections.has(section.id);
-        const isHighlighted = highlightedSection === section.id;
-        return (
-          <div
-            key={section.id}
-            ref={el => { sectionRefs.current[section.id] = el; }}
-            style={{
-              marginBottom: 4,
-              borderRadius: 6,
-              background: isHighlighted ? 'rgba(232, 255, 0, 0.08)' : 'transparent',
-              transition: 'background 0.3s ease',
-            }}
-          >
-            <button
-              onClick={() => toggleSection(section.id)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                width: '100%',
-                padding: '6px 8px',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                textAlign: 'left',
-              }}
-            >
-              <span style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 20,
-                height: 20,
-                borderRadius: '50%',
-                background: isHighlighted ? 'var(--accent)' : 'rgba(255,255,255,0.08)',
-                color: isHighlighted ? '#0A0F1E' : 'var(--text-secondary)',
-                fontSize: 10,
-                fontWeight: 700,
-                fontFamily: 'var(--font-mono)',
-                flexShrink: 0,
-                transition: 'all 0.3s ease',
-              }}>
-                {section.id}
-              </span>
-              <span style={{
-                fontSize: 12,
-                fontWeight: 500,
-                color: 'var(--text-primary)',
-                flex: 1,
-              }}>
-                {section.title}
-              </span>
-              <span style={{ fontSize: 10, color: 'var(--text-secondary)', transform: isOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s ease' }}>
-                &#9654;
-              </span>
-            </button>
-            {isOpen && (
-              <div style={{
-                padding: '4px 8px 10px 36px',
-                color: 'var(--text-secondary)',
-                lineHeight: 1.5,
-                whiteSpace: 'pre-wrap',
-                fontSize: 11,
-              }}>
-                {section.content}
-              </div>
-            )}
-          </div>
-        );
-      })}
+      <div style={{ color: 'var(--text-secondary)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+        {buildTranscriptNodes()}
+      </div>
     </div>
   );
 }
@@ -432,12 +380,12 @@ export default function SalesEnginePage() {
   const [selectMode, setSelectMode] = useState(false);
   const [selectedCalls, setSelectedCalls] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
-  const [highlightedSection, setHighlightedSection] = useState<number | null>(null);
+  const [highlightedMoment, setHighlightedMoment] = useState<number | null>(null);
 
-  const handleHighlightClear = useCallback(() => setHighlightedSection(null), []);
+  const handleHighlightClear = useCallback(() => setHighlightedMoment(null), []);
 
   const handleRefClick = useCallback((id: number) => {
-    setHighlightedSection(id);
+    setHighlightedMoment(id);
   }, []);
 
   useEffect(() => {
@@ -610,6 +558,20 @@ export default function SalesEnginePage() {
             }}
           >
             &#8249; Dashboard
+          </a>
+          <a
+            href="/sales-engine/script"
+            style={{
+              fontSize: 12,
+              fontFamily: 'var(--font-mono)',
+              color: 'var(--accent)',
+              textDecoration: 'none',
+              padding: '6px 12px',
+              border: '1px solid var(--accent)',
+              borderRadius: 6,
+            }}
+          >
+            Script
           </a>
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0, fontFamily: 'var(--font-sans)' }}>
@@ -871,7 +833,7 @@ export default function SalesEnginePage() {
                                 <div style={{ marginBottom: 14 }}>
                                   <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: 6 }}>Coaching</div>
                                   <div style={{ color: 'var(--text-primary)', lineHeight: 1.5 }}>
-                                    {renderWithRefs(a.coaching_notes, handleRefClick)}
+                                    {renderWithRefs(a.coaching_notes, handleRefClick, a.key_moments)}
                                   </div>
                                 </div>
                               )}
@@ -883,7 +845,7 @@ export default function SalesEnginePage() {
                                     <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--success)', textTransform: 'uppercase', marginBottom: 6 }}>Strengths</div>
                                     {a.strengths.map((s, i) => (
                                       <div key={i} style={{ color: 'var(--text-secondary)', marginBottom: 4, paddingLeft: 8, borderLeft: '2px solid var(--success)' }}>
-                                        {renderWithRefs(s, handleRefClick)}
+                                        {renderWithRefs(s, handleRefClick, a.key_moments)}
                                       </div>
                                     ))}
                                   </div>
@@ -895,7 +857,7 @@ export default function SalesEnginePage() {
                                     <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--danger)', textTransform: 'uppercase', marginBottom: 6 }}>Improve</div>
                                     {a.improvements.map((s, i) => (
                                       <div key={i} style={{ color: 'var(--text-secondary)', marginBottom: 4, paddingLeft: 8, borderLeft: '2px solid var(--danger)' }}>
-                                        {renderWithRefs(s, handleRefClick)}
+                                        {renderWithRefs(s, handleRefClick, a.key_moments)}
                                       </div>
                                     ))}
                                   </div>
@@ -951,9 +913,11 @@ export default function SalesEnginePage() {
                               </div>
                             </div>
 
-                            {/* Right column: Script panel */}
-                            <ScriptPanel
-                              highlightedSection={highlightedSection}
+                            {/* Right column: Transcript panel */}
+                            <TranscriptPanel
+                              transcript={call.call_transcript}
+                              keyMoments={a.key_moments}
+                              highlightedMoment={highlightedMoment}
                               onHighlightClear={handleHighlightClear}
                             />
                           </div>

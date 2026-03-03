@@ -55,23 +55,6 @@ Call may have been too short, voicemail, or no answer.
 
 """
 
-    prompt += """== SCRIPT REFERENCE SECTIONS ==
-[1] The Opener
-[2] The Pitch
-[3] Objection: What's the catch?
-[4] Objection: Already have an SEO guy
-[5] Objection: I don't need more work
-[6] Objection: How do I know this works?
-[7] Objection: I need to think about it
-[8] Objection: Send me some info
-[9] Objection: How much after free month?
-[10] Closing - Warm
-[11] Closing - Email only
-[12] Closing - No
-[13] Key Rules
-
-"""
-
     # Show recent patterns if available
     if recent_analyses:
         prompt += "== RECENT CALL PATTERNS (last 5 calls) ==\n"
@@ -96,11 +79,11 @@ Analyze this call and return a JSON object with EXACTLY these fields:
     "talk_ratio": <0.0-1.0 estimated percentage of time Brian talked vs listened>,
     "energy_score": <1-10 energy/enthusiasm level>,
     "opener_used": "<the opening line or approach used>",
-    "strengths": ["<specific thing done well. Include [N] script references when relevant, e.g. 'Great use of the student angle [1]'>", "..."],
-    "improvements": ["<specific actionable improvement. Include [N] script references, e.g. 'Should have pivoted to pricing objection handle [9]'>", "..."],
-    "coaching_notes": "<2-3 sentences of direct, honest coaching. Include [N] references to script sections when relevant. E.g. 'Your opener [1] was weak -- you skipped the student angle which is your biggest weapon [13].' or 'Good handle on the pricing objection [9] but you talked too much during the pitch [2].'>",
+    "strengths": ["<specific thing done well. Include [N] refs to key_moments, e.g. 'Great use of the student angle at [1]'>", "..."],
+    "improvements": ["<specific actionable improvement. Include [N] refs to key_moments, e.g. 'At [3] you should have pivoted to pricing instead of rambling'>", "..."],
+    "coaching_notes": "<2-3 sentences of direct, honest coaching. Include [N] refs to key_moments. E.g. 'You lost control at [2] and just kept pitching through [3]. But the close attempt at [5] was solid.'>",
     "key_moments": [
-        {"timestamp": "<approx time if available>", "moment": "<what happened>", "impact": "<positive/negative/neutral>"}
+        {"id": 1, "quote": "<exact words from the transcript>", "moment": "<what happened>", "impact": "<positive/negative/neutral>"}
     ]
 }
 
@@ -111,7 +94,8 @@ RULES:
 4. Talk ratio: <0.3 = great (prospect talked mostly), 0.3-0.5 = good, >0.5 = talking too much.
 5. If no transcript (no_answer/voicemail), still return the JSON with outcome and nulls for analysis fields.
 6. The opener matters most. Did Brian hook them in the first 10 seconds?
-7. For key_moments, flag: objection handling, tonality shifts, commitment questions, value props that landed, and missed closes.
+7. Number your key_moments starting at 1. Each must have an "id" (integer) and "quote" (exact words from the transcript). Use [N] in coaching_notes, strengths, and improvements to reference them by id.
+8. For key_moments, flag: objection handling, tonality shifts, commitment questions, value props that landed, and missed closes.
 
 Return ONLY the JSON object, no markdown fences, no explanation."""
 
