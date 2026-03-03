@@ -90,7 +90,7 @@ Analyze this call and return a JSON object with EXACTLY these fields:
 RULES:
 1. Be brutally honest. Sugarcoating helps nobody.
 2. Score 1-3 = bad call (fumbled, lost control, no value delivered). 4-6 = average (some good moments, room to improve). 7-9 = strong call. 10 = perfect close.
-3. For objections, categorize as: price, timing, already_have_provider, not_interested, need_to_think, too_busy, no_budget, trust, or other.
+3. For objections, categorize as: price, timing, already_have_provider, not_interested, need_to_think, too_busy, no_budget, trust, distrust_ai, or other.
 4. Talk ratio: <0.3 = great (prospect talked mostly), 0.3-0.5 = good, >0.5 = talking too much.
 5. If no transcript (no_answer/voicemail), still return the JSON with outcome and nulls for analysis fields.
 6. The opener matters most. Did Brian hook them in the first 10 seconds?

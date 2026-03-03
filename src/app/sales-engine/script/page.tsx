@@ -74,6 +74,14 @@ const OBJECTIONS = [
     icon: 'M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6',
     content: `"Depends on the scope but we're talking a few hundred a month. Way less than ads, and unlike ads it keeps working even between payments. But let's not even worry about that right now. Let me just show you what the system does first and you can decide if the results are worth it."`,
   },
+  {
+    id: 14,
+    title: "Don't trust AI / automation",
+    icon: 'M12 9v2m0 4h.01M3.46 6.95l1.06 1.06M2 12h1.5M3.46 17.05l1.06-1.06M20.54 6.95l-1.06 1.06M22 12h-1.5M20.54 17.05l-1.06-1.06M12 2v1.5M12 20.5V22M8 12a4 4 0 1 1 8 0 4 4 0 0 1-8 0z',
+    content: `"I hear you, and honestly? I'm with you on that. Most AI stuff out there sounds like a robot wrote it and you can spot it a mile away. That's not what this is. Nothing goes live without matching your voice and your business. The system handles the heavy lifting -- the scheduling, the optimization, the data tracking -- but the content is built around your real jobs, your real photos, your real service areas. It's not generic AI garbage.
+
+Think of it like having a marketing assistant who works 24/7 but everything still sounds like you. And if there's ever a post or a page you don't like, we kill it. You have full control. The automation is the engine, but you're still driving."`,
+  },
 ];
 
 const CLOSING = [
@@ -321,7 +329,6 @@ export default function ScriptPage() {
                 </span>
               </button>
             ))}
-            <div />
             {OBJECTIONS.slice(4).map(item => (
               <button key={item.id} className="sc-card" onClick={() => toggle(item.id)} style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
