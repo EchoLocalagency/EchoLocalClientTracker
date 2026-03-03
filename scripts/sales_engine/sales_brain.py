@@ -24,7 +24,11 @@ def _build_call_prompt(call_data, recent_analyses=None):
     contact_name = call_data.get("contact_name", "Unknown")
     company_name = call_data.get("company_name", "Unknown")
 
-    prompt = f"""You are a sales coach analyzing a cold call for Echo Local, a digital consulting agency that builds compounding SEO + AI systems for home service businesses.
+    prompt = f"""You are Jordan Belfort's protege. You eat, sleep, and breathe sales. You've closed millions in deals and you coach closers for a living. You talk like Belfort. Direct. Intense. No fluff. You don't care about feelings, you care about results.
+
+You're analyzing a cold call for Brian Egan, who owns Echo Local, a digital consulting agency that builds automated growth systems (SEO + AI + GBP automation) for home service businesses. Brian is cold calling home service business owners and selling them a compounding system, not "SEO services." The offer is: no upfront cost, first month free as a case study, they only pay if they want to keep it running.
+
+Your job is to rip this call apart. Tell Brian exactly what he did wrong, what he did right, and what he needs to change on the NEXT call to close the deal. Don't be nice about it. Be specific. Reference exact moments in the transcript. If he's talking too much, tell him. If his opener sucks, give him a better one. If he missed a buying signal, call it out. If he handled an objection well, acknowledge it. You're building a killer closer, not babysitting.
 
 CALLER: Brian Egan, owner of Echo Local
 PROSPECT: {contact_name} at {company_name}
@@ -48,6 +52,23 @@ DATE: {date.today()}
     else:
         prompt += """== NO TRANSCRIPT AVAILABLE ==
 Call may have been too short, voicemail, or no answer.
+
+"""
+
+    prompt += """== SCRIPT REFERENCE SECTIONS ==
+[1] The Opener
+[2] The Pitch
+[3] Objection: What's the catch?
+[4] Objection: Already have an SEO guy
+[5] Objection: I don't need more work
+[6] Objection: How do I know this works?
+[7] Objection: I need to think about it
+[8] Objection: Send me some info
+[9] Objection: How much after free month?
+[10] Closing - Warm
+[11] Closing - Email only
+[12] Closing - No
+[13] Key Rules
 
 """
 
@@ -75,9 +96,9 @@ Analyze this call and return a JSON object with EXACTLY these fields:
     "talk_ratio": <0.0-1.0 estimated percentage of time Brian talked vs listened>,
     "energy_score": <1-10 energy/enthusiasm level>,
     "opener_used": "<the opening line or approach used>",
-    "strengths": ["<specific thing done well>", "..."],
-    "improvements": ["<specific actionable improvement>", "..."],
-    "coaching_notes": "<2-3 sentences of direct, honest coaching. Be blunt. What would Jordan Belfort say?>",
+    "strengths": ["<specific thing done well. Include [N] script references when relevant, e.g. 'Great use of the student angle [1]'>", "..."],
+    "improvements": ["<specific actionable improvement. Include [N] script references, e.g. 'Should have pivoted to pricing objection handle [9]'>", "..."],
+    "coaching_notes": "<2-3 sentences of direct, honest coaching. Include [N] references to script sections when relevant. E.g. 'Your opener [1] was weak -- you skipped the student angle which is your biggest weapon [13].' or 'Good handle on the pricing objection [9] but you talked too much during the pitch [2].'>",
     "key_moments": [
         {"timestamp": "<approx time if available>", "moment": "<what happened>", "impact": "<positive/negative/neutral>"}
     ]
@@ -129,7 +150,7 @@ def _build_daily_prompt(todays_calls, todays_analyses):
     for o in all_objections:
         objection_counts[o] = objection_counts.get(o, 0) + 1
 
-    prompt = f"""You are a sales coach doing an end-of-day debrief for Brian Egan, owner of Echo Local (SEO + AI agency for home service businesses).
+    prompt = f"""You are Jordan Belfort doing an end-of-day debrief. You talk like him. Direct, intense, no sugarcoating. You're coaching Brian Egan, owner of Echo Local (automated growth systems for home service businesses). Brian is cold calling business owners and selling a compounding system with a free first month. Rip into the patterns you see. Call out the wins hard so he knows what's working. Call out the losses harder so he fixes them tomorrow. This is a locker room talk, not a therapy session.
 
 TODAY: {date.today()}
 TOTAL CALLS: {total}
@@ -197,9 +218,11 @@ def analyze_call(call_data, recent_analyses=None, dry_run=False):
 
     try:
         result = subprocess.run(
-            ["claude", "-p", prompt, "--output-format", "json"],
+            ["claude", "-p", prompt, "--output-format", "json",
+             "--disable-slash-commands",
+             "--setting-sources", ""],
             capture_output=True, text=True, timeout=120,
-            cwd="/Users/brianegan/EchoLocalClientTracker",
+            cwd="/tmp",
         )
         if result.returncode != 0:
             print(f"  Claude error: {result.stderr[:200]}")
@@ -240,9 +263,11 @@ def generate_daily_report(todays_calls, todays_analyses, dry_run=False):
 
     try:
         result = subprocess.run(
-            ["claude", "-p", prompt, "--output-format", "json"],
+            ["claude", "-p", prompt, "--output-format", "json",
+             "--disable-slash-commands",
+             "--setting-sources", ""],
             capture_output=True, text=True, timeout=180,
-            cwd="/Users/brianegan/EchoLocalClientTracker",
+            cwd="/tmp",
         )
         if result.returncode != 0:
             print(f"  Claude error: {result.stderr[:200]}")
