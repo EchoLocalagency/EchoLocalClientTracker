@@ -20,7 +20,12 @@ interface GbpTabProps {
 }
 
 export default function GbpTab({ reports, latestReport, gbpKeywords = [] }: GbpTabProps) {
-  const hasData = latestReport && (latestReport.gbp_total_impressions ?? 0) > 0;
+  const hasData = reports.some((r) => (r.gbp_total_impressions ?? 0) > 0);
+
+  // Use the most recent report that has actual GBP data (not zeros from a timeout)
+  const gbpReport = [...reports]
+    .sort((a, b) => b.run_date.localeCompare(a.run_date))
+    .find((r) => (r.gbp_total_impressions ?? 0) > 0) ?? latestReport;
 
   if (!hasData) {
     return (
@@ -61,30 +66,30 @@ export default function GbpTab({ reports, latestReport, gbpKeywords = [] }: GbpT
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
         <StatCard
           label="GBP Impressions"
-          value={latestReport.gbp_total_impressions}
-          previous={latestReport.gbp_total_impressions_prev}
+          value={gbpReport!.gbp_total_impressions}
+          previous={gbpReport!.gbp_total_impressions_prev}
           sparklineData={impressionsSpark}
         />
         <StatCard
           label="Maps Impressions"
-          value={latestReport.gbp_maps_impressions}
-          previous={latestReport.gbp_maps_impressions_prev}
+          value={gbpReport!.gbp_maps_impressions}
+          previous={gbpReport!.gbp_maps_impressions_prev}
         />
         <StatCard
           label="Search Impressions"
-          value={latestReport.gbp_search_impressions}
-          previous={latestReport.gbp_search_impressions_prev}
+          value={gbpReport!.gbp_search_impressions}
+          previous={gbpReport!.gbp_search_impressions_prev}
         />
         <StatCard
           label="Call Clicks"
-          value={latestReport.gbp_call_clicks}
-          previous={latestReport.gbp_call_clicks_prev}
+          value={gbpReport!.gbp_call_clicks}
+          previous={gbpReport!.gbp_call_clicks_prev}
           sparklineData={callsSpark}
         />
         <StatCard
           label="Website Clicks"
-          value={latestReport.gbp_website_clicks}
-          previous={latestReport.gbp_website_clicks_prev}
+          value={gbpReport!.gbp_website_clicks}
+          previous={gbpReport!.gbp_website_clicks_prev}
           sparklineData={websiteSpark}
         />
       </div>
