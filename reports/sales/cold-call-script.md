@@ -13,9 +13,7 @@
 
 ## The Pitch (keep it under 60 seconds)
 
-"So you know when someone searches '[TRADE] near me' on Google and a few businesses pop up at the top? Those guys are getting the most calls. The reason they're up there and everyone else isn't is because Google rewards businesses that are active online every day. Most people set up their profile once and never touch it again, so Google buries them.
-
-What my system does is it keeps your business active on Google every single day, automatically. It posts your work, it responds to your reviews, it makes sure you're showing up in every city you actually serve -- not just [THEIR CITY] but [NEARBY CITY 1], [NEARBY CITY 2], all of them. More places you show up, more calls you get.
+"So I'll be honest, it's kind of hard to explain in a sentence because it does a lot. But basically I built a living system that works on your website and your Google Business Profile every single day to get you showing up more. It posts your work, handles your reviews, builds out pages for every city you serve -- [NEARBY CITY 1], [NEARBY CITY 2], all of them -- and it just keeps compounding over time. The more it runs, the more you show up, the more calls you get.
 
 The whole thing runs on its own. You don't have to do anything. And right now I'm testing it with a few businesses completely free. No cost, no contract, no catch. I just need real businesses to build case studies with."
 
