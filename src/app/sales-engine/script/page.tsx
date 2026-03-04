@@ -9,25 +9,22 @@ const OPENING = [
     id: 1,
     title: 'The Opener',
     icon: 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5',
-    content: `"Hey [NAME], this is Brian. I know you're probably busy so I'll keep this quick. I'm a local student out here at Cal State San Marcos -- I built a system that helps turf [or whatever trade] companies get more jobs through Google without paying for ads. I'm looking for a few businesses to try it out with completely free. Got 60 seconds for me to explain how it works?"
+    content: `"Hey, is this [BUSINESS NAME]? ... Great, and you guys are based out in [AREA], right? ... Perfect. My name's Brian, I'm a student over at Cal State San Marcos. I built a system that helps [TRADE] companies show up more on Google without paying for ads. Are you looking to take on more work right now?"
 
-If they say yes, go to The Pitch.
+If they say yes: "That's exactly why I'm calling." Go to The Pitch.
 If they say "I'm busy": "Totally get it. When's a better time for a 2 minute call? I'll be quick, I promise."
-If they say "not interested": "No worries at all. Just out of curiosity, are you getting most of your jobs from Google right now or is it mostly word of mouth?"`,
+If they say "not interested": "No worries at all. Just out of curiosity, are you getting most of your jobs from Google right now or is it mostly word of mouth?"
+If they say "no, we're booked": "That's a great problem to have. Most guys I talk to in that spot want to start picking and choosing the higher paying jobs. That's what more visibility gets you."`,
   },
   {
     id: 2,
     title: 'The Pitch',
     icon: 'M13 2L3 14h9l-1 10 10-12h-9l1-10',
-    content: `"So here's the deal. You know your Google Business Profile, the thing that shows up when someone searches for [TRADE] near them? Most businesses set it up once and never touch it again. Google sees that and pushes you down. The businesses getting the most calls are the ones that are active on there every single day.
+    content: `"So you know when someone searches '[TRADE] near me' on Google and a few businesses pop up at the top? Those guys are getting the most calls. The reason they're up there and everyone else isn't is because Google rewards businesses that are active online every day. Most people set up their profile once and never touch it again, so Google buries them.
 
-That's what my system does. It automatically posts your job photos to your GBP, responds to every single review so Google sees you're engaged, seeds Q&A with the questions your customers are actually asking. All without you doing anything.
+What my system does is it keeps your business active on Google every single day, automatically. It posts your work, it responds to your reviews, it makes sure you're showing up in every city you actually serve -- not just [THEIR CITY] but [NEARBY CITY 1], [NEARBY CITY 2], all of them. More places you show up, more calls you get.
 
-But here's where it gets good. The system also watches what's working and what's not, 24/7. If a keyword is close to ranking, it adjusts your site to push it over. If a certain type of post is getting more views, it makes more of those. It's a constant feedback loop between your GBP and your website, always improving, always learning what gets you showing up higher.
-
-And then on top of that, it builds out pages for every city you serve. So instead of only showing up in [THEIR CITY], you're showing up in [NEARBY CITY 1], [NEARBY CITY 2], [NEARBY CITY 3]. Every page is another net in the water catching jobs.
-
-The whole thing runs automatically, every single day. More visibility, more calls, more jobs. And right now I'm testing it with a handful of businesses completely free. No cost, no contract, no catch. I just need real businesses to build case studies with."`,
+The whole thing runs on its own. You don't have to do anything. And right now I'm testing it with a few businesses completely free. No cost, no contract, no catch. I just need real businesses to build case studies with."`,
   },
 ];
 
