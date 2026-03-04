@@ -8,9 +8,10 @@ interface SidebarProps {
   onSelectClient: (client: Client) => void;
   collapsed: boolean;
   onToggle: () => void;
+  onSignOut?: () => void;
 }
 
-export default function Sidebar({ clients, activeClient, onSelectClient, collapsed, onToggle }: SidebarProps) {
+export default function Sidebar({ clients, activeClient, onSelectClient, collapsed, onToggle, onSignOut }: SidebarProps) {
   return (
     <aside
       style={{
@@ -169,6 +170,32 @@ export default function Sidebar({ clients, activeClient, onSelectClient, collaps
       {/* Engine links */}
       <div style={{ borderTop: '1px solid var(--border)' }}>
         <a
+          href="/agents"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: collapsed ? '12px 0' : '12px 24px',
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            fontSize: 12,
+            fontWeight: 600,
+            fontFamily: 'var(--font-mono)',
+            color: '#FF6B35',
+            textDecoration: 'none',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 107, 53, 0.08)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+          }}
+        >
+          {collapsed ? 'AG' : 'Agents \u203A'}
+        </a>
+        <a
           href="/seo-engine"
           style={{
             display: 'flex',
@@ -221,6 +248,41 @@ export default function Sidebar({ clients, activeClient, onSelectClient, collaps
           {collapsed ? 'SA' : 'Sales Engine \u203A'}
         </a>
       </div>
+
+      {/* Sign out */}
+      {onSignOut && (
+        <button
+          onClick={onSignOut}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: collapsed ? '12px 0' : '12px 24px',
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            width: '100%',
+            border: 'none',
+            borderTop: '1px solid var(--border)',
+            background: 'transparent',
+            color: 'var(--text-secondary)',
+            fontSize: 11,
+            fontWeight: 600,
+            fontFamily: 'var(--font-mono)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            cursor: 'pointer',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 61, 87, 0.08)';
+            e.currentTarget.style.color = '#FF3D57';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.color = 'var(--text-secondary)';
+          }}
+        >
+          {collapsed ? 'X' : 'Sign Out'}
+        </button>
+      )}
 
       {/* Collapse toggle */}
       <button
