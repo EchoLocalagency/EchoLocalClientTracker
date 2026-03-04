@@ -1,0 +1,59 @@
+{
+  "client": "Primal Plates",
+  "slug": "primal-plates",
+  "date": "2026-03-03",
+  "period_start": "2026-02-15",
+  "period_end": "2026-02-28",
+  "prev_start": "2026-02-01",
+  "prev_end": "2026-02-14",
+  "primary_market": "",
+  "ga4": {
+    "sessions": 84,
+    "sessions_prev": 0,
+    "organic": 2,
+    "organic_prev": 0,
+    "phone_clicks": 0,
+    "phone_clicks_prev": 0,
+    "form_submits": 0,
+    "form_submits_prev": 0
+  },
+  "gsc": {
+    "impressions": 5,
+    "impressions_prev": 0,
+    "clicks": 1,
+    "clicks_prev": 0,
+    "avg_position": 20.8,
+    "avg_position_prev": 0,
+    "top_queries": [
+      {
+        "query": "primal meal prep",
+        "impressions": 1,
+        "clicks": 0,
+        "position": 87
+      },
+      {
+        "query": "primal plate",
+        "impressions": 3,
+        "clicks": 0,
+        "position": 5.3
+      }
+    ]
+  },
+  "target_keyword_rankings": [],
+  "pagespeed": {
+    "mobile_score": 75,
+    "desktop_score": 93,
+    "lcp_mobile": "5.6\u00a0s",
+    "lcp_desktop": "1.0\u00a0s",
+    "cls_mobile": "0.004",
+    "cls_desktop": "0.009",
+    "tbt_mobile": "30\u00a0ms",
+    "tbt_desktop": "190\u00a0ms"
+  },
+  "gbp": null,
+  "gbp_keywords": [],
+  "flags": [
+    "Mobile LCP is 5.6\u00a0s \u2014 above 4s threshold"
+  ],
+  "conversion_rate": 0.0
+}

@@ -466,11 +466,24 @@ def refresh_manifest_metadata(client_slug, website_path=None):
         if images_dir and old_filename != new_filename:
             old_path = images_dir / old_filename
             new_path = images_dir / new_filename
-            if old_path.exists() and not new_path.exists():
-                old_path.rename(new_path)
+            if new_path.exists():
+                # New name already exists on disk (previous partial rename)
+                info["local_filename"] = new_filename
                 renamed += 1
+            elif old_path.exists():
+                try:
+                    old_path.rename(new_path)
+                    info["local_filename"] = new_filename
+                    renamed += 1
+                except OSError as e:
+                    print(f"  [photo_manager] Rename failed for {old_filename}: {e}")
+                    # Keep old filename in manifest so it matches disk
+            else:
+                # Neither old nor new exists on disk -- keep whatever manifest says
+                print(f"  [photo_manager] Warning: {old_filename} not found on disk")
+        else:
+            info["local_filename"] = new_filename
 
-        info["local_filename"] = new_filename
         info["alt_text_hint"] = new_alt
 
     manifest_path.write_text(json.dumps(manifest, indent=2))

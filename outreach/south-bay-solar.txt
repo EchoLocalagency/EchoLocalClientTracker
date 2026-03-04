@@ -1,0 +1,17 @@
+Subject: Quick question about South Bay Solar Cleaning
+
+Hey Marcos,
+
+I'm Brian, finance student at CSUSM here in Oceanside. I'm building out a portfolio of local businesses I can help get more jobs through Google organically, no paid ads. Basically test cases to prove my system works before I go full time after graduation.
+
+I was looking at your site and Google listing and noticed a few things that are costing you free traffic right now. Your site doesn't have any schema markup, which is the code that tells Google what your business does, where you are, and what services you offer. Without it, Google is basically guessing. That's fixable in about 20 minutes.
+
+Your page titles are also generic ("South Bay Solar Cleaning - Home") when they should be targeting what people actually search, like "solar panel cleaning Chula Vista" or "turf cleaning San Diego." Small change, big difference in who finds you.
+
+I'm not trying to sell you anything. I'm looking for 2-3 businesses to run my system on for free or close to it, just so I have real results to show. If you're open to a 10 minute call I can walk you through exactly what I'm seeing on your listing vs your competitors.
+
+Either way, nice operation you've got going. The reviews are solid.
+
+Brian Egan
+(831) 332-7837
+Oceanside, CA

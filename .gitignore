@@ -44,3 +44,16 @@ auth_flow.py
 
 # runtime logs
 /logs/
+
+# Local Netlify folder
+.netlify
+
+# sensitive tokens
+gmail_token.json
+
+# temp/runtime
+supabase/.temp/
+deno.lock
+scripts/campaign_tag_log.json
+reports/last_*_prompt.txt
+reports/last_*_response.txt

@@ -1,0 +1,152 @@
+{
+  "client": "Echo Local",
+  "slug": "echo-local",
+  "date": "2026-03-03",
+  "period_start": "2026-02-15",
+  "period_end": "2026-02-28",
+  "prev_start": "2026-02-01",
+  "prev_end": "2026-02-14",
+  "primary_market": "San Diego County, CA",
+  "ga4": {
+    "sessions": 3,
+    "sessions_prev": 0,
+    "organic": 0,
+    "organic_prev": 0,
+    "phone_clicks": 0,
+    "phone_clicks_prev": 0,
+    "form_submits": 0,
+    "form_submits_prev": 0
+  },
+  "gsc": {
+    "impressions": 7,
+    "impressions_prev": 0,
+    "clicks": 0,
+    "clicks_prev": 0,
+    "avg_position": 2.9,
+    "avg_position_prev": 0,
+    "top_queries": [
+      {
+        "query": "echo local",
+        "impressions": 1,
+        "clicks": 0,
+        "position": 9
+      }
+    ]
+  },
+  "target_keyword_rankings": [
+    {
+      "keyword": "SEO for home service businesses san diego",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "local SEO for contractors san diego",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "SEO agency san diego",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "SEO agency oceanside",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "local SEO consultant san diego",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "SEO for plumbers san diego",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "SEO for HVAC san diego",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "SEO for landscapers san diego",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "Google Business Profile optimization san diego",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "home service marketing san diego",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "contractor SEO san diego",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "small business SEO san diego",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "SEO for home service businesses",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "automated SEO for contractors",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    }
+  ],
+  "pagespeed": {
+    "mobile_score": 67,
+    "desktop_score": 95,
+    "lcp_mobile": "7.0\u00a0s",
+    "lcp_desktop": "1.3\u00a0s",
+    "cls_mobile": "0",
+    "cls_desktop": "0",
+    "tbt_mobile": "40\u00a0ms",
+    "tbt_desktop": "20\u00a0ms"
+  },
+  "gbp": null,
+  "gbp_keywords": [],
+  "flags": [
+    "Mobile LCP is 7.0\u00a0s \u2014 above 4s threshold"
+  ],
+  "conversion_rate": 0.0
+}

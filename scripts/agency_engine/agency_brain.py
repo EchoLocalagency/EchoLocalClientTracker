@@ -170,9 +170,9 @@ REAL CLIENT DATA (use as proof points in content):
 
     # -- Section 9: Rate limits --
     limits = {
-        "blog_post": 3,
+        "blog_post": 2,
         "page_edit": 2,
-        "schema_update": 2,
+        "schema_update": 4,
         "newsjack_post": 1,
     }
     prompt += "WEEKLY RATE LIMITS (remaining this week):\n"
@@ -266,12 +266,35 @@ REAL CLIENT DATA (use as proof points in content):
             prompt += "  Note: Outreach is handled automatically by the backlink system. Factor this data into content decisions.\n"
             prompt += "\n"
 
+    # -- Section 15: Striking distance pages (position 3-20) --
+    striking_distance = [
+        q for q in (gsc_queries or [])
+        if q.get("position") and 3.0 <= q["position"] <= 20.0
+    ]
+    if striking_distance:
+        for q in striking_distance:
+            q["_sd_score"] = q.get("impressions", 0) * (21 - q["position"])
+        striking_distance.sort(key=lambda q: q["_sd_score"], reverse=True)
+
+        prompt += "STRIKING DISTANCE PAGES (position 3-20 -- HIGHEST ROI, optimize these FIRST):\n"
+        prompt += f"  {'Query':<50} {'Position':<10} {'Impressions':<12} {'Clicks':<8} {'Opportunity'}\n"
+        prompt += f"  {'-'*100}\n"
+        for q in striking_distance[:15]:
+            opp = "HIGH" if q["_sd_score"] > 500 else "MEDIUM" if q["_sd_score"] > 100 else "LOW"
+            prompt += f"  {q['query']:<50} {q['position']:<10.1f} {q.get('impressions', 0):<12} {q.get('clicks', 0):<8} {opp}\n"
+        prompt += "  These pages are already ranking. A page_edit to improve content, headings, and internal links\n"
+        prompt += "  will move them to page 1 faster than writing a brand new blog post. OPTIMIZE BEFORE YOU CREATE.\n\n"
+
     # -- Section 13: Rules --
     prompt += """RULES (follow exactly):
 1. Return ONLY a JSON array of action objects. No other text.
 2. Each action must have: action_type, target_keywords (array), priority (1-5, 1=highest), reasoning (1 sentence), and type-specific content fields.
 3. Action types: blog_post, page_edit, schema_update, newsjack_post
-4. Content style: no em dashes (use commas or hyphens), no emojis, no AI tells ("dive in", "comprehensive guide", "everything you need to know", "in conclusion", "game-changer", "buckle up", etc.)
+4. CONTENT VOICE: Write as Brian Egan, founder who actually builds and runs these systems. First person ("I", "we"). Reference real client results by name (Mr Green, Integrity Pro) with specific numbers. Include technical details (GSC data, ranking positions, impression counts). State opinions directly. Start with specific observations or data, never with questions or cliches.
+4a. BANNED WORDS (never use): delve, tapestry, realm, beacon, testament, landscape (metaphorical), paradigm, synergy, framework, nuanced, multifaceted, comprehensive, robust, seamless, cutting-edge, transformative, innovative, pivotal, intricate, holistic, bespoke, scalable, unprecedented, intuitive, tailored, streamlined, best-in-class, world-class, groundbreaking, revolutionary, game-changing, supercharge, captivating, fascinating, meticulous, vibrant, proactive, thrilled, moreover, furthermore, additionally, consequently, subsequently, indeed, certainly, arguably, essentially, fundamentally, significantly, notably.
+4b. BANNED PHRASES (never use): "in today's [anything]", "ever-evolving", "in an era of", "when it comes to", "it's important to note", "it is worth mentioning", "first and foremost", "at the end of the day", "in conclusion", "in summary", "in essence", "let's dive in", "let's explore", "have you ever wondered", "imagine a world", "picture this", "unlock the potential", "unleash the power", "pave the way", "at the forefront", "push the boundaries", "embark on a journey", "I hope this helps", "feel free to reach out", "don't hesitate to", "here's the thing".
+4c. STRUCTURE RULES: No em dashes, no emojis. Never open with a question or time-anchor ("In 2026..."). Vary paragraph length dramatically (some 1 sentence, some 3-5). Max one bulleted/numbered list per piece. No parallel heading construction. Do not end with a summary or generic CTA. Alternate short sentences (4-8 words) with longer ones (15-25 words). Occasionally use fragments. Start some sentences with "And" or "But."
+4d. EXPERIENCE SIGNALS: Every blog post MUST include at least 3: real client data points (impressions, rankings, timeline), specific technical implementation details, a problem encountered and how it was solved, honest cost/time assessments, references to specific San Diego neighborhoods or conditions.
 5. Do NOT target the same keyword with the same action type if it appears in RECENTLY TARGETED.
 6. Do NOT exceed the remaining weekly rate limits. If a type shows 0 remaining, do not propose that type.
 7. Prioritize striking-distance keywords (position 5-20) for highest ROI.
@@ -293,6 +316,7 @@ REAL CLIENT DATA (use as proof points in content):
 23. Add "Last updated: {date}" visible text near the top of blog content. Freshness signals matter for AI citation.
 24. Keep paragraphs short (1 idea each). Use descriptive headings. For how-to content, use numbered steps. AI engines prefer scannable, structured content.
 25. If AEO OPPORTUNITIES are listed above, prioritize creating content that directly answers those question queries. Use the exact question as an H2 heading.
+26. OPTIMIZE BEFORE YOU CREATE: If STRIKING DISTANCE PAGES are listed above, you MUST prioritize page_edit actions to improve those pages BEFORE proposing any new blog_post. Position 1 gets 2x the CTR of position 2, and 10x position 10. Moving an existing page from position 8 to position 3 is faster and higher-ROI than writing new content from scratch. Add better headings, expand thin sections, improve internal links, add schema, and update dates.
 
 OUTPUT FORMAT:
 [
@@ -361,11 +385,13 @@ def call_agency_brain(client_config, performance_data, keyword_rankings,
 
     try:
         result = subprocess.run(
-            ["claude", "-p", prompt, "--output-format", "json"],
+            ["claude", "-p", prompt, "--output-format", "json",
+             "--disable-slash-commands",
+             "--setting-sources", ""],
             capture_output=True,
             text=True,
-            timeout=300,
-            cwd="/Users/brianegan/EchoLocalClientTracker",
+            timeout=600,
+            cwd="/tmp",
         )
 
         if result.returncode != 0:

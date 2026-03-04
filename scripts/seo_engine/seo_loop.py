@@ -27,16 +27,22 @@ BASE_DIR = Path("/Users/brianegan/EchoLocalClientTracker")
 CLIENTS_FILE = BASE_DIR / "clients.json"
 
 # Weekly rate limits (hard-coded, not relying on the brain)
-# Updated 2026-03-01: bumped for daily cadence (7 runs/week)
+# Updated 2026-03-02: tuned after SEO frequency audit
+# - blog_post: 3->2 (SpamBrain tracks URL creation velocity on small sites)
+# - gbp_post: 5->3 (diminishing returns past 3/week, avoids spam signal)
+# - gbp_qanda: REMOVED (Google killed Q&A feature Dec 2025)
+# - gbp_photo: 5->3 (no penalty risk but no benefit past 3)
+# - location_page: 2->1 (doorway page penalties actively enforced)
+# - schema_update: 2->4 (no velocity penalty, accuracy is all that matters)
+# - newsjack_post: shares cap with blog_post (total content <= 3/week)
 WEEKLY_LIMITS = {
-    "gbp_post": 5,
-    "gbp_qanda": 3,
-    "blog_post": 3,
+    "gbp_post": 3,
+    "blog_post": 2,
     "page_edit": 2,
     "location_page": 2,
-    "gbp_photo": 5,
-    "schema_update": 2,
-    "newsjack_post": 2,
+    "gbp_photo": 3,
+    "schema_update": 4,
+    "newsjack_post": 1,
 }
 
 # Clients eligible for the SEO engine
@@ -263,19 +269,36 @@ def run_client(client, dry_run=True):
     print(f"\n  [6/7] Executing {len(actions)} actions...")
     execution_log = []
 
+    # Load tuning overrides (can only increase limits, never decrease)
+    effective_limits = dict(WEEKLY_LIMITS)
+    tuning_file = BASE_DIR / "scripts" / "seo_engine" / "engine_tuning.json"
+    if tuning_file.exists():
+        try:
+            tuning_data = json.loads(tuning_file.read_text())
+            overrides = tuning_data.get(slug, {}).get("rate_limit_overrides", {})
+            for k, v in overrides.items():
+                if k in effective_limits and v > effective_limits[k]:
+                    effective_limits[k] = v
+        except (json.JSONDecodeError, OSError):
+            pass
+
     for action in sorted(actions, key=lambda a: a.get("priority", 5)):
         action_type = action.get("action_type", "")
 
-        # Enforce rate limits
+        # Enforce rate limits (with tuning overrides applied)
         used = week_counts.get(action_type, 0)
-        limit = WEEKLY_LIMITS.get(action_type, 0)
+        limit = effective_limits.get(action_type, 0)
         if used >= limit:
             print(f"  SKIPPED {action_type}: weekly limit reached ({used}/{limit})")
             execution_log.append({"action_type": action_type, "status": "rate_limited"})
             continue
 
         # Execute
-        result = _execute_action(action, client, website_path, dry_run)
+        try:
+            result = _execute_action(action, client, website_path, dry_run)
+        except Exception as e:
+            print(f"  ACTION CRASHED ({action_type}): {e}")
+            result = {"status": "error", "reason": str(e)}
         execution_log.append({"action_type": action_type, "result": result})
 
         # Log action
@@ -329,13 +352,9 @@ def _execute_action(action, client, website_path, dry_run):
         )
 
     elif action_type == "gbp_qanda":
-        from .actions.gbp_qanda import seed_qa
-        return seed_qa(
-            location_id=location_id,
-            question=action.get("question", ""),
-            answer=action.get("answer", ""),
-            dry_run=dry_run,
-        )
+        # Google discontinued GBP Q&A in December 2025. API is dead.
+        print(f"  [SKIPPED] gbp_qanda -- Google killed this feature Dec 2025")
+        return {"status": "skipped", "reason": "GBP Q&A discontinued Dec 2025"}
 
     elif action_type in ("blog_post", "newsjack_post"):
         from .actions.blog_engine import generate_blog_post
@@ -428,7 +447,39 @@ def _execute_schema_update(action, client, website_path, dry_run):
         page_path.write_text(html)
         print(f"  [schema] Injected {schema_type} schema into {filename}")
 
-    return {"status": "generated" if dry_run else "published", "filename": filename, "schema_type": schema_type}
+        # Git commit + push (match pattern from other action modules)
+        commit_sha = _git_commit_push_schema(
+            website_path,
+            f"[SEO-AUTO] Inject {schema_type} schema into {filename}",
+        )
+        return {"status": "published", "filename": filename, "schema_type": schema_type, "commit_sha": commit_sha}
+
+    return {"status": "generated", "filename": filename, "schema_type": schema_type}
+
+
+def _git_commit_push_schema(website_path, message):
+    """Git add, commit, push for schema updates."""
+    import re as _re
+    import subprocess
+
+    try:
+        subprocess.run(["git", "add", "-A"], cwd=website_path, check=True, capture_output=True)
+        result = subprocess.run(
+            ["git", "commit", "-m", message],
+            cwd=website_path, check=True, capture_output=True, text=True,
+        )
+        sha_match = _re.search(r"\[[\w/-]+ ([a-f0-9]+)\]", result.stdout)
+        commit_sha = sha_match.group(1) if sha_match else ""
+
+        subprocess.run(
+            ["git", "push", "origin", "main"],
+            cwd=website_path, check=True, capture_output=True,
+        )
+        print(f"  [schema] Committed + pushed: {commit_sha}")
+        return commit_sha
+    except subprocess.CalledProcessError as e:
+        print(f"  [schema] Git commit/push failed: {e}")
+        return ""
 
 
 def _run_post_action_hooks(action, client, website_path, client_id, dry_run):

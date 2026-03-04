@@ -1,73 +1,79 @@
 {
-  "last_updated": "2026-02-28",
+  "last_updated": "2026-03-04",
   "trends": {
-    "seasonal_interest": {
-      "solar panel cleaning san diego": 0,
-      "pressure washing san diego": 0,
-      "synthetic turf maintenance": 0,
-      "artificial grass cleaning": 0,
-      "artificial turf cleaning": 0
-    },
-    "rising_queries": [],
-    "peak_months": {
-      "solar panel cleaning san diego": [
-        8
-      ],
-      "pressure washing san diego": [
-        2
-      ],
-      "artificial turf cleaning": [
-        2
-      ]
-    }
+    "seasonal_interest": {},
+    "rising_queries": [
+      "TOP 10 BEST Artificial Turf Cleaning in San Diego, CA",
+      "Yelp Top 10 Best Artificial Turf Cleaning in San Diego, CA",
+      "TURF CLEANING",
+      "TOP 10 BEST Artificial Turf Cleaning near Mount Hope, San Diego, CA",
+      "Yelp See more artificial turf cleaning near San Diego.",
+      "Local San Diego Pressure Washing: All",
+      "Local San Diego Pressure Washing",
+      "Artificial Turf Installation San Diego",
+      "Artificial Turf Cleaning Services in San Diego, CA",
+      "Artificial Turf Maintenance",
+      "Pressure washing service San Diego",
+      "SAN DIEGO SOFTWASH",
+      "friendly alternative to pressure washing.",
+      "Soft Washing In San Diego",
+      "TOP 10 BEST Soft Wash in San Diego, CA"
+    ],
+    "peak_months": {}
   },
   "reddit_questions": [],
   "competitor_serps": {
     "pressure washing san diego": [
       {
         "position": 1,
-        "title": "Pressure Washing & Window Cleaning in San Diego County",
-        "url": "https://sandiegopressurewashing.com/",
-        "description": "Pressure Washing, Roof Cleaning, Soft Washing, Gutter & Window Cleaning in San Diego County \u00b7 Why Choose us? \u00b7 Call us today for a Free Estimate 858-703-7250.Read more"
+        "title": "TOP 10 BEST Power Washing in San Diego, CA",
+        "url": "https://www.yelp.com/search?find_desc=Power+Washing&find_loc=San+Diego%2C+CA",
+        "description": "Top 10 Best Power Washing Near San Diego, California \u00b7 Rodriguez Daniel Power Wash \u00b7 Nick's Window Cleaning Services \u00b7 KB Pressure Washing Solutions \u00b7 Clear San\u00a0...Read more"
       },
       {
         "position": 2,
-        "title": "TOP 10 BEST Pressure Washing in San Diego, CA",
-        "url": "https://www.yelp.com/search?find_desc=Pressure+Washing&find_loc=San+Diego%2C+CA",
-        "description": "Kennedy Brothers (208 reviews). In-U-Window (156 reviews). Ascension Home Services (153 reviews). Nick's Window Cleaning Services (132 reviews).Read more"
+        "title": "Sandblasting & Pressure Washing",
+        "url": "https://www.kcpowerclean.com/sandiego/",
+        "description": "Our pressure washing and sand blasting services are generally for concrete, wood, brick and pavers, steel and we're not shy of getting into boom lifts or on top\u00a0...Read more"
       },
       {
         "position": 3,
-        "title": "Pressure Washing Services in San Diego County, CA",
-        "url": "https://washedoutpressurewashing.com/",
-        "description": "Washed Out Pressure Washing is your trusted local Oceanside, CA based pressure washing company. We take great pride in providing top quality work and pressure\u00a0...Read more"
+        "title": "Local San Diego Pressure Washing",
+        "url": "https://www.allstarpowerwashsd.com/",
+        "description": "For professional results in a timely manner, count on us for your exterior cleaning needs. Give us a call at 858-837-6000 or fill out our online request form to\u00a0...Read more"
       },
       {
         "position": 4,
-        "title": "All-Star Power Wash of San Diego: Pressure Washing",
-        "url": "https://www.allstarpowerwashsd.com/",
-        "description": "All-Star Power Wash of San Diego is proud to offer outstanding exterior cleaning services along with top-of-the-line pressure washing equipment with a full\u00a0...Read more"
+        "title": "Pressure Washing Services in San Diego County, CA",
+        "url": "https://washedoutpressurewashing.com/",
+        "description": "We are San Diego, CA highest rated Pressure Washing company! Providing professional steam cleaning pressure washing services since 2012."
       },
       {
         "position": 5,
+        "title": "Northman Exteriors Pressure Washing",
+        "url": "https://www.northmanexterior.com/",
+        "description": "Welcome to your ultimate guide to pressure washing in San Diego. We offer pressure washing, house washing, and more. Call us for a free quote at\u00a0..."
+      },
+      {
+        "position": 6,
+        "title": "Supreme Power Wash: San Diego Power Washers",
+        "url": "https://www.powerwashandmore.com/",
+        "description": "Our power washing professionals use state-of-the-art technology to serve customers in San Diego and the surrounding areas. Call to request a free estimate!"
+      },
+      {
+        "position": 7,
+        "title": "The 10 Best Pressure Washing Services in San Diego, CA ...",
+        "url": "https://www.thumbtack.com/ca/san-diego/pressure-washing",
+        "description": "Here is the definitive list of San Diego's pressure washing services as rated by the San Diego, CA community. Want to see who made the cut?"
+      },
+      {
+        "position": 8,
         "title": "So Cal Cleaning Services: Pressure Washing San Diego",
         "url": "https://socalcleaningservices.com/",
         "description": "Transform your San Diego property with our top-rated pressure washing services. 59 5-star reviews, serving both residential and commercial properties."
       },
       {
-        "position": 6,
-        "title": "The 10 Best Pressure Washing Services in San Diego, CA 2025",
-        "url": "https://www.thumbtack.com/ca/san-diego/pressure-washing",
-        "description": "Here is the definitive list of San Diego's pressure washing services as rated by the San Diego, CA community. Want to see who made the cut?"
-      },
-      {
-        "position": 7,
-        "title": "Northman Exteriors - Pressure Washing San Diego",
-        "url": "https://www.northmanexterior.com/",
-        "description": "Welcome to your ultimate guide to pressure washing in San Diego. We offer pressure washing, house washing, and more. Call us for a free quote at\u00a0..."
-      },
-      {
-        "position": 8,
+        "position": 9,
         "title": "San Diego, CA Pressure Washing",
         "url": "https://www.rollingsudspowerwashing.com/san-diego-carlsbad/",
         "description": "Local pressure washing service in San Diego, CA. We provide cleaning service to residential and commercial properties, including Roofs, Siding, Driveways,\u00a0..."
@@ -76,13 +82,13 @@
     "soft washing san diego": [
       {
         "position": 1,
-        "title": "Pressure washing service San Diego | Home",
+        "title": "San Diego Soft Wash",
         "url": "https://sandiego-softwash.com/",
         "description": "Free Estimate & $75 Off Your First Service. Experience San Diego's Highest Rated Exterior Cleaning! Google 5 Stars. Call Today or Book Online! Read Reviews\u00a0...Read more"
       },
       {
         "position": 2,
-        "title": "SAN DIEGO SOFTWASH - Updated February 2026",
+        "title": "SAN DIEGO SOFTWASH - Updated March 2026",
         "url": "https://www.yelp.com/biz/san-diego-softwash-san-diego",
         "description": "SAN DIEGO SOFTWASH, 239 Laurel St, Ste 201, San Diego, CA 92101, 32 Photos, (619) 768-0908, Mon - 7:00 am - 7:00 pm, Tue - 7:00 am - 7:00 pm,\u00a0..."
       },
@@ -100,33 +106,33 @@
       },
       {
         "position": 5,
+        "title": "San Diego Softwash Power Washing Services in San Diego CA",
+        "url": "https://sandiegosoftwash.com/",
+        "description": "At San Diego Softwash, we utilize a softwashing method that operates at 40\u201360 psi, significantly lower than the 4000 psi used in conventional power washing.Read more"
+      },
+      {
+        "position": 6,
         "title": "Soft washing for home exterior cleaning in San Diego, CA",
         "url": "https://www.facebook.com/groups/728576241310481/posts/2056182685216490/",
         "description": "Message us for a free estimate \u2014 San Diego County locals get priority scheduling! 760-703-9563 [#SoftWash](https://www.facebook. com/hashtag/\u00a0...Read more"
       },
       {
-        "position": 6,
-        "title": "Pressure Washing Services in San Diego County, CA",
-        "url": "https://washedoutpressurewashing.com/",
-        "description": "Washed Out Pressure Washing is your trusted local Oceanside, CA based pressure washing company. We take great pride in providing top quality work and pressure\u00a0...Read more"
-      },
-      {
         "position": 7,
-        "title": "All-Star Power Wash of San Diego: Local San Diego Pressure ...",
-        "url": "https://www.allstarpowerwashsd.com/",
-        "description": "All-Star Power Wash of San Diego is proud to offer outstanding exterior cleaning services along with top-of-the-line pressure washing equipment with a full\u00a0...Read more"
-      },
-      {
-        "position": 8,
         "title": "San Diego California Soft Washing",
         "url": "https://www.clearlyamazing.com/locations/san-diego-california-soft-washing/",
         "description": "The professionally trained and fully insured technicians at Clearly Amazing utilize a unique soft wash method specifically designed to be gentle, safe and\u00a0...Read more"
       },
       {
+        "position": 8,
+        "title": "House Washing Service San Diego | Exterior Soft Wash",
+        "url": "https://southbaypowerwash.com/residential-services/house-washing",
+        "description": "Safe soft washing and house washing services in San Diego. We clean stucco, siding, and brick exteriors to remove dust and mildew."
+      },
+      {
         "position": 9,
-        "title": "Supreme Power Wash: San Diego Power Washers",
-        "url": "https://www.powerwashandmore.com/",
-        "description": "Soft Washing: We soft wash roofs and exterior siding to safely and effectively remove dirt, grime, algae and mold. A low pressure soft wash machine (Often\u00a0...Read more"
+        "title": "San Diego Softwash Pressure Washing: Home",
+        "url": "https://san-diego-softwash-pressure-washing.square.site/",
+        "description": "If you're searching for \u201csoft washing near me,\u201d look no further than San Diego Softwash Pressure Washing. Our skilled team brings years of experience and\u00a0...Read more"
       }
     ],
     "solar panel cleaning san diego": [
@@ -138,163 +144,163 @@
       },
       {
         "position": 2,
+        "title": "OnPoint Solar Panel Cleaning San Diego",
+        "url": "https://www.yelp.com/biz/onpoint-solar-panel-cleaning-san-diego-la-mesa-2",
+        "description": "ONPOINT SOLAR PANEL CLEANING SAN DIEGO, 4241 Lowell St, Ste 103, La Mesa, CA 91941, 118 Photos, (619) 780-7773, Mon - Open 24 hours, Tue - Open 24 hours,\u00a0..."
+      },
+      {
+        "position": 3,
         "title": "Advanced Solar Cleaning | Professional Solar Panel Cleaning ...",
         "url": "https://www.advancedsolarcleaninginc.com/",
         "description": "Advanced Solar Cleaning is a professional solar panel cleaning service that uses the latest in equipment and technology to clean your panels quickly and\u00a0..."
       },
       {
-        "position": 3,
-        "title": "THE BEST 10 SOLAR PANEL CLEANING in SAN DIEGO, CA",
-        "url": "https://www.yelp.com/search?cflt=solarpanelcleaning&find_loc=San+Diego%2C+CA",
-        "description": "Top 10 Best Solar Panel Cleaning Near San Diego, California - With Real Reviews \u00b7 West Coast Heating Air Solar \u00b7 Sud & Squeegee Window & Solar Cleaning \u00b7 Pinnacle\u00a0...Read more"
+        "position": 4,
+        "title": "Solar Panel Cleaning Pricing San Diego | 760-216-2183",
+        "url": "https://thesolarcleaners.com/pricing/",
+        "description": "The starting price for a first-time solar panel cleaning in San Diego is $160. This rate applies to a single-story home with up to 10 panels in one location\u00a0...Read more"
       },
       {
-        "position": 4,
+        "position": 5,
+        "title": "OnPoint Solar Panel Cleaning San Diego | La Mesa CA",
+        "url": "https://www.facebook.com/onpointsolarpanelcleaning/",
+        "description": "We are revolutionizing the commercial solar panel cleaning industry! There is no job we can't handle! Call us today for a FREE project estimate: (619) 780-7773.Read more"
+      },
+      {
+        "position": 6,
         "title": "Solar Panel Cleaning in San Diego",
         "url": "https://monstersteamer.net/solar-panel-cleaning/",
         "description": "Experience top-quality solar panel cleaning in San Diego. Certified team. Thorough, eco-friendly cleaning. 100% customer satisfaction. Book now!"
       },
       {
-        "position": 5,
-        "title": "Exterior Cleaning Services | San Diego, CA | Clean & Clear",
-        "url": "https://www.cleanclearsd.com/",
-        "description": "Expert exterior cleaning in San Diego. We offer pressure washing, solar panel cleaning, roof washing, and window cleaning for homes & businesses."
-      },
-      {
-        "position": 6,
-        "title": "Solar Panel Cleaning San Diego CA",
-        "url": "https://lcsjanitorialservices.com/solar-panel-cleaning-san-diego/",
-        "description": "Our local team has licensed professionals with years of experience in cleaning all kinds & sizes of solar panels proficiently. We use powerful yet non-abrasive\u00a0...Read more"
-      },
-      {
         "position": 7,
-        "title": "Solar Panel Cleaning Chula Vista CA",
-        "url": "https://www.exclusivewindowcleaning.com/solar-panel-cleaning-chula-vista-ca",
-        "description": "FREE Solar Panel cleaning ... Clean solar panels up to 20 panels using Water-fed pole and pure water. Overage billed at $6.00 regular price.Read more"
+        "title": "Solar Panel Cleaning San Diego: 5 Best",
+        "url": "https://www.westcoastheatingairsolar.com/post/san-diego-solar-panel-cleaning-guide",
+        "description": "Find the best solar panel cleaning San Diego services. Compare top providers with our 5-point checklist for maximum efficiency & savings."
       },
       {
         "position": 8,
-        "title": "South Bay Solar Cleaning - Home",
-        "url": "https://sbsolarcleaning.com/",
-        "description": "San Diego's premier solar panel cleaning and bird proofing company. Offering commercial and residential services."
+        "title": "Solar Panel Cleaning San Diego CA",
+        "url": "https://lcsjanitorialservices.com/solar-panel-cleaning-san-diego/",
+        "description": "Our local team has licensed professionals with years of experience in cleaning all kinds & sizes of solar panels proficiently. We use powerful yet non-abrasive\u00a0...Read more"
       }
     ],
     "pressure washing north park": [
       {
         "position": 1,
-        "title": "Best Power Washing near North Park, San Diego, CA",
-        "url": "https://m.yelp.com/search?find_desc=Power+Washing&find_loc=North+Park%2C+San+Diego%2C+CA",
-        "description": "Best Power Washing near North Park, San Diego, CA ; Fully Restored Pressure Washing \u00b7 (114 reviews). Pressure Washers ; Shine Bright San Diego \u00b7 (287 reviews).Read more"
+        "title": "Best Pressure Washers near North Park, San Diego, CA",
+        "url": "https://m.yelp.com/search?find_desc=Pressure+Washers&find_loc=North+Park%2C+San+Diego%2C+CA",
+        "description": "... North Park, San Diego, CA. Map. Remodeling in San Diego, California ... We specialize in window cleaning, pressure washing, house washes, gutter cleaning\u00a0...Read more"
       },
       {
         "position": 2,
-        "title": "Pressure Washing Services in San Diego County, CA",
-        "url": "https://washedoutpressurewashing.com/",
-        "description": "We are San Diego, CA highest rated Pressure Washing company! Providing professional steam cleaning pressure washing services since 2012."
-      },
-      {
-        "position": 3,
-        "title": "Power Pressure Washing in San Diego",
-        "url": "https://jcepainting.com/services/pressure-washing/",
-        "description": "In San Diego, CA, JCE Painting offers pressure washing services. We almost always wash our exteriors before we start. We use non-toxic house cleaning additives.Read more"
-      },
-      {
-        "position": 4,
-        "title": "Pressure Washing San Diego CA",
-        "url": "https://sandiego.pressurewashing.net/",
-        "description": "We provide a range of pressure washing services including concrete cleaning, building facade cleaning and graffiti removal for both our commercial and property\u00a0...Read more"
-      },
-      {
-        "position": 5,
-        "title": "5 Star House Washing in North Park CA - Shine Bright San ...",
-        "url": "https://shinebrightsd.com/house-washing-in-north-park-ca/",
-        "description": "Shine Bright San Diego is the Top Rated House Washing in North Park CA. 5 Star Rated. 100% Satisfaction Guaranteed. Click Here to Get a Quote \u00bb"
-      },
-      {
-        "position": 6,
         "title": "North Park Main Street Pressure Washing",
         "url": "https://northparkmainstreet.com/pressure-washing/",
         "description": "Schedule pressure washing and exterior cleaning for your property in North Park and surrounding areas today. Contact us and get a quote today! Our Services. \u2022\u00a0...Read more"
       },
       {
+        "position": 3,
+        "title": "Best Power Washing near North Park, San Diego, CA",
+        "url": "https://m.yelp.com/search?find_desc=Power+Washing&find_loc=North+Park%2C+San+Diego%2C+CA",
+        "description": "Best Power Washing near North Park, San Diego, CA ; Fully Restored Pressure Washing \u00b7 (114 reviews). Pressure Washers ; Shine Bright San Diego \u00b7 (287 reviews).Read more"
+      },
+      {
+        "position": 4,
+        "title": "Pressure Washing Services in San Diego County, CA",
+        "url": "https://washedoutpressurewashing.com/",
+        "description": "We are San Diego, CA highest rated Pressure Washing company! Providing professional steam cleaning pressure washing services since 2012."
+      },
+      {
+        "position": 5,
+        "title": "Power Pressure Washing in San Diego",
+        "url": "https://jcepainting.com/services/pressure-washing/",
+        "description": "In San Diego, CA, JCE Painting offers pressure washing services. We almost always wash our exteriors before we start. We use non-toxic house cleaning additives.Read more"
+      },
+      {
+        "position": 6,
+        "title": "5 Star Power Washing in North Park CA - Shine Bright San ...",
+        "url": "https://shinebrightsd.com/power-washing-in-north-park-ca/",
+        "description": "Shine Bright San Diego is the Top Rated Power Washing in North Park CA. 5 Star Rated. 100% Satisfaction Guaranteed. Click Here to Get a Quote \u00bb"
+      },
+      {
         "position": 7,
+        "title": "Pressure Washing San Diego CA",
+        "url": "https://sandiego.pressurewashing.net/",
+        "description": "We provide a range of pressure washing services including concrete cleaning, building facade cleaning and graffiti removal for both our commercial and property\u00a0...Read more"
+      },
+      {
+        "position": 8,
         "title": "Pressure Washing in San Diego, CA | Clean it Now!",
         "url": "https://reinmanpro.com/pressure-washing-in-san-diego/",
         "description": "REINMANPRO provides pressure washing services in San Diego, CA, removing dirt, grime, and stains to keep your property looking clean and well-maintained."
       },
       {
-        "position": 8,
-        "title": "San Diego, CA Pressure Washing",
-        "url": "https://www.rollingsudspowerwashing.com/san-diego-carlsbad/",
-        "description": "Homeowners choose us for professional house washing, roof cleaning, driveway and sidewalk cleaning, pool decks and patios, and fence and brick restoration.Read more"
-      },
-      {
         "position": 9,
-        "title": "TOP 10 BEST Pressure Washing in San Diego, CA",
-        "url": "https://www.yelp.com/search?find_desc=Pressure+Washing&find_loc=San+Diego%2C+CA",
-        "description": "Top 10 Pressure Washing Near San Diego, California \u00b7 Fully Restored Pressure Washing \u00b7 Shine Bright San Diego \u00b7 Brilliant Window Cleaning and Pressure Washing.Read more"
+        "title": "Same Day Pressure Wash | San Diego CA",
+        "url": "https://www.facebook.com/samedaypressurewashSD/",
+        "description": "Call / Text (619) 888-5604 for a FREE QUOTE. We offer residential and commercial pressure washing services, window cleaning, gutter cleaning, solar panel\u00a0...Read more"
       }
     ],
     "pressure washing hillcrest": [
       {
         "position": 1,
-        "title": "TOP 10 BEST Power Washing near Hillcrest, Queens, NY",
-        "url": "https://www.yelp.com/search?find_desc=Power+Washing&find_loc=Hillcrest%2C+Queens%2C+NY",
-        "description": "Bill White Roofing specializes in the repair or replacement of flat or pitched shingle roofs. Call /Text (917) 263-0947 for a free estimate!Read more"
+        "title": "5 Star Pressure Washing in Hillcrest CA - Shine Bright San ...",
+        "url": "https://shinebrightsd.com/pressure-washing-in-hillcrest-ca/",
+        "description": "Shine Bright San Diego is the Top Rated Pressure Washing in Hillcrest CA. 5 Star Rated. 100% Satisfaction Guaranteed. Click Here to Get a Quote \u00bb"
       },
       {
         "position": 2,
-        "title": "Pressure Washing In Hillcrest Texas",
-        "url": "https://www.texas-pressurewashing.com/pressure-washing-near-me/Pressure%20Washing%20Hillcrest",
-        "description": "Texas Pressure Washing provides budget-friendly pressure washing service prices in Hillcrest. Call us today for a free estimate!Read more"
+        "title": "Best Home Cleaning near Hillcrest, San Diego, CA",
+        "url": "https://m.yelp.com/search?find_desc=Home+Cleaning&find_loc=Hillcrest%2C+San+Diego%2C+CA",
+        "description": "Best Home Cleaning near Hillcrest, San Diego, CA \u00b7 WOWCLEAN \u00b7 La Clean House \u00b7 Glisten \u00b7 Emmy's Cleaning Service \u00b7 Green Maids In San Diego \u00b7 Angeles Cleaning\u00a0...Read more"
       },
       {
         "position": 3,
-        "title": "Best Pressure Washing Service near Hillcrest, Queens, NY",
-        "url": "https://www.yelp.com/search?find_desc=Pressure+Washing+Service&find_loc=Hillcrest%2C+Queens%2C+NY",
-        "description": "Best Pressure Washing Service near Hillcrest, Queens, NY ; A-Plus Power Washing \u00b7 Pressure Washers. 5.0 mi ; True Power Washing \u00b7 Gutter Services \u00b7 Pool Cleaners."
-      },
-      {
-        "position": 4,
         "title": "Clean and Safe",
         "url": "https://www.hillcrestbia.org/cleanandsafe",
         "description": "Monthly sidewalk power washing: The HBA's contractor provides sidewalk steam cleaning once a month throughout the Clean and Safe Zone. The service occurs\u00a0...Read more"
       },
       {
+        "position": 4,
+        "title": "Early morning power washing in Hillcrest.",
+        "url": "https://www.facebook.com/groups/HBABEAUTIFICIATION/posts/7321591897878463/",
+        "description": "Early morning power washing in Hillcrest ... Pressure washing is coming back to Fabulous Hillcrest. Hillcrest\u00a0...Read more"
+      },
+      {
         "position": 5,
-        "title": "Pressure washing a two-story home on Hillcrest this week",
-        "url": "https://www.facebook.com/groups/548974998586256/posts/2589546347862434/",
-        "description": "Hello ma'am. I'm a college student and I own Wash Tech Florida LLC. I would love to provide you a free quote on soft washing your house."
-      },
-      {
-        "position": 6,
-        "title": "5 Star Power Washing in Hillcrest CA - San Diego",
-        "url": "https://shinebrightsd.com/power-washing-in-hillcrest-ca/",
-        "description": "Shine Bright San Diego is the Top Rated Power Washing in Hillcrest CA. 5 Star Rated. 100% Satisfaction Guaranteed. Click Here to Get a Quote \u00bb"
-      },
-      {
-        "position": 7,
-        "title": "Hillcrest, NY Pressure Washing Service in Rockland County",
-        "url": "https://www.rocklandpressurewashing.com/hillcrest/",
-        "description": "Hillcrest, NY Pressure Washing Service in Rockland County. Your home ... Best Pressure Washing in Hillcrest! Call 845-475-8523. Contact Us. Share this\u00a0...Read more"
-      },
-      {
-        "position": 8,
-        "title": "Local, non-corporate pressure washing recommendations",
-        "url": "https://www.reddit.com/r/bullcity/comments/1jw7ud0/local_noncorporate_pressure_washing/",
-        "description": "Power washing isn't their primary business (as you can tell from the name), but Eno Lawn Care is locally owned by two Durham natives and\u00a0...Read more"
-      },
-      {
-        "position": 9,
         "title": "Commercial Cleaners in Hillcrest",
         "url": "https://www.sdjanitor.com/neighborhoods/hillcrest",
         "description": "Our comprehensive services include but are not limited to floor care, window cleaning, grout cleaning, carpet cleaning, and upholstery cleaning. We utilize the\u00a0...Read more"
       },
       {
+        "position": 6,
+        "title": "Pressure Washing In Hillcrest Texas",
+        "url": "https://www.texas-pressurewashing.com/pressure-washing-near-me/Pressure%20Washing%20Hillcrest",
+        "description": "Texas Pressure Washing provides budget-friendly pressure washing service prices in Hillcrest. Call us today for a free estimate!Read more"
+      },
+      {
+        "position": 7,
+        "title": "Local, non-corporate pressure washing recommendations",
+        "url": "https://www.reddit.com/r/bullcity/comments/1jw7ud0/local_noncorporate_pressure_washing/",
+        "description": "Power washing isn't their primary business (as you can tell from the name), but Eno Lawn Care is locally owned by two Durham natives and\u00a0...Read more"
+      },
+      {
+        "position": 8,
+        "title": "THE BEST 10 PRESSURE WASHERS near HILLCREST ...",
+        "url": "https://m.yelp.com/search?cflt=pressurewashers&find_loc=Hillcrest+Heights%2C+MD",
+        "description": "These are some highly rated businesses for pressure washers near Hillcrest Heights, MD: Jacked Pressure Washing (5/5). Diamond Gutters (5/5). Inspire\u00a0...Read more"
+      },
+      {
+        "position": 9,
+        "title": "5 Star House Washing in Hillcrest CA - San Diego",
+        "url": "https://shinebrightsd.com/house-washing-in-hillcrest-ca/",
+        "description": "Shine Bright San Diego is the Top Rated House Washing in Hillcrest CA. 5 Star Rated. 100% Satisfaction Guaranteed. Click Here to Get a Quote \u00bb"
+      },
+      {
         "position": 10,
-        "title": "Top 10 Best Pressure washers in Hillcrest Heights, MD",
-        "url": "https://www.angi.com/companylist/us/md/hillcrest-heights/pressure-washing.htm",
-        "description": "Read real reviews and see ratings for Hillcrest Heights, MD pressure washers for free! This list will help you pick the right pressure washers in Hillcrest\u00a0..."
+        "title": "Hillcrest Clean and Safe by the Numbers: Power Washing. ...",
+        "url": "https://www.facebook.com/hillcrestbusinessassociation/posts/hillcrest-clean-and-safe-by-the-numbers-power-washing-in-2025-the-hba-clean-safe/1359149812906282/",
+        "description": "In 2025, the HBA Clean & Safe Power Washing Program cleaned 34,056,000 square feet of sidewalk across our neighborhood. That's almost 60\u00a0...Read more"
       }
     ],
     "pressure washing south park": [
@@ -302,19 +308,19 @@
         "position": 1,
         "title": "Best Pressure Washers near South Park Township, PA",
         "url": "https://m.yelp.com/search?find_desc=Pressure+Washers&find_loc=South+Park+Township%2C+PA",
-        "description": "Best Pressure Washers near South Park Township, PA \u00b7 Hoffman Roofing - Pressure Washers near me - South Park Township, Pennsylvania \u00b7 Fritsch Contracting -\u00a0...Read more"
+        "description": "Hoffman Roofing - Pressure Washers near me - South Park Township, Pennsylvania \u00b7 Fritsch Contracting - Pressure Washers near me - South Park Township,\u00a0...Read more"
       },
       {
         "position": 2,
         "title": "Home | HH Pressure Washing South Park Township",
         "url": "https://www.hhwashpros.com/",
-        "description": "HH Pressure Washing is a trusted provider of commercial and residential exterior cleaning services in Washington, Allegheny and surrounding counties.Read more"
+        "description": "HH Pressure Washing is a trusted provider of commercial and residential exterior cleaning services in Washington, Allegheny and surrounding counties. Our team\u00a0...Read more"
       },
       {
         "position": 3,
         "title": "Power Washing in South Park Township, PA",
         "url": "https://perfectpowerwash.com/pennsylvania/south-park-township/",
-        "description": "Perfect Power Wash is an experienced and dependable power washing company in South Park Township, PA. We provide perfect results for thousands of homes,\u00a0...Read more"
+        "description": "When it comes to pressure washing in South Park Township, trust the pros at Perfect Power Wash. We offer services for your house, driveway, and more."
       },
       {
         "position": 4,
@@ -324,21 +330,21 @@
       },
       {
         "position": 5,
-        "title": "Keystone Pressure Washing | Residential & Commercial",
-        "url": "https://www.keystonepressurewashing.com/",
-        "description": "Keystone Pressure Washing is Pittsburgh's premier pressure washing company serving both commercial, residential and fleet clients ... South Hills | South Park |\u00a0...Read more"
+        "title": "Top 10 Best Pressure washers in South Park, PA",
+        "url": "https://www.angi.com/companylist/us/pa/south-park/pressure-washing.htm",
+        "description": "Read real reviews and see ratings for South Park, PA pressure washers for free! This list will help you pick the right pressure washers in South Park, PA."
       },
       {
         "position": 6,
-        "title": "Tanner's Pressure Washing \u2022 Jefferson Hills, PA",
-        "url": "https://tannerspressurewashing.netlify.app/",
-        "description": "Tanner's Pressure Washing \u2014 Jefferson Hills' 5-star pressure washing & soft-wash experts for homes, driveways, decks & more."
+        "title": "Pressure Washing | South Park, PA",
+        "url": "https://www.rollingsudspowerwashing.com/service-location/pressure-washing-south-park-pa/",
+        "description": "At Rolling Suds, we specialize in delivering professional residential power washing services in South Park, PA. Our team is equipped to handle a wide range of\u00a0..."
       },
       {
         "position": 7,
-        "title": "South Park's Leading Landscaping Company",
-        "url": "https://www.dnllawnandwash.com/pa/landscaping-company-south-park",
-        "description": "... South Park residence, please call us at 412-953-1114. Top-Quality Pressure Washing Packages for South Park Homeowners. Even though our name says we're\u00a0...Read more"
+        "title": "Tanner's Pressure Washing \u2022 Jefferson Hills, PA",
+        "url": "https://tannerspressurewashing.netlify.app/",
+        "description": "Tanner's Pressure Washing \u2014 Jefferson Hills' 5-star pressure washing & soft-wash experts for homes, driveways, decks & more."
       },
       {
         "position": 8,
@@ -348,103 +354,91 @@
       },
       {
         "position": 9,
-        "title": "Jonesy's Pressure Washing & Surface Cleaning",
-        "url": "https://www.jonesyspressurewashing.com/",
-        "description": "We offer residential and commercial exterior pressure washing, house soft washing, driveway, concrete, patio, fence, window cleaning, and concrete sealing\u00a0...Read more"
-      },
-      {
-        "position": 10,
-        "title": "Top-Rated Pressure Washing Services in Pittsburgh, PA",
-        "url": "https://www.volarepowerwash.com/pittsburgh-pa",
-        "description": "Our expert team specializes in pressure washing services tailored to the specific needs of homes and businesses in your area.Read more"
+        "title": "South Park's Leading Landscaping Company",
+        "url": "https://www.dnllawnandwash.com/pa/landscaping-company-south-park",
+        "description": "... South Park residence, please call us at 412-953-1114. Top-Quality Pressure Washing Packages for South Park Homeowners. Even though our name says we're\u00a0...Read more"
       }
     ],
     "pressure washing normal heights": [
       {
         "position": 1,
+        "title": "Best Pressure Washer Repair near Normal Heights, San Diego, CA",
+        "url": "https://m.yelp.com/search?find_desc=Pressure+Washer+Repair&find_loc=Normal+Heights%2C+San+Diego%2C+CA",
+        "description": "Best Pressure Washer Repair near Normal Heights, San Diego, CA ; Blue Line Stucco. 5.0 (46 reviews). Stucco Services \u00b7 Pressure Washers ; MacLea Painting. 5.0 (23\u00a0..."
+      },
+      {
+        "position": 2,
+        "title": "Normal Heights Cleaning Services for your Home and Business ...",
+        "url": "https://www.ecocleanservices.com/ecocleanservices-normal-heights",
+        "description": "Power washing, also known as pressure washing, utilizes high-pressure water jets to clean surfaces such as driveways, sidewalks, decks, fences, and building\u00a0..."
+      },
+      {
+        "position": 3,
+        "title": "CALIFORNIA POWERWASHING SYSTEMS",
+        "url": "https://www.yelp.com/biz/california-powerwashing-systems-san-diego",
+        "description": "CALIFORNIA POWERWASHING SYSTEMS, 1245 commonwealth Ave, San Diego, CA 92104, 120 Photos, (707) 533-6735, Mon - 8:00 am - 5:00 pm, Tue - 8:00 am - 5:00 pm,\u00a0..."
+      },
+      {
+        "position": 4,
+        "title": "Pressure Washing in San Diego, CA | Clean it Now!",
+        "url": "https://reinmanpro.com/pressure-washing-in-san-diego/",
+        "description": "REINMANPRO provides pressure washing services in San Diego, CA, removing dirt, grime, and stains to keep your property looking clean and well-maintained."
+      },
+      {
+        "position": 5,
         "title": "FULLY RESTORED PRESSURE WASHING - Yelp",
         "url": "https://www.yelp.com/biz/fully-restored-pressure-washing-san-diego-2",
         "description": "FULLY RESTORED PRESSURE WASHING, San Diego, CA 92111, 388 Photos, (619) 764-2352, Mon - 8:00 am - 6:00 pm, Tue - 8:00 am - 6:00 pm, Wed - 8:00 am - 6:00 pm,\u00a0..."
       },
       {
-        "position": 2,
-        "title": "All-Star Power Wash of San Diego: Local San Diego Pressure ...",
-        "url": "https://www.allstarpowerwashsd.com/",
-        "description": "Power washing is different from normal pressure washing because it utilizes highly pressurized steam, while pressure washing uses unheated tap water. Power\u00a0...Read more"
-      },
-      {
-        "position": 3,
-        "title": "THE BEST 10 PRESSURE WASHERS in SAN DIEGO, CA",
-        "url": "https://www.yelp.com/search?cflt=pressurewashers&find_loc=San+Diego%2C+CA",
-        "description": "Top 10 Best Pressure Washers Near San Diego, California - With Real Reviews ; Shine Bright San Diego \u00b7 (287 reviews) \u00b7 4.4 mi ; So Cal Cleaning Services \u00b7 (84\u00a0...Read more"
-      },
-      {
-        "position": 4,
-        "title": "Pressure Washing Services in San Diego County, CA",
-        "url": "https://washedoutpressurewashing.com/",
-        "description": "We are San Diego, CA highest rated Pressure Washing company! Providing professional steam cleaning pressure washing services since 2012."
-      },
-      {
-        "position": 5,
-        "title": "Pressure Washing & Window Cleaning in San Diego County",
-        "url": "https://sandiegopressurewashing.com/",
-        "description": "Power Washing is no small task when you are 500 feet above the ground. As a matter of fact it becomes a bit of science when you begin to deal [...].Read more"
-      },
-      {
         "position": 6,
-        "title": "Soft Washing in San Diego, CA \u2013 Secure All Surfaces Now!",
-        "url": "https://reinmanpro.com/soft-washing/san-diego/",
-        "description": "Unlike harsh high-pressure systems, our soft wash method uses low pressure and eco-friendly detergents to gently lift away stains, algae, moss, mildew, and dirt\u00a0...Read more"
-      },
-      {
-        "position": 7,
-        "title": "GG PRESSURE WASHING - San Diego, California",
-        "url": "https://www.yelp.com/biz/gg-pressure-washing-san-diego",
-        "description": "Map \u00b7 San Diego, CA 92104. North Park. Directions \u00b7 (619) 204-3236. Call Now \u00b7 Payment methods. Does GG pressure washing take credit cards? Yes, GG pressure\u00a0...Read more"
-      },
-      {
-        "position": 8,
         "title": "Residential Pressure Washing",
         "url": "https://www.commercialcleaningsd.com/residential-pressure-washing/",
         "description": "We can help you keep your home safe and looking good as new. Contact us today to get a free quote for residential pressure washing!"
       },
       {
-        "position": 9,
-        "title": "Pressure Washing in San Diego, CA | Clean it Now!",
-        "url": "https://reinmanpro.com/pressure-washing-in-san-diego/",
-        "description": "REINMANPRO provides pressure washing services in San Diego, CA, removing dirt, grime, and stains to keep your property looking clean and well-maintained."
+        "position": 7,
+        "title": "San Diego House Pressure Washing Service",
+        "url": "https://customhomedetailing.com/sandiegohousepressurewashingservice.html",
+        "description": "San Diego House Pressure Washing Service & Service Area House Pressure Washing/ House Wash/ Home Wash Service/ Services Pressure Washing Roof Cleaning\u00a0..."
+      },
+      {
+        "position": 8,
+        "title": "Soft Washing In San Diego",
+        "url": "https://sandiegopressurewashing.com/services/soft-washing/",
+        "description": "Unlike traditional pressure washing, soft washing uses low-pressure water combined with eco-friendly cleaning solutions to gently remove dirt, mold, algae, and\u00a0...Read more"
       }
     ],
     "pressure washing university heights": [
       {
         "position": 1,
-        "title": "Best Pressure Washers near University Heights, OH",
-        "url": "https://m.yelp.com/search?find_desc=Pressure+Washers&find_loc=University+Heights%2C+OH",
-        "description": "Best Pressure Washers near University Heights, OH ; Andy's Pressure Washing \u00b7 Pressure Washers. 2.4 mi ; Hancock Exterior Cleaning \u00b7 Pressure Washers \u00b7 Gutter\u00a0...Read more"
-      },
-      {
-        "position": 2,
-        "title": "Top-Rated Power Washing in University Heights, OH",
-        "url": "https://powerwashinguniversityheightsoh.com/",
-        "description": "University Heights Power Washing LLC has been providing top-quality power washing and exterior home cleaning services in University Heights, OH, and surrounding\u00a0...Read more"
-      },
-      {
-        "position": 3,
         "title": "Pressure Washing in University Heights, OH",
         "url": "https://sparklewash.com/cuyahogacounty/university-heights/",
         "description": "Sparkle Wash Cuyahoga County is the trusted choice for pressure washing in University Heights, OH, delivering high-quality results through advanced techniques\u00a0..."
       },
       {
-        "position": 4,
-        "title": "Pressure Washing University Heights | Pristine Clean",
-        "url": "https://pristineclean.com/locations/university-heights/",
-        "description": "Count on Pristine Clean for the top pressure washing services in University Heights, including residential and commercial cleaning solutions."
+        "position": 2,
+        "title": "Best Pressure Washers near University Heights, OH",
+        "url": "https://m.yelp.com/search?find_desc=Pressure+Washers&find_loc=University+Heights%2C+OH",
+        "description": "Best Pressure Washers near University Heights, OH ; Andy's Pressure Washing \u00b7 Pressure Washers. 2.4 mi ; Hancock Exterior Cleaning \u00b7 Pressure Washers \u00b7 Gutter\u00a0..."
       },
       {
-        "position": 5,
+        "position": 3,
+        "title": "Top-Rated Power Washing in University Heights, OH",
+        "url": "https://powerwashinguniversityheightsoh.com/",
+        "description": "University Heights Power Washing LLC has been providing top-quality power washing and exterior home cleaning services in University Heights, OH, and surrounding\u00a0...Read more"
+      },
+      {
+        "position": 4,
         "title": "Power Washing in University Heights, OH",
         "url": "https://perfectpowerwash.com/ohio/university-heights/",
         "description": "Perfect Power Wash is the top-rated house washing, concrete washing and sealing, roof treatment, and pressure washing service in University Heights."
+      },
+      {
+        "position": 5,
+        "title": "Power Washing & Soft Washing in University Heights, Ohio",
+        "url": "https://centralexpertservices.com/power-washing/service-areas/university-heights-ohio/",
+        "description": "Central Power Wash provides professional pressure washing and soft washing services for residential and commercial in University Heights, Ohio."
       },
       {
         "position": 6,
@@ -460,19 +454,47 @@
       },
       {
         "position": 8,
-        "title": "University Heights, Ohio - Pressure Washing & Soft Washing",
-        "url": "https://centralexpertservices.com/power-washing/service-areas/university-heights-ohio/",
-        "description": "Central Power Wash provides professional pressure washing and soft washing services for residential and commercial in University Heights, Ohio."
-      },
-      {
-        "position": 9,
         "title": "Patty's Pressure Washing | Home",
         "url": "https://pattyspressurewashing.com/",
         "description": "... , Shaker Heights & University Heights. Professional Pressure Washing Services in Chagrin Falls. Request for a Quote. (440) 991-7343 \u00b7 Request for a Quote.Read more"
+      },
+      {
+        "position": 9,
+        "title": "Pressure Washing Cleveland - Handy Fix Co ...",
+        "url": "https://handyfixco.com/pressure-washing-cleveland/",
+        "description": "We serve Cleveland's east side suburbs\u2014including South Euclid, University Heights, Highland Heights, and Beachwood\u2014bringing the same level of attention and care\u00a0...Read more"
       }
     ]
   },
   "trending_news": [
+    {
+      "title": "Can you keep a rescued squirrel as a pet?",
+      "source": "Lifesciencesworld.com",
+      "url": "https://www.lifesciencesworld.com/can-you-keep-a-rescued-squirrel-as-a-pet/",
+      "description": "Can You Keep a Rescued Squirrel as a Pet? Exploring the Legal and Ethical Dilemmas Rescuing a squirrel can be a compassionate act, but keeping it as a pet is often illegal and ethically questionable, ",
+      "published_at": "2026-03-01T03:44:09Z"
+    },
+    {
+      "title": "Bracketology Bubble Watch: Which teams near the NCAA Tournament cut line need a victory the most?",
+      "source": "CBS Sports",
+      "url": "https://www.cbssports.com/college-basketball/news/bracketology-ncaa-tournament-bubble-watch-san-diego-state-new-mexico-march-madness/",
+      "description": "The bubble picture is congested and tense entering the last weekend of February",
+      "published_at": "2026-02-28T03:21:48Z"
+    },
+    {
+      "title": "Gen Z Got Work-Life Balance Right, and as a Gen Xer, I\u2019m Here for It",
+      "source": "Reader's Digest",
+      "url": "https://www.rd.com/article/gen-z-work-life-balance/",
+      "description": "After decades of burnout culture, our youngest employees just might bring back balance for all of us.\nThe post Gen Z Got Work-Life Balance Right, and as a Gen Xer, I\u2019m Here for It appeared first on Re",
+      "published_at": "2026-02-27T20:36:28Z"
+    },
+    {
+      "title": "Colts leaked 2026 NFLPA team report card has a lot more good marks than bad",
+      "source": "Stampede Blue",
+      "url": "https://www.stampedeblue.com/indianapolis-colts-news/121886/colts-leaked-2026-nflpa-team-report-card-has-many-more-good-marks-than-bad",
+      "description": "The Colts largely earned some fairly good marks, although they ranked around league average collectively.",
+      "published_at": "2026-02-27T03:37:10Z"
+    },
     {
       "title": "How war has made Ukrainian interiors \"bolder and more interesting\"",
       "source": "Dezeen",
@@ -493,13 +515,6 @@
       "url": "https://www.businessinsider.com/stanley-1913-bets-on-wellness-new-vitalize-tote-backpack-shaker-2026-2",
       "description": "Stanley 1913 wants to expand beyond viral tumblers with the Vitalize collection, focusing on wellness and appealing to both male and female consumers.",
       "published_at": "2026-02-17T10:45:01Z"
-    },
-    {
-      "title": "How do I protect my outdoor cats from predators?",
-      "source": "Lifesciencesworld.com",
-      "url": "https://www.lifesciencesworld.com/how-do-i-protect-my-outdoor-cats-from-predators/",
-      "description": "Protecting Your Feline Friend: How to Shield Your Outdoor Cats From Predators Protecting your outdoor cats involves a multi-faceted approach: creating safe spaces, supervising outdoor time, and implem",
-      "published_at": "2026-02-17T03:57:17Z"
     },
     {
       "title": "How long do pet groundhogs live?",
@@ -556,27 +571,425 @@
       "url": "https://newsroom.ap.org/detail/MeetthemanbehindtheSuperBowlsannualconfettiblizzard/7ada39848898523ba548f440b0caa5e1/text",
       "description": "Noah Winter brags he\u2019s been to way more Super Bowls than Tom Brady.Brady competed in 10 \u2014 more than any other player. But Winter will be part of the Super Bowl spectacle for his 30th straight year thi",
       "published_at": "2026-02-06T15:41:12Z"
-    },
-    {
-      "title": "Megalodome Indoor 9-Hole Golf Course",
-      "source": "Uncrate.com",
-      "url": "https://uncrate.com/megalodome-indoor-9-hole-golf-course/",
-      "description": "When frigid weather shuts down every course for hundreds of miles, you'll soon be able to tee off under a climate-controlled dome in Chicago's western suburbs. Megalodome Golf's Arizona-inspired layou",
-      "published_at": "2026-02-05T00:00:00Z"
-    },
-    {
-      "title": "Gavin Newsom\u2019s Biggest Problem Is Gavin Newsom",
-      "source": "The Intercept",
-      "url": "https://theintercept.com/2026/02/04/gavin-newsom-2028-presidential-campaign/",
-      "description": "As Newsom gears up for 2028, his record will be a problem \u2014 but only because he\u2019s stood for nothing.\nThe post Gavin Newsom\u2019s Biggest Problem Is Gavin Newsom appeared first on The Intercept.",
-      "published_at": "2026-02-04T19:28:54Z"
-    },
-    {
-      "title": "The case against owning small pets",
-      "source": "Vox",
-      "url": "https://www.vox.com/the-highlight/476655/small-pet-welfare-cruelty-birds-fish-reptiles-rodents",
-      "description": "I grew up in the Maryland suburbs and spent much of my childhood in the woods. I would turn over rocks to find shiny centipedes and watch small schools of fish glide through the creek as box turtles s",
-      "published_at": "2026-02-04T16:40:23Z"
     }
-  ]
+  ],
+  "backlink_prospects": [
+    {
+      "page_url": "https://thriveagency.com/san-diego-seo-company/",
+      "domain": "thriveagency.com",
+      "title": "San Diego SEO Company | Award Winning San Diego SEO Agency",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO agency\" \"San Diego\" resources",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://www.gobluemedia.com/",
+      "domain": "www.gobluemedia.com",
+      "title": "San Diego SEO Agency: #1 SEO Growth Firm | Blue Media",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO agency\" \"San Diego\" resources",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://www.designrush.com/agency/search-engine-optimization/california/san-diego",
+      "domain": "www.designrush.com",
+      "title": "SEO Agency Directory: Find a Top-Rated Agency in San Diego - Dec 2025 Rankings | DesignRush",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO agency\" \"San Diego\" resources",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://organixseoagency.com/",
+      "domain": "organixseoagency.com",
+      "title": "San Diego SEO | Industry Leading SEO Services | Organix SEO Agency",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO agency\" \"San Diego\" resources",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://clutch.co/seo-firms/san-diego",
+      "domain": "clutch.co",
+      "title": "Top SEO Companies in San Diego - Feb 2026 Rankings | Clutch.co",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO agency\" \"San Diego\" resources",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://helium-seo.com/san-diego-seo-agency/",
+      "domain": "helium-seo.com",
+      "title": "San Diego SEO Agency: Top Rated SEO Performance - Helium SEO",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO agency\" \"San Diego\" resources",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://ignitevisibility.com/san-diego-seo/",
+      "domain": "ignitevisibility.com",
+      "title": "#1 Ranked San Diego SEO Company | Ignite Visibility",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO agency\" \"San Diego\" resources",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://www.mayple.com/resources/digital-marketing/seo-agency-san-diego",
+      "domain": "www.mayple.com",
+      "title": "Top 5 SEO Agencies to Hire Near San Diego",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO agency\" \"San Diego\" resources",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://nerdalert.solutions/professional-seo-agency-san-diego/",
+      "domain": "nerdalert.solutions",
+      "title": "Surfing for Success: Top Professional SEO Agencies in San Diego - Nerdalert Solutions",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO agency\" \"San Diego\" resources",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://www.interodigital.com/san-diego-seo-company/",
+      "domain": "www.interodigital.com",
+      "title": "San Diego SEO Company | Award-Winning SEO Services",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO agency\" \"San Diego\" resources",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://agencies.semrush.com/list/seo/san-diego/",
+      "domain": "agencies.semrush.com",
+      "title": "Best SEO Companies in San Diego 2026 | Semrush",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO company\" \"San Diego\" recommended",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://www.sabaseo.com/",
+      "domain": "www.sabaseo.com",
+      "title": "San Diego SEO Company You Can Trust | Google Partner | Saba SEO",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO company\" \"San Diego\" recommended",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://www.sandiegoseo.company/",
+      "domain": "www.sandiegoseo.company",
+      "title": "San Diego SEO Company | Gain Organic Rankings & Traffic",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO company\" \"San Diego\" recommended",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://www.seo.com/companies/san-diego/",
+      "domain": "www.seo.com",
+      "title": "The Best SEO Companies in San Diego, CA",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO company\" \"San Diego\" recommended",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://www.krasovetzconsulting.com",
+      "domain": "www.krasovetzconsulting.com",
+      "title": "Krasovetzconsulting - Leading SEO Company in San Diego",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO company\" \"San Diego\" recommended",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://www.yelp.com/search?find_desc=Seo+Company&find_loc=San+Diego,+CA",
+      "domain": "www.yelp.com",
+      "title": "TOP 10 BEST Seo Company in San Diego, CA - Updated 2026 - Yelp",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO company\" \"San Diego\" recommended",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://jetrank.com",
+      "domain": "jetrank.com",
+      "title": "San Diego SEO Company | SEO Services | JetRank Agency",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO company\" \"San Diego\" recommended",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://www.loopexdigital.com/blog/best-seo-companies-for-san-diego-market",
+      "domain": "www.loopexdigital.com",
+      "title": "Top 10 SEO Companies for San Diego | Expert-Reviewed & Hand-Picked",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO company\" \"San Diego\" recommended",
+      "mentions_competitor": false
+    }
+  ],
+  "broken_link_opportunities": [
+    {
+      "page_url": "https://www.clearesult.com/contractor-resources",
+      "page_title": "Contractor Resources | CLEAResult",
+      "domain": "www.clearesult.com",
+      "broken_url": "https://translate.googleapis.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.clearesult.com"
+    },
+    {
+      "page_url": "https://www.copeland.com/en-us/training-support/contractor-resources",
+      "page_title": "Contractor Resources | Copeland US",
+      "domain": "www.copeland.com",
+      "broken_url": "https://www.gstatic.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.copeland.com"
+    },
+    {
+      "page_url": "https://phonestaffer.com/sites-like-angies-list/",
+      "page_title": "12 Top Sites Like Angie's List for Home Service Leads in 2025 - phonestaffer.com",
+      "domain": "phonestaffer.com",
+      "broken_url": "https://www.porch.com",
+      "relevance_score": 7,
+      "context": "Broken link found on phonestaffer.com"
+    },
+    {
+      "page_url": "https://www.servgrow.com/pro-websites",
+      "page_title": "The Top Home Service Websites: Key Features and Examples",
+      "domain": "www.servgrow.com",
+      "broken_url": "https://fonts.googleapis.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.servgrow.com"
+    },
+    {
+      "page_url": "https://www.servgrow.com/pro-websites",
+      "page_title": "The Top Home Service Websites: Key Features and Examples",
+      "domain": "www.servgrow.com",
+      "broken_url": "https://fonts.gstatic.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.servgrow.com"
+    },
+    {
+      "page_url": "https://www.brightlocal.com/",
+      "page_title": "BrightLocal - Local SEO Software, Citations, and Services",
+      "domain": "www.brightlocal.com",
+      "broken_url": "https://cdn.brightlocal.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.brightlocal.com"
+    },
+    {
+      "page_url": "https://www.brightlocal.com/",
+      "page_title": "BrightLocal - Local SEO Software, Citations, and Services",
+      "domain": "www.brightlocal.com",
+      "broken_url": "https://www.googletagmanager.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.brightlocal.com"
+    },
+    {
+      "page_url": "https://www.brightlocal.com/",
+      "page_title": "BrightLocal - Local SEO Software, Citations, and Services",
+      "domain": "www.brightlocal.com",
+      "broken_url": "https://fonts.googleapis.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.brightlocal.com"
+    },
+    {
+      "page_url": "https://www.brightlocal.com/",
+      "page_title": "BrightLocal - Local SEO Software, Citations, and Services",
+      "domain": "www.brightlocal.com",
+      "broken_url": "https://www.googleadservices.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.brightlocal.com"
+    },
+    {
+      "page_url": "https://www.semrush.com/features/local-seo-tools/",
+      "page_title": "Local SEO Tools for Business | Semrush",
+      "domain": "www.semrush.com",
+      "broken_url": "https://fonts.googleapis.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.semrush.com"
+    },
+    {
+      "page_url": "https://www.semrush.com/features/local-seo-tools/",
+      "page_title": "Local SEO Tools for Business | Semrush",
+      "domain": "www.semrush.com",
+      "broken_url": "https://fonts.gstatic.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.semrush.com"
+    },
+    {
+      "page_url": "https://www.semrush.com/features/local-seo-tools/",
+      "page_title": "Local SEO Tools for Business | Semrush",
+      "domain": "www.semrush.com",
+      "broken_url": "https://www.googletagmanager.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.semrush.com"
+    },
+    {
+      "page_url": "https://localo.com/",
+      "page_title": "Localo: Local SEO Tools for Faster Local Search Optimization",
+      "domain": "localo.com",
+      "broken_url": "https://fonts.googleapis.com",
+      "relevance_score": 7,
+      "context": "Broken link found on localo.com"
+    },
+    {
+      "page_url": "https://localo.com/",
+      "page_title": "Localo: Local SEO Tools for Faster Local Search Optimization",
+      "domain": "localo.com",
+      "broken_url": "https://fonts.gstatic.com",
+      "relevance_score": 7,
+      "context": "Broken link found on localo.com"
+    },
+    {
+      "page_url": "https://localo.com/",
+      "page_title": "Localo: Local SEO Tools for Faster Local Search Optimization",
+      "domain": "localo.com",
+      "broken_url": "https://www.googletagmanager.com",
+      "relevance_score": 7,
+      "context": "Broken link found on localo.com"
+    },
+    {
+      "page_url": "https://offers.hubspot.com/beginners-guide-to-digital-marketing",
+      "page_title": "Free Download: Digital Marketing For Small Business",
+      "domain": "offers.hubspot.com",
+      "broken_url": "https://api.hubspot.net",
+      "relevance_score": 7,
+      "context": "Broken link found on offers.hubspot.com"
+    },
+    {
+      "page_url": "https://offers.hubspot.com/beginners-guide-to-digital-marketing",
+      "page_title": "Free Download: Digital Marketing For Small Business",
+      "domain": "offers.hubspot.com",
+      "broken_url": "https://app.hubspot.net",
+      "relevance_score": 7,
+      "context": "Broken link found on offers.hubspot.com"
+    },
+    {
+      "page_url": "https://offers.hubspot.com/beginners-guide-to-digital-marketing",
+      "page_title": "Free Download: Digital Marketing For Small Business",
+      "domain": "offers.hubspot.com",
+      "broken_url": "https://www.googletagmanager.com",
+      "relevance_score": 7,
+      "context": "Broken link found on offers.hubspot.com"
+    }
+  ],
+  "brand_mentions": [],
+  "journalist_opportunities": [
+    {
+      "url": "https://markets.businessinsider.com/news/stocks/digital-marketing-agency-expands-to-chicago-illinois-1035896159",
+      "title": "Digital Marketing Agency Expands to Chicago, Illinois | Markets Insider",
+      "description": "The agency\u2019s capabilities include search engine optimization (SEO), paid media management, AI-driven marketing automation, technical SEO consulting, content marketing, digital public relations, and co",
+      "query": "#journorequest \"digital marketing\"",
+      "topic": "seo",
+      "relevance_score": 9,
+      "context": "Journalist/contributor opportunity"
+    },
+    {
+      "url": "https://www.freep.com/press-release/story/161886/bogo-solutions-expands-digital-marketing-services-nationwide/",
+      "title": "Bogo Solutions Expands Digital Marketing Services Nationwide - The Detroit Free Press",
+      "description": "Bogo Solutions, a Home Service Marketing Agency, was built to solve this problem. Every service \u2014 from Google Ads management and Meta Ads to SEO and web development \u2014 is tailored to the specific buyer",
+      "query": "#journorequest \"digital marketing\"",
+      "topic": "seo",
+      "relevance_score": 7,
+      "context": "Journalist/contributor opportunity"
+    },
+    {
+      "url": "https://www.sona.com/blog/what-are-digital-marketing-tracking-tools-definition-uses-and-benefits",
+      "title": "What Are Digital Marketing Tracking Tools? Definition, Uses, and Benefits | Sona",
+      "description": "Digital marketing tracking tools are <strong>platforms that collect, unify, and analyze performance data across channels including paid search, social media, email, and CRM</strong>, giving marketers ",
+      "query": "#journorequest \"digital marketing\"",
+      "topic": "digital marketing",
+      "relevance_score": 5,
+      "context": "Journalist/contributor opportunity"
+    },
+    {
+      "url": "https://c-istudios.com/what-is-digital-marketing-complete-guide-to-online-marketing-success/",
+      "title": "Digital Marketing: Complete 2026 Strategy Guide",
+      "description": "Master what digital marketing is and how to leverage online channels effectively. Your comprehensive guide to digital marketing strategy and tactics.",
+      "query": "#journorequest \"digital marketing\"",
+      "topic": "digital marketing",
+      "relevance_score": 5,
+      "context": "Journalist/contributor opportunity"
+    }
+  ],
+  "aeo_crawler_check": {
+    "allowed": [
+      "GPTBot",
+      "ClaudeBot",
+      "PerplexityBot",
+      "Google-Extended",
+      "Bingbot"
+    ],
+    "blocked": [],
+    "no_robots": true,
+    "recommendations": []
+  },
+  "aeo_opportunities": [],
+  "newsjack_alerts": [
+    {
+      "type": "trend",
+      "query": "TOP 10 BEST Artificial Turf Cleaning in San Diego, CA",
+      "urgency_score": 5,
+      "reason": "Rising query contains key terms: cleaning, diego"
+    },
+    {
+      "type": "trend",
+      "query": "Yelp Top 10 Best Artificial Turf Cleaning in San Diego, CA",
+      "urgency_score": 5,
+      "reason": "Rising query contains key terms: cleaning, diego"
+    },
+    {
+      "type": "trend",
+      "query": "TOP 10 BEST Artificial Turf Cleaning near Mount Hope, San Diego, CA",
+      "urgency_score": 5,
+      "reason": "Rising query contains key terms: cleaning, diego"
+    },
+    {
+      "type": "trend",
+      "query": "Yelp See more artificial turf cleaning near San Diego.",
+      "urgency_score": 5,
+      "reason": "Rising query contains key terms: cleaning, diego"
+    },
+    {
+      "type": "trend",
+      "query": "Local San Diego Pressure Washing: All",
+      "urgency_score": 5,
+      "reason": "Rising query contains key terms: washing, diego, pressure"
+    },
+    {
+      "type": "trend",
+      "query": "Local San Diego Pressure Washing",
+      "urgency_score": 5,
+      "reason": "Rising query contains key terms: washing, diego, pressure"
+    },
+    {
+      "type": "trend",
+      "query": "Artificial Turf Cleaning Services in San Diego, CA",
+      "urgency_score": 5,
+      "reason": "Rising query contains key terms: cleaning, diego"
+    },
+    {
+      "type": "trend",
+      "query": "Pressure washing service San Diego",
+      "urgency_score": 5,
+      "reason": "Rising query contains key terms: washing, diego, pressure"
+    },
+    {
+      "type": "trend",
+      "query": "SAN DIEGO SOFTWASH",
+      "urgency_score": 5,
+      "reason": "Rising query contains key terms: soft, diego"
+    },
+    {
+      "type": "trend",
+      "query": "friendly alternative to pressure washing.",
+      "urgency_score": 5,
+      "reason": "Rising query contains key terms: washing, pressure"
+    },
+    {
+      "type": "trend",
+      "query": "Soft Washing In San Diego",
+      "urgency_score": 5,
+      "reason": "Rising query contains key terms: washing, soft, diego"
+    },
+    {
+      "type": "trend",
+      "query": "TOP 10 BEST Soft Wash in San Diego, CA",
+      "urgency_score": 5,
+      "reason": "Rising query contains key terms: soft, diego"
+    }
+  ],
+  "fast_research_date": "2026-03-04"
 }

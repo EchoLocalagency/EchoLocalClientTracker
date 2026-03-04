@@ -157,7 +157,19 @@ def execute_gbp_photo(action, client, website_path, dry_run=True):
 
     # Find the photo in the website's blog/images directory
     website_path = Path(website_path)
-    photo_path = website_path / "blog" / "images" / filename
+    images_dir = website_path / "blog" / "images"
+    photo_path = images_dir / filename
+
+    if not photo_path.exists():
+        # Try fuzzy match: brain may reference a filename that differs
+        # from disk due to manifest/rename desync (e.g. with/without "img-")
+        stem_nums = "".join(c for c in Path(filename).stem if c.isdigit())
+        if stem_nums and images_dir.exists():
+            candidates = [f for f in images_dir.iterdir()
+                          if f.suffix == ".jpg" and stem_nums in f.stem]
+            if len(candidates) == 1:
+                photo_path = candidates[0]
+                print(f"  [gbp_media] Fuzzy matched {filename} -> {photo_path.name}")
 
     if not photo_path.exists():
         return {"status": "error", "reason": f"Photo not found: {photo_path}"}

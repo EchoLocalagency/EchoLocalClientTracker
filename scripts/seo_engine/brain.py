@@ -9,6 +9,7 @@ function call in the pipeline.
 """
 
 import json
+import os
 import subprocess
 import sys
 from datetime import date
@@ -16,6 +17,19 @@ from pathlib import Path
 
 from .content_validator import validate_content
 from .outcome_logger import log_brain_decision
+
+TUNING_FILE = Path("/Users/brianegan/EchoLocalClientTracker/scripts/seo_engine/engine_tuning.json")
+
+
+def _load_tuning(slug):
+    """Load tuning config for a client. Returns dict or None."""
+    if not TUNING_FILE.exists():
+        return None
+    try:
+        data = json.loads(TUNING_FILE.read_text())
+        return data.get(slug)
+    except (json.JSONDecodeError, OSError):
+        return None
 
 
 def _build_prompt(client_config, performance_data, keyword_rankings,
@@ -195,17 +209,37 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
     elif outcome_patterns and outcome_patterns.get("summary"):
         prompt += f"OUTCOME PATTERNS: {outcome_patterns['summary']}\n\n"
 
+    # ── Section 9b: Engine tuning (auto-learned from impact data) ──
+    tuning = _load_tuning(slug)
+    if tuning:
+        prompt += "ENGINE TUNING (auto-learned from impact data):\n"
+        rankings = tuning.get("action_type_rankings", [])
+        if rankings:
+            rank_str = ", ".join(f"{r['type']} ({r['avg_impact']:+.1f})" for r in rankings)
+            prompt += f"  Action type rankings: {rank_str}\n"
+        rules = tuning.get("learned_rules", [])
+        if rules:
+            prompt += "  Learned rules:\n"
+            for rule in rules:
+                prompt += f"    - {rule}\n"
+        suppressed = tuning.get("suppressed_action_types", [])
+        if suppressed:
+            prompt += f"  Suppressed types (avoid unless strong reasoning): {', '.join(suppressed)}\n"
+        kw_insights = tuning.get("keyword_insights", [])
+        if kw_insights:
+            prompt += "  Keyword insights:\n"
+            for ki in kw_insights[:5]:
+                prompt += f"    - \"{ki['theme']}\" responds best to: {', '.join(ki['best_action_types'])}\n"
+        prompt += "\n"
+
     # ── Section 10: Rate limits remaining ──
-    limits = {
-        "gbp_post": 3,
-        "gbp_qanda": 2,
-        "blog_post": 2,
-        "page_edit": 1,
-        "location_page": 1,
-        "gbp_photo": 3,
-        "schema_update": 2,
-        "newsjack_post": 1,
-    }
+    from .seo_loop import WEEKLY_LIMITS
+    limits = dict(WEEKLY_LIMITS)
+    # Merge tuning overrides (can only increase)
+    if tuning:
+        for k, v in tuning.get("rate_limit_overrides", {}).items():
+            if k in limits and v > limits[k]:
+                limits[k] = v
     prompt += "WEEKLY RATE LIMITS (remaining this week):\n"
     for action_type, max_count in limits.items():
         used = week_counts.get(action_type, 0)
@@ -302,12 +336,36 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
                 prompt += f"  {area}\n"
             prompt += "  Roll out 1 location_page per week, pick based on keyword data and search volume.\n\n"
 
+    # ── Section 16: Striking distance pages (position 3-20) ──
+    striking_distance = [
+        q for q in (gsc_queries or [])
+        if q.get("position") and 3.0 <= q["position"] <= 20.0
+    ]
+    if striking_distance:
+        # Score by opportunity: high impressions + closer to page 1 = highest ROI
+        for q in striking_distance:
+            q["_sd_score"] = q.get("impressions", 0) * (21 - q["position"])
+        striking_distance.sort(key=lambda q: q["_sd_score"], reverse=True)
+
+        prompt += "STRIKING DISTANCE PAGES (position 3-20 -- HIGHEST ROI, optimize these FIRST):\n"
+        prompt += f"  {'Query':<45} {'Position':<10} {'Impressions':<12} {'Clicks':<8} {'Opportunity'}\n"
+        prompt += f"  {'-'*95}\n"
+        for q in striking_distance[:15]:
+            opp = "HIGH" if q["_sd_score"] > 500 else "MEDIUM" if q["_sd_score"] > 100 else "LOW"
+            prompt += f"  {q['query']:<45} {q['position']:<10.1f} {q.get('impressions', 0):<12} {q.get('clicks', 0):<8} {opp}\n"
+        prompt += "  These pages are already ranking. A page_edit to improve content, headings, and internal links\n"
+        prompt += "  will move them to page 1 faster than writing a brand new blog post. OPTIMIZE BEFORE YOU CREATE.\n\n"
+
     # ── Section 13: Rules ──
     prompt += """RULES (follow exactly):
 1. Return ONLY a JSON array of action objects. No other text.
 2. Each action must have: action_type, target_keywords (array), priority (1-5, 1=highest), reasoning (1 sentence), and type-specific content fields.
-3. Action types: gbp_post, gbp_qanda, blog_post, page_edit, location_page, gbp_photo, schema_update, newsjack_post
-4. Content style: no em dashes (use commas or hyphens), no emojis, no AI tells ("dive in", "comprehensive guide", "everything you need to know", "in conclusion", "game-changer", etc.)
+3. Action types: gbp_post, blog_post, page_edit, location_page, gbp_photo, schema_update, newsjack_post (NOTE: gbp_qanda is DISCONTINUED -- Google killed Q&A in Dec 2025. Do NOT generate gbp_qanda actions.)
+4. CONTENT VOICE: You are writing as the business owner/operator, not a marketing agency. Write in first person plural ("we", "our crew"). Reference specific neighborhoods, streets, landmarks. Include technical details (PSI, square footage, materials, time durations). State opinions directly ("We stopped using X because..."). Start with specific observations or job details, never with questions or cliches.
+4a. BANNED WORDS (never use): delve, tapestry, realm, beacon, testament, landscape (metaphorical), paradigm, synergy, framework, nuanced, multifaceted, comprehensive, robust, seamless, cutting-edge, transformative, innovative, pivotal, intricate, holistic, bespoke, scalable, unprecedented, intuitive, tailored, streamlined, best-in-class, world-class, groundbreaking, revolutionary, game-changing, supercharge, captivating, fascinating, meticulous, vibrant, proactive, thrilled, moreover, furthermore, additionally, consequently, subsequently, indeed, certainly, arguably, essentially, fundamentally, significantly, notably.
+4b. BANNED PHRASES (never use): "in today's [anything]", "ever-evolving", "in an era of", "when it comes to", "it's important to note", "it is worth mentioning", "first and foremost", "at the end of the day", "in conclusion", "in summary", "in essence", "let's dive in", "let's explore", "have you ever wondered", "imagine a world", "picture this", "unlock the potential", "unleash the power", "pave the way", "at the forefront", "push the boundaries", "embark on a journey", "I hope this helps", "feel free to reach out", "don't hesitate to", "here's the thing".
+4c. STRUCTURE RULES: No em dashes, no emojis. Never open with a question or time-anchor ("In 2026..."). Vary paragraph length dramatically (some 1 sentence, some 3-5). Max one bulleted/numbered list per piece. No parallel heading construction. Do not end with a summary or generic CTA. Alternate short sentences (4-8 words) with longer ones (15-25 words). Occasionally use fragments. Start some sentences with "And" or "But."
+4d. EXPERIENCE SIGNALS: Every blog post and location page MUST include at least 3: a specific neighborhood/street/landmark, a technical detail only a tradesperson would know, a local weather/seasonal reference, a specific problem encountered on a job, a price range or honest cost assessment, a mention of local building characteristics or HOA rules.
 5. Do NOT target the same keyword with the same action type if it appears in RECENTLY TARGETED.
 6. Do NOT exceed the remaining weekly rate limits shown above. If a type shows 0 remaining, do not propose that type.
 7. Prioritize striking-distance keywords (position 5-20) -- these have the highest ROI.
@@ -316,7 +374,7 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
 10. Blog posts must include: title, slug, meta_description (under 160 chars), and body_content (2000+ chars of HTML).
 11. Location pages must include: city, slug, title, meta_description, and body_content (1500+ chars of HTML).
 12. Page edits must include: filename (from EXISTING PAGES), and an array of edits with old_text/new_text pairs.
-13. Q&A pairs must include: question and answer (natural language, not salesy).
+13. IMPORTANT: Do NOT generate gbp_qanda actions. Google discontinued GBP Q&A in December 2025. The API is dead. Instead, work Q&A-style content into blog posts, FAQ schema, or GBP posts.
 14. Write content from the business's perspective. Use "we", "our team", the business name. Sound human.
 15. For blog posts and location pages, write the full HTML body content (everything that goes inside the main content area). Include proper heading hierarchy (H2, H3), paragraphs, and internal links where relevant.
 16. If AVAILABLE PHOTOS are listed, include 1-3 relevant photos in blog posts using <img src="images/FILENAME" alt="descriptive alt text"> tags. Place images between sections for visual flow. Write descriptive alt text with target keywords where natural. Do not use every photo -- pick the most relevant ones.
@@ -336,6 +394,8 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
 30. Add "Last updated: {date}" visible text near the top of blog content. Freshness signals matter for AI citation.
 31. Keep paragraphs short (1 idea each). Use descriptive headings. For how-to content, use numbered steps. AI engines prefer scannable, structured content.
 32. If AEO OPPORTUNITIES are listed above, prioritize creating content that directly answers those question queries. Use the exact question as an H2 heading.
+33. NO OVERLAPPING BLOG POSTS: Never generate two blog posts in the same cycle that cover substantially the same topic, even if they come from different content clusters. Example: "Pressure Washing vs Soft Washing" and "What is Soft Washing" overlap too much. Pick the stronger angle and save the other for a future cycle.
+34. OPTIMIZE BEFORE YOU CREATE: If STRIKING DISTANCE PAGES are listed above, you MUST prioritize page_edit actions to improve those pages BEFORE proposing any new blog_post. Position 1 gets 2x the CTR of position 2, and 10x position 10. Moving an existing page from position 8 to position 3 is faster and higher-ROI than writing new content from scratch. Add better headings, expand thin sections, improve internal links, add schema, and update dates.
 
 OUTPUT FORMAT:
 [
@@ -436,12 +496,17 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
         return []
 
     try:
+        # Strip CLAUDECODE env var to avoid nested-session detection
+        clean_env = {k: v for k, v in os.environ.items() if not k.startswith("CLAUDE")}
         result = subprocess.run(
-            ["claude", "-p", prompt, "--output-format", "json"],
+            ["claude", "-p", prompt, "--output-format", "json",
+             "--disable-slash-commands",
+             "--setting-sources", ""],
             capture_output=True,
             text=True,
-            timeout=300,
-            cwd="/Users/brianegan/EchoLocalClientTracker",
+            timeout=1200,
+            cwd="/tmp",
+            env=clean_env,
         )
 
         if result.returncode != 0:
@@ -459,7 +524,7 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
             response_text = raw_response
 
     except subprocess.TimeoutExpired:
-        print(f"  [brain] Claude CLI timed out (300s)")
+        print(f"  [brain] Claude CLI timed out (1200s)")
         return []
     except FileNotFoundError:
         print(f"  [brain] 'claude' CLI not found in PATH")
@@ -504,20 +569,36 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
 
 def _parse_actions(response_text):
     """Extract a JSON array from Claude's response text."""
-    # Try direct parse first
+    # Dump full raw response for debugging
+    debug_path = Path("/Users/brianegan/EchoLocalClientTracker/reports/last_brain_response.txt")
+    debug_path.write_text(response_text if response_text else "(empty)")
+
+    # Strip markdown fences if present
+    text = response_text.strip()
+    if "```" in text:
+        # Try ```json ... ``` first
+        if "```json" in text:
+            text = text.split("```json", 1)[-1].split("```", 1)[0].strip()
+        else:
+            # Generic ``` ... ```
+            parts = text.split("```")
+            if len(parts) >= 3:
+                text = parts[1].strip()
+
+    # Try direct parse
     try:
-        parsed = json.loads(response_text)
+        parsed = json.loads(text)
         if isinstance(parsed, list):
             return parsed
     except json.JSONDecodeError:
         pass
 
     # Try to find JSON array in the text
-    start = response_text.find("[")
-    end = response_text.rfind("]")
+    start = text.find("[")
+    end = text.rfind("]")
     if start != -1 and end != -1 and end > start:
         try:
-            return json.loads(response_text[start:end + 1])
+            return json.loads(text[start:end + 1])
         except json.JSONDecodeError:
             pass
 

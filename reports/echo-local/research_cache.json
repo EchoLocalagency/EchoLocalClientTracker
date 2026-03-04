@@ -1,4 +1,984 @@
 {
-  "newsjack_alerts": [],
-  "fast_research_date": "2026-03-01"
+  "last_updated": "2026-03-04",
+  "trends": {
+    "seasonal_interest": {},
+    "rising_queries": [
+      "San Diego SEO Agency: #1 SEO Growth Firm",
+      "San Diego SEO Agency",
+      "San Diego Turf Cleaning",
+      "TOP 10 BEST Artificial Turf Cleaning in San Diego, CA",
+      "Yelp Top 10 Best Artificial Turf Cleaning in San Diego, CA",
+      "Artificial Grass Cost (San Diego, 2026)",
+      "Artificial Grass San Diego, CA",
+      "Artificial Turf Cleaning Services in San Diego, CA",
+      "Artificial Turf Cleaning in North City",
+      "Temecula & Murrieta Turf Cleaning",
+      "Artificial Turf Installation San Diego",
+      "Artificial Turf Maintenance",
+      "notch turf cleaning services that will leave your ...",
+      "Professional Artificial Turf Cleaning Services in San Diego Our eco"
+    ],
+    "peak_months": {}
+  },
+  "reddit_questions": [],
+  "competitor_serps": {
+    "SEO for home service businesses san diego": [
+      {
+        "position": 1,
+        "title": "San Diego SEO Agency: Top Rated Marketing Performance",
+        "url": "https://helium-seo.com/san-diego-seo-agency/",
+        "description": "Have we achieved results for businesses like yours? Yep! In fact, we've done it many times and our clients average an ROI of 10x with SEO.Read more"
+      },
+      {
+        "position": 2,
+        "title": "San Diego SEO Services \u2013 Hire an SEO Expert Company",
+        "url": "http://sandiegoseoservices.com/",
+        "description": "Talk to a San Diego SEO Expert (619) 457-4253 or fill our our SEO discovery form. Local SEO. Get leads WITHOUT paying for promoted placement.Read more"
+      },
+      {
+        "position": 3,
+        "title": "San Diego Local SEO Agency | GEO & AI Search ...",
+        "url": "https://www.localmighty.com/san-diego/",
+        "description": "Our tailored local SEO services boost Google Maps visibility, increase local rankings, and convert clicks into customers. With San Diego-focused SEO, GEO, and\u00a0...Read more"
+      },
+      {
+        "position": 4,
+        "title": "San Diego Local SEO Marketing Services",
+        "url": "https://201creative.com/san-diego-seo/",
+        "description": "As trusted San Diego SEO experts, we take the time to understand your unique goals and craft customized strategies that drive organic traffic.Read more"
+      },
+      {
+        "position": 5,
+        "title": "#1 Ranked San Diego SEO Company",
+        "url": "https://ignitevisibility.com/san-diego-seo/",
+        "description": "We are a top-tier SEO agency, known for our cutting-edge SEO methodologies paired with data tailored to each client's unique needs.Read more"
+      },
+      {
+        "position": 6,
+        "title": "Home Services Marketing Agency San Diego CA",
+        "url": "https://piedmontave.com/home-services-marketing-agency-san-diego-ca/",
+        "description": "From optimizing your website for search engines (SEO) to creating compelling content that showcases your services, our professionals will help your business\u00a0...Read more"
+      },
+      {
+        "position": 7,
+        "title": "Affordable SEO Services in San Diego, CA for small ...",
+        "url": "https://www.buzzcube.io/city1/seo-services-in-san-diego-ca/",
+        "description": "Boost your San Diego, CA business with Affordable SEO Services starting from just $450/month. Transparent pricing, measurable results, and no long-term\u00a0...Read more"
+      },
+      {
+        "position": 8,
+        "title": "San Diego Contractor SEO Specialists",
+        "url": "https://www.periscopemedia.co/contractor-seo/san-diego",
+        "description": "Our Contractor SEO experts can help you grow your San Diego business by optimizing your website to rank higher on search engines. This improves your visibility\u00a0...Read more"
+      },
+      {
+        "position": 9,
+        "title": "TOP 10 BEST Seo Company in San Diego, CA",
+        "url": "https://www.yelp.com/search?find_desc=Seo+Company&find_loc=San+Diego%2C+CA",
+        "description": "Top 10 Best Seo Company Near San Diego, California ; Storm Brain \u00b7 (71 reviews) \u00b7 3.8 mi ; iCatch Marketing \u00b7 (40 reviews) \u00b7 3.5 mi ; One Click SEO Marketing of San\u00a0...Read more"
+      },
+      {
+        "position": 10,
+        "title": "SEO, Social Media & Web Design Services in San Diego, CA",
+        "url": "https://www.getfoundquick.com/seo-san-diego-ca/",
+        "description": "We help San Diego, CA organizations with search engine optimization, social media management, reputation management, and search engine marketing."
+      }
+    ],
+    "local SEO for contractors san diego": [
+      {
+        "position": 1,
+        "title": "San Diego Contractor SEO Specialists",
+        "url": "https://www.periscopemedia.co/contractor-seo/san-diego",
+        "description": "Our Contractor SEO experts can help you grow your San Diego business by optimizing your website to rank higher on search engines. This improves your visibility\u00a0...Read more"
+      },
+      {
+        "position": 2,
+        "title": "San Diego, CA local seo services",
+        "url": "https://www.contractorwebsiteservices.com/local-seo-services/sandiego-california/",
+        "description": "If you need assistance with any local seo services services in the San Diego, CA area, please call Contractor Website Services at 800-554-0451 today. We look\u00a0...Read more"
+      },
+      {
+        "position": 3,
+        "title": "San Diego Local SEO Services",
+        "url": "https://ladsolutions.com/san-diego-seo/",
+        "description": "San Diego Local SEO Services. LAD Solutions offers affordable SEO packages & experienced SEO specialists. Call 888.523.2926 for FREE Consultation today."
+      },
+      {
+        "position": 4,
+        "title": "San Diego Local SEO Company",
+        "url": "https://www.theadfirm.net/san-diego-local-seo-company/",
+        "description": "We build San Diego local SEO strategies that earn trust, drive calls, and bring in the right customers, whether you're in home services, healthcare, law, or\u00a0...Read more"
+      },
+      {
+        "position": 5,
+        "title": "SEO Services for Contractors We Are Based in San Diego",
+        "url": "https://www.gobluemedia.com/industries/seo-services-contractors/",
+        "description": "Blue Media is an SEO specialist for Contractors all around the United States. We target your audiences that need your business."
+      },
+      {
+        "position": 6,
+        "title": "The Best San Diego SEO Company",
+        "url": "https://www.localseoguide.com/services/cities-old/the-best-san-diego-seo-company/",
+        "description": "Local SEO Guide is the leading San Diego SEO Company. Our SEO services get you more organic traffic, better rankings & crush the competition."
+      },
+      {
+        "position": 7,
+        "title": "San Diego Local SEO Agency | GEO & AI Search ...",
+        "url": "https://www.localmighty.com/san-diego/",
+        "description": "Partner with a top San Diego local SEO company. Rank higher on Google, Maps, and AI search. LocalMighty helps you get more leads. Get a free SEO audit."
+      },
+      {
+        "position": 8,
+        "title": "San Diego SEO Services - Expert Local SEO Agency",
+        "url": "https://rankworks.com/seo/san-diego-seo/",
+        "description": "Professional seo services in San Diego, CA to boost local SEO and search rankings. page 1 Google rankings, 200%+ traffic growth. Start your success story\u00a0..."
+      },
+      {
+        "position": 9,
+        "title": "Local SEO San Diego",
+        "url": "https://organixseoagency.com/local-seo-san-diego/",
+        "description": "Our proven Local SEO Strategies will drive traffic and sales to your San Diego business. Get a free SEO evaluation today!"
+      },
+      {
+        "position": 10,
+        "title": "#1 Ranked San Diego SEO Company",
+        "url": "https://ignitevisibility.com/san-diego-seo/",
+        "description": "We are a top-tier SEO agency, known for our cutting-edge SEO methodologies paired with data tailored to each client's unique needs.Read more"
+      }
+    ],
+    "SEO agency san diego": [
+      {
+        "position": 1,
+        "title": "San Diego SEO Company",
+        "url": "https://thriveagency.com/san-diego-seo-company/",
+        "description": "Thrive is a San Diego SEO Company. We build ROI-driven SEO strategies to help achieve your business goals. Request a quote today!"
+      },
+      {
+        "position": 2,
+        "title": "Top SEO Companies in San Diego - Mar 2026 Rankings",
+        "url": "https://clutch.co/seo-firms/san-diego",
+        "description": "Kanbar Digital, LLC is an SEO agency highly regarded for its comprehensive Search Optimization and Online Visibility services. Reviews consistently highlight\u00a0...Read more"
+      },
+      {
+        "position": 3,
+        "title": "San Diego SEO Agency: #1 SEO Growth Firm | Blue Media",
+        "url": "https://www.gobluemedia.com/",
+        "description": "Blue Media is providing SEM/SEO, conversions, traffic and high quality traffic to your businesses and is located in San Diego, California."
+      },
+      {
+        "position": 4,
+        "title": "#1 Ranked San Diego SEO Company",
+        "url": "https://ignitevisibility.com/san-diego-seo/",
+        "description": "Ignite Visibility is headquartered in San Diego and has been consistently ranked the #1 SEO agency. Learn why we're the best!"
+      },
+      {
+        "position": 5,
+        "title": "Best SEO Companies in San Diego 2026",
+        "url": "https://agencies.semrush.com/list/seo/san-diego/",
+        "description": "List of TOP 20 SEO Companies in San Diego. Discover the most skilled marketing agencies from our community to outsource your marketing to.Read more"
+      },
+      {
+        "position": 6,
+        "title": "Saba SEO: San Diego SEO Company You Can Trust | Google ...",
+        "url": "https://www.sabaseo.com/",
+        "description": "San Diego SEO Company, strives to help our clients generate qualified leads, grow revenue, increase online visibility & branding. Need help?"
+      },
+      {
+        "position": 7,
+        "title": "San Diego SEO Expert",
+        "url": "https://www.afterdarkgrafx.com/services/seo/san-diego-seo-expert/",
+        "description": "SAN DIEGO SEO EXPERTS. THE BEST SEO Expert In San Diego, well\u2026you be the judge. GET LISTED, STAY LISTED AND WATCH YOUR BUSINESS SOAR!Read more"
+      },
+      {
+        "position": 8,
+        "title": "TOP 10 BEST Seo Agency in San Diego, CA - Updated 2026",
+        "url": "https://www.yelp.com/search?find_desc=Seo+Agency&find_loc=San+Diego%2C+CA",
+        "description": "Top 10 Best Seo Agency Near San Diego, California ; iCatch Marketing \u00b7 (40 reviews) \u00b7 3.5 mi ; Smartboost Growth Marketing \u00b7 (66 reviews) \u00b7 8.6 mi ; That Marketing\u00a0...Read more"
+      },
+      {
+        "position": 9,
+        "title": "SEO Services San Diego, CA | San Diego SEO Agency",
+        "url": "https://www.marketingempiregroup.com/san-diego-seo",
+        "description": "Looking for SEO services in San Diego? Our SEO agency specializes in boosting your online presence. Increase your traffic and grow your business today!"
+      }
+    ],
+    "SEO agency oceanside": [
+      {
+        "position": 1,
+        "title": "Oceanside SEO Company - #1 Proven AI-Powered Results",
+        "url": "https://acuteseo.com/oceanside-seo/",
+        "description": "Acute SEO is a full-service Oceanside SEO company trusted with helping increase traffic, leads & local rankings on Google & AI platforms."
+      },
+      {
+        "position": 2,
+        "title": "TOP 10 BEST Seo Company in Oceanside, CA",
+        "url": "https://www.yelp.com/search?find_desc=Seo+Company&find_loc=Oceanside%2C+CA",
+        "description": "The Ad Firm \u00b7 Advertising \u00b7 Web Design \u00b7 Marketing. 6.7 mi \u00b7 2870 Whiptail Lp E, Ste 222 Carlsbad, CA 92010. (760) 642-1945 ; Search Geeks \u00b7 Marketing \u00b7 Advertising.Read more"
+      },
+      {
+        "position": 3,
+        "title": "Oceanside SEO Services with Blue Media Marketing",
+        "url": "https://www.gobluemedia.com/areas/seo-company-oceanside-california/",
+        "description": "Blue Media's team is providing tailored SEO Services in Oceanside, CA. Ask us for a free SEO consultation your website, today!"
+      },
+      {
+        "position": 4,
+        "title": "AI SEO and Local Digital Marketing - Oceanside, San Diego ...",
+        "url": "https://www.axysdigitalmarketing.com/",
+        "description": "Axys Digital Marketing is an award-winning, affordable local digital marketing and AI SEO company based in Oceanside, San Diego County."
+      },
+      {
+        "position": 5,
+        "title": "Oceanside SEO Agency & Local Search Experts",
+        "url": "https://brandliftdigital.com/oceanside-seo-agency/",
+        "description": "Top Oceanside SEO agency driving organic traffic and local visibility with expert keyword research, on-page SEO, link building & local search strategies."
+      },
+      {
+        "position": 6,
+        "title": "Oceanside SEO Company | Search Engine Optimization",
+        "url": "https://www.theadfirm.net/oceanside-seo-company/",
+        "description": "Increase your digital presence with our professional SEO services in Oceanside. Our team of SEO experts delivers tailored strategies to drive traffic and\u00a0..."
+      },
+      {
+        "position": 7,
+        "title": "Oceanside SEO Company",
+        "url": "https://www.breaklineagency.com/seo-agency/oceanside-california/",
+        "description": "Breakline is an award-winning Oceanside SEO Company delivering results focused SEO services with transparent prices and outstanding client reviews for success."
+      },
+      {
+        "position": 8,
+        "title": "Digital Marketing Agency in Oceanside, California | SEO, ...",
+        "url": "https://www.ezmarketing.com/locations/marketing-in-oceanside-california/",
+        "description": "EZMarketing is a premier digital marketing agency in Oceanside, California. We provide expert marketing services, including SEO, website design,\u00a0..."
+      },
+      {
+        "position": 9,
+        "title": "Oceanside Search Engine Optimization Services",
+        "url": "https://ukiiki.com/oceanside-search-engine-optimization-services/",
+        "description": "Oceanside Search Engine Optimization Services \u2013 We're SEO experts in San Diego, helping potential customers find you and convert them into loyal clients."
+      }
+    ],
+    "local SEO consultant san diego": [
+      {
+        "position": 1,
+        "title": "San Diego SEO Company",
+        "url": "https://thriveagency.com/san-diego-seo-company/",
+        "description": "Thrive is a San Diego SEO Company. We build ROI-driven SEO strategies to help achieve your business goals. Request a quote today!"
+      },
+      {
+        "position": 2,
+        "title": "SEO Expert San Diego | Local SEO Company in San Diego",
+        "url": "https://jenruhman.com/?srsltid=AfmBOoo41FbCi8hwclRieQBbI-wto8EFdLHCwjAgMK8cOZZqaIW2z0H7",
+        "description": "That's where I come in. I provide hands-on SEO services tailored to small businesses\u2014affordable, transparent, and results-driven. Work directly with me instead!Read more"
+      },
+      {
+        "position": 3,
+        "title": "San Diego Local SEO Company",
+        "url": "https://www.theadfirm.net/san-diego-local-seo-company/",
+        "description": "We build San Diego local SEO strategies that earn trust, drive calls, and bring in the right customers, whether you're in home services, healthcare, law, or\u00a0...Read more"
+      },
+      {
+        "position": 4,
+        "title": "The Best San Diego SEO Company",
+        "url": "https://www.localseoguide.com/services/cities-old/the-best-san-diego-seo-company/",
+        "description": "Local SEO Guide is the leading San Diego SEO Company. Our SEO services get you more organic traffic, better rankings & crush the competition."
+      },
+      {
+        "position": 5,
+        "title": "Local SEO Services Based in San Diego, CA - Blue Media",
+        "url": "https://www.gobluemedia.com/services/local-seo-services/",
+        "description": "Blue Media has experience in providing local SEO for small, mid-size and big enterprises for 25+ years in the U.S. and worldwide."
+      },
+      {
+        "position": 6,
+        "title": "San Diego SEO Company with Local SEO Services",
+        "url": "https://www.seoreseller.com/san-diego/",
+        "description": "Grow your San Diego business with our white label SEO services. We offer local SEO, on-page and technical SEO, content creation, and link building."
+      },
+      {
+        "position": 7,
+        "title": "San Diego SEO Services - Expert Local SEO Agency",
+        "url": "https://rankworks.com/seo/san-diego-seo/",
+        "description": "Professional seo services in San Diego, CA to boost local SEO and search rankings. page 1 Google rankings, 200%+ traffic growth. Start your success story\u00a0..."
+      },
+      {
+        "position": 8,
+        "title": "Local & Ecommerce SEO Services San Diego - Kia Ora",
+        "url": "https://www.kiaora.digital/locations/san-diego/",
+        "description": "We offer a full range of professional SEO services in San Diego which drive real, measurable results.Read more"
+      },
+      {
+        "position": 9,
+        "title": "#1 Ranked San Diego SEO Company",
+        "url": "https://ignitevisibility.com/san-diego-seo/",
+        "description": "Established by John Lincoln and Krish Coughran, Ignite Visibility is consistently recognized as one of the top local SEO agencies in San Diego. But we're more\u00a0...Read more"
+      }
+    ],
+    "SEO for plumbers san diego": [
+      {
+        "position": 1,
+        "title": "SEO for Plumbers in San Diego | Macro Digital",
+        "url": "https://macrodigitalmedia.com/services/seo-for-plumbers-in-san-diego-ca/",
+        "description": "Our SEO system lifts you into page-one visibility, pushes you into the Map Pack, and fills your schedule with profitable plumbing calls across the county."
+      },
+      {
+        "position": 2,
+        "title": "SEO for Plumbers in San Diego: Boosting Local Visibility ...",
+        "url": "https://www.afterdarkgrafx.com/seo-for-plumbers-in-san-diego/",
+        "description": "SEO for plumbers is essential to boosting your online visibility and attracting more local customers. By utilizing region-specific strategies,\u00a0...Read more"
+      },
+      {
+        "position": 3,
+        "title": "Local SEO Services For Plumbers & Companies, San Diego, CA",
+        "url": "https://www.gobluemedia.com/industries/seo-services-for-plumbing-companies/",
+        "description": "Blue Media specializes in SEO campaigns for plumbing companies. We target audiences that have an urgent need for your services."
+      },
+      {
+        "position": 4,
+        "title": "Plumber SEO Services in San Diego, CA",
+        "url": "https://www.vorgesternagency.com/california/san-diego-ca/seo/plumbers/",
+        "description": "Comprehensive SEO audit for plumbing companies \u00b7 Local keyword research targeting 2416+ monthly searches in San Diego \u00b7 On-page optimization for emergency service\u00a0..."
+      },
+      {
+        "position": 5,
+        "title": "San Diego Local SEO for Plumbers",
+        "url": "https://www.digitalsuccess.us/plumbing.html",
+        "description": "As part of our SEO strategy for Plumbers, we firstly made their website \u201cweb 2.0-friendly\u201d by creating over 45 SEO optimized pages on their website. This bulk\u00a0...Read more"
+      },
+      {
+        "position": 6,
+        "title": "SEO for Plumbers: Rank Higher & Get More Calls in 2026",
+        "url": "https://ignitevisibility.com/plumber-seo/",
+        "description": "See how Plumber SEO helps you rank in Google Map Pack and organic SERPS to get more calls, lower cost per lead, & dominate your local\u00a0..."
+      },
+      {
+        "position": 7,
+        "title": "San Diego Plumber SEO Company",
+        "url": "https://organiksoft.com/industries/plumber-seo/",
+        "description": "OrganicSoft is plumber marketing company which offers lead-driven plumber seo services and internet marketing. (858)800-2526."
+      },
+      {
+        "position": 8,
+        "title": "Strictly Plumbers: Expert Marketing Strategies for Plumbers",
+        "url": "https://www.strictlyplumbers.com/",
+        "description": "We work with over 500 large, medium & small Plumbing companies and provide prestige SEO, PPC, Website Design and Social Media Marketing for Plumbers.Read more"
+      },
+      {
+        "position": 9,
+        "title": "Local SEO for Plumbers: Optimize Your Plumbing Business",
+        "url": "https://lseo.com/seo-services/local-seo/local-seo-for-plumbers-optimize-your-plumbing-business/",
+        "description": "Local SEO for plumbers is all about making sure you appear at the top of local search results when potential customers look for plumbing services in your area.Read more"
+      }
+    ],
+    "SEO for HVAC san diego": [
+      {
+        "position": 1,
+        "title": "Boost Your San Diego HVAC Business With SEO",
+        "url": "https://rsgonzales.com/hvac-seo-san-diego/",
+        "description": "Dominate the San Diego market with top HVAC SEO services. RS Gonzales delivers proven digital marketing strategies just for HVAC contractors."
+      },
+      {
+        "position": 2,
+        "title": "SEO for HVAC Companies in San Diego: Boost Your Local ...",
+        "url": "https://www.afterdarkgrafx.com/seo-for-hvac-companies/",
+        "description": "Enhancing your HVAC business's visibility in San Diego requires targeted local SEO strategies. Focusing on Google Business Profile optimization\u00a0...Read more"
+      },
+      {
+        "position": 3,
+        "title": "Optimize Your HVAC SEO in San Diego",
+        "url": "https://www.authoritysolutions.com/ca/san-diego/industries/hvac/",
+        "description": "Boost your HVAC business in San Diego with effective SEO strategies. Increase visibility, attract more customers, and grow your online presence today!"
+      },
+      {
+        "position": 4,
+        "title": "San Diego HVAC SEO Company \u2013 HVAC Marketing",
+        "url": "https://organiksoft.com/industries/hvac-marketing/",
+        "description": "OrganicSoft offers lead-driven HVAC SEO. Grow your business with new leads and clients, start with the best HVAC marketing."
+      },
+      {
+        "position": 5,
+        "title": "HVAC SEO Company | Best SEO Services for Contractors",
+        "url": "https://thriveagency.com/hvac-seo-company/",
+        "description": "Our HVAC SEO agency offers turnkey search optimization and pay-per-click marketing solutions. We perform technical SEO audits, conduct extensive keyword\u00a0...Read more"
+      },
+      {
+        "position": 6,
+        "title": "White Label SEO for HVAC Marketing Agencies",
+        "url": "https://www.e2msolutions.com/white-label-local-seo-services/for-hvac-agencies/",
+        "description": "Struggling to manage SEO for HVAC clients? We offer white-label SEO services tailored for HVAC marketing agencies. Focus on growing your agency while we\u00a0..."
+      },
+      {
+        "position": 7,
+        "title": "HVAC Contractor SEO in San Diego",
+        "url": "https://unbindmedia.com/san-diego-hvac-seo/",
+        "description": "By expanding your internet presence, SEO can help you reach more prospective clients and grow your HVAC company to levels you've never thought possible.Read more"
+      },
+      {
+        "position": 8,
+        "title": "HVAC SEO Services in San Diego, CA",
+        "url": "https://vorgesternagency.com/california/san-diego/seo/hvac",
+        "description": "Our SEO strategies for hvac contractors target the specific terms San Diego clients search for\u2014\"HVAC San Diego,\" \"San Diego heating,\" and neighborhood-specific\u00a0..."
+      },
+      {
+        "position": 9,
+        "title": "HVAC SEO Services In Poway CA | Boost Local Leads & ...",
+        "url": "https://seoperfect.net/seo-services-for-hvac/",
+        "description": "We specialize in HVAC SEO services that boost your local visibility, increase calls, and deliver long-term results. Whether you're offering AC installation or\u00a0...Read more"
+      },
+      {
+        "position": 10,
+        "title": "San Diego Local SEO Company",
+        "url": "https://www.theadfirm.net/san-diego-local-seo-company/",
+        "description": "Whether you serve Clairemont, El Cajon, or all of San Diego County, we help HVAC companies, remodelers, roofers, and plumbers show up in the top search spots.Read more"
+      }
+    ],
+    "SEO for landscapers san diego": [
+      {
+        "position": 1,
+        "title": "SEO Services for Landscapers: Free Local SEO Guide",
+        "url": "https://www.mainstreetroi.com/local-seo-for-landscaping-companies/",
+        "description": "Get expert local SEO tips for landscaping companies from Main Street ROI. Our process can help get your landscaping website on the first page of Google."
+      },
+      {
+        "position": 2,
+        "title": "Landscape Marketing in San Diego, CA",
+        "url": "https://www.halsteadmedia.com/san-diego-ca-landscape-marketing",
+        "description": "We combine local SEO, paid search, and conversion-focused content to attract discerning buyers and keep your pipeline healthy year-round. Landscape Marketing\u00a0...Read more"
+      },
+      {
+        "position": 3,
+        "title": "SEO for Landscaping Companies",
+        "url": "https://thriveagency.com/landscaping-seo-company/",
+        "description": "Thrive is a Landscaping SEO company. We build ROI-driven SEO strategies to help achieve your business goals. Request a quote today!"
+      },
+      {
+        "position": 4,
+        "title": "Guide to SEO for Landscaping Companies",
+        "url": "https://ignitevisibility.com/seo-for-landscapers/",
+        "description": "SEO for landscapers can help lawn care businesses maximize their visibility online. Learn more about these solutions and custom strategies."
+      },
+      {
+        "position": 5,
+        "title": "San Diego SEO Company",
+        "url": "https://www.fannit.com/seo-agency-san-diego",
+        "description": "As a full-service San Diego SEO agency, Fannit provides a full range of search engine optimization services as well as digital solutions for companies of all\u00a0...Read more"
+      },
+      {
+        "position": 6,
+        "title": "San Diego SEO for Landscaper Websites - SEO Tacoma",
+        "url": "https://seotacoma.com/san-diego-seo-or-landscapers/",
+        "description": "SEO for Landscapers-San Diego-CA \u00b7 Landscaping SEO services that enhance your online presence. SEO for landscaping companies tailored to local demographics.Read more"
+      },
+      {
+        "position": 7,
+        "title": "Get More Landscaping Leads With Local SEO",
+        "url": "https://allscapesmarketing.com/getting-started-with-local-seo-for-landscapers/",
+        "description": "Local SEO helps landscapers get more leads. Discover tips to boost visibility, beat competitors, and grow your business with All Scapes\u00a0..."
+      },
+      {
+        "position": 8,
+        "title": "San Diego SEO Agency: #1 SEO Growth Firm | Blue Media",
+        "url": "https://www.gobluemedia.com/",
+        "description": "Blue Media is providing SEM/SEO, conversions, traffic and high quality traffic to your businesses and is located in San Diego, California."
+      },
+      {
+        "position": 9,
+        "title": "SEO for Landscaping Company",
+        "url": "https://www.softtrix.com/seo-for-landscapers/",
+        "description": "Get more leads with SEO for landscapers. From lawn care SEO to landscaping SEO services, Softtrix helps your company rank higher and grow online."
+      },
+      {
+        "position": 10,
+        "title": "Landscaping Marketing & Exclusive Leads in San Diego, CA",
+        "url": "https://quantimedia.com/landscaping-marketing-exclusive-leads-in-san-diego-ca-san-diego-county/",
+        "description": "QuantiMedia offers full-service digital marketing campaigns specifically tailored for Landscaping companies in San Diego, providing scalable\u00a0...Read more"
+      }
+    ]
+  },
+  "trending_news": [
+    {
+      "title": "Can you keep a rescued squirrel as a pet?",
+      "source": "Lifesciencesworld.com",
+      "url": "https://www.lifesciencesworld.com/can-you-keep-a-rescued-squirrel-as-a-pet/",
+      "description": "Can You Keep a Rescued Squirrel as a Pet? Exploring the Legal and Ethical Dilemmas Rescuing a squirrel can be a compassionate act, but keeping it as a pet is often illegal and ethically questionable, ",
+      "published_at": "2026-03-01T03:44:09Z"
+    },
+    {
+      "title": "Bracketology Bubble Watch: Which teams near the NCAA Tournament cut line need a victory the most?",
+      "source": "CBS Sports",
+      "url": "https://www.cbssports.com/college-basketball/news/bracketology-ncaa-tournament-bubble-watch-san-diego-state-new-mexico-march-madness/",
+      "description": "The bubble picture is congested and tense entering the last weekend of February",
+      "published_at": "2026-02-28T03:21:48Z"
+    },
+    {
+      "title": "Gen Z Got Work-Life Balance Right, and as a Gen Xer, I\u2019m Here for It",
+      "source": "Reader's Digest",
+      "url": "https://www.rd.com/article/gen-z-work-life-balance/",
+      "description": "After decades of burnout culture, our youngest employees just might bring back balance for all of us.\nThe post Gen Z Got Work-Life Balance Right, and as a Gen Xer, I\u2019m Here for It appeared first on Re",
+      "published_at": "2026-02-27T20:36:28Z"
+    },
+    {
+      "title": "Colts leaked 2026 NFLPA team report card has a lot more good marks than bad",
+      "source": "Stampede Blue",
+      "url": "https://www.stampedeblue.com/indianapolis-colts-news/121886/colts-leaked-2026-nflpa-team-report-card-has-many-more-good-marks-than-bad",
+      "description": "The Colts largely earned some fairly good marks, although they ranked around league average collectively.",
+      "published_at": "2026-02-27T03:37:10Z"
+    },
+    {
+      "title": "How war has made Ukrainian interiors \"bolder and more interesting\"",
+      "source": "Dezeen",
+      "url": "https://www.dezeen.com/2026/02/24/ukraine-war-interiors-feature/",
+      "description": "Homes, eateries and dance studios \u2013 despite four years of war and the constant threat of Russian bombardment, there's a flurry of small but striking interiors popping up in Ukraine. Jennifer Hahn inve",
+      "published_at": "2026-02-24T11:00:43Z"
+    },
+    {
+      "title": "11 best spring break destinations in the US",
+      "source": "The Points Guy",
+      "url": "https://thepointsguy.com/travel/best-spring-break-getaways-us/",
+      "description": "From whale watching in Monterey, California, to beach bliss in Hawaii and road-tripping Route 66, here are some of the best spring break destinations in the U.S. in 2026.",
+      "published_at": "2026-02-20T14:00:37Z"
+    },
+    {
+      "title": "Stanley bets on wellness as it navigates the highs and lows of virality",
+      "source": "Business Insider",
+      "url": "https://www.businessinsider.com/stanley-1913-bets-on-wellness-new-vitalize-tote-backpack-shaker-2026-2",
+      "description": "Stanley 1913 wants to expand beyond viral tumblers with the Vitalize collection, focusing on wellness and appealing to both male and female consumers.",
+      "published_at": "2026-02-17T10:45:01Z"
+    },
+    {
+      "title": "How long do pet groundhogs live?",
+      "source": "Lifesciencesworld.com",
+      "url": "https://www.lifesciencesworld.com/how-long-do-pet-groundhogs-live/",
+      "description": "How Long Do Pet Groundhogs Live?: Unveiling the Lifespan Secrets The answer to how long do pet groundhogs live? depends on several factors, but generally, they can live much longer in captivity than i",
+      "published_at": "2026-02-16T06:44:39Z"
+    },
+    {
+      "title": "Letter From Minnesota: Thirteen Ways of Looking at the Frontier, From an Immigrant in Minneapolis",
+      "source": "Lithub.com",
+      "url": "https://lithub.com/letter-from-minnesota-thirteen-ways-of-looking-at-the-frontier-from-an-immigrant-in-minneapolis/",
+      "description": "\u201cFor over a century, the frontier served as a powerful symbol of American universalism. It not only conveyed the idea that the country was moving forward but promised that the brutality involved in mo",
+      "published_at": "2026-02-13T09:59:15Z"
+    },
+    {
+      "title": "The Most Underrated Home Upgrades That Add Big Value",
+      "source": "Redfin.com",
+      "url": "https://www.redfin.com/blog/the-most-underrated-home-upgrades/",
+      "description": "When it comes to home improvements, many people immediately think of kitchen remodels, bathroom renovations, or adding a new deck. While these projects can certainly boost a home\u2019s appeal and value, s",
+      "published_at": "2026-02-11T18:26:10Z"
+    },
+    {
+      "title": "MLS kit rankings: All 30 new jerseys rated as America's soccer league prepares for Feb. 21 return to action",
+      "source": "CBS Sports",
+      "url": "https://www.cbssports.com/soccer/news/mls-kit-rankings-30-jerseys-americas-soccer-league-feb-21/",
+      "description": "Every team has either a new home or away kit released for the next two years. Which ones are the most eye-catching?",
+      "published_at": "2026-02-11T17:42:59Z"
+    },
+    {
+      "title": "MLS kit rankings: All 30 new jerseys rated as America's soccer league prepares for Feb. 21 return to action",
+      "source": "CBS Sports",
+      "url": "https://www.cbssports.com/soccer/news/mls-kit-rankings-all-30-new-jerseys-rated-as-americas-soccer-league-prepares-for-feb-21-return-to-action/",
+      "description": "Every team has either a new home or away kit released for the next two years. Which ones are the most eye-catching?",
+      "published_at": "2026-02-11T16:00:49Z"
+    },
+    {
+      "title": "Grass v artificial turf: Super Bowl players speak out",
+      "source": "Japan Today",
+      "url": "https://japantoday.com/category/sports/grass-v-artificial-turf-super-bowl-players-speak-out",
+      "description": "When the New England Patriots team flew to California last weekend to prepare for the Super Bowl, crews wasted no time ripping up the artificial turf in their stadium back home. That is because New En",
+      "published_at": "2026-02-07T20:45:14Z"
+    },
+    {
+      "title": "NYC socialists use Calif. playbook to form anti-ICE teams to monitor Home Depot, other workplaces",
+      "source": "New York Post",
+      "url": "https://nypost.com/2026/02/07/us-news/nyc-socialists-forming-anti-ice-tag-teams-to-infiltrate-home-depots-and-other-workplaces/",
+      "description": "NYC socialists are opening a new front in their fight to obstruct the feds, importing even more aggressive tactics from California anti-ICE activists, The Post has learned.",
+      "published_at": "2026-02-07T13:00:00Z"
+    },
+    {
+      "title": "Everything you ever wanted to know about the Super Bowl\u2019s confetti blizzard",
+      "source": "Ap.org",
+      "url": "https://newsroom.ap.org/detail/MeetthemanbehindtheSuperBowlsannualconfettiblizzard/7ada39848898523ba548f440b0caa5e1/text",
+      "description": "Noah Winter brags he\u2019s been to way more Super Bowls than Tom Brady.Brady competed in 10 \u2014 more than any other player. But Winter will be part of the Super Bowl spectacle for his 30th straight year thi",
+      "published_at": "2026-02-06T15:41:12Z"
+    }
+  ],
+  "backlink_prospects": [
+    {
+      "page_url": "https://thriveagency.com/san-diego-seo-company/",
+      "domain": "thriveagency.com",
+      "title": "San Diego SEO Company | Award Winning San Diego SEO Agency",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO agency\" \"San Diego\" resources",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://www.gobluemedia.com/",
+      "domain": "www.gobluemedia.com",
+      "title": "San Diego SEO Agency: #1 SEO Growth Firm | Blue Media",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO agency\" \"San Diego\" resources",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://www.designrush.com/agency/search-engine-optimization/california/san-diego",
+      "domain": "www.designrush.com",
+      "title": "SEO Agency Directory: Find a Top-Rated Agency in San Diego - Dec 2025 Rankings | DesignRush",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO agency\" \"San Diego\" resources",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://organixseoagency.com/",
+      "domain": "organixseoagency.com",
+      "title": "San Diego SEO | Industry Leading SEO Services | Organix SEO Agency",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO agency\" \"San Diego\" resources",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://clutch.co/seo-firms/san-diego",
+      "domain": "clutch.co",
+      "title": "Top SEO Companies in San Diego - Feb 2026 Rankings | Clutch.co",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO agency\" \"San Diego\" resources",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://helium-seo.com/san-diego-seo-agency/",
+      "domain": "helium-seo.com",
+      "title": "San Diego SEO Agency: Top Rated SEO Performance - Helium SEO",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO agency\" \"San Diego\" resources",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://ignitevisibility.com/san-diego-seo/",
+      "domain": "ignitevisibility.com",
+      "title": "#1 Ranked San Diego SEO Company | Ignite Visibility",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO agency\" \"San Diego\" resources",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://www.mayple.com/resources/digital-marketing/seo-agency-san-diego",
+      "domain": "www.mayple.com",
+      "title": "Top 5 SEO Agencies to Hire Near San Diego",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO agency\" \"San Diego\" resources",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://nerdalert.solutions/professional-seo-agency-san-diego/",
+      "domain": "nerdalert.solutions",
+      "title": "Surfing for Success: Top Professional SEO Agencies in San Diego - Nerdalert Solutions",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO agency\" \"San Diego\" resources",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://www.interodigital.com/san-diego-seo-company/",
+      "domain": "www.interodigital.com",
+      "title": "San Diego SEO Company | Award-Winning SEO Services",
+      "relevance_score": 4,
+      "context": "Found via: \"SEO agency\" \"San Diego\" resources",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://www.goodfirms.co/directory/city/top-digital-marketing-companies/san-diego",
+      "domain": "www.goodfirms.co",
+      "title": "Top Digital Marketing Companies in San Diego - 2026 Reviews | Goodfirms",
+      "relevance_score": 4,
+      "context": "Found via: \"digital marketing\" \"San Diego\" directory",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://www.2pointagency.com/locations/sandiego-digital-agency/",
+      "domain": "www.2pointagency.com",
+      "title": "Best Digital Marketing Agency in San Diego | 2POINT Agency",
+      "relevance_score": 4,
+      "context": "Found via: \"digital marketing\" \"San Diego\" directory",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://www.formulamarketingsd.com/",
+      "domain": "www.formulamarketingsd.com",
+      "title": "Home - Digital Marketing Agency | Website Marketing in San Diego",
+      "relevance_score": 4,
+      "context": "Found via: \"digital marketing\" \"San Diego\" directory",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://agencies.semrush.com/list/san-diego/",
+      "domain": "agencies.semrush.com",
+      "title": "Best Digital Marketing Agencies in San Diego 2026 | Semrush",
+      "relevance_score": 4,
+      "context": "Found via: \"digital marketing\" \"San Diego\" directory",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://ecosystem.hubspot.com/marketplace/solutions/san-diego-top-digital-agencies",
+      "domain": "ecosystem.hubspot.com",
+      "title": "Digital Marketing Agencies San Diego - Marketplace - HubSpot",
+      "relevance_score": 4,
+      "context": "Found via: \"digital marketing\" \"San Diego\" directory",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://inbeat.agency/blog/top-digital-marketing-agencies-san-diego",
+      "domain": "inbeat.agency",
+      "title": "Top 31 Digital Marketing Agencies in San Diego (Reviewed in January 2025) - inBeat Agency",
+      "relevance_score": 4,
+      "context": "Found via: \"digital marketing\" \"San Diego\" directory",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://www.semrush.com/agencies/list/san-diego/",
+      "domain": "www.semrush.com",
+      "title": "Best Digital Marketing Agencies in San Diego 2025",
+      "relevance_score": 4,
+      "context": "Found via: \"digital marketing\" \"San Diego\" directory",
+      "mentions_competitor": false
+    },
+    {
+      "page_url": "https://digitalagencynetwork.com/agencies/san-diego/",
+      "domain": "digitalagencynetwork.com",
+      "title": "Best Digital Marketing Agencies in San Diego | Digital Agency Network",
+      "relevance_score": 4,
+      "context": "Found via: \"digital marketing\" \"San Diego\" directory",
+      "mentions_competitor": false
+    }
+  ],
+  "broken_link_opportunities": [
+    {
+      "page_url": "https://nerdalert.solutions/professional-seo-agency-san-diego/",
+      "page_title": "Surfing for Success: Top Professional SEO Agencies in San Diego - Nerdalert Solutions",
+      "domain": "nerdalert.solutions",
+      "broken_url": "https://fonts.gstatic.com",
+      "relevance_score": 7,
+      "context": "Broken link found on nerdalert.solutions"
+    },
+    {
+      "page_url": "https://www.clearesult.com/contractor-resources",
+      "page_title": "Contractor Resources | CLEAResult",
+      "domain": "www.clearesult.com",
+      "broken_url": "https://translate.googleapis.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.clearesult.com"
+    },
+    {
+      "page_url": "https://www.copeland.com/en-us/training-support/contractor-resources",
+      "page_title": "Contractor Resources | Copeland US",
+      "domain": "www.copeland.com",
+      "broken_url": "https://www.gstatic.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.copeland.com"
+    },
+    {
+      "page_url": "https://phonestaffer.com/sites-like-angies-list/",
+      "page_title": "12 Top Sites Like Angie's List for Home Service Leads in 2025 - phonestaffer.com",
+      "domain": "phonestaffer.com",
+      "broken_url": "https://www.porch.com",
+      "relevance_score": 7,
+      "context": "Broken link found on phonestaffer.com"
+    },
+    {
+      "page_url": "https://www.servgrow.com/pro-websites",
+      "page_title": "The Top Home Service Websites: Key Features and Examples",
+      "domain": "www.servgrow.com",
+      "broken_url": "https://fonts.googleapis.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.servgrow.com"
+    },
+    {
+      "page_url": "https://www.servgrow.com/pro-websites",
+      "page_title": "The Top Home Service Websites: Key Features and Examples",
+      "domain": "www.servgrow.com",
+      "broken_url": "https://fonts.gstatic.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.servgrow.com"
+    },
+    {
+      "page_url": "https://www.brightlocal.com/",
+      "page_title": "BrightLocal - Local SEO Software, Citations, and Services",
+      "domain": "www.brightlocal.com",
+      "broken_url": "https://cdn.brightlocal.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.brightlocal.com"
+    },
+    {
+      "page_url": "https://www.brightlocal.com/",
+      "page_title": "BrightLocal - Local SEO Software, Citations, and Services",
+      "domain": "www.brightlocal.com",
+      "broken_url": "https://www.googletagmanager.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.brightlocal.com"
+    },
+    {
+      "page_url": "https://www.brightlocal.com/",
+      "page_title": "BrightLocal - Local SEO Software, Citations, and Services",
+      "domain": "www.brightlocal.com",
+      "broken_url": "https://fonts.googleapis.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.brightlocal.com"
+    },
+    {
+      "page_url": "https://www.brightlocal.com/",
+      "page_title": "BrightLocal - Local SEO Software, Citations, and Services",
+      "domain": "www.brightlocal.com",
+      "broken_url": "https://www.googleadservices.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.brightlocal.com"
+    },
+    {
+      "page_url": "https://www.semrush.com/features/local-seo-tools/",
+      "page_title": "Local SEO Tools for Business | Semrush",
+      "domain": "www.semrush.com",
+      "broken_url": "https://fonts.googleapis.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.semrush.com"
+    },
+    {
+      "page_url": "https://www.semrush.com/features/local-seo-tools/",
+      "page_title": "Local SEO Tools for Business | Semrush",
+      "domain": "www.semrush.com",
+      "broken_url": "https://fonts.gstatic.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.semrush.com"
+    },
+    {
+      "page_url": "https://www.semrush.com/features/local-seo-tools/",
+      "page_title": "Local SEO Tools for Business | Semrush",
+      "domain": "www.semrush.com",
+      "broken_url": "https://www.googletagmanager.com",
+      "relevance_score": 7,
+      "context": "Broken link found on www.semrush.com"
+    },
+    {
+      "page_url": "https://localo.com/",
+      "page_title": "Localo: Local SEO Tools for Faster Local Search Optimization",
+      "domain": "localo.com",
+      "broken_url": "https://fonts.googleapis.com",
+      "relevance_score": 7,
+      "context": "Broken link found on localo.com"
+    },
+    {
+      "page_url": "https://localo.com/",
+      "page_title": "Localo: Local SEO Tools for Faster Local Search Optimization",
+      "domain": "localo.com",
+      "broken_url": "https://fonts.gstatic.com",
+      "relevance_score": 7,
+      "context": "Broken link found on localo.com"
+    },
+    {
+      "page_url": "https://localo.com/",
+      "page_title": "Localo: Local SEO Tools for Faster Local Search Optimization",
+      "domain": "localo.com",
+      "broken_url": "https://www.googletagmanager.com",
+      "relevance_score": 7,
+      "context": "Broken link found on localo.com"
+    },
+    {
+      "page_url": "https://offers.hubspot.com/beginners-guide-to-digital-marketing",
+      "page_title": "Free Download: Digital Marketing For Small Business",
+      "domain": "offers.hubspot.com",
+      "broken_url": "https://api.hubspot.net",
+      "relevance_score": 7,
+      "context": "Broken link found on offers.hubspot.com"
+    },
+    {
+      "page_url": "https://offers.hubspot.com/beginners-guide-to-digital-marketing",
+      "page_title": "Free Download: Digital Marketing For Small Business",
+      "domain": "offers.hubspot.com",
+      "broken_url": "https://app.hubspot.net",
+      "relevance_score": 7,
+      "context": "Broken link found on offers.hubspot.com"
+    },
+    {
+      "page_url": "https://offers.hubspot.com/beginners-guide-to-digital-marketing",
+      "page_title": "Free Download: Digital Marketing For Small Business",
+      "domain": "offers.hubspot.com",
+      "broken_url": "https://www.googletagmanager.com",
+      "relevance_score": 7,
+      "context": "Broken link found on offers.hubspot.com"
+    }
+  ],
+  "brand_mentions": [],
+  "journalist_opportunities": [
+    {
+      "url": "https://www.youtube.com/watch?v=QqzJkv4ucko",
+      "title": "5 Small Business Ideas You NEED To Start In 2026 - YouTube",
+      "description": "\ud83d\udd34 ONE-TIME LIVE TRAINING TUESDAY: \ud83d\udc49 https://go.thecontentgrowthengine.com/live-02-28-2026\ud83d\ude80 Apply For 1:1 YouTube Coaching: \ud83d\udc49 https://go.thecontentgrowthe...",
+      "query": "#journorequest \"small business\"",
+      "topic": "small business",
+      "relevance_score": 5,
+      "context": "Journalist/contributor opportunity"
+    },
+    {
+      "url": "https://slate.com/advice/2026/03/small-business-advice-shop-bad-reviews.html",
+      "title": "Small business advice: A supposed \"ally\" did me wrong. Is my plan to ruin her life too much?",
+      "description": "After a few days of silence on their end, I disputed the (less than $25, but that\u2019s not the point) charge with my credit card company. One week later, I received an email from the business, where they",
+      "query": "#journorequest \"small business\"",
+      "topic": "small business",
+      "relevance_score": 5,
+      "context": "Journalist/contributor opportunity"
+    },
+    {
+      "url": "https://northeastnews.net/pages/local-and-statewide-small-business-resources-available-in-march/",
+      "title": "Local and Statewide Small Business Resources Available in March - Northeast News",
+      "description": "Through the Show Me Network, SEED Law will be offering legal technical assistance and monthly virtual business law workshops to entrepreneurs in Kansas City, Springfield, and to rural communities acro",
+      "query": "#journorequest \"small business\"",
+      "topic": "small business",
+      "relevance_score": 5,
+      "context": "Journalist/contributor opportunity"
+    },
+    {
+      "url": "https://patch.com/connecticut/fairfield/suspect-accused-1-million-small-business-loan-scam-fairfield-police",
+      "title": "Suspect Accused Of $1 Million Small Business Loan Scam In Fairfield: Police | Fairfield, CT Patch",
+      "description": "<strong>A Flushing, New York man is accused of using Zelle, Western Union, and bank wire transfers in the alleged scam</strong>, according to authorities.",
+      "query": "#journorequest \"small business\"",
+      "topic": "small business",
+      "relevance_score": 5,
+      "context": "Journalist/contributor opportunity"
+    }
+  ],
+  "aeo_crawler_check": {
+    "allowed": [
+      "GPTBot",
+      "ClaudeBot",
+      "PerplexityBot",
+      "Google-Extended",
+      "Bingbot"
+    ],
+    "blocked": [],
+    "no_robots": false,
+    "recommendations": []
+  },
+  "aeo_opportunities": [],
+  "newsjack_alerts": [
+    {
+      "type": "trend",
+      "query": "San Diego SEO Agency: #1 SEO Growth Firm",
+      "urgency_score": 5,
+      "reason": "Rising query contains key terms: diego, agency"
+    },
+    {
+      "type": "trend",
+      "query": "San Diego SEO Agency",
+      "urgency_score": 5,
+      "reason": "Rising query contains key terms: diego, agency"
+    },
+    {
+      "type": "trend",
+      "query": "Artificial Turf Cleaning Services in San Diego, CA",
+      "urgency_score": 5,
+      "reason": "Rising query contains key terms: diego, service"
+    },
+    {
+      "type": "trend",
+      "query": "Professional Artificial Turf Cleaning Services in San Diego Our eco",
+      "urgency_score": 5,
+      "reason": "Rising query contains key terms: diego, service"
+    }
+  ],
+  "fast_research_date": "2026-03-04"
 }

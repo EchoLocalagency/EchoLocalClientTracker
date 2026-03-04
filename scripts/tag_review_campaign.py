@@ -5,11 +5,14 @@ Cross-references each client's GHL past-customer contacts against their
 GBP reviews. Tags 25% of past customers who haven't left a review with
 the 'review campaign' tag in GHL.
 
-Usage:
-    python3 scripts/tag_review_campaign.py                  # runs all clients
-    python3 scripts/tag_review_campaign.py integrity-pro    # single client slug
+Coordinates with tag_db_reactivation.py via shared campaign_tag_log.json
+so no contact gets both campaigns in the same week.
 
-Run this monthly or whenever you want to drip a new batch into the review workflow.
+Usage:
+    python3 scripts/tag_review_campaign.py                       # runs all clients
+    python3 scripts/tag_review_campaign.py integrity-pro-washers  # single client slug
+
+Run weekly. 25% per run = full coverage in 4 weeks.
 Already-tagged contacts are skipped so you won't double-tag.
 """
 
@@ -27,6 +30,9 @@ from google.auth.transport.requests import Request
 load_dotenv()
 BASE_DIR = Path('/Users/brianegan/EchoLocalClientTracker')
 CLIENTS_FILE = BASE_DIR / 'clients.json'
+
+sys.path.insert(0, str(BASE_DIR / 'scripts'))
+from campaign_log import load_log, save_log, was_tagged_recently, record_tag, prune_old_entries
 
 GBP_ACCOUNT = 'accounts/104544307189514761238'
 REVIEW_TAG   = 'review campaign'
@@ -112,18 +118,19 @@ def name_match(contact, reviewer_names):
 
 # ── Main ────────────────────────────────────────────────────────────────
 
-def run_client(client, gbp_token):
+def run_client(client, gbp_token, log):
     name        = client['name']
+    slug        = client.get('slug', '')
     ghl_token   = client.get('ghl_token', '')
     location_id = client.get('ghl_location_id', '')
     gbp_location = client.get('gbp_location', '')
 
     if not ghl_token or not location_id or not gbp_location:
         print(f'  [{name}] Skipping -- missing ghl_token, ghl_location_id, or gbp_location')
-        return
+        return log
 
     print(f'\n{name}')
-    print('─' * 40)
+    print('-' * 40)
 
     contacts = get_all_contacts(ghl_token, location_id)
     past = [c for c in contacts if PAST_TAG in c.get('tags', [])]
@@ -136,39 +143,46 @@ def run_client(client, gbp_token):
         c for c in past
         if not name_match(c, reviewer_names)
         and REVIEW_TAG not in c.get('tags', [])
+        and not was_tagged_recently(c['id'], log)
     ]
-    print(f'  Eligible (no review, not yet tagged): {len(eligible)}')
+    print(f'  Eligible (no review, not yet tagged, not tagged this week): {len(eligible)}')
 
     if not eligible:
         print('  Nothing to tag.')
-        return
+        return log
 
-    target = math.ceil(len(eligible) * SAMPLE_PCT)
-    random.seed(42)
-    to_tag = random.sample(eligible, target)
-    print(f'  Tagging {target} ({int(SAMPLE_PCT*100)}%):')
+    target = max(1, math.ceil(len(eligible) * SAMPLE_PCT))
+    batch = random.sample(eligible, min(target, len(eligible)))
+    print(f'  Tagging {len(batch)} ({int(SAMPLE_PCT*100)}%):')
 
     ok = fail = 0
-    for c in to_tag:
+    for c in batch:
         if apply_tag(ghl_token, c):
             print(f'    Tagged: {c.get("contactName")}')
+            log = record_tag(c['id'], 'review', slug, log)
             ok += 1
         else:
             print(f'    FAILED: {c.get("contactName")}')
             fail += 1
 
     print(f'  Done: {ok} tagged, {fail} failed.')
+    return log
 
 def main():
     clients = json.loads(CLIENTS_FILE.read_text())
     slug_filter = sys.argv[1] if len(sys.argv) > 1 else None
 
     gbp_token = get_gbp_token()
+    log = load_log()
+    log = prune_old_entries(log)
 
     for client in clients:
         if slug_filter and client.get('slug') != slug_filter:
             continue
-        run_client(client, gbp_token)
+        log = run_client(client, gbp_token, log)
+
+    save_log(log)
+    print('\nCampaign log saved.')
 
 if __name__ == '__main__':
     main()
