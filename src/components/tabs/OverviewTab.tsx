@@ -82,6 +82,11 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
   const gbpWebsiteSeries = source.map((rep) => rep.gbp_website_clicks ?? 0);
   const hasGbp = source.some((rep) => (rep.gbp_total_impressions ?? 0) > 0);
 
+  // Use the most recent report that has actual GBP data (skip NULLs from failed pulls)
+  const gbpReport = [...source]
+    .sort((a, b) => b.run_date.localeCompare(a.run_date))
+    .find((rep) => (rep.gbp_total_impressions ?? 0) > 0) ?? r;
+
   const organicVelocity = calcVelocity(organicSeries);
   const impressionsVelocity = calcVelocity(impressionsSeries);
 
@@ -312,8 +317,8 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
         {hasGbp && (
           <StatCard
             label="GBP Impressions"
-            value={r.gbp_total_impressions}
-            previous={r.gbp_total_impressions_prev}
+            value={gbpReport.gbp_total_impressions}
+            previous={gbpReport.gbp_total_impressions_prev}
             baseline={firstReport?.gbp_total_impressions}
             baselineDate={baselineDate}
             sparklineData={gbpImpressionsSeries}
@@ -322,8 +327,8 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
         {hasGbp && (
           <StatCard
             label="GBP Call Clicks"
-            value={r.gbp_call_clicks}
-            previous={r.gbp_call_clicks_prev}
+            value={gbpReport.gbp_call_clicks}
+            previous={gbpReport.gbp_call_clicks_prev}
             baseline={firstReport?.gbp_call_clicks}
             baselineDate={baselineDate}
             sparklineData={gbpCallsSeries}
@@ -332,8 +337,8 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
         {hasGbp && (
           <StatCard
             label="GBP Website Clicks"
-            value={r.gbp_website_clicks}
-            previous={r.gbp_website_clicks_prev}
+            value={gbpReport.gbp_website_clicks}
+            previous={gbpReport.gbp_website_clicks_prev}
             baseline={firstReport?.gbp_website_clicks}
             baselineDate={baselineDate}
             sparklineData={gbpWebsiteSeries}
