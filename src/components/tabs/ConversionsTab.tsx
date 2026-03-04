@@ -1,6 +1,7 @@
 'use client';
 
 import { Report } from '@/lib/types';
+import { dailyRate } from '@/lib/utils';
 import StatCard from '@/components/StatCard';
 import {
   ResponsiveContainer,
@@ -31,9 +32,9 @@ export default function ConversionsTab({ reports, latestReport, hasFormTracking 
 
   const phoneData = sorted.map((r) => ({
     date: new Date(r.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    'Website Calls': r.ga4_phone_clicks ?? 0,
-    'GBP Calls': r.gbp_call_clicks ?? 0,
-    forms: r.ga4_form_submits ?? 0,
+    'Website Calls': dailyRate(r.ga4_phone_clicks, r.period_start, r.period_end),
+    'GBP Calls': dailyRate(r.gbp_call_clicks, r.period_start, r.period_end),
+    forms: dailyRate(r.ga4_form_submits, r.period_start, r.period_end),
   }));
 
   const latestTotal = totalCalls(latestReport);

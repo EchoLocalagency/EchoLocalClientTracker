@@ -1,3 +1,12 @@
+/** Normalize a count metric to a daily rate based on the report's period length. */
+export function dailyRate(value: number | null, periodStart: string, periodEnd: string): number {
+  if (!value) return 0;
+  const start = new Date(periodStart + 'T00:00:00');
+  const end = new Date(periodEnd + 'T00:00:00');
+  const days = Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000) + 1);
+  return Math.round(value / days);
+}
+
 export function calcDelta(current: number | null, previous: number | null): number | null {
   if (current == null || previous == null || previous === 0) return null;
   return ((current - previous) / previous) * 100;

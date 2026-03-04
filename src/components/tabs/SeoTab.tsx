@@ -1,6 +1,7 @@
 'use client';
 
 import { Report, GscQuery } from '@/lib/types';
+import { dailyRate } from '@/lib/utils';
 import {
   ResponsiveContainer,
   LineChart,
@@ -27,14 +28,14 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries }: 
 
   const impressionsData = reports.map((r) => ({
     date: new Date(r.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    impressions: r.gsc_impressions ?? 0,
-    clicks: r.gsc_clicks ?? 0,
+    impressions: dailyRate(r.gsc_impressions, r.period_start, r.period_end),
+    clicks: dailyRate(r.gsc_clicks, r.period_start, r.period_end),
   }));
 
   const organicData = reports.map((r) => ({
     date: new Date(r.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    organic: r.ga4_organic ?? 0,
-    total: r.ga4_sessions ?? 0,
+    organic: dailyRate(r.ga4_organic, r.period_start, r.period_end),
+    total: dailyRate(r.ga4_sessions, r.period_start, r.period_end),
   }));
 
   const positionData = reports.map((r) => ({

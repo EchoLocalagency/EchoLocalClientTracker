@@ -1,7 +1,7 @@
 'use client';
 
 import { Report } from '@/lib/types';
-import { parseMetricValue, calcHealthScore, calcVelocity } from '@/lib/utils';
+import { parseMetricValue, calcHealthScore, calcVelocity, dailyRate } from '@/lib/utils';
 import StatCard from '@/components/StatCard';
 import HealthScoreCard from '@/components/HealthScoreCard';
 import AlertBanner, { AlertItem } from '@/components/AlertBanner';
@@ -56,10 +56,10 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
     alerts.push({ severity: 'warning', message: `Organic sessions dropped ${Math.abs(organicDelta).toFixed(0)}%`, hint: 'Check for algorithm updates or indexing issues in GSC' });
   }
 
-  // Chart data
+  // Chart data (normalized to daily rates so old 14-day and new 1-day reports are comparable)
   const chartData = reports.map((rep) => ({
     date: new Date(rep.run_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    impressions: rep.gsc_impressions ?? 0,
+    impressions: dailyRate(rep.gsc_impressions, rep.period_start, rep.period_end),
     periodStart: rep.period_start,
     periodEnd: rep.period_end,
   }));
@@ -67,19 +67,19 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
   // GBP chart data
   const gbpChartData = reports.map((rep) => ({
     date: new Date(rep.run_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    impressions: rep.gbp_total_impressions ?? 0,
-    calls: rep.gbp_call_clicks ?? 0,
-    website: rep.gbp_website_clicks ?? 0,
+    impressions: dailyRate(rep.gbp_total_impressions, rep.period_start, rep.period_end),
+    calls: dailyRate(rep.gbp_call_clicks, rep.period_start, rep.period_end),
+    website: dailyRate(rep.gbp_website_clicks, rep.period_start, rep.period_end),
   }));
 
-  // Sparkline + velocity data from all reports
+  // Sparkline + velocity data from all reports (normalized to daily rates)
   const source = allReports && allReports.length > 0 ? allReports : reports;
-  const organicSeries = source.map((rep) => rep.ga4_organic ?? 0);
-  const impressionsSeries = source.map((rep) => rep.gsc_impressions ?? 0);
-  const phoneSeries = source.map((rep) => rep.ga4_phone_clicks ?? 0);
-  const gbpImpressionsSeries = source.map((rep) => rep.gbp_total_impressions ?? 0);
-  const gbpCallsSeries = source.map((rep) => rep.gbp_call_clicks ?? 0);
-  const gbpWebsiteSeries = source.map((rep) => rep.gbp_website_clicks ?? 0);
+  const organicSeries = source.map((rep) => dailyRate(rep.ga4_organic, rep.period_start, rep.period_end));
+  const impressionsSeries = source.map((rep) => dailyRate(rep.gsc_impressions, rep.period_start, rep.period_end));
+  const phoneSeries = source.map((rep) => dailyRate(rep.ga4_phone_clicks, rep.period_start, rep.period_end));
+  const gbpImpressionsSeries = source.map((rep) => dailyRate(rep.gbp_total_impressions, rep.period_start, rep.period_end));
+  const gbpCallsSeries = source.map((rep) => dailyRate(rep.gbp_call_clicks, rep.period_start, rep.period_end));
+  const gbpWebsiteSeries = source.map((rep) => dailyRate(rep.gbp_website_clicks, rep.period_start, rep.period_end));
   const hasGbp = source.some((rep) => (rep.gbp_total_impressions ?? 0) > 0);
 
   // Use the most recent report that has actual GBP data (skip NULLs from failed pulls)

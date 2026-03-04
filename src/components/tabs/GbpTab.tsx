@@ -1,6 +1,7 @@
 'use client';
 
 import { Report, GbpKeyword } from '@/lib/types';
+import { dailyRate } from '@/lib/utils';
 import StatCard from '@/components/StatCard';
 import {
   ResponsiveContainer,
@@ -48,17 +49,17 @@ export default function GbpTab({ reports, latestReport, gbpKeywords = [] }: GbpT
     .sort((a, b) => a.run_date.localeCompare(b.run_date))
     .map((r) => ({
       date: new Date(r.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      impressions: r.gbp_total_impressions ?? 0,
-      maps: r.gbp_maps_impressions ?? 0,
-      search: r.gbp_search_impressions ?? 0,
-      calls: r.gbp_call_clicks ?? 0,
-      website: r.gbp_website_clicks ?? 0,
+      impressions: dailyRate(r.gbp_total_impressions, r.period_start, r.period_end),
+      maps: dailyRate(r.gbp_maps_impressions, r.period_start, r.period_end),
+      search: dailyRate(r.gbp_search_impressions, r.period_start, r.period_end),
+      calls: dailyRate(r.gbp_call_clicks, r.period_start, r.period_end),
+      website: dailyRate(r.gbp_website_clicks, r.period_start, r.period_end),
     }));
 
   const sorted = [...reports].sort((a, b) => a.run_date.localeCompare(b.run_date));
-  const impressionsSpark = sorted.map((r) => r.gbp_total_impressions ?? 0);
-  const callsSpark = sorted.map((r) => r.gbp_call_clicks ?? 0);
-  const websiteSpark = sorted.map((r) => r.gbp_website_clicks ?? 0);
+  const impressionsSpark = sorted.map((r) => dailyRate(r.gbp_total_impressions, r.period_start, r.period_end));
+  const callsSpark = sorted.map((r) => dailyRate(r.gbp_call_clicks, r.period_start, r.period_end));
+  const websiteSpark = sorted.map((r) => dailyRate(r.gbp_website_clicks, r.period_start, r.period_end));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
