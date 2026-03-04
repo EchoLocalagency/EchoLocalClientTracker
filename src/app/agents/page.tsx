@@ -137,7 +137,26 @@ interface InstantlyStats {
   total_leads: number;
 }
 
-type DetailTab = 'overview' | 'history' | 'tasks' | 'config' | 'dashboard';
+interface LinkedInDraft {
+  filename: string;
+  date: string | null;
+  type: 'draft' | 'research';
+  pillar: string | null;
+  format: string | null;
+  status: string | null;
+  hook_type: string | null;
+  char_count: number;
+  post_body: string | null;
+  content: string;
+}
+
+interface LinkedInDraftsData {
+  total: number;
+  drafts: LinkedInDraft[];
+  research: LinkedInDraft[];
+}
+
+type DetailTab = 'overview' | 'history' | 'tasks' | 'config' | 'dashboard' | 'drafts';
 
 // ─── Main Component ─────────────────────────────────────────────────────────
 
@@ -151,6 +170,9 @@ export default function AgentsDashboard() {
   const [expandedRuns, setExpandedRuns] = useState<Set<string>>(new Set());
   const [instantlyStats, setInstantlyStats] = useState<InstantlyStats | null>(null);
   const [instantlyLoading, setInstantlyLoading] = useState(false);
+  const [linkedInDrafts, setLinkedInDrafts] = useState<LinkedInDraftsData | null>(null);
+  const [linkedInLoading, setLinkedInLoading] = useState(false);
+  const [expandedDraft, setExpandedDraft] = useState<string | null>(null);
 
   // Load data for selected agent
   const loadAgentData = useCallback(async (agentName: string) => {
@@ -180,6 +202,18 @@ export default function AgentsDashboard() {
       loadAgentData(selectedAgent.id);
     }
   }, [selectedAgent, loadAgentData]);
+
+  // Load LinkedIn drafts when drafts tab is active
+  useEffect(() => {
+    if (selectedAgent?.id === 'linkedin-poster' && activeTab === 'drafts') {
+      setLinkedInLoading(true);
+      fetch('/api/agents/linkedin-drafts')
+        .then((r) => r.json())
+        .then((data) => setLinkedInDrafts(data))
+        .catch(() => {})
+        .finally(() => setLinkedInLoading(false));
+    }
+  }, [selectedAgent, activeTab]);
 
   // Load Instantly stats when dashboard tab is active
   useEffect(() => {
@@ -319,7 +353,7 @@ export default function AgentsDashboard() {
             return (
               <button
                 key={agent.id}
-                onClick={() => { setSelectedAgent(agent); setActiveTab(agent.id === 'instantly-manager' ? 'dashboard' : 'overview'); }}
+                onClick={() => { setSelectedAgent(agent); setActiveTab(agent.id === 'instantly-manager' ? 'dashboard' : agent.id === 'linkedin-poster' ? 'drafts' : 'overview'); }}
                 style={{
                   background: 'var(--bg-surface)',
                   border: '1px solid var(--border)',
@@ -454,8 +488,10 @@ export default function AgentsDashboard() {
     : 0;
 
   const isInstantly = selectedAgent.id === 'instantly-manager';
+  const isLinkedIn = selectedAgent.id === 'linkedin-poster';
   const detailTabs: { id: DetailTab; label: string; count?: number }[] = [
     ...(isInstantly ? [{ id: 'dashboard' as DetailTab, label: 'Dashboard' }] : []),
+    ...(isLinkedIn ? [{ id: 'drafts' as DetailTab, label: 'Drafts', count: linkedInDrafts?.drafts.length }] : []),
     { id: 'overview', label: 'Overview' },
     { id: 'history', label: 'History', count: agentRuns.length },
     { id: 'tasks', label: 'Tasks', count: agentTasks.filter((t) => t.status !== 'completed').length },
@@ -557,6 +593,191 @@ export default function AgentsDashboard() {
 
       {/* Tab Content */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+
+        {/* ─── LinkedIn Drafts Tab ──────────────────────────────────────── */}
+        {activeTab === 'drafts' && isLinkedIn && (
+          <div style={{ flex: 1, overflow: 'auto', padding: '24px 32px' }}>
+            {linkedInLoading && !linkedInDrafts ? (
+              <div style={{ textAlign: 'center', padding: 60, color: 'var(--text-secondary)', fontSize: 13, fontFamily: 'var(--font-mono)' }}>
+                Loading drafts...
+              </div>
+            ) : linkedInDrafts && linkedInDrafts.drafts.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {linkedInDrafts.drafts.map((draft) => {
+                  const isExpanded = expandedDraft === draft.filename;
+                  const pillarColors: Record<string, string> = {
+                    'Education (System Explainer)': '#00B4D8',
+                    'Authority': '#9B5DE5',
+                    'Social Proof': '#00E676',
+                    'Personality': '#FF6B35',
+                  };
+                  const pillarColor = Object.entries(pillarColors).find(([k]) => draft.pillar?.includes(k))?.[1] || '#0A66C2';
+                  return (
+                    <div key={draft.filename} style={{
+                      background: 'var(--bg-surface)', border: '1px solid var(--border)',
+                      borderRadius: 10, overflow: 'hidden',
+                    }}>
+                      {/* Draft Header */}
+                      <button
+                        onClick={() => setExpandedDraft(isExpanded ? null : draft.filename)}
+                        style={{
+                          width: '100%', padding: '18px 20px', cursor: 'pointer',
+                          background: 'transparent', border: 'none', textAlign: 'left',
+                          display: 'flex', alignItems: 'center', gap: 14,
+                        }}
+                      >
+                        <div style={{
+                          width: 44, height: 44, borderRadius: 10,
+                          background: pillarColor + '15', border: `1px solid ${pillarColor}25`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 18, flexShrink: 0,
+                        }}>in</div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                            <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
+                              {draft.filename.replace(/^\d{8}-/, '').replace(/\.txt$/, '').replace(/-/g, ' ')}
+                            </span>
+                            {draft.status && (
+                              <span style={{
+                                fontSize: 9, fontFamily: 'var(--font-mono)', padding: '2px 8px', borderRadius: 4,
+                                background: draft.status.includes('DRAFT') ? 'rgba(232,255,0,0.12)' : 'rgba(0,230,118,0.12)',
+                                color: draft.status.includes('DRAFT') ? '#E8FF00' : '#00E676',
+                                textTransform: 'uppercase', fontWeight: 600,
+                              }}>{draft.status.includes('DRAFT') ? 'DRAFT' : 'POSTED'}</span>
+                            )}
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                            {draft.date && (
+                              <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
+                                {new Date(draft.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                              </span>
+                            )}
+                            {draft.pillar && (
+                              <span style={{
+                                fontSize: 9, fontFamily: 'var(--font-mono)', padding: '2px 6px', borderRadius: 4,
+                                background: pillarColor + '15', color: pillarColor,
+                              }}>{draft.pillar}</span>
+                            )}
+                            {draft.format && (
+                              <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
+                                {draft.format}
+                              </span>
+                            )}
+                            <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
+                              {draft.char_count.toLocaleString()} chars
+                            </span>
+                          </div>
+                        </div>
+                        <span style={{
+                          color: 'var(--text-secondary)', fontSize: 12,
+                          transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'none',
+                        }}>&#9654;</span>
+                      </button>
+
+                      {/* Expanded Content */}
+                      {isExpanded && (
+                        <div style={{ borderTop: '1px solid var(--border)' }}>
+                          {/* Post Preview */}
+                          {draft.post_body && (
+                            <div style={{ padding: '20px 20px 0' }}>
+                              <div style={{
+                                fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)',
+                                textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10,
+                              }}>Post Preview</div>
+                              <div style={{
+                                background: '#fff', borderRadius: 8, padding: '20px',
+                                color: '#000', fontSize: 14, lineHeight: 1.6,
+                                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                whiteSpace: 'pre-wrap', maxHeight: 500, overflow: 'auto',
+                                border: '1px solid #e0e0e0',
+                              }}>
+                                {draft.post_body}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Full Raw Content */}
+                          <div style={{ padding: '16px 20px 20px' }}>
+                            <div style={{
+                              fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)',
+                              textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10,
+                            }}>Full Draft with Metadata</div>
+                            <pre style={{
+                              fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)',
+                              whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.6,
+                              maxHeight: 400, overflow: 'auto', margin: 0,
+                              background: 'var(--bg-depth)', padding: 14, borderRadius: 6,
+                            }}>{draft.content}</pre>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {/* Research Section */}
+                {linkedInDrafts.research.length > 0 && (
+                  <>
+                    <div style={{
+                      fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)',
+                      textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 8,
+                    }}>Research Notes</div>
+                    {linkedInDrafts.research.map((r) => {
+                      const isExpanded = expandedDraft === r.filename;
+                      return (
+                        <div key={r.filename} style={{
+                          background: 'var(--bg-surface)', border: '1px solid var(--border)',
+                          borderRadius: 10, overflow: 'hidden',
+                        }}>
+                          <button
+                            onClick={() => setExpandedDraft(isExpanded ? null : r.filename)}
+                            style={{
+                              width: '100%', padding: '14px 20px', cursor: 'pointer',
+                              background: 'transparent', border: 'none', textAlign: 'left',
+                              display: 'flex', alignItems: 'center', gap: 12,
+                            }}
+                          >
+                            <div style={{
+                              width: 8, height: 8, borderRadius: '50%', background: '#8A8F98', flexShrink: 0,
+                            }} />
+                            <div style={{ flex: 1 }}>
+                              <span style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>
+                                {r.filename}
+                              </span>
+                            </div>
+                            {r.date && (
+                              <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
+                                {new Date(r.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              </span>
+                            )}
+                            <span style={{
+                              color: 'var(--text-secondary)', fontSize: 12,
+                              transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'none',
+                            }}>&#9654;</span>
+                          </button>
+                          {isExpanded && (
+                            <div style={{ padding: '0 20px 16px', borderTop: '1px solid var(--border)' }}>
+                              <pre style={{
+                                fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)',
+                                whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.6,
+                                maxHeight: 500, overflow: 'auto', margin: '12px 0 0',
+                                background: 'var(--bg-depth)', padding: 14, borderRadius: 6,
+                              }}>{r.content}</pre>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: 60, color: 'var(--text-secondary)', fontSize: 13 }}>
+                No drafts yet. The LinkedIn Poster runs Mon/Wed/Fri at 7 AM.
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ─── Instantly Dashboard Tab ─────────────────────────────────── */}
         {activeTab === 'dashboard' && isInstantly && (
