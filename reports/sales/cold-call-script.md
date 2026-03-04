@@ -56,6 +56,30 @@ The whole thing runs on its own. You don't have to do anything. And right now I'
 
 ---
 
+## Gatekeeper
+
+**The goal is NOT to pitch the gatekeeper. The goal is to get to the owner or get them to pass along a message. Be friendly, be brief, be a kid who needs help.**
+
+### Standard gatekeeper:
+"Hey, is [OWNER NAME] around? ... Oh no worries. My name's Brian, I'm a local college student at Cal State San Marcos. I'm working on a project that helps [TRADE] businesses get more jobs from Google and I'm looking for one company in [AREA] to test it with for free. Would you be able to leave him a note to give me a call back? My number is [PHONE]. I'd really appreciate it."
+
+### If they ask what it's about:
+"I'm a student and I built a system that helps businesses show up more on Google. I'm not selling anything -- I'm actually looking for a business to try it out on for free so I can use it as a case study for school. I just need a couple minutes with [OWNER NAME] to see if it'd be a fit."
+
+### If they say "just email him":
+"For sure, what's his email? I'll keep it short. And what was your name? I appreciate the help."
+
+### If they're warm and chatty:
+Don't pitch them. But do ask: "How long have you guys been in business?" or "Are you guys pretty busy right now?" Whatever they say, you can reference it when you talk to the owner. "Yeah, I spoke with [GATEKEEPER NAME] and she mentioned you've been around for 12 years -- that's awesome."
+
+**Key rules for gatekeepers:**
+- Never say "marketing," "SEO," or "advertising." Those words get you screened out instantly.
+- Use their name if you catch it. People let their guard down when you use their name.
+- "Leave him a note" is better than "have him call me back." A note feels smaller.
+- If you can't get through, call back at 7am or 5pm when the owner is more likely to answer directly.
+
+---
+
 ## Closing
 
 ### If they're warm:

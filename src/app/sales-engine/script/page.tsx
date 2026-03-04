@@ -45,6 +45,15 @@ const OBJECTIONS = [
   { id: 14, title: "Don't trust AI / automation", icon: 'M12 9v2m0 4h.01M3.46 6.95l1.06 1.06M2 12h1.5M3.46 17.05l1.06-1.06M20.54 6.95l-1.06 1.06M22 12h-1.5M20.54 17.05l-1.06-1.06M12 2v1.5M12 20.5V22M8 12a4 4 0 1 1 8 0 4 4 0 0 1-8 0z', content: `"I hear you, and honestly? I'm with you on that. Most AI stuff out there sounds like a robot wrote it and you can spot it a mile away. That's not what this is. Nothing goes live without matching your voice and your business. The system handles the heavy lifting -- the scheduling, the optimization, the data tracking -- but the content is built around your real jobs, your real photos, your real service areas. It's not generic AI garbage.\n\nThink of it like having a marketing assistant who works 24/7 but everything still sounds like you. And if there's ever a post or a page you don't like, we kill it. You have full control. The automation is the engine, but you're still driving."` },
 ];
 
+const GATEKEEPER = [
+  { id: 16, title: 'Standard', icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z', content: `"Hey, is [OWNER NAME] around? ... Oh no worries. My name's Brian, I'm a local college student at Cal State San Marcos. I'm working on a project that helps [TRADE] businesses get more jobs from Google and I'm looking for one company in [AREA] to test it with for free. Would you be able to leave him a note to give me a call back? My number is [PHONE]. I'd really appreciate it."` },
+  { id: 17, title: 'What\'s it about?', icon: 'M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z', content: `"I'm a student and I built a system that helps businesses show up more on Google. I'm not selling anything -- I'm actually looking for a business to try it out on for free so I can use it as a case study for school. I just need a couple minutes with [OWNER NAME] to see if it'd be a fit."` },
+  { id: 18, title: 'Just email him', icon: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6', content: `"For sure, what's his email? I'll keep it short. And what was your name? I appreciate the help."` },
+  { id: 19, title: 'Chatty gatekeeper', icon: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', content: `Don't pitch them. But ask: "How long have you guys been in business?" or "Are you guys pretty busy right now?" Whatever they say, reference it when you talk to the owner later: "Yeah, I spoke with [GATEKEEPER NAME] and she mentioned you've been around for 12 years -- that's awesome."
+
+Never say "marketing," "SEO," or "advertising" to a gatekeeper -- those words get you screened out instantly. Use their name if you catch it. "Leave him a note" is better than "have him call me back" -- a note feels smaller. If you can't get through, call back at 7am or 5pm when the owner answers directly.` },
+];
+
 const CLOSING = [
   { id: 10, title: 'Warm Close', icon: 'M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z', content: `"Cool, so what I'll do is put together a quick breakdown of your online presence right now -- where you're showing up, where you're not, and what the system would do in the first 30 days. Can we hop on a quick call [TOMORROW/THURSDAY/FRIDAY] so I can walk you through it? Takes about 10 minutes."` },
   { id: 11, title: 'Email Close', icon: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', content: `"No problem. I'll send that over today. What's the best email? And is [THEIR NAME] the best person to talk to about this?"` },
@@ -200,6 +209,14 @@ export default function ScriptPage() {
           <SectionLabel label="Objections" />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
             {OBJECTIONS.map(item => (
+              <Card key={item.id} item={item} isOpen={openId === item.id} onToggle={() => toggle(item.id)} />
+            ))}
+          </div>
+
+          {/* GATEKEEPER */}
+          <SectionLabel label="Gatekeeper" />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+            {GATEKEEPER.map(item => (
               <Card key={item.id} item={item} isOpen={openId === item.id} onToggle={() => toggle(item.id)} />
             ))}
           </div>
