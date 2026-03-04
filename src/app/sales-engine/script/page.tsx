@@ -17,6 +17,14 @@ If they say "not interested": "No worries at all. Just out of curiosity, are you
 If they say "no, we're booked": "That's a great problem to have. Most guys I talk to in that spot want to start picking and choosing the higher paying jobs. That's what more visibility gets you."`,
   },
   {
+    id: 15,
+    title: 'Voicemail',
+    icon: 'M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z',
+    content: `"Hey [NAME], it's Brian. I'm a student at Cal State San Marcos -- I built a system that gets [TRADE] companies more jobs from Google without running any ads. I'm looking for one business in [AREA] to test it out with for free. If you're open to it, shoot me a text back at [PHONE]. Again, it's Brian, [PHONE]. Thanks man."
+
+Keep it under 20 seconds. No pitch, no details, no pressure. Just enough curiosity to get a callback. "One business in [AREA]" creates scarcity. "Shoot me a text" is lower friction than calling back. Always repeat the number.`,
+  },
+  {
     id: 2,
     title: 'The Pitch',
     icon: 'M13 2L3 14h9l-1 10 10-12h-9l1-10',
@@ -184,7 +192,7 @@ export default function ScriptPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '10px 14px' }}>
           {/* OPENING */}
           <SectionLabel label="Opening" />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
             {OPENING.map(item => (
               <Card key={item.id} item={item} isOpen={openId === item.id} onToggle={() => toggle(item.id)} big />
             ))}

@@ -21,6 +21,18 @@ The whole thing runs on its own. You don't have to do anything. And right now I'
 
 ---
 
+## Voicemail (keep it under 20 seconds)
+
+"Hey [NAME], it's Brian. I'm a student at Cal State San Marcos -- I built a system that gets [TRADE] companies more jobs from Google without running any ads. I'm looking for one business in [AREA] to test it out with for free. If you're open to it, shoot me a text back at [PHONE]. Again, it's Brian, [PHONE]. Thanks man."
+
+**Why it works:**
+- No pitch, no details, no pressure. Just enough curiosity to get a callback.
+- "One business in [AREA]" creates scarcity and locality.
+- "Shoot me a text" is lower friction than calling back.
+- Repeat the number. They're not writing it down the first time.
+
+---
+
 ## Handling Objections
 
 ### "What's the catch?"
