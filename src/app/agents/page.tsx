@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import AgentChat from '@/components/AgentChat';
 
 // ─── Agent Configs ──────────────────────────────────────────────────────────
 
@@ -138,7 +137,7 @@ interface InstantlyStats {
   total_leads: number;
 }
 
-type DetailTab = 'chat' | 'overview' | 'history' | 'tasks' | 'config' | 'dashboard';
+type DetailTab = 'overview' | 'history' | 'tasks' | 'config' | 'dashboard';
 
 // ─── Main Component ─────────────────────────────────────────────────────────
 
@@ -320,7 +319,7 @@ export default function AgentsDashboard() {
             return (
               <button
                 key={agent.id}
-                onClick={() => { setSelectedAgent(agent); setActiveTab('chat'); }}
+                onClick={() => { setSelectedAgent(agent); setActiveTab(agent.id === 'instantly-manager' ? 'dashboard' : 'overview'); }}
                 style={{
                   background: 'var(--bg-surface)',
                   border: '1px solid var(--border)',
@@ -456,7 +455,6 @@ export default function AgentsDashboard() {
 
   const isInstantly = selectedAgent.id === 'instantly-manager';
   const detailTabs: { id: DetailTab; label: string; count?: number }[] = [
-    { id: 'chat', label: 'Chat' },
     ...(isInstantly ? [{ id: 'dashboard' as DetailTab, label: 'Dashboard' }] : []),
     { id: 'overview', label: 'Overview' },
     { id: 'history', label: 'History', count: agentRuns.length },
@@ -559,11 +557,6 @@ export default function AgentsDashboard() {
 
       {/* Tab Content */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-
-        {/* ─── Chat Tab ────────────────────────────────────────────────── */}
-        {activeTab === 'chat' && (
-          <AgentChat agent={selectedAgent} />
-        )}
 
         {/* ─── Instantly Dashboard Tab ─────────────────────────────────── */}
         {activeTab === 'dashboard' && isInstantly && (
