@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Client, Report, GscQuery, GbpKeyword, SeoAction, SeoBrainDecision, TabId, TimeRange } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 import { useFilteredReports } from '@/hooks/useFilteredReports';
@@ -185,7 +186,7 @@ export default function Dashboard() {
     loadBrainDecisions();
   }, [activeClient]);
 
-  const hasFormTracking = activeClient?.slug === 'integrity-pro-washers';
+  const hasFormTracking = reports.some(r => r.ga4_form_submits != null && r.ga4_form_submits > 0);
   const sidebarWidth = sidebarCollapsed ? 68 : 260;
 
   if (!activeClient) {
@@ -204,6 +205,7 @@ export default function Dashboard() {
         onSelectClient={(c) => { setActiveClient(c); setActiveTab('overview'); }}
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        onSignOut={async () => { await supabase.auth.signOut(); window.location.href = '/login'; }}
       />
 
       <main style={{ flex: 1, marginLeft: sidebarWidth, transition: 'margin-left 0.2s ease' }}>

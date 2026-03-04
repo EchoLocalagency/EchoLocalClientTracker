@@ -58,7 +58,7 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
 
   // Chart data (normalized to daily rates so old 14-day and new 1-day reports are comparable)
   const chartData = reports.map((rep) => ({
-    date: new Date(rep.run_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    date: new Date(rep.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     impressions: dailyRate(rep.gsc_impressions, rep.period_start, rep.period_end),
     periodStart: rep.period_start,
     periodEnd: rep.period_end,
@@ -66,7 +66,7 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
 
   // GBP chart data
   const gbpChartData = reports.map((rep) => ({
-    date: new Date(rep.run_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    date: new Date(rep.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     impressions: dailyRate(rep.gbp_total_impressions, rep.period_start, rep.period_end),
     calls: dailyRate(rep.gbp_call_clicks, rep.period_start, rep.period_end),
     website: dailyRate(rep.gbp_website_clicks, rep.period_start, rep.period_end),

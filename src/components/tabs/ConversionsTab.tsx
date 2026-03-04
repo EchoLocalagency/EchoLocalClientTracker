@@ -25,7 +25,7 @@ export default function ConversionsTab({ reports, latestReport, hasFormTracking 
     return <div style={{ color: 'var(--text-secondary)', padding: 40, textAlign: 'center' }}>No data yet.</div>;
   }
 
-  const sorted = reports.sort((a, b) => a.run_date.localeCompare(b.run_date));
+  const sorted = [...reports].sort((a, b) => a.run_date.localeCompare(b.run_date));
 
   const totalCalls = (r: Report) => (r.ga4_phone_clicks ?? 0) + (r.gbp_call_clicks ?? 0);
   const totalCallsPrev = (r: Report) => (r.ga4_phone_clicks_prev ?? 0) + (r.gbp_call_clicks_prev ?? 0);

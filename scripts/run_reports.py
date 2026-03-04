@@ -311,7 +311,7 @@ def pull_gbp(creds, location_id, start, end):
         total = 0
         for dv in result.get("timeSeries", {}).get("datedValues", []):
             val = dv.get("value")
-            if val:
+            if val is not None:
                 total += int(val)
         totals[metric] = total
 
@@ -449,6 +449,7 @@ def run_report(client, creds, today):
         "prev_start": str(prev_start),
         "prev_end": str(prev_end),
         "primary_market": primary_market,
+        "error_flags": [],  # Track which data sources failed
     }
     if primary_market:
         print(f"  Primary Market: {primary_market}")
@@ -477,6 +478,7 @@ def run_report(client, creds, today):
         print(f"    Phone clicks: {ga4_current['phone_clicks']} | Form submits: {ga4_current['form_submits']}")
     except Exception as e:
         print(f"    GA4 ERROR (all retries failed): {e}")
+        report["error_flags"].append("ga4_failed")
         report["ga4"] = {"sessions": 0, "sessions_prev": 0, "organic": 0, "organic_prev": 0,
                          "phone_clicks": 0, "phone_clicks_prev": 0, "form_submits": 0, "form_submits_prev": 0}
 
@@ -528,6 +530,7 @@ def run_report(client, creds, today):
             report["target_keyword_rankings"] = []
     except Exception as e:
         print(f"    GSC ERROR (all retries failed): {e}")
+        report["error_flags"].append("gsc_failed")
         report["gsc"] = {"impressions": 0, "impressions_prev": 0, "clicks": 0, "clicks_prev": 0,
                          "avg_position": 0, "avg_position_prev": 0, "top_queries": []}
 
@@ -549,6 +552,7 @@ def run_report(client, creds, today):
         print(f"    LCP (mobile): {psi['mobile']['lcp']} | CLS: {psi['mobile']['cls']}")
     except Exception as e:
         print(f"    PageSpeed ERROR: {e}")
+        report["error_flags"].append("psi_failed")
         report["pagespeed"] = {"mobile_score": 0, "desktop_score": 0, "lcp_mobile": "", "lcp_desktop": "",
                                "cls_mobile": "", "cls_desktop": "", "tbt_mobile": "", "tbt_desktop": ""}
 
@@ -574,6 +578,7 @@ def run_report(client, creds, today):
             print(f"    Form submits: {ghl_current} (last week: {ghl_prev})")
         except Exception as e:
             print(f"    GHL ERROR (all retries failed): {e}")
+            report["error_flags"].append("ghl_failed")
             report["ghl_form_submits"] = 0
             report["ghl_form_submits_prev"] = 0
 
@@ -612,6 +617,7 @@ def run_report(client, creds, today):
                 print(f"    GBP ERROR: {e}")
         if not gbp_success:
             print(f"    GBP: All retries failed — skipping (previous data preserved)")
+            report["error_flags"].append("gbp_failed")
             # Don't write zeros — leave gbp out of report so Supabase keeps previous values
 
         # GBP Search Keywords (monthly granularity)
@@ -722,6 +728,7 @@ def push_to_supabase(report):
         "psi_cls_desktop": ps["cls_desktop"],
         "psi_tbt_mobile": ps["tbt_mobile"],
         "psi_tbt_desktop": ps["tbt_desktop"],
+        "error_flags": report.get("error_flags", []),
     }
 
     gbp = report.get("gbp")
@@ -750,11 +757,9 @@ def push_to_supabase(report):
         report_id = resp.data[0]["id"]
         print(f"  Supabase: report upserted (id: {report_id})")
 
-        # Delete old queries for this report, then insert fresh
-        sb.table("gsc_queries").delete().eq("report_id", report_id).execute()
-
-        # Insert top queries
+        # Only replace queries if we have new data (avoids wiping on API failure)
         if gsc["top_queries"]:
+            sb.table("gsc_queries").delete().eq("report_id", report_id).execute()
             query_rows = [
                 {
                     "report_id": report_id,
@@ -770,11 +775,10 @@ def push_to_supabase(report):
             sb.table("gsc_queries").insert(query_rows).execute()
             print(f"  Supabase: {len(query_rows)} queries inserted")
 
-        # Delete old GBP keywords for this report, then insert fresh
-        sb.table("gbp_keywords").delete().eq("report_id", report_id).execute()
-
+        # Only replace GBP keywords if we have new data (avoids wiping on API failure)
         gbp_keywords = report.get("gbp_keywords", [])
         if gbp_keywords:
+            sb.table("gbp_keywords").delete().eq("report_id", report_id).execute()
             kw_rows = [
                 {
                     "report_id": report_id,
