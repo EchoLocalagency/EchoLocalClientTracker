@@ -13,6 +13,7 @@ warnings.filterwarnings("ignore")
 import json
 import os
 import sys
+import time
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -27,6 +28,21 @@ from google.analytics.data_v1beta.types import (
 )
 from googleapiclient.discovery import build
 from supabase import create_client
+
+# ── Retry Helper ────────────────────────────────────────────────────────
+
+def _retry(fn, label, retries=2, backoff=3):
+    """Call fn() with exponential backoff retries. Returns fn() result or raises."""
+    for attempt in range(1, retries + 2):
+        try:
+            return fn()
+        except Exception as e:
+            if attempt <= retries:
+                wait = backoff * (2 ** (attempt - 1))
+                print(f"    {label} attempt {attempt} failed: {e} -- retrying in {wait}s")
+                time.sleep(wait)
+            else:
+                raise
 
 # ── Config ──────────────────────────────────────────────────────────────
 
@@ -223,16 +239,28 @@ def pull_gsc_target_keywords(creds, site_url, target_kws, start, end):
 
 # ── PageSpeed ───────────────────────────────────────────────────────────
 
-def pull_pagespeed(url):
+def pull_pagespeed(url, retries=2, backoff=10):
     results = {}
     for strategy in ["mobile", "desktop"]:
         api_url = (
             f"https://www.googleapis.com/pagespeedonline/v5/runPagespeed"
             f"?url={url}&strategy={strategy}&key={PSI_KEY}"
         )
-        req = urllib.request.Request(api_url)
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            data = json.loads(resp.read())
+        last_err = None
+        for attempt in range(1, retries + 2):
+            try:
+                req = urllib.request.Request(api_url)
+                with urllib.request.urlopen(req, timeout=60) as resp:
+                    data = json.loads(resp.read())
+                last_err = None
+                break
+            except Exception as e:
+                last_err = e
+                if attempt <= retries:
+                    print(f"    PSI {strategy} attempt {attempt} failed: {e} -- retrying in {backoff}s")
+                    time.sleep(backoff)
+        if last_err:
+            raise last_err
 
         lh = data.get("lighthouseResult", {})
         cats = lh.get("categories", {})
@@ -348,7 +376,7 @@ def pull_ghl_forms(ghl_token, location_id, form_name, start, end):
     # Get forms list to find the form ID
     forms_resp = requests.get(
         f"https://services.leadconnectorhq.com/forms/?locationId={location_id}",
-        headers=headers, timeout=15,
+        headers=headers, timeout=30,
     )
     if forms_resp.status_code == 401:
         raise Exception(f"GHL TOKEN EXPIRED or INVALID for location {location_id} -- regenerate in GHL dashboard and update clients.json")
@@ -373,7 +401,7 @@ def pull_ghl_forms(ghl_token, location_id, form_name, start, end):
             f"https://services.leadconnectorhq.com/forms/submissions"
             f"?locationId={location_id}&formId={form_id}&page={page}&limit=100"
             f"&startAt={start}T00:00:00Z&endAt={end}T23:59:59Z",
-            headers=headers, timeout=15,
+            headers=headers, timeout=30,
         )
         if subs_resp.status_code != 200:
             break
@@ -401,12 +429,15 @@ def run_report(client, creds, today):
     print(f"  {name}")
     print(f"{'='*60}")
 
-    # Date ranges: current 14 days + previous 14 days
-    # GSC lags ~3 days, so end at today-3
-    period_end = today - timedelta(days=3)
-    period_start = period_end - timedelta(days=13)
-    prev_end = period_start - timedelta(days=1)
-    prev_start = prev_end - timedelta(days=13)
+    # Daily data: pull just one day (3 days ago for GSC lag)
+    report_date = today - timedelta(days=3)
+    period_start = report_date
+    period_end = report_date
+
+    # Compare to same day last week
+    prev_date = report_date - timedelta(days=7)
+    prev_start = prev_date
+    prev_end = prev_date
 
     primary_market = client.get("primary_market", "")
     report = {
@@ -425,8 +456,12 @@ def run_report(client, creds, today):
     # ── GA4 ──
     print(f"  Pulling GA4...")
     try:
-        ga4_current = pull_ga4(creds, client["ga4_property"], period_start, period_end)
-        ga4_prev = pull_ga4(creds, client["ga4_property"], prev_start, prev_end)
+        ga4_current = _retry(
+            lambda: pull_ga4(creds, client["ga4_property"], period_start, period_end),
+            "GA4", retries=2, backoff=5)
+        ga4_prev = _retry(
+            lambda: pull_ga4(creds, client["ga4_property"], prev_start, prev_end),
+            "GA4-prev", retries=2, backoff=5)
         report["ga4"] = {
             "sessions": ga4_current["sessions"],
             "sessions_prev": ga4_prev["sessions"],
@@ -437,19 +472,23 @@ def run_report(client, creds, today):
             "form_submits": ga4_current["form_submits"],
             "form_submits_prev": ga4_prev["form_submits"],
         }
-        print(f"    Sessions: {ga4_current['sessions']} (prev: {ga4_prev['sessions']})")
-        print(f"    Organic:  {ga4_current['organic']} (prev: {ga4_prev['organic']})")
+        print(f"    Sessions: {ga4_current['sessions']} (last week: {ga4_prev['sessions']})")
+        print(f"    Organic:  {ga4_current['organic']} (last week: {ga4_prev['organic']})")
         print(f"    Phone clicks: {ga4_current['phone_clicks']} | Form submits: {ga4_current['form_submits']}")
     except Exception as e:
-        print(f"    GA4 ERROR: {e}")
+        print(f"    GA4 ERROR (all retries failed): {e}")
         report["ga4"] = {"sessions": 0, "sessions_prev": 0, "organic": 0, "organic_prev": 0,
                          "phone_clicks": 0, "phone_clicks_prev": 0, "form_submits": 0, "form_submits_prev": 0}
 
     # ── GSC ──
     print(f"  Pulling GSC...")
     try:
-        gsc_current = pull_gsc(creds, client["gsc_url"], period_start, period_end)
-        gsc_prev = pull_gsc(creds, client["gsc_url"], prev_start, prev_end)
+        gsc_current = _retry(
+            lambda: pull_gsc(creds, client["gsc_url"], period_start, period_end),
+            "GSC", retries=2, backoff=5)
+        gsc_prev = _retry(
+            lambda: pull_gsc(creds, client["gsc_url"], prev_start, prev_end),
+            "GSC-prev", retries=2, backoff=5)
         report["gsc"] = {
             "impressions": gsc_current["impressions"],
             "impressions_prev": gsc_prev["impressions"],
@@ -459,9 +498,9 @@ def run_report(client, creds, today):
             "avg_position_prev": gsc_prev["avg_position"],
             "top_queries": gsc_current["top_queries"],
         }
-        print(f"    Impressions: {gsc_current['impressions']} (prev: {gsc_prev['impressions']})")
-        print(f"    Clicks: {gsc_current['clicks']} (prev: {gsc_prev['clicks']})")
-        print(f"    Avg Position: {gsc_current['avg_position']} (prev: {gsc_prev['avg_position']})")
+        print(f"    Impressions: {gsc_current['impressions']} (last week: {gsc_prev['impressions']})")
+        print(f"    Clicks: {gsc_current['clicks']} (last week: {gsc_prev['clicks']})")
+        print(f"    Avg Position: {gsc_current['avg_position']} (last week: {gsc_prev['avg_position']})")
         print(f"    Top queries: {len(gsc_current['top_queries'])}")
 
         # Dedicated target keyword tracking
@@ -469,8 +508,10 @@ def run_report(client, creds, today):
         if target_kws:
             print(f"  Pulling target keyword rankings ({len(target_kws)} keywords)...")
             try:
-                target_rankings = pull_gsc_target_keywords(
-                    creds, client["gsc_url"], target_kws, period_start, period_end)
+                target_rankings = _retry(
+                    lambda: pull_gsc_target_keywords(
+                        creds, client["gsc_url"], target_kws, period_start, period_end),
+                    "Target keywords", retries=2, backoff=5)
                 report["target_keyword_rankings"] = target_rankings
                 ranking = [r for r in target_rankings if r["status"] == "ranking"]
                 not_ranking = [r for r in target_rankings if r["status"] == "not ranking"]
@@ -486,7 +527,7 @@ def run_report(client, creds, today):
         else:
             report["target_keyword_rankings"] = []
     except Exception as e:
-        print(f"    GSC ERROR: {e}")
+        print(f"    GSC ERROR (all retries failed): {e}")
         report["gsc"] = {"impressions": 0, "impressions_prev": 0, "clicks": 0, "clicks_prev": 0,
                          "avg_position": 0, "avg_position_prev": 0, "top_queries": []}
 
@@ -515,59 +556,70 @@ def run_report(client, creds, today):
     if client.get("ghl_token"):
         print(f"  Pulling GHL form submissions...")
         try:
-            ghl_current = pull_ghl_forms(
-                client["ghl_token"], client["ghl_location_id"],
-                client["ghl_form_name"], period_start, period_end)
-            ghl_prev = pull_ghl_forms(
-                client["ghl_token"], client["ghl_location_id"],
-                client["ghl_form_name"], prev_start, prev_end)
+            ghl_current = _retry(
+                lambda: pull_ghl_forms(
+                    client["ghl_token"], client["ghl_location_id"],
+                    client["ghl_form_name"], period_start, period_end),
+                "GHL", retries=2, backoff=5)
+            ghl_prev = _retry(
+                lambda: pull_ghl_forms(
+                    client["ghl_token"], client["ghl_location_id"],
+                    client["ghl_form_name"], prev_start, prev_end),
+                "GHL-prev", retries=2, backoff=5)
             report["ghl_form_submits"] = ghl_current
             report["ghl_form_submits_prev"] = ghl_prev
             # Override GA4 form submits with GHL data (source of truth)
             report["ga4"]["form_submits"] = ghl_current
             report["ga4"]["form_submits_prev"] = ghl_prev
-            print(f"    Form submits: {ghl_current} (prev: {ghl_prev})")
+            print(f"    Form submits: {ghl_current} (last week: {ghl_prev})")
         except Exception as e:
-            print(f"    GHL ERROR: {e}")
+            print(f"    GHL ERROR (all retries failed): {e}")
             report["ghl_form_submits"] = 0
             report["ghl_form_submits_prev"] = 0
 
     # ── GBP (Google Business Profile) ──
     if client.get("gbp_location"):
         print(f"  Pulling GBP metrics...")
-        try:
-            gbp_current = pull_gbp(creds, client["gbp_location"], period_start, period_end)
-            gbp_prev = pull_gbp(creds, client["gbp_location"], prev_start, prev_end)
-            report["gbp"] = {
-                "maps_impressions": gbp_current["maps_impressions"],
-                "maps_impressions_prev": gbp_prev["maps_impressions"],
-                "search_impressions": gbp_current["search_impressions"],
-                "search_impressions_prev": gbp_prev["search_impressions"],
-                "total_impressions": gbp_current["total_impressions"],
-                "total_impressions_prev": gbp_prev["total_impressions"],
-                "call_clicks": gbp_current["call_clicks"],
-                "call_clicks_prev": gbp_prev["call_clicks"],
-                "website_clicks": gbp_current["website_clicks"],
-                "website_clicks_prev": gbp_prev["website_clicks"],
-                "direction_requests": gbp_current["direction_requests"],
-                "direction_requests_prev": gbp_prev["direction_requests"],
-            }
-            print(f"    Impressions: {gbp_current['total_impressions']} (prev: {gbp_prev['total_impressions']})")
-            print(f"    Maps: {gbp_current['maps_impressions']} | Search: {gbp_current['search_impressions']}")
-            print(f"    Calls: {gbp_current['call_clicks']} | Website: {gbp_current['website_clicks']} | Directions: {gbp_current['direction_requests']}")
-        except Exception as e:
-            print(f"    GBP ERROR: {e}")
-            report["gbp"] = {"maps_impressions": 0, "maps_impressions_prev": 0,
-                             "search_impressions": 0, "search_impressions_prev": 0,
-                             "total_impressions": 0, "total_impressions_prev": 0,
-                             "call_clicks": 0, "call_clicks_prev": 0,
-                             "website_clicks": 0, "website_clicks_prev": 0,
-                             "direction_requests": 0, "direction_requests_prev": 0}
+        gbp_success = False
+        for attempt in range(3):
+            try:
+                if attempt > 0:
+                    wait = 5 * (2 ** (attempt - 1))
+                    print(f"    Retry {attempt}/2 (waiting {wait}s)...")
+                    time.sleep(wait)
+                gbp_current = pull_gbp(creds, client["gbp_location"], period_start, period_end)
+                gbp_prev = pull_gbp(creds, client["gbp_location"], prev_start, prev_end)
+                report["gbp"] = {
+                    "maps_impressions": gbp_current["maps_impressions"],
+                    "maps_impressions_prev": gbp_prev["maps_impressions"],
+                    "search_impressions": gbp_current["search_impressions"],
+                    "search_impressions_prev": gbp_prev["search_impressions"],
+                    "total_impressions": gbp_current["total_impressions"],
+                    "total_impressions_prev": gbp_prev["total_impressions"],
+                    "call_clicks": gbp_current["call_clicks"],
+                    "call_clicks_prev": gbp_prev["call_clicks"],
+                    "website_clicks": gbp_current["website_clicks"],
+                    "website_clicks_prev": gbp_prev["website_clicks"],
+                    "direction_requests": gbp_current["direction_requests"],
+                    "direction_requests_prev": gbp_prev["direction_requests"],
+                }
+                print(f"    Impressions: {gbp_current['total_impressions']} (last week: {gbp_prev['total_impressions']})")
+                print(f"    Maps: {gbp_current['maps_impressions']} | Search: {gbp_current['search_impressions']}")
+                print(f"    Calls: {gbp_current['call_clicks']} | Website: {gbp_current['website_clicks']} | Directions: {gbp_current['direction_requests']}")
+                gbp_success = True
+                break
+            except Exception as e:
+                print(f"    GBP ERROR: {e}")
+        if not gbp_success:
+            print(f"    GBP: All retries failed — skipping (previous data preserved)")
+            # Don't write zeros — leave gbp out of report so Supabase keeps previous values
 
         # GBP Search Keywords (monthly granularity)
         print(f"  Pulling GBP search keywords...")
         try:
-            gbp_keywords = pull_gbp_keywords(creds, client["gbp_location"], period_end.year, period_end.month)
+            gbp_keywords = _retry(
+                lambda: pull_gbp_keywords(creds, client["gbp_location"], period_end.year, period_end.month),
+                "GBP keywords", retries=2, backoff=5)
             report["gbp_keywords"] = gbp_keywords
             print(f"    Found {len(gbp_keywords)} keywords")
             for kw in gbp_keywords[:5]:
@@ -595,7 +647,7 @@ def run_report(client, creds, today):
     if ga["organic_prev"] > 0:
         organic_delta = ((ga["organic"] - ga["organic_prev"]) / ga["organic_prev"]) * 100
         if organic_delta < -20:
-            report["flags"].append(f"Organic sessions dropped {abs(organic_delta):.0f}% vs prior period")
+            report["flags"].append(f"Organic sessions dropped {abs(organic_delta):.0f}% vs last week")
 
     if gsc["impressions_prev"] > 0:
         imp_delta = ((gsc["impressions"] - gsc["impressions_prev"]) / gsc["impressions_prev"]) * 100
@@ -771,7 +823,7 @@ def print_summary(reports):
 
         gbp = r.get("gbp")
         if gbp:
-            print(f"  GBP Impressions: {gbp['total_impressions']:>4}  ({delta_str(gbp['total_impressions'], gbp['total_impressions_prev'])})")
+            print(f"  GBP Impressions: {gbp['total_impressions']:>4}  ({delta_str(gbp['total_impressions'], gbp['total_impressions_prev'])} vs last week)")
             print(f"    Maps: {gbp['maps_impressions']}  Search: {gbp['search_impressions']}")
             print(f"    Calls: {gbp['call_clicks']}  Website: {gbp['website_clicks']}  Directions: {gbp['direction_requests']}")
 
@@ -783,8 +835,9 @@ def print_summary(reports):
 
 def main():
     today = date.today()
+    report_date = today - timedelta(days=3)
     print(f"Client Performance Report — {today}")
-    print(f"Period: {today - timedelta(days=16)} to {today - timedelta(days=3)}")
+    print(f"Daily data for: {report_date} (vs same day last week: {report_date - timedelta(days=7)})")
 
     with open(CLIENTS_FILE) as f:
         clients = json.load(f)

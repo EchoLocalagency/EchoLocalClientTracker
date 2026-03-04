@@ -80,7 +80,7 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
   const gbpImpressionsSeries = source.map((rep) => rep.gbp_total_impressions ?? 0);
   const gbpCallsSeries = source.map((rep) => rep.gbp_call_clicks ?? 0);
   const gbpWebsiteSeries = source.map((rep) => rep.gbp_website_clicks ?? 0);
-  const hasGbp = (r.gbp_total_impressions ?? 0) > 0;
+  const hasGbp = source.some((rep) => (rep.gbp_total_impressions ?? 0) > 0);
 
   const organicVelocity = calcVelocity(organicSeries);
   const impressionsVelocity = calcVelocity(impressionsSeries);
