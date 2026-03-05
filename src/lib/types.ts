@@ -88,8 +88,8 @@ export interface GbpKeyword {
 export interface SeoAction {
   id: string;
   client_id: string;
-  run_id: string;
   action_type: string;
+  action_date: string;
   description: string;
   target_keywords: string[];
   status: string;
@@ -101,11 +101,18 @@ export interface SeoAction {
 export interface SeoBrainDecision {
   id: string;
   client_id: string;
-  run_id: string;
-  input_stats: Record<string, unknown>;
-  actions_proposed: number;
-  actions_chosen: string[];
-  reasoning: string | null;
+  decision_date: string;
+  input_summary: Record<string, unknown> | null;
+  raw_response: string | null;
+  parsed_actions: Array<{
+    action_type: string;
+    description: string;
+    priority: number;
+    reasoning: string;
+    target_keywords?: string[];
+    [key: string]: unknown;
+  }> | null;
+  execution_log: Record<string, unknown> | null;
   created_at: string;
 }
 
