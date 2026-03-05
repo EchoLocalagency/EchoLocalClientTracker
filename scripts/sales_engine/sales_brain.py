@@ -8,10 +8,12 @@ Same subprocess pattern as seo_engine/brain.py.
 """
 
 import json
+import os
 import subprocess
 import sys
 from datetime import date
 from pathlib import Path
+import copy
 
 
 def _build_call_prompt(call_data, recent_analyses=None):
@@ -213,12 +215,14 @@ def analyze_call(call_data, recent_analyses=None, dry_run=False):
         return None
 
     try:
+        env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
         result = subprocess.run(
             ["claude", "-p", prompt, "--output-format", "json",
              "--disable-slash-commands",
              "--setting-sources", ""],
             capture_output=True, text=True, timeout=120,
             cwd="/tmp",
+            env=env,
         )
         if result.returncode != 0:
             print(f"  Claude error: {result.stderr[:200]}")
@@ -258,12 +262,14 @@ def generate_daily_report(todays_calls, todays_analyses, dry_run=False):
         return None
 
     try:
+        env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
         result = subprocess.run(
             ["claude", "-p", prompt, "--output-format", "json",
              "--disable-slash-commands",
              "--setting-sources", ""],
             capture_output=True, text=True, timeout=180,
             cwd="/tmp",
+            env=env,
         )
         if result.returncode != 0:
             print(f"  Claude error: {result.stderr[:200]}")
