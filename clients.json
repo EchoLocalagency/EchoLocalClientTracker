@@ -125,6 +125,42 @@
     ]
   },
   {
+    "name": "AZ Turf Cleaning",
+    "slug": "az-turf-cleaning",
+    "ga4_property": "",
+    "ga4_measurement_id": "",
+    "gsc_url": "",
+    "website": "https://www.azturfcleaningllc.com/",
+    "github": "",
+    "phone": "+16025356804",
+    "conversion_events": ["phone_click", "form_submit"],
+    "ghl_token": "",
+    "ghl_location_id": "",
+    "ghl_form_name": "",
+    "gbp_location": "locations/12070345971854326869",
+    "website_local_path": "/Users/brianegan/Desktop/AZ Turf Cleaning Website/website",
+    "primary_market": "Mesa, AZ",
+    "target_keywords": [
+      "turf cleaning mesa az",
+      "artificial turf cleaning mesa",
+      "turf installation mesa az",
+      "paver installation mesa az",
+      "landscape remodel mesa az",
+      "turf cleaning tempe",
+      "turf cleaning scottsdale",
+      "turf cleaning chandler",
+      "turf cleaning gilbert",
+      "turf cleaning apache junction",
+      "landscaper mesa az",
+      "pergola installation mesa az",
+      "az turf cleaning"
+    ],
+    "service_areas": [
+      "Mesa", "Tempe", "Scottsdale", "Chandler", "Gilbert",
+      "Apache Junction", "San Tan", "Fountain Hills"
+    ]
+  },
+  {
     "name": "Primal Plates",
     "slug": "primal-plates",
     "ga4_property": "properties/525738042",
