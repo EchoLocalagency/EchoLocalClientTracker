@@ -1,13 +1,13 @@
 """
 GBP Media Uploader
 ==================
-Uploads photos to Google Business Profile via the Media API v4.
+Uploads photos to Google Business Profile via the My Business API v1.
 Slow-drip strategy: 2-3 photos per cycle, rate limited to 3/week.
 
 Auth: existing business.manage scope covers media uploads.
 """
 
-import base64
+import json
 import os
 import requests
 from pathlib import Path
@@ -30,6 +30,59 @@ def _get_access_token():
     )
     creds.refresh(Request())
     return creds.token
+
+
+def _find_account_for_location(token, location_id):
+    """Find the account that owns a location.
+
+    The v1 media endpoint requires the full resource path:
+    accounts/{accountId}/locations/{locationId}/media
+
+    Args:
+        token: OAuth access token
+        location_id: Just the numeric location ID
+
+    Returns:
+        Full resource name like "accounts/123/locations/456" or None
+    """
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # List accounts
+    resp = requests.get(
+        "https://mybusinessaccountmanagement.googleapis.com/v1/accounts",
+        headers=headers,
+        timeout=30,
+    )
+    if resp.status_code != 200:
+        print(f"  [gbp_media] Failed to list accounts ({resp.status_code}): {resp.text[:200]}")
+        return None
+
+    accounts = resp.json().get("accounts", [])
+    if not accounts:
+        print("  [gbp_media] No GBP accounts found")
+        return None
+
+    # Check each account for the location
+    for account in accounts:
+        account_name = account["name"]  # e.g. "accounts/123456"
+        loc_resp = requests.get(
+            f"https://mybusinessbusinessinformation.googleapis.com/v1/{account_name}/locations",
+            headers=headers,
+            params={"readMask": "name"},
+            timeout=30,
+        )
+        if loc_resp.status_code != 200:
+            continue
+
+        locations = loc_resp.json().get("locations", [])
+        for loc in locations:
+            # loc["name"] is like "locations/456" or the full path
+            loc_name = loc.get("name", "")
+            if location_id in loc_name:
+                return f"{account_name}/{loc_name}"
+
+    print(f"  [gbp_media] Could not find location {location_id} in any account")
+    return None
 
 
 def upload_photo(location_id, photo_path, category="EXTERIOR",
@@ -56,39 +109,21 @@ def upload_photo(location_id, photo_path, category="EXTERIOR",
 
     token = _get_access_token()
 
+    # Extract numeric location ID
+    loc_num = location_id.replace("locations/", "")
+
+    # Find the full account/location resource path
+    full_resource = _find_account_for_location(token, loc_num)
+    if not full_resource:
+        return {"status": "error", "reason": f"Could not resolve account for {location_id}"}
+
     # Read photo bytes
     photo_bytes = photo_path.read_bytes()
 
-    # GBP Media API v4 endpoint
-    # POST to create media item with sourceUrl or direct upload
-    account_location = location_id
-    if not account_location.startswith("accounts/"):
-        # Location ID format might need the account prefix
-        # The GBP API uses the location resource name directly
-        pass
-
-    url = f"https://mybusiness.googleapis.com/v4/{account_location}/media"
-
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json",
-    }
-
-    # Use dataRef approach: upload bytes as base64
-    payload = {
-        "mediaFormat": "PHOTO",
-        "locationAssociation": {
-            "category": category,
-        },
-        "description": description,
-        "sourceUrl": "",  # Will use direct upload instead
-    }
-
-    # Try the direct media upload approach
-    # First create the media item reference, then upload bytes
     try:
-        # Step 1: Start upload - create media item
-        create_url = f"https://mybusiness.googleapis.com/v4/{account_location}/media"
+        # GBP Media API v1 endpoint
+        url = f"https://mybusiness.googleapis.com/v1/{full_resource}/media"
+
         create_payload = {
             "mediaFormat": "PHOTO",
             "locationAssociation": {
@@ -97,7 +132,6 @@ def upload_photo(location_id, photo_path, category="EXTERIOR",
         }
 
         # Upload using multipart: metadata + photo bytes
-        import json
         boundary = "----GBPMediaBoundary"
         body = (
             f"--{boundary}\r\n"
@@ -112,7 +146,7 @@ def upload_photo(location_id, photo_path, category="EXTERIOR",
             "Content-Type": f"multipart/related; boundary={boundary}",
         }
 
-        resp = requests.post(create_url, headers=upload_headers, data=body, timeout=60)
+        resp = requests.post(url, headers=upload_headers, data=body, timeout=60)
 
         if resp.status_code in (200, 201):
             data = resp.json()
