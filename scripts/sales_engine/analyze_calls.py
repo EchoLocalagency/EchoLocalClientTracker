@@ -88,7 +88,14 @@ def store_analysis(sb, call_id, analysis):
     }
 
     sb.table("call_analyses").insert(row).execute()
-    sb.table("sales_calls").update({"analyzed": True}).eq("id", call_id).execute()
+
+    # Update sales_calls with analyzed flag + callback tracking
+    call_update = {"analyzed": True}
+    if analysis.get("callback_priority"):
+        call_update["callback_priority"] = analysis["callback_priority"]
+    if analysis.get("caller_details"):
+        call_update["caller_details"] = analysis["caller_details"]
+    sb.table("sales_calls").update(call_update).eq("id", call_id).execute()
 
 
 def store_daily_report(sb, report, todays_calls, todays_analyses):

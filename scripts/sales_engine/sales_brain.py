@@ -84,7 +84,17 @@ Analyze this call and return a JSON object with EXACTLY these fields:
     "coaching_notes": "<2-3 sentences of direct, honest coaching. Include [N] refs to key_moments. E.g. 'You lost control at [2] and just kept pitching through [3]. But the close attempt at [5] was solid.'>",
     "key_moments": [
         {"id": 1, "quote": "<exact words from the transcript>", "moment": "<what happened>", "impact": "<positive/negative/neutral>"}
-    ]
+    ],
+    "callback_priority": "<one of: hot_lead, follow_up, callback, no_action>",
+    "caller_details": {
+        "contact_person": "<name of person who answered, if known>",
+        "role": "<their role if mentioned -- owner, receptionist, manager, etc.>",
+        "interest_level": "<hot, warm, cold, unknown>",
+        "situation": "<1-2 sentence summary of their current situation mentioned in the call -- existing provider, pain points, size of business, etc.>",
+        "key_info": ["<any useful facts learned: they have 3 trucks, they spend $X on ads, they just lost their SEO guy, etc.>"],
+        "next_step": "<specific recommended next action: call back Tuesday, send case study, follow up in 1 week, etc.>",
+        "best_time_to_call": "<if they mentioned a better time, or based on when they answered>"
+    }
 }
 
 RULES:
@@ -96,6 +106,8 @@ RULES:
 6. The opener matters most. Did Brian hook them in the first 10 seconds?
 7. Number your key_moments starting at 1. Each must have an "id" (integer) and "quote" (exact words from the transcript). Use [N] in coaching_notes, strengths, and improvements to reference them by id.
 8. For key_moments, flag: objection handling, tonality shifts, commitment questions, value props that landed, and missed closes.
+9. callback_priority: hot_lead = they showed real interest or asked questions about the offer. follow_up = conversation happened, worth trying again. callback = voicemail left or gatekeeper, try again later. no_action = wrong number, not interested, dead lead.
+10. caller_details: Extract EVERYTHING useful from the transcript. Even small details matter for the callback.
 
 Return ONLY the JSON object, no markdown fences, no explanation."""
 

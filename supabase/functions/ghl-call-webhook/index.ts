@@ -26,9 +26,14 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const customData = body.customData || {};
 
-    // Helper: pull from top-level first, then customData, then fallback
+    // Helper: pull from top-level first, then customData (case-insensitive), then fallback
+    const cdKeys = Object.keys(customData);
     const get = (topKey: string, cdKey?: string, fallback: string = "") => {
-      return body[topKey] || customData[cdKey || topKey] || fallback;
+      if (body[topKey]) return body[topKey];
+      const target = cdKey || topKey;
+      const match = cdKeys.find(k => k.toLowerCase() === target.toLowerCase());
+      if (match && customData[match]) return customData[match];
+      return fallback;
     };
 
     // Map fields -- top-level takes priority, customData as fallback
