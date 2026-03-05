@@ -112,7 +112,8 @@ const PRIORITY_CONFIG: Record<string, { color: string; label: string; order: num
   hot_lead: { color: '#FF3D57', label: 'Hot Lead', order: 0 },
   follow_up: { color: '#E8FF00', label: 'Follow Up', order: 1 },
   callback: { color: '#8A8F98', label: 'Callback', order: 2 },
-  no_action: { color: '#555', label: 'No Action', order: 3 },
+  no_answer: { color: '#555', label: 'No Answer', order: 3 },
+  no_action: { color: '#555', label: 'No Action', order: 4 },
 };
 
 const INTEREST_COLORS: Record<string, string> = {
@@ -435,7 +436,7 @@ function CallbackQueue({
   const filtered = calls.filter(c => {
     if (!c.analyzed) return false;
     const priority = c.callback_priority || 'no_action';
-    if (filter === 'actionable') return priority !== 'no_action' && c.callback_status !== 'completed';
+    if (filter === 'actionable') return priority !== 'no_action' && priority !== 'no_answer' && c.callback_status !== 'completed';
     if (filter === 'completed') return c.callback_status === 'completed';
     if (filter === 'all') return true;
     return priority === filter;
@@ -454,10 +455,11 @@ function CallbackQueue({
   });
 
   const counts = {
-    actionable: calls.filter(c => c.analyzed && c.callback_priority && c.callback_priority !== 'no_action' && c.callback_status !== 'completed').length,
+    actionable: calls.filter(c => c.analyzed && c.callback_priority && c.callback_priority !== 'no_action' && c.callback_priority !== 'no_answer' && c.callback_status !== 'completed').length,
     hot_lead: calls.filter(c => c.callback_priority === 'hot_lead' && c.callback_status !== 'completed').length,
     follow_up: calls.filter(c => c.callback_priority === 'follow_up' && c.callback_status !== 'completed').length,
     callback: calls.filter(c => c.callback_priority === 'callback' && c.callback_status !== 'completed').length,
+    no_answer: calls.filter(c => c.callback_priority === 'no_answer').length,
     completed: calls.filter(c => c.callback_status === 'completed').length,
   };
 
@@ -486,6 +488,7 @@ function CallbackQueue({
           { key: 'hot_lead', label: `Hot (${counts.hot_lead})` },
           { key: 'follow_up', label: `Follow Up (${counts.follow_up})` },
           { key: 'callback', label: `Callback (${counts.callback})` },
+          { key: 'no_answer', label: `No Answer (${counts.no_answer})` },
           { key: 'completed', label: `Done (${counts.completed})` },
           { key: 'all', label: 'All' },
         ].map(f => (

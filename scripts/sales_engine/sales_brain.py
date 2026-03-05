@@ -87,7 +87,7 @@ Analyze this call and return a JSON object with EXACTLY these fields:
     "key_moments": [
         {"id": 1, "quote": "<exact words from the transcript>", "moment": "<what happened>", "impact": "<positive/negative/neutral>"}
     ],
-    "callback_priority": "<one of: hot_lead, follow_up, callback, no_action>",
+    "callback_priority": "<one of: hot_lead, follow_up, callback, no_answer, no_action>",
     "caller_details": {
         "contact_person": "<name of person who answered, if known>",
         "role": "<their role if mentioned -- owner, receptionist, manager, etc.>",
@@ -108,7 +108,7 @@ RULES:
 6. The opener matters most. Did Brian hook them in the first 10 seconds?
 7. Number your key_moments starting at 1. Each must have an "id" (integer) and "quote" (exact words from the transcript). Use [N] in coaching_notes, strengths, and improvements to reference them by id.
 8. For key_moments, flag: objection handling, tonality shifts, commitment questions, value props that landed, and missed closes.
-9. callback_priority: hot_lead = they showed real interest or asked questions about the offer. follow_up = conversation happened, worth trying again. callback = voicemail left or gatekeeper, try again later. no_action = wrong number, not interested, dead lead.
+9. callback_priority: hot_lead = they showed real interest or asked questions about the offer. follow_up = conversation happened, worth trying again. callback = had a real conversation and need to call back. no_answer = voicemail left, no answer, or gatekeeper with no real conversation. no_action = wrong number, not interested, dead lead.
 10. caller_details: Extract EVERYTHING useful from the transcript. Even small details matter for the callback.
 
 Return ONLY the JSON object, no markdown fences, no explanation."""
