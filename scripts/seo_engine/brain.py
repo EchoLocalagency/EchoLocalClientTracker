@@ -540,11 +540,26 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
         print(f"  [brain] Failed to parse actions from response")
         actions = []
 
-    # Validate content in each action
+    # Validate content in each action -- retry once if issues found
     validated_actions = []
     for action in actions:
         action, issues = _validate_action(action)
-        if issues:
+        if issues and action.get("action_type") in ("blog_post", "newsjack_post", "location_page"):
+            print(f"  [brain] Validation issues for {action.get('action_type', '?')}: {', '.join(issues)}")
+            print(f"  [brain] Requesting rewrite...")
+            fixed = _rewrite_action(action, issues, client_config)
+            if fixed:
+                fixed, retry_issues = _validate_action(fixed)
+                if retry_issues:
+                    print(f"  [brain] Rewrite still has issues: {', '.join(retry_issues)} -- DROPPING action")
+                    continue
+                else:
+                    print(f"  [brain] Rewrite passed validation")
+                    action = fixed
+            else:
+                print(f"  [brain] Rewrite failed -- DROPPING action")
+                continue
+        elif issues:
             print(f"  [brain] Validation issues for {action.get('action_type', '?')}: {', '.join(issues)}")
         validated_actions.append(action)
 
@@ -568,6 +583,76 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
 
     print(f"  [brain] Returned {len(validated_actions)} actions")
     return validated_actions
+
+
+def _rewrite_action(action, issues, client_config):
+    """Ask Claude to fix a content action that failed validation.
+
+    Sends the original action + specific issues back to Claude for a rewrite.
+    Returns the fixed action dict, or None if it fails.
+    """
+    action_type = action.get("action_type", "unknown")
+    name = client_config.get("name", "")
+    market = client_config.get("primary_market", "")
+
+    prompt = f"""You wrote a {action_type} for {name} ({market}) but it failed quality checks.
+
+ISSUES FOUND:
+{chr(10).join(f"- {i}" for i in issues)}
+
+ORIGINAL ACTION:
+{json.dumps(action, indent=2)}
+
+REWRITE RULES:
+- Fix every issue listed above
+- If the title is flagged as AI slop, write a title that sounds like a tradesperson wrote it. Use specific details, not marketing speak.
+- If experience signals are missing, add real details: specific measurements (PSI, sq ft, temps), named neighborhoods, pricing, job references.
+- If the premise is "searches are spiking" -- reframe around a real job, seasonal observation, or customer question instead.
+- Keep the same target_keywords and general topic.
+- Write as the business owner, first person plural (we/our).
+
+Return ONLY the fixed action as a single JSON object. No markdown fences, no explanation."""
+
+    try:
+        clean_env = {k: v for k, v in os.environ.items() if not k.startswith("CLAUDE")}
+        result = subprocess.run(
+            ["claude", "-p", prompt, "--output-format", "json",
+             "--disable-slash-commands", "--setting-sources", ""],
+            capture_output=True, text=True, timeout=300,
+            cwd="/tmp", env=clean_env,
+        )
+
+        if result.returncode != 0:
+            return None
+
+        raw = result.stdout.strip()
+        try:
+            cli_output = json.loads(raw)
+            response_text = cli_output.get("result", raw)
+        except json.JSONDecodeError:
+            response_text = raw
+
+        # Parse single JSON object
+        text = response_text.strip()
+        if "```" in text:
+            if "```json" in text:
+                text = text.split("```json", 1)[-1].split("```", 1)[0].strip()
+            else:
+                parts = text.split("```")
+                if len(parts) >= 3:
+                    text = parts[1].strip()
+
+        start = text.find("{")
+        end = text.rfind("}")
+        if start != -1 and end != -1:
+            fixed = json.loads(text[start:end + 1])
+            if isinstance(fixed, dict):
+                return fixed
+
+    except (subprocess.TimeoutExpired, json.JSONDecodeError, Exception) as e:
+        print(f"  [brain] Rewrite error: {e}")
+
+    return None
 
 
 def _parse_actions(response_text):
