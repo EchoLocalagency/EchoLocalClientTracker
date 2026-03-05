@@ -49,6 +49,31 @@ AI_TELLS = [
     "everything you need to know",
 ]
 
+# Title patterns that scream AI slop
+AI_TITLE_PATTERNS = [
+    r"here'?s what .* should know",
+    r"here'?s what you need to know",
+    r"what .* need to know",
+    r"everything you .* know",
+    r"the ultimate guide",
+    r"a comprehensive guide",
+    r"why .* matters more than",
+    r"the surprising truth about",
+    r"you won'?t believe",
+    r"\d+ things .* didn'?t know",
+    r"\d+ reasons why",
+    r"are spiking",
+    r"are surging",
+    r"are on the rise",
+    r"is trending",
+    r"is booming",
+    r"searches are",
+    r"what every .* should",
+    r"what homeowners should",
+    r"the complete guide to",
+    r"a deep dive into",
+]
+
 # Minimum character counts by content type
 MIN_LENGTHS = {
     "gbp_post": 100,
@@ -87,6 +112,61 @@ def check_ai_tells(text):
         if tell in lower:
             found.append(tell)
     return found
+
+
+def check_ai_title(title):
+    """Check if a title matches AI slop patterns. Returns list of matched patterns."""
+    lower = title.lower()
+    found = []
+    for pattern in AI_TITLE_PATTERNS:
+        if re.search(pattern, lower):
+            found.append(pattern)
+    return found
+
+
+def check_experience_signals(html):
+    """Check if content has real experience signals, not generic filler.
+
+    Looks for: specific numbers (PSI, sq ft, dollars, time),
+    neighborhood/street names, first person plural (we/our),
+    and technical details.
+
+    Returns (signal_count, issues)
+    """
+    text = re.sub(r"<[^>]+>", " ", html).lower()
+    signals = 0
+    details = []
+
+    # Numbers with units (PSI, sq ft, degrees, dollars, hours, minutes)
+    if re.search(r"\d+\s*(psi|sq\s*ft|square\s*feet|degrees|gallons|\$|hours?|minutes?|feet|inches|yards?|pounds?|lbs)", text):
+        signals += 1
+        details.append("has measurements/specs")
+
+    # First person plural
+    if re.search(r"\b(we |we'|our |our\b)", text):
+        signals += 1
+        details.append("first person voice")
+
+    # Specific street/neighborhood/landmark references (proper nouns after "in/near/at")
+    if re.search(r"\b(in|near|at|off|along)\s+[A-Z][a-z]+\s+[A-Z]", html):
+        signals += 1
+        details.append("location reference")
+
+    # Price ranges or cost mentions
+    if re.search(r"\$\d+|\d+\s*(per|a)\s*(sq|square|foot|yard|hour|visit)", text):
+        signals += 1
+        details.append("pricing detail")
+
+    # Job-specific details (last month, last week, on a job, on site, customer, client, homeowner called)
+    if re.search(r"(last (month|week|year)|on a job|on site|one (customer|client|homeowner)|pulled up|showed up|we (cleaned|washed|finished|completed|installed))", text):
+        signals += 1
+        details.append("job reference")
+
+    issues = []
+    if signals < 3:
+        issues.append(f"Only {signals} experience signals found ({', '.join(details) if details else 'none'}). Need at least 3: measurements, first person, location, pricing, or job references.")
+
+    return signals, issues
 
 
 def check_min_length(text, content_type):
@@ -172,7 +252,21 @@ def validate_content(text, content_type):
         if not has_capsule:
             issues.extend(capsule_issues)
 
+    # Check experience signals for long-form content
+    if content_type in ("blog_post", "newsjack_post", "aeo_blog_post", "location_page"):
+        _, signal_issues = check_experience_signals(cleaned)
+        issues.extend(signal_issues)
+
     return cleaned, issues
+
+
+def validate_title(title):
+    """Validate a blog/page title for AI slop patterns. Returns (title, issues)."""
+    issues = []
+    slop_patterns = check_ai_title(title)
+    if slop_patterns:
+        issues.append(f"AI slop title pattern: {', '.join(slop_patterns)}")
+    return title, issues
 
 
 def clean_content(text):

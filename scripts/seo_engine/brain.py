@@ -15,7 +15,7 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from .content_validator import validate_content
+from .content_validator import validate_content, validate_title
 from .outcome_logger import log_brain_decision
 
 TUNING_FILE = Path("/Users/brianegan/EchoLocalClientTracker/scripts/seo_engine/engine_tuning.json")
@@ -380,7 +380,7 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
 16. If AVAILABLE PHOTOS are listed, include 1-3 relevant photos in blog posts using <img src="images/FILENAME" alt="descriptive alt text"> tags. Place images between sections for visual flow. Write descriptive alt text with target keywords where natural. Do not use every photo -- pick the most relevant ones.
 17. gbp_photo actions must include: filename (from GBP UPLOAD CANDIDATES), category (AT_WORK, EXTERIOR, INTERIOR, or PRODUCT), and description. Pick 2-3 photos per cycle that showcase recent work.
 18. schema_update actions must include: filename (from EXISTING PAGES), schema_type (faq, local_business, or service). For faq: include qa_pairs array. For service: include service_name, description, area_served. Prioritize pages showing "schemas: NONE".
-19. newsjack_post: same fields as blog_post but must be inspired by a NEWSJACK ALERT. Only propose when urgency >= 7. Does NOT count against blog_post limit.
+19. newsjack_post: same fields as blog_post but must be inspired by a SPECIFIC EVENT -- a news story, regulation change, local incident, or industry announcement. NOT search volume trends. "X searches are spiking" is NOT a newsjack -- that's just seasonal demand. A newsjack needs a concrete event to react to. Only propose when urgency >= 7. Does NOT count against blog_post limit.
 20. Content clusters: if clusters are listed above, every blog_post MUST specify a cluster_name field matching an existing cluster. Prioritize filling gap topics over creating random content. If no clusters are listed, you may omit cluster_name.
 21. Location pages: pick neighborhoods from AREA PAGE CANDIDATES. Each page must include local references. Roll out max 1 per week.
 22. Location page content must mention specific local landmarks, cross-streets, or nearby areas for that neighborhood. Include photos from jobs in that area if available.
@@ -394,7 +394,10 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
 30. Add "Last updated: {date}" visible text near the top of blog content. Freshness signals matter for AI citation.
 31. Keep paragraphs short (1 idea each). Use descriptive headings. For how-to content, use numbered steps. AI engines prefer scannable, structured content.
 32. If AEO OPPORTUNITIES are listed above, prioritize creating content that directly answers those question queries. Use the exact question as an H2 heading.
-33. NO OVERLAPPING BLOG POSTS: Never generate two blog posts in the same cycle that cover substantially the same topic, even if they come from different content clusters. Example: "Pressure Washing vs Soft Washing" and "What is Soft Washing" overlap too much. Pick the stronger angle and save the other for a future cycle.
+33. TITLE RULES: Never use "Here's What X Should Know", "What You Need to Know", "Everything You Should Know", "X Are Spiking/Surging/Trending", "The Ultimate/Complete/Comprehensive Guide". Write titles like a tradesperson, not a content marketer. Good: "We Cleaned 40 Turf Yards Last Spring. Here's What Kills Them." Bad: "Turf Cleaning Searches Are Spiking. Here's What Homeowners Should Know."
+34. NO SEARCH VOLUME POSTS: Never write a blog post whose premise is "searches for X are trending/spiking/rising." That's not content, it's SEO commentary. Every post must be anchored to a real job, a real problem, a real customer question, or a real event. If a keyword is trending, write about the TOPIC with real experience, not about the fact that it's trending.
+35. EXPERIENCE SIGNALS (MANDATORY): Every blog_post, newsjack_post, and location_page MUST include at least 3 of these in the body: (a) specific measurements or specs (PSI, sq ft, temperature, cost), (b) first person voice (we/our), (c) named neighborhood or street, (d) price range or cost detail, (e) reference to a specific job or customer situation. Generic content that could have been written without doing the work will be rejected.
+36. NO OVERLAPPING BLOG POSTS: Never generate two blog posts in the same cycle that cover substantially the same topic, even if they come from different content clusters. Example: "Pressure Washing vs Soft Washing" and "What is Soft Washing" overlap too much. Pick the stronger angle and save the other for a future cycle.
 34. OPTIMIZE BEFORE YOU CREATE: If STRIKING DISTANCE PAGES are listed above, you MUST prioritize page_edit actions to improve those pages BEFORE proposing any new blog_post. Position 1 gets 2x the CTR of position 2, and 10x position 10. Moving an existing page from position 8 to position 3 is faster and higher-ROI than writing new content from scratch. Add better headings, expand thin sections, improve internal links, add schema, and update dates.
 
 OUTPUT FORMAT:
@@ -628,5 +631,12 @@ def _validate_action(action):
             cleaned, field_issues = validate_content(text, vtype)
             action[field] = cleaned
             issues.extend(field_issues)
+
+    # Validate titles for content types that have them
+    if action_type in ("blog_post", "newsjack_post", "location_page"):
+        title = action.get("title", "")
+        if title:
+            _, title_issues = validate_title(title)
+            issues.extend(title_issues)
 
     return action, issues
