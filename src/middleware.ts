@@ -21,6 +21,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!login|api/webhook|_next/static|_next/image|favicon\\.ico|echo-local-logo\\.png).*)',
+    '/((?!login|api/webhook|api/agents|_next/static|_next/image|favicon\\.ico|echo-local-logo\\.png).*)',
   ],
 };
