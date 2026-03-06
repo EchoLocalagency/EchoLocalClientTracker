@@ -76,24 +76,23 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
     website: rollingSum14(gbpWebRaw, i),
   }));
 
-  // Sparkline + velocity data: 14-day rolling totals
-  const source = allReports && allReports.length > 0 ? allReports : reports;
-  const organicRaw = source.map((rep) => rep.ga4_organic);
-  const impressionsAllRaw = source.map((rep) => rep.gsc_impressions);
-  const phoneRaw = source.map((rep) => rep.ga4_phone_clicks);
-  const gbpImpAllRaw = source.map((rep) => rep.gbp_total_impressions);
+  // Sparkline + velocity data: 14-day rolling totals from filtered reports
+  const organicRaw = reports.map((rep) => rep.ga4_organic);
+  const impressionsAllRaw = reports.map((rep) => rep.gsc_impressions);
+  const phoneRaw = reports.map((rep) => rep.ga4_phone_clicks);
+  const gbpImpAllRaw = reports.map((rep) => rep.gbp_total_impressions);
   const organicSeries = organicRaw.map((_, i) => rollingSum14(organicRaw, i));
   const impressionsSeries = impressionsAllRaw.map((_, i) => rollingSum14(impressionsAllRaw, i));
   const phoneSeries = phoneRaw.map((_, i) => rollingSum14(phoneRaw, i));
   const gbpImpressionsSeries = gbpImpAllRaw.map((_, i) => rollingSum14(gbpImpAllRaw, i));
-  const gbpCallsRawAll = source.map((rep) => rep.gbp_call_clicks);
-  const gbpWebRawAll = source.map((rep) => rep.gbp_website_clicks);
+  const gbpCallsRawAll = reports.map((rep) => rep.gbp_call_clicks);
+  const gbpWebRawAll = reports.map((rep) => rep.gbp_website_clicks);
   const gbpCallsSeries = gbpCallsRawAll.map((_, i) => rollingSum14(gbpCallsRawAll, i));
   const gbpWebsiteSeries = gbpWebRawAll.map((_, i) => rollingSum14(gbpWebRawAll, i));
-  const hasGbp = source.some((rep) => (rep.gbp_total_impressions ?? 0) > 0);
+  const hasGbp = reports.some((rep) => (rep.gbp_total_impressions ?? 0) > 0);
 
   // Use the most recent report that has actual GBP data (skip NULLs from failed pulls)
-  const gbpReport = [...source]
+  const gbpReport = [...reports]
     .sort((a, b) => b.run_date.localeCompare(a.run_date))
     .find((rep) => (rep.gbp_total_impressions ?? 0) > 0) ?? r;
 
