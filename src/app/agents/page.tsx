@@ -640,10 +640,10 @@ export default function AgentsDashboard() {
                             {draft.status && (
                               <span style={{
                                 fontSize: 9, fontFamily: 'var(--font-mono)', padding: '2px 8px', borderRadius: 4,
-                                background: draft.status.includes('DRAFT') ? 'rgba(232,255,0,0.12)' : 'rgba(0,230,118,0.12)',
-                                color: draft.status.includes('DRAFT') ? '#E8FF00' : '#00E676',
+                                background: draft.status.toLowerCase().includes('posted') ? 'rgba(0,230,118,0.12)' : 'rgba(232,255,0,0.12)',
+                                color: draft.status.toLowerCase().includes('posted') ? '#00E676' : '#E8FF00',
                                 textTransform: 'uppercase', fontWeight: 600,
-                              }}>{draft.status.includes('DRAFT') ? 'DRAFT' : 'POSTED'}</span>
+                              }}>{draft.status.toLowerCase().includes('posted') ? 'POSTED' : 'AWAITING REVIEW'}</span>
                             )}
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
