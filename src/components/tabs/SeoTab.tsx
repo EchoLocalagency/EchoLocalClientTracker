@@ -84,10 +84,31 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries }: 
             <LineChart data={impressionsData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
+              <YAxis yAxisId="left" tick={{ fontSize: 11 }} />
+              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} />
               <Tooltip content={<ChartTooltip />} />
-              <Line type="monotone" dataKey="impressions" stroke="#E8FF00" strokeWidth={2} dot={false} name="Impressions" isAnimationActive={false} activeDot={{ r: 4, stroke: '#E8FF00', strokeWidth: 2, fill: 'var(--bg-surface)' }} />
-              <Line type="monotone" dataKey="clicks" stroke="var(--text-primary)" strokeWidth={2} dot={false} name="Clicks" isAnimationActive={false} activeDot={{ r: 4, stroke: 'var(--text-primary)', strokeWidth: 2, fill: 'var(--bg-surface)' }} />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="impressions"
+                stroke="#E8FF00"
+                strokeWidth={2}
+                dot={false}
+                name="Impressions"
+                isAnimationActive={false}
+                activeDot={{ r: 4, stroke: '#E8FF00', strokeWidth: 2, fill: 'var(--bg-surface)' }}
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="clicks"
+                stroke="var(--text-primary)"
+                strokeWidth={2}
+                dot={false}
+                name="Clicks"
+                isAnimationActive={false}
+                activeDot={{ r: 4, stroke: 'var(--text-primary)', strokeWidth: 2, fill: 'var(--bg-surface)' }}
+              />
               {showBrush && (
                 <Brush dataKey="date" height={24} stroke="var(--border)" fill="var(--bg-depth)" startIndex={brushStart} />
               )}
