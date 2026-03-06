@@ -74,31 +74,31 @@ export default function GbpTab({ reports, latestReport, gbpKeywords = [] }: GbpT
         <StatCard
           label="GBP Impressions"
           value={impressionsSpark[impressionsSpark.length - 1] ?? null}
-          previous={impressionsSpark[impressionsSpark.length - 2] ?? null}
+          previous={impressionsSpark[Math.max(0, impressionsSpark.length - 15)] ?? null}
           sparklineData={impressionsSpark}
         />
         <StatCard
           label="Maps Impressions"
           value={mapsSpark[mapsSpark.length - 1] ?? null}
-          previous={mapsSpark[mapsSpark.length - 2] ?? null}
+          previous={mapsSpark[Math.max(0, mapsSpark.length - 15)] ?? null}
           sparklineData={mapsSpark}
         />
         <StatCard
           label="Search Impressions"
           value={searchSpark[searchSpark.length - 1] ?? null}
-          previous={searchSpark[searchSpark.length - 2] ?? null}
+          previous={searchSpark[Math.max(0, searchSpark.length - 15)] ?? null}
           sparklineData={searchSpark}
         />
         <StatCard
           label="Call Clicks"
           value={callsSpark[callsSpark.length - 1] ?? null}
-          previous={callsSpark[callsSpark.length - 2] ?? null}
+          previous={callsSpark[Math.max(0, callsSpark.length - 15)] ?? null}
           sparklineData={callsSpark}
         />
         <StatCard
           label="Website Clicks"
           value={websiteSpark[websiteSpark.length - 1] ?? null}
-          previous={websiteSpark[websiteSpark.length - 2] ?? null}
+          previous={websiteSpark[Math.max(0, websiteSpark.length - 15)] ?? null}
           sparklineData={websiteSpark}
         />
       </div>

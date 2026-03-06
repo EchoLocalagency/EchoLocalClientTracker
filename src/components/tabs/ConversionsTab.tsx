@@ -66,23 +66,23 @@ export default function ConversionsTab({ reports, latestReport, hasFormTracking 
         <StatCard
           label="Total Phone Clicks"
           value={latestTotal}
-          previous={totalSeries[totalSeries.length - 2] ?? null}
+          previous={totalSeries[Math.max(0, totalSeries.length - 15)] ?? null}
         />
         <StatCard
           label="Website Calls"
           value={webCallsSeries[webCallsSeries.length - 1] ?? null}
-          previous={webCallsSeries[webCallsSeries.length - 2] ?? null}
+          previous={webCallsSeries[Math.max(0, webCallsSeries.length - 15)] ?? null}
         />
         <StatCard
           label="GBP Calls"
           value={gbpCallsSeries[gbpCallsSeries.length - 1] ?? null}
-          previous={gbpCallsSeries[gbpCallsSeries.length - 2] ?? null}
+          previous={gbpCallsSeries[Math.max(0, gbpCallsSeries.length - 15)] ?? null}
         />
         {hasFormTracking && (
           <StatCard
             label="Form Submissions"
             value={formsSeries[formsSeries.length - 1] ?? null}
-            previous={formsSeries[formsSeries.length - 2] ?? null}
+            previous={formsSeries[Math.max(0, formsSeries.length - 15)] ?? null}
           />
         )}
         <div style={{
