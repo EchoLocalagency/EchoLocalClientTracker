@@ -15,11 +15,11 @@ export async function GET() {
         .map(async (filename) => {
           const content = await readFile(join(DRAFTS_DIR, filename), 'utf-8');
 
-          // Parse metadata from draft files
+          // Parse metadata from draft files (mixed case keys like "Pillar:", "Status:", etc.)
           const lines = content.split('\n');
           const meta: Record<string, string> = {};
-          for (const line of lines.slice(0, 10)) {
-            const match = line.match(/^([A-Z ]+):\s*(.+)/);
+          for (const line of lines.slice(0, 15)) {
+            const match = line.match(/^([A-Za-z ]+):\s*(.+)/);
             if (match) meta[match[1].trim().toLowerCase()] = match[2].trim();
           }
 
@@ -29,13 +29,29 @@ export async function GET() {
             ? `${dateMatch[1].slice(0, 4)}-${dateMatch[1].slice(4, 6)}-${dateMatch[1].slice(6, 8)}`
             : null;
 
-          // Extract post body (between [POST BEGINS] and [POST ENDS])
-          const bodyStart = content.indexOf('[POST BEGINS BELOW THIS LINE]');
-          const bodyEnd = content.indexOf('[POST ENDS ABOVE THIS LINE]');
-          const postBody =
-            bodyStart > -1 && bodyEnd > -1
-              ? content.slice(bodyStart + '[POST BEGINS BELOW THIS LINE]'.length, bodyEnd).trim()
-              : null;
+          // Extract post body - try multiple marker formats
+          let postBody: string | null = null;
+
+          // Format 1: [POST BEGINS BELOW THIS LINE] ... [POST ENDS ABOVE THIS LINE]
+          const bodyStart1 = content.indexOf('[POST BEGINS BELOW THIS LINE]');
+          const bodyEnd1 = content.indexOf('[POST ENDS ABOVE THIS LINE]');
+          if (bodyStart1 > -1 && bodyEnd1 > -1) {
+            postBody = content.slice(bodyStart1 + '[POST BEGINS BELOW THIS LINE]'.length, bodyEnd1).trim();
+          }
+
+          // Format 2: "POST TEXT (copy exactly):" ... next "---"
+          if (!postBody) {
+            const postTextIdx = content.indexOf('POST TEXT');
+            if (postTextIdx > -1) {
+              // Skip past the "POST TEXT (copy exactly):" line
+              const lineEnd = content.indexOf('\n', postTextIdx);
+              const afterMarker = lineEnd > -1 ? content.slice(lineEnd + 1) : content.slice(postTextIdx);
+              const nextSeparator = afterMarker.indexOf('\n---');
+              postBody = nextSeparator > -1
+                ? afterMarker.slice(0, nextSeparator).trim()
+                : afterMarker.trim();
+            }
+          }
 
           const isResearch = filename.startsWith('research-');
 
