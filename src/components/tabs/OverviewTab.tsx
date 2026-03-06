@@ -1,7 +1,7 @@
 'use client';
 
 import { Report } from '@/lib/types';
-import { parseMetricValue, calcHealthScore, calcVelocity, dailyRate } from '@/lib/utils';
+import { parseMetricValue, calcHealthScore, calcVelocity, rollingSum14 } from '@/lib/utils';
 import StatCard from '@/components/StatCard';
 import HealthScoreCard from '@/components/HealthScoreCard';
 import AlertBanner, { AlertItem } from '@/components/AlertBanner';
@@ -56,30 +56,40 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
     alerts.push({ severity: 'warning', message: `Organic sessions dropped ${Math.abs(organicDelta).toFixed(0)}%`, hint: 'Check for algorithm updates or indexing issues in GSC' });
   }
 
-  // Chart data (normalized to daily rates so old 14-day and new 1-day reports are comparable)
-  const chartData = reports.map((rep) => ({
+  // Chart data: 14-day rolling totals (sum of trailing 14 daily data points)
+  const impressionsRaw = reports.map((rep) => rep.gsc_impressions);
+  const chartData = reports.map((rep, i) => ({
     date: new Date(rep.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    impressions: dailyRate(rep.gsc_impressions, rep.period_start, rep.period_end),
+    impressions: rollingSum14(impressionsRaw, i),
     periodStart: rep.period_start,
     periodEnd: rep.period_end,
   }));
 
-  // GBP chart data
-  const gbpChartData = reports.map((rep) => ({
+  // GBP chart data: 14-day rolling totals
+  const gbpImpRaw = reports.map((rep) => rep.gbp_total_impressions);
+  const gbpCallsRaw = reports.map((rep) => rep.gbp_call_clicks);
+  const gbpWebRaw = reports.map((rep) => rep.gbp_website_clicks);
+  const gbpChartData = reports.map((rep, i) => ({
     date: new Date(rep.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    impressions: dailyRate(rep.gbp_total_impressions, rep.period_start, rep.period_end),
-    calls: dailyRate(rep.gbp_call_clicks, rep.period_start, rep.period_end),
-    website: dailyRate(rep.gbp_website_clicks, rep.period_start, rep.period_end),
+    impressions: rollingSum14(gbpImpRaw, i),
+    calls: rollingSum14(gbpCallsRaw, i),
+    website: rollingSum14(gbpWebRaw, i),
   }));
 
-  // Sparkline + velocity data from all reports (normalized to daily rates)
+  // Sparkline + velocity data: 14-day rolling totals
   const source = allReports && allReports.length > 0 ? allReports : reports;
-  const organicSeries = source.map((rep) => dailyRate(rep.ga4_organic, rep.period_start, rep.period_end));
-  const impressionsSeries = source.map((rep) => dailyRate(rep.gsc_impressions, rep.period_start, rep.period_end));
-  const phoneSeries = source.map((rep) => dailyRate(rep.ga4_phone_clicks, rep.period_start, rep.period_end));
-  const gbpImpressionsSeries = source.map((rep) => dailyRate(rep.gbp_total_impressions, rep.period_start, rep.period_end));
-  const gbpCallsSeries = source.map((rep) => dailyRate(rep.gbp_call_clicks, rep.period_start, rep.period_end));
-  const gbpWebsiteSeries = source.map((rep) => dailyRate(rep.gbp_website_clicks, rep.period_start, rep.period_end));
+  const organicRaw = source.map((rep) => rep.ga4_organic);
+  const impressionsAllRaw = source.map((rep) => rep.gsc_impressions);
+  const phoneRaw = source.map((rep) => rep.ga4_phone_clicks);
+  const gbpImpAllRaw = source.map((rep) => rep.gbp_total_impressions);
+  const organicSeries = organicRaw.map((_, i) => rollingSum14(organicRaw, i));
+  const impressionsSeries = impressionsAllRaw.map((_, i) => rollingSum14(impressionsAllRaw, i));
+  const phoneSeries = phoneRaw.map((_, i) => rollingSum14(phoneRaw, i));
+  const gbpImpressionsSeries = gbpImpAllRaw.map((_, i) => rollingSum14(gbpImpAllRaw, i));
+  const gbpCallsRawAll = source.map((rep) => rep.gbp_call_clicks);
+  const gbpWebRawAll = source.map((rep) => rep.gbp_website_clicks);
+  const gbpCallsSeries = gbpCallsRawAll.map((_, i) => rollingSum14(gbpCallsRawAll, i));
+  const gbpWebsiteSeries = gbpWebRawAll.map((_, i) => rollingSum14(gbpWebRawAll, i));
   const hasGbp = source.some((rep) => (rep.gbp_total_impressions ?? 0) > 0);
 
   // Use the most recent report that has actual GBP data (skip NULLs from failed pulls)

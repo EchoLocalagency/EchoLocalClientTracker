@@ -1,7 +1,7 @@
 'use client';
 
 import { Report } from '@/lib/types';
-import { dailyRate } from '@/lib/utils';
+import { rollingSum14 } from '@/lib/utils';
 import StatCard from '@/components/StatCard';
 import {
   ResponsiveContainer,
@@ -30,11 +30,14 @@ export default function ConversionsTab({ reports, latestReport, hasFormTracking 
   const totalCalls = (r: Report) => (r.ga4_phone_clicks ?? 0) + (r.gbp_call_clicks ?? 0);
   const totalCallsPrev = (r: Report) => (r.ga4_phone_clicks_prev ?? 0) + (r.gbp_call_clicks_prev ?? 0);
 
-  const phoneData = sorted.map((r) => ({
+  const webCallsRaw = sorted.map((r) => r.ga4_phone_clicks);
+  const gbpCallsRaw = sorted.map((r) => r.gbp_call_clicks);
+  const formsRaw = sorted.map((r) => r.ga4_form_submits);
+  const phoneData = sorted.map((r, i) => ({
     date: new Date(r.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    'Website Calls': dailyRate(r.ga4_phone_clicks, r.period_start, r.period_end),
-    'GBP Calls': dailyRate(r.gbp_call_clicks, r.period_start, r.period_end),
-    forms: dailyRate(r.ga4_form_submits, r.period_start, r.period_end),
+    'Website Calls': rollingSum14(webCallsRaw, i),
+    'GBP Calls': rollingSum14(gbpCallsRaw, i),
+    forms: rollingSum14(formsRaw, i),
   }));
 
   const latestTotal = totalCalls(latestReport);

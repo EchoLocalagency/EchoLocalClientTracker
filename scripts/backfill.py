@@ -158,13 +158,12 @@ def pull_pagespeed(url):
 
 
 def generate_windows(start, end):
-    """Generate 14-day windows from oldest to newest."""
+    """Generate daily windows from oldest to newest."""
     windows = []
     cursor = start
-    while cursor < end:
-        w_end = min(cursor + timedelta(days=13), end)
-        windows.append((cursor, w_end))
-        cursor = w_end + timedelta(days=1)
+    while cursor <= end:
+        windows.append((cursor, cursor))
+        cursor += timedelta(days=1)
     return windows
 
 
@@ -221,9 +220,9 @@ def main():
 
             print(f"  Period {w_start} → {w_end} ...", end=" ", flush=True)
 
-            # Previous period
-            prev_end   = w_start - timedelta(days=1)
-            prev_start = prev_end - timedelta(days=13)
+            # Previous period: same day last week
+            prev_start = w_start - timedelta(days=7)
+            prev_end   = prev_start
 
             try:
                 ga  = pull_ga4(creds, client["ga4_property"], w_start, w_end)

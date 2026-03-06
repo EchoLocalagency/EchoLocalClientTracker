@@ -8,6 +8,16 @@ export function dailyRate(value: number | null, periodStart: string | null, peri
   return Math.round((value / days) * 10) / 10;
 }
 
+/** Compute 14-day rolling sum for a metric across sorted reports. */
+export function rollingSum14(values: (number | null)[], index: number): number {
+  let sum = 0;
+  const start = Math.max(0, index - 13);
+  for (let i = start; i <= index; i++) {
+    sum += values[i] ?? 0;
+  }
+  return sum;
+}
+
 export function calcDelta(current: number | null, previous: number | null): number | null {
   if (current == null || previous == null || previous === 0) return null;
   return ((current - previous) / previous) * 100;

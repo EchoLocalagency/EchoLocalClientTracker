@@ -1,7 +1,7 @@
 'use client';
 
 import { Report, GbpKeyword } from '@/lib/types';
-import { dailyRate } from '@/lib/utils';
+import { rollingSum14 } from '@/lib/utils';
 import StatCard from '@/components/StatCard';
 import {
   ResponsiveContainer,
@@ -45,21 +45,25 @@ export default function GbpTab({ reports, latestReport, gbpKeywords = [] }: GbpT
     );
   }
 
-  const chartData = [...reports]
-    .sort((a, b) => a.run_date.localeCompare(b.run_date))
-    .map((r) => ({
-      date: new Date(r.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      impressions: dailyRate(r.gbp_total_impressions, r.period_start, r.period_end),
-      maps: dailyRate(r.gbp_maps_impressions, r.period_start, r.period_end),
-      search: dailyRate(r.gbp_search_impressions, r.period_start, r.period_end),
-      calls: dailyRate(r.gbp_call_clicks, r.period_start, r.period_end),
-      website: dailyRate(r.gbp_website_clicks, r.period_start, r.period_end),
-    }));
-
   const sorted = [...reports].sort((a, b) => a.run_date.localeCompare(b.run_date));
-  const impressionsSpark = sorted.map((r) => dailyRate(r.gbp_total_impressions, r.period_start, r.period_end));
-  const callsSpark = sorted.map((r) => dailyRate(r.gbp_call_clicks, r.period_start, r.period_end));
-  const websiteSpark = sorted.map((r) => dailyRate(r.gbp_website_clicks, r.period_start, r.period_end));
+  const gbpTotalRaw = sorted.map((r) => r.gbp_total_impressions);
+  const gbpMapsRaw = sorted.map((r) => r.gbp_maps_impressions);
+  const gbpSearchRaw = sorted.map((r) => r.gbp_search_impressions);
+  const gbpCallsRaw = sorted.map((r) => r.gbp_call_clicks);
+  const gbpWebRaw = sorted.map((r) => r.gbp_website_clicks);
+
+  const chartData = sorted.map((r, i) => ({
+    date: new Date(r.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    impressions: rollingSum14(gbpTotalRaw, i),
+    maps: rollingSum14(gbpMapsRaw, i),
+    search: rollingSum14(gbpSearchRaw, i),
+    calls: rollingSum14(gbpCallsRaw, i),
+    website: rollingSum14(gbpWebRaw, i),
+  }));
+
+  const impressionsSpark = gbpTotalRaw.map((_, i) => rollingSum14(gbpTotalRaw, i));
+  const callsSpark = gbpCallsRaw.map((_, i) => rollingSum14(gbpCallsRaw, i));
+  const websiteSpark = gbpWebRaw.map((_, i) => rollingSum14(gbpWebRaw, i));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>

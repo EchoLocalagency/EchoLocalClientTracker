@@ -1,7 +1,7 @@
 'use client';
 
 import { Report, GscQuery } from '@/lib/types';
-import { dailyRate } from '@/lib/utils';
+import { rollingSum14 } from '@/lib/utils';
 import {
   ResponsiveContainer,
   LineChart,
@@ -26,16 +26,20 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries }: 
     return <div style={{ color: 'var(--text-secondary)', padding: 40, textAlign: 'center' }}>No data yet.</div>;
   }
 
-  const impressionsData = reports.map((r) => ({
+  const gscImpRaw = reports.map((r) => r.gsc_impressions);
+  const gscClicksRaw = reports.map((r) => r.gsc_clicks);
+  const impressionsData = reports.map((r, i) => ({
     date: new Date(r.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    impressions: dailyRate(r.gsc_impressions, r.period_start, r.period_end),
-    clicks: dailyRate(r.gsc_clicks, r.period_start, r.period_end),
+    impressions: rollingSum14(gscImpRaw, i),
+    clicks: rollingSum14(gscClicksRaw, i),
   }));
 
-  const organicData = reports.map((r) => ({
+  const organicRaw = reports.map((r) => r.ga4_organic);
+  const sessionsRaw = reports.map((r) => r.ga4_sessions);
+  const organicData = reports.map((r, i) => ({
     date: new Date(r.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    organic: dailyRate(r.ga4_organic, r.period_start, r.period_end),
-    total: dailyRate(r.ga4_sessions, r.period_start, r.period_end),
+    organic: rollingSum14(organicRaw, i),
+    total: rollingSum14(sessionsRaw, i),
   }));
 
   const positionData = reports.map((r) => ({
