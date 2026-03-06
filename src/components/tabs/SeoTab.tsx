@@ -1,6 +1,8 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Report, GscQuery } from '@/lib/types';
+import { supabase } from '@/lib/supabase';
 import { rollingSum14 } from '@/lib/utils';
 import {
   ResponsiveContainer,
@@ -19,9 +21,40 @@ interface SeoTabProps {
   queries: GscQuery[];
   latestReport: Report | null;
   prevQueries?: GscQuery[];
+  clientId?: string;
 }
 
-export default function SeoTab({ reports, queries, latestReport, prevQueries }: SeoTabProps) {
+export default function SeoTab({ reports, queries, latestReport, prevQueries, clientId }: SeoTabProps) {
+  const [selectedQuery, setSelectedQuery] = useState<string | null>(null);
+  const [queryHistory, setQueryHistory] = useState<{ date: string; position: number }[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+  useEffect(() => {
+    if (!selectedQuery || !clientId) {
+      setQueryHistory([]);
+      return;
+    }
+    setHistoryLoading(true);
+    supabase
+      .from('gsc_queries')
+      .select('run_date, position')
+      .eq('client_id', clientId)
+      .eq('query', selectedQuery)
+      .order('run_date', { ascending: true })
+      .then(({ data, error }) => {
+        if (error || !data) {
+          setQueryHistory([]);
+        } else {
+          setQueryHistory(
+            data.map((d) => ({
+              date: new Date(d.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+              position: d.position,
+            }))
+          );
+        }
+        setHistoryLoading(false);
+      });
+  }, [selectedQuery, clientId]);
   if (!latestReport) {
     return <div style={{ color: 'var(--text-secondary)', padding: 40, textAlign: 'center' }}>No data yet.</div>;
   }
@@ -172,7 +205,15 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries }: 
               const posMovement = prev ? prev.position - q.position : null;
 
               return (
-                <tr key={q.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                <tr
+                  key={q.id}
+                  onClick={() => setSelectedQuery(selectedQuery === q.query ? null : q.query)}
+                  style={{
+                    borderBottom: '1px solid var(--border)',
+                    cursor: 'pointer',
+                    background: selectedQuery === q.query ? 'rgba(232, 255, 0, 0.06)' : 'transparent',
+                  }}
+                >
                   <td style={{ padding: '10px 12px' }}>{q.query}</td>
                   <td style={{ padding: '10px 12px', textAlign: 'right', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>{q.impressions.toLocaleString()}</td>
                   <td style={{ padding: '10px 12px', textAlign: 'right', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>{q.clicks.toLocaleString()}</td>
@@ -204,6 +245,66 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries }: 
           </tbody>
         </table>
       </div>
+
+      {/* Keyword position history */}
+      {selectedQuery && (
+        <div style={chartStyle}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <div>
+              <div style={sectionLabel}>Position History</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: -12 }}>
+                {selectedQuery}
+              </div>
+            </div>
+            <button
+              onClick={() => setSelectedQuery(null)}
+              style={{
+                background: 'none',
+                border: '1px solid var(--border)',
+                borderRadius: 6,
+                color: 'var(--text-secondary)',
+                fontSize: 11,
+                padding: '4px 10px',
+                cursor: 'pointer',
+              }}
+            >
+              Close
+            </button>
+          </div>
+          {historyLoading ? (
+            <div style={{ color: 'var(--text-secondary)', fontSize: 13, padding: '20px 0' }}>Loading...</div>
+          ) : queryHistory.length < 2 ? (
+            <div style={{ color: 'var(--text-secondary)', fontSize: 13, padding: '20px 0' }}>
+              Not enough history yet. Position tracking starts appearing after multiple daily reports.
+            </div>
+          ) : (
+            <div style={{ height: 200 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={queryHistory} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                  <YAxis
+                    reversed
+                    tick={{ fontSize: 11 }}
+                    domain={['dataMin - 2', 'dataMax + 2']}
+                  />
+                  <Tooltip content={<ChartTooltip />} />
+                  <Line
+                    type="monotone"
+                    dataKey="position"
+                    stroke="#E8FF00"
+                    strokeWidth={2}
+                    dot={false}
+                    name="Position"
+                    isAnimationActive={false}
+                    activeDot={{ r: 4, stroke: '#E8FF00', strokeWidth: 2, fill: 'var(--bg-surface)' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

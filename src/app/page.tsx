@@ -246,7 +246,7 @@ export default function Dashboard() {
                 <OverviewTab reports={filteredReports} latestReport={latestReport} allReports={reports} />
               )}
               {activeTab === 'seo' && (
-                <SeoTab reports={filteredReports} queries={queries} latestReport={latestReport} prevQueries={prevQueries} />
+                <SeoTab reports={filteredReports} queries={queries} latestReport={latestReport} prevQueries={prevQueries} clientId={activeClient?.id} />
               )}
               {activeTab === 'conversions' && (
                 <ConversionsTab reports={filteredReports} latestReport={latestReport} hasFormTracking={hasFormTracking} />
