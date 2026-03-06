@@ -274,7 +274,8 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
                 name="Call Clicks"
                 stroke="var(--success)"
                 strokeWidth={2}
-                dot={{ r: 3, fill: 'var(--success)' }}
+                dot={false}
+                activeDot={{ r: 4, stroke: 'var(--success)', strokeWidth: 2, fill: 'var(--bg-surface)' }}
               />
               <Line
                 yAxisId="right"
@@ -283,7 +284,8 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
                 name="Website Clicks"
                 stroke="var(--text-primary)"
                 strokeWidth={2}
-                dot={{ r: 3, fill: 'var(--text-primary)' }}
+                dot={false}
+                activeDot={{ r: 4, stroke: 'var(--text-primary)', strokeWidth: 2, fill: 'var(--bg-surface)' }}
               />
             </LineChart>
           </ResponsiveContainer>

@@ -114,8 +114,24 @@ export default function GbpTab({ reports, latestReport, gbpKeywords = [] }: GbpT
               <XAxis dataKey="date" tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} />
               <YAxis tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} />
               <Tooltip content={<ChartTooltip />} />
-              <Line type="monotone" dataKey="search" name="Search" stroke="var(--accent)" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="maps" name="Maps" stroke="var(--text-primary)" strokeWidth={2} dot={false} />
+              <Line
+                type="monotone"
+                dataKey="search"
+                name="Search"
+                stroke="var(--accent)"
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4, stroke: 'var(--accent)', strokeWidth: 2, fill: 'var(--bg-surface)' }}
+              />
+              <Line
+                type="monotone"
+                dataKey="maps"
+                name="Maps"
+                stroke="var(--text-primary)"
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4, stroke: 'var(--text-primary)', strokeWidth: 2, fill: 'var(--bg-surface)' }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -136,7 +152,15 @@ export default function GbpTab({ reports, latestReport, gbpKeywords = [] }: GbpT
               <XAxis dataKey="date" tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} />
               <YAxis tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} allowDecimals={false} />
               <Tooltip content={<ChartTooltip />} />
-              <Line type="monotone" dataKey="calls" name="Call Clicks" stroke="var(--success)" strokeWidth={2} dot={{ r: 3, fill: 'var(--success)' }} />
+              <Line
+                type="monotone"
+                dataKey="calls"
+                name="Call Clicks"
+                stroke="var(--success)"
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4, stroke: 'var(--success)', strokeWidth: 2, fill: 'var(--bg-surface)' }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -157,7 +181,15 @@ export default function GbpTab({ reports, latestReport, gbpKeywords = [] }: GbpT
               <XAxis dataKey="date" tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} />
               <YAxis tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} allowDecimals={false} />
               <Tooltip content={<ChartTooltip />} />
-              <Line type="monotone" dataKey="website" name="Website Clicks" stroke="var(--accent)" strokeWidth={2} dot={{ r: 3, fill: 'var(--accent)' }} />
+              <Line
+                type="monotone"
+                dataKey="website"
+                name="Website Clicks"
+                stroke="var(--accent)"
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4, stroke: 'var(--accent)', strokeWidth: 2, fill: 'var(--bg-surface)' }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
