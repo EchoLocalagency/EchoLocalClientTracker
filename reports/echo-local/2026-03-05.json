@@ -1,16 +1,16 @@
 {
   "client": "Echo Local",
   "slug": "echo-local",
-  "date": "2026-03-04",
-  "period_start": "2026-03-01",
-  "period_end": "2026-03-01",
-  "prev_start": "2026-02-22",
-  "prev_end": "2026-02-22",
+  "date": "2026-03-05",
+  "period_start": "2026-03-02",
+  "period_end": "2026-03-02",
+  "prev_start": "2026-02-23",
+  "prev_end": "2026-02-23",
   "primary_market": "San Diego County, CA",
   "error_flags": [],
   "ga4": {
-    "sessions": 4,
-    "sessions_prev": 0,
+    "sessions": 10,
+    "sessions_prev": 1,
     "organic": 0,
     "organic_prev": 0,
     "phone_clicks": 0,
@@ -20,17 +20,17 @@
   },
   "gsc": {
     "impressions": 1,
-    "impressions_prev": 0,
+    "impressions_prev": 1,
     "clicks": 0,
     "clicks_prev": 0,
-    "avg_position": 9,
-    "avg_position_prev": 0,
+    "avg_position": 6,
+    "avg_position_prev": 9,
     "top_queries": [
       {
         "query": "echo local",
         "impressions": 1,
         "clicks": 0,
-        "position": 9
+        "position": 6
       }
     ]
   },
@@ -135,19 +135,19 @@
     }
   ],
   "pagespeed": {
-    "mobile_score": 67,
+    "mobile_score": 70,
     "desktop_score": 96,
-    "lcp_mobile": "6.9\u00a0s",
+    "lcp_mobile": "6.8\u00a0s",
     "lcp_desktop": "1.4\u00a0s",
     "cls_mobile": "0",
     "cls_desktop": "0",
-    "tbt_mobile": "70\u00a0ms",
-    "tbt_desktop": "80\u00a0ms"
+    "tbt_mobile": "30\u00a0ms",
+    "tbt_desktop": "40\u00a0ms"
   },
   "gbp": null,
   "gbp_keywords": [],
   "flags": [
-    "Mobile LCP is 6.9\u00a0s \u2014 above 4s threshold"
+    "Mobile LCP is 6.8\u00a0s \u2014 above 4s threshold"
   ],
   "conversion_rate": 0.0
 }

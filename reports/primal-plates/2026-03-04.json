@@ -7,6 +7,7 @@
   "prev_start": "2026-02-22",
   "prev_end": "2026-02-22",
   "primary_market": "",
+  "error_flags": [],
   "ga4": {
     "sessions": 1,
     "sessions_prev": 0,
@@ -28,19 +29,19 @@
   },
   "target_keyword_rankings": [],
   "pagespeed": {
-    "mobile_score": 78,
-    "desktop_score": 98,
-    "lcp_mobile": "5.0\u00a0s",
-    "lcp_desktop": "0.8\u00a0s",
-    "cls_mobile": "0.005",
+    "mobile_score": 66,
+    "desktop_score": 96,
+    "lcp_mobile": "7.7\u00a0s",
+    "lcp_desktop": "1.3\u00a0s",
+    "cls_mobile": "0",
     "cls_desktop": "0.009",
-    "tbt_mobile": "60\u00a0ms",
-    "tbt_desktop": "90\u00a0ms"
+    "tbt_mobile": "110\u00a0ms",
+    "tbt_desktop": "100\u00a0ms"
   },
   "gbp": null,
   "gbp_keywords": [],
   "flags": [
-    "Mobile LCP is 5.0\u00a0s \u2014 above 4s threshold"
+    "Mobile LCP is 7.7\u00a0s \u2014 above 4s threshold"
   ],
   "conversion_rate": 0.0
 }

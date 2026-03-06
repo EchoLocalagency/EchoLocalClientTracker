@@ -429,15 +429,13 @@ def run_report(client, creds, today):
     print(f"  {name}")
     print(f"{'='*60}")
 
-    # Daily data: pull just one day (3 days ago for GSC lag)
-    report_date = today - timedelta(days=3)
-    period_start = report_date
-    period_end = report_date
+    # 14-day rolling window (ending 3 days ago for GSC lag)
+    period_end = today - timedelta(days=3)
+    period_start = period_end - timedelta(days=13)
 
-    # Compare to same day last week
-    prev_date = report_date - timedelta(days=7)
-    prev_start = prev_date
-    prev_end = prev_date
+    # Previous 14-day window for comparison
+    prev_end = period_start - timedelta(days=1)
+    prev_start = prev_end - timedelta(days=13)
 
     primary_market = client.get("primary_market", "")
     report = {
@@ -839,9 +837,10 @@ def print_summary(reports):
 
 def main():
     today = date.today()
-    report_date = today - timedelta(days=3)
+    period_end = today - timedelta(days=3)
+    period_start = period_end - timedelta(days=13)
     print(f"Client Performance Report — {today}")
-    print(f"Daily data for: {report_date} (vs same day last week: {report_date - timedelta(days=7)})")
+    print(f"14-day rolling: {period_start} to {period_end}")
 
     with open(CLIENTS_FILE) as f:
         clients = json.load(f)

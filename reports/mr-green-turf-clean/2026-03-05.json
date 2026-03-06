@@ -1,96 +1,114 @@
 {
   "client": "Mr Green Turf Clean",
   "slug": "mr-green-turf-clean",
-  "date": "2026-03-04",
-  "period_start": "2026-03-01",
-  "period_end": "2026-03-01",
-  "prev_start": "2026-02-22",
-  "prev_end": "2026-02-22",
+  "date": "2026-03-05",
+  "period_start": "2026-03-02",
+  "period_end": "2026-03-02",
+  "prev_start": "2026-02-23",
+  "prev_end": "2026-02-23",
   "primary_market": "Poway, CA",
   "error_flags": [],
   "ga4": {
-    "sessions": 8,
-    "sessions_prev": 9,
-    "organic": 3,
-    "organic_prev": 5,
+    "sessions": 9,
+    "sessions_prev": 12,
+    "organic": 7,
+    "organic_prev": 7,
     "phone_clicks": 0,
     "phone_clicks_prev": 0,
     "form_submits": 1,
-    "form_submits_prev": 0
+    "form_submits_prev": 2
   },
   "gsc": {
-    "impressions": 114,
-    "impressions_prev": 4,
-    "clicks": 1,
+    "impressions": 101,
+    "impressions_prev": 18,
+    "clicks": 6,
     "clicks_prev": 0,
-    "avg_position": 22.3,
-    "avg_position_prev": 35,
+    "avg_position": 29.6,
+    "avg_position_prev": 28.4,
     "top_queries": [
       {
-        "query": "artificial grass cleaning",
-        "impressions": 3,
-        "clicks": 0,
-        "position": 58.3
+        "query": "turf cleaning san diego",
+        "impressions": 6,
+        "clicks": 2,
+        "position": 1
+      },
+      {
+        "query": "turf cleaning services",
+        "impressions": 2,
+        "clicks": 1,
+        "position": 4.5
       },
       {
         "query": "artificial grass cleaning san diego",
-        "impressions": 7,
+        "impressions": 9,
         "clicks": 0,
-        "position": 2.1
+        "position": 1.6
       },
       {
         "query": "artificial grass cleaning service",
-        "impressions": 3,
+        "impressions": 5,
         "clicks": 0,
-        "position": 57
+        "position": 72.4
       },
       {
-        "query": "artificial grass for dogs",
+        "query": "artificial turf cleaners",
         "impressions": 1,
         "clicks": 0,
-        "position": 41
-      },
-      {
-        "query": "artificial grass maintenance san diego",
-        "impressions": 1,
-        "clicks": 0,
-        "position": 4
+        "position": 61
       },
       {
         "query": "artificial turf cleaning",
+        "impressions": 2,
+        "clicks": 0,
+        "position": 48.5
+      },
+      {
+        "query": "artificial turf cleaning boca raton",
         "impressions": 1,
         "clicks": 0,
-        "position": 55
+        "position": 91
       },
       {
         "query": "artificial turf cleaning company",
-        "impressions": 1,
+        "impressions": 6,
         "clicks": 0,
-        "position": 81
+        "position": 68.3
       },
       {
         "query": "artificial turf cleaning in menifee",
-        "impressions": 2,
-        "clicks": 0,
-        "position": 85
-      },
-      {
-        "query": "artificial turf cleaning orange county",
         "impressions": 1,
         "clicks": 0,
-        "position": 71
+        "position": 87
+      },
+      {
+        "query": "artificial turf cleaning los angeles",
+        "impressions": 2,
+        "clicks": 0,
+        "position": 81.5
       },
       {
         "query": "artificial turf cleaning san diego",
-        "impressions": 9,
+        "impressions": 11,
         "clicks": 0,
-        "position": 2
+        "position": 1.2
       },
       {
-        "query": "artificial turf cleaning service",
+        "query": "artificial turf cleaning san jose",
         "impressions": 3,
         "clicks": 0,
-        "position": 35.3
+        "position": 91.7
+      },
+      {
+        "query": "artificial turf cleaning santa clarita",
+        "impressions": 3,
+        "clicks": 0,
+        "position": 87.7
+      },
+      {
+        "query": "artificial turf cleaning wellington",
+        "impressions": 2,
+        "clicks": 0,
+        "position": 86
       },
       {
         "query": "artificial turf poway",
@@ -99,82 +117,64 @@
         "position": 11
       },
       {
-        "query": "astro turf cleaning company",
+        "query": "artificial turf poway ca",
         "impressions": 1,
         "clicks": 0,
-        "position": 50
+        "position": 17
       },
       {
-        "query": "astro turf cleaning service",
-        "impressions": 2,
-        "clicks": 0,
-        "position": 48
-      },
-      {
-        "query": "fake grass for dogs near me",
+        "query": "encinitas turf installation",
         "impressions": 1,
         "clicks": 0,
         "position": 21
       },
       {
-        "query": "grass cleaning service",
+        "query": "lawn care san diego ca",
         "impressions": 1,
         "clicks": 0,
-        "position": 37
+        "position": 21
       },
       {
-        "query": "green synthetic grass",
-        "impressions": 1,
+        "query": "professional artificial grass cleaners",
+        "impressions": 3,
         "clicks": 0,
-        "position": 41
-      },
-      {
-        "query": "lawn restoration services near me",
-        "impressions": 1,
-        "clicks": 0,
-        "position": 1
-      },
-      {
-        "query": "pet turf cleaning san diego",
-        "impressions": 1,
-        "clicks": 0,
-        "position": 2
-      },
-      {
-        "query": "professional turf cleaner",
-        "impressions": 1,
-        "clicks": 0,
-        "position": 6
-      },
-      {
-        "query": "professional turf cleaning",
-        "impressions": 1,
-        "clicks": 0,
-        "position": 28
+        "position": 24.3
       },
       {
         "query": "restore burned and damage grass southern california",
         "impressions": 1,
         "clicks": 0,
-        "position": 11
+        "position": 10
       },
       {
-        "query": "synthetic turf cleaners",
+        "query": "san diego turf installation",
         "impressions": 1,
         "clicks": 0,
-        "position": 84
+        "position": 41
       },
       {
         "query": "synthetic turf cleaning service",
-        "impressions": 1,
+        "impressions": 2,
         "clicks": 0,
-        "position": 56
+        "position": 28.5
+      },
+      {
+        "query": "turf clean",
+        "impressions": 2,
+        "clicks": 0,
+        "position": 32.5
+      },
+      {
+        "query": "turf cleaners",
+        "impressions": 3,
+        "clicks": 0,
+        "position": 77.7
       },
       {
         "query": "turf cleaners near me",
         "impressions": 1,
         "clicks": 0,
-        "position": 60
+        "position": 61
       }
     ]
   },
@@ -279,16 +279,16 @@
     },
     {
       "keyword": "artificial turf cleaning san diego",
-      "impressions": 9,
+      "impressions": 11,
       "clicks": 0,
-      "position": 2.0,
+      "position": 1.2,
       "status": "ranking"
     },
     {
       "keyword": "turf cleaning san diego",
-      "impressions": 13,
-      "clicks": 0,
-      "position": 1.8,
+      "impressions": 17,
+      "clicks": 2,
+      "position": 1.1,
       "status": "ranking"
     },
     {
@@ -307,50 +307,38 @@
     }
   ],
   "pagespeed": {
-    "mobile_score": 69,
-    "desktop_score": 96,
-    "lcp_mobile": "4.5\u00a0s",
+    "mobile_score": 74,
+    "desktop_score": 97,
+    "lcp_mobile": "4.2\u00a0s",
     "lcp_desktop": "1.1\u00a0s",
-    "cls_mobile": "0.175",
+    "cls_mobile": "0",
     "cls_desktop": "0.036",
-    "tbt_mobile": "80\u00a0ms",
-    "tbt_desktop": "10\u00a0ms"
+    "tbt_mobile": "50\u00a0ms",
+    "tbt_desktop": "20\u00a0ms"
   },
   "ghl_form_submits": 1,
-  "ghl_form_submits_prev": 0,
+  "ghl_form_submits_prev": 2,
   "gbp": {
     "maps_impressions": 1,
     "maps_impressions_prev": 0,
-    "search_impressions": 7,
-    "search_impressions_prev": 6,
-    "total_impressions": 8,
-    "total_impressions_prev": 6,
+    "search_impressions": 12,
+    "search_impressions_prev": 8,
+    "total_impressions": 13,
+    "total_impressions_prev": 8,
     "call_clicks": 0,
     "call_clicks_prev": 0,
-    "website_clicks": 1,
-    "website_clicks_prev": 3,
+    "website_clicks": 2,
+    "website_clicks_prev": 1,
     "direction_requests": 0,
     "direction_requests_prev": 0
   },
   "gbp_keywords": [
     {
       "keyword": "turf cleaning san diego",
-      "impressions": 34
+      "impressions": 36
     },
     {
-      "keyword": "artificial turf cleaning san diego coat",
-      "impressions": 0
-    },
-    {
-      "keyword": "green turf",
-      "impressions": 0
-    },
-    {
-      "keyword": "mr clean turf green goo",
-      "impressions": 0
-    },
-    {
-      "keyword": "mr. green turf clean",
+      "keyword": "artificial grass urine remover service",
       "impressions": 0
     },
     {
@@ -360,15 +348,10 @@
     {
       "keyword": "turf cleaning",
       "impressions": 0
-    },
-    {
-      "keyword": "turf cleaning services",
-      "impressions": 0
     }
   ],
   "flags": [
-    "Mobile LCP is 4.5\u00a0s \u2014 above 4s threshold",
-    "Organic sessions dropped 40% vs last week"
+    "Mobile LCP is 4.2\u00a0s \u2014 above 4s threshold"
   ],
-  "conversion_rate": 12.5
+  "conversion_rate": 11.1
 }

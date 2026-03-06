@@ -946,13 +946,13 @@
       "type": "trend",
       "query": "Local San Diego Pressure Washing: All",
       "urgency_score": 5,
-      "reason": "Rising query contains key terms: washing, diego, pressure"
+      "reason": "Rising query contains key terms: washing, pressure, diego"
     },
     {
       "type": "trend",
       "query": "Local San Diego Pressure Washing",
       "urgency_score": 5,
-      "reason": "Rising query contains key terms: washing, diego, pressure"
+      "reason": "Rising query contains key terms: washing, pressure, diego"
     },
     {
       "type": "trend",
@@ -964,7 +964,7 @@
       "type": "trend",
       "query": "Pressure washing service San Diego",
       "urgency_score": 5,
-      "reason": "Rising query contains key terms: washing, diego, pressure"
+      "reason": "Rising query contains key terms: washing, pressure, diego"
     },
     {
       "type": "trend",
@@ -991,5 +991,5 @@
       "reason": "Rising query contains key terms: soft, diego"
     }
   ],
-  "fast_research_date": "2026-03-04"
+  "fast_research_date": "2026-03-05"
 }
