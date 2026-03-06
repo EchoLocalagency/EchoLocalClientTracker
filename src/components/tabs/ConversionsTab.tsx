@@ -33,16 +33,22 @@ export default function ConversionsTab({ reports, latestReport, hasFormTracking 
   const webCallsRaw = sorted.map((r) => r.ga4_phone_clicks);
   const gbpCallsRaw = sorted.map((r) => r.gbp_call_clicks);
   const formsRaw = sorted.map((r) => r.ga4_form_submits);
+  const webCallsSeries = webCallsRaw.map((_, i) => rollingSum14(webCallsRaw, i));
+  const gbpCallsSeries = gbpCallsRaw.map((_, i) => rollingSum14(gbpCallsRaw, i));
+  const formsSeries = formsRaw.map((_, i) => rollingSum14(formsRaw, i));
   const phoneData = sorted.map((r, i) => ({
     date: new Date(r.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    'Website Calls': rollingSum14(webCallsRaw, i),
-    'GBP Calls': rollingSum14(gbpCallsRaw, i),
-    forms: rollingSum14(formsRaw, i),
+    'Website Calls': webCallsSeries[i],
+    'GBP Calls': gbpCallsSeries[i],
+    forms: formsSeries[i],
   }));
 
-  const latestTotal = totalCalls(latestReport);
-  const conversionRate = latestTotal > 0 && latestReport.ga4_sessions != null && latestReport.ga4_sessions > 0
-    ? ((latestTotal / latestReport.ga4_sessions) * 100).toFixed(1) + '%'
+  const totalSeries = webCallsSeries.map((v, i) => (v ?? 0) + (gbpCallsSeries[i] ?? 0));
+  const latestTotal = totalSeries[totalSeries.length - 1] ?? 0;
+  const sessionsSeries = sorted.map((r) => r.ga4_sessions).map((_, i, arr) => rollingSum14(arr, i));
+  const latestSessions = sessionsSeries[sessionsSeries.length - 1] ?? 0;
+  const conversionRate = latestTotal > 0 && latestSessions > 0
+    ? ((latestTotal / latestSessions) * 100).toFixed(1) + '%'
     : '--';
 
   const chartStyle = {
@@ -60,23 +66,23 @@ export default function ConversionsTab({ reports, latestReport, hasFormTracking 
         <StatCard
           label="Total Phone Clicks"
           value={latestTotal}
-          previous={totalCallsPrev(latestReport)}
+          previous={totalSeries[totalSeries.length - 2] ?? null}
         />
         <StatCard
           label="Website Calls"
-          value={latestReport.ga4_phone_clicks}
-          previous={latestReport.ga4_phone_clicks_prev}
+          value={webCallsSeries[webCallsSeries.length - 1] ?? null}
+          previous={webCallsSeries[webCallsSeries.length - 2] ?? null}
         />
         <StatCard
           label="GBP Calls"
-          value={latestReport.gbp_call_clicks}
-          previous={latestReport.gbp_call_clicks_prev}
+          value={gbpCallsSeries[gbpCallsSeries.length - 1] ?? null}
+          previous={gbpCallsSeries[gbpCallsSeries.length - 2] ?? null}
         />
         {hasFormTracking && (
           <StatCard
             label="Form Submissions"
-            value={latestReport.ga4_form_submits}
-            previous={latestReport.ga4_form_submits_prev}
+            value={formsSeries[formsSeries.length - 1] ?? null}
+            previous={formsSeries[formsSeries.length - 2] ?? null}
           />
         )}
         <div style={{

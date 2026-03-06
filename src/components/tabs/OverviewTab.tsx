@@ -292,31 +292,31 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
         </div>
       )}
 
-      {/* Stat cards grid */}
+      {/* Stat cards grid -- values are 14-day rolling totals */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
         <StatCard
           label="Organic Sessions"
-          value={r.ga4_organic}
-          previous={r.ga4_organic_prev}
-          baseline={firstReport?.ga4_organic}
+          value={organicSeries[organicSeries.length - 1] ?? null}
+          previous={organicSeries[organicSeries.length - 2] ?? null}
+          baseline={organicSeries[0] ?? null}
           baselineDate={baselineDate}
           sparklineData={organicSeries}
           velocityLabel={organicVelocity}
         />
         <StatCard
           label="Search Impressions"
-          value={r.gsc_impressions}
-          previous={r.gsc_impressions_prev}
-          baseline={firstReport?.gsc_impressions}
+          value={impressionsSeries[impressionsSeries.length - 1] ?? null}
+          previous={impressionsSeries[impressionsSeries.length - 2] ?? null}
+          baseline={impressionsSeries[0] ?? null}
           baselineDate={baselineDate}
           sparklineData={impressionsSeries}
           velocityLabel={impressionsVelocity}
         />
         <StatCard
           label="Phone Clicks"
-          value={r.ga4_phone_clicks}
-          previous={r.ga4_phone_clicks_prev}
-          baseline={firstReport?.ga4_phone_clicks}
+          value={phoneSeries[phoneSeries.length - 1] ?? null}
+          previous={phoneSeries[phoneSeries.length - 2] ?? null}
+          baseline={phoneSeries[0] ?? null}
           baselineDate={baselineDate}
           sparklineData={phoneSeries}
         />
@@ -329,9 +329,9 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
         {hasGbp && (
           <StatCard
             label="GBP Impressions"
-            value={gbpReport.gbp_total_impressions}
-            previous={gbpReport.gbp_total_impressions_prev}
-            baseline={firstReport?.gbp_total_impressions}
+            value={gbpImpressionsSeries[gbpImpressionsSeries.length - 1] ?? null}
+            previous={gbpImpressionsSeries[gbpImpressionsSeries.length - 2] ?? null}
+            baseline={gbpImpressionsSeries[0] ?? null}
             baselineDate={baselineDate}
             sparklineData={gbpImpressionsSeries}
           />
@@ -339,9 +339,9 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
         {hasGbp && (
           <StatCard
             label="GBP Call Clicks"
-            value={gbpReport.gbp_call_clicks}
-            previous={gbpReport.gbp_call_clicks_prev}
-            baseline={firstReport?.gbp_call_clicks}
+            value={gbpCallsSeries[gbpCallsSeries.length - 1] ?? null}
+            previous={gbpCallsSeries[gbpCallsSeries.length - 2] ?? null}
+            baseline={gbpCallsSeries[0] ?? null}
             baselineDate={baselineDate}
             sparklineData={gbpCallsSeries}
           />
@@ -349,9 +349,9 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
         {hasGbp && (
           <StatCard
             label="GBP Website Clicks"
-            value={gbpReport.gbp_website_clicks}
-            previous={gbpReport.gbp_website_clicks_prev}
-            baseline={firstReport?.gbp_website_clicks}
+            value={gbpWebsiteSeries[gbpWebsiteSeries.length - 1] ?? null}
+            previous={gbpWebsiteSeries[gbpWebsiteSeries.length - 2] ?? null}
+            baseline={gbpWebsiteSeries[0] ?? null}
             baselineDate={baselineDate}
             sparklineData={gbpWebsiteSeries}
           />

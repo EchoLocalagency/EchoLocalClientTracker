@@ -62,39 +62,43 @@ export default function GbpTab({ reports, latestReport, gbpKeywords = [] }: GbpT
   }));
 
   const impressionsSpark = gbpTotalRaw.map((_, i) => rollingSum14(gbpTotalRaw, i));
+  const mapsSpark = gbpMapsRaw.map((_, i) => rollingSum14(gbpMapsRaw, i));
+  const searchSpark = gbpSearchRaw.map((_, i) => rollingSum14(gbpSearchRaw, i));
   const callsSpark = gbpCallsRaw.map((_, i) => rollingSum14(gbpCallsRaw, i));
   const websiteSpark = gbpWebRaw.map((_, i) => rollingSum14(gbpWebRaw, i));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      {/* Stat cards */}
+      {/* Stat cards -- values are 14-day rolling totals */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
         <StatCard
           label="GBP Impressions"
-          value={gbpReport!.gbp_total_impressions}
-          previous={gbpReport!.gbp_total_impressions_prev}
+          value={impressionsSpark[impressionsSpark.length - 1] ?? null}
+          previous={impressionsSpark[impressionsSpark.length - 2] ?? null}
           sparklineData={impressionsSpark}
         />
         <StatCard
           label="Maps Impressions"
-          value={gbpReport!.gbp_maps_impressions}
-          previous={gbpReport!.gbp_maps_impressions_prev}
+          value={mapsSpark[mapsSpark.length - 1] ?? null}
+          previous={mapsSpark[mapsSpark.length - 2] ?? null}
+          sparklineData={mapsSpark}
         />
         <StatCard
           label="Search Impressions"
-          value={gbpReport!.gbp_search_impressions}
-          previous={gbpReport!.gbp_search_impressions_prev}
+          value={searchSpark[searchSpark.length - 1] ?? null}
+          previous={searchSpark[searchSpark.length - 2] ?? null}
+          sparklineData={searchSpark}
         />
         <StatCard
           label="Call Clicks"
-          value={gbpReport!.gbp_call_clicks}
-          previous={gbpReport!.gbp_call_clicks_prev}
+          value={callsSpark[callsSpark.length - 1] ?? null}
+          previous={callsSpark[callsSpark.length - 2] ?? null}
           sparklineData={callsSpark}
         />
         <StatCard
           label="Website Clicks"
-          value={gbpReport!.gbp_website_clicks}
-          previous={gbpReport!.gbp_website_clicks_prev}
+          value={websiteSpark[websiteSpark.length - 1] ?? null}
+          previous={websiteSpark[websiteSpark.length - 2] ?? null}
           sparklineData={websiteSpark}
         />
       </div>
