@@ -32,7 +32,7 @@ function Sparkline({ data }: { data: number[] }) {
   }).join(' ');
 
   const last = data[data.length - 1];
-  const prev = data[data.length - 2];
+  const prev = data[Math.max(0, data.length - 15)];
   const color = last >= prev ? 'var(--success)' : 'var(--danger)';
 
   return (
