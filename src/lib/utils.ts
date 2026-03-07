@@ -54,10 +54,7 @@ export function calcHealthScore(report: {
   psi_mobile_score: number | null;
   psi_desktop_score: number | null;
   psi_lcp_mobile: string | null;
-  gsc_avg_position: number | null;
-  ga4_organic: number | null;
-  ga4_organic_prev: number | null;
-}, recentReports?: { gsc_avg_position: number | null; ga4_organic: number | null }[], top5AvgPosition?: number | null): { score: number; factors: HealthFactor[] } {
+}): { score: number; factors: HealthFactor[] } {
   const factors: HealthFactor[] = [];
 
   // Mobile speed (weight 25) -- treat 0 as missing (PSI API failure)
@@ -74,34 +71,6 @@ export function calcHealthScore(report: {
   const lcp = parseMetricValue(report.psi_lcp_mobile);
   const lcpScore = lcp == null ? 50 : lcp <= 2.5 ? 100 : lcp <= 4 ? 60 : 30;
   factors.push({ label: 'LCP (Mobile)', score: lcpScore, weight: 20 });
-
-  // Search position (weight 20) -- average of top 5 ranked keywords
-  // Falls back to gsc_avg_position if no keyword data available
-  const pos = top5AvgPosition ?? report.gsc_avg_position;
-  const posScore = pos == null ? 50 : pos <= 5 ? 100 : pos <= 15 ? 80 : pos <= 30 ? 60 : pos <= 50 ? 40 : 20;
-  factors.push({ label: 'Avg Keyword Rank (Top 5)', score: posScore, weight: 20 });
-
-  // Organic growth (weight 20) -- use 14-day totals to smooth noise
-  const organicValues = recent.map(r => r.ga4_organic ?? 0);
-  let growthScore = 50;
-  if (organicValues.length >= 14) {
-    const recentSum = organicValues.slice(-7).reduce((s, v) => s + v, 0);
-    const priorSum = organicValues.slice(-14, -7).reduce((s, v) => s + v, 0);
-    if (priorSum > 0) {
-      const delta = ((recentSum - priorSum) / priorSum) * 100;
-      growthScore = delta >= 20 ? 100 : delta >= 5 ? 80 : delta >= -5 ? 60 : delta >= -20 ? 40 : 20;
-    } else if (recentSum > 0) {
-      growthScore = 80;
-    }
-  } else {
-    const organic = report.ga4_organic;
-    const organicPrev = report.ga4_organic_prev;
-    if (organic != null && organicPrev != null && organicPrev > 0) {
-      const delta = ((organic - organicPrev) / organicPrev) * 100;
-      growthScore = delta >= 20 ? 100 : delta >= 5 ? 80 : delta >= -5 ? 60 : delta >= -20 ? 40 : 20;
-    }
-  }
-  factors.push({ label: 'Organic Growth', score: growthScore, weight: 20 });
 
   const total = factors.reduce((sum, f) => sum + f.score * f.weight, 0);
   const maxWeight = factors.reduce((sum, f) => sum + f.weight, 0);
