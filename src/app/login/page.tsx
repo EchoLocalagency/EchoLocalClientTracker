@@ -32,7 +32,7 @@ function LoginForm() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#000',
+      background: '#0B1120',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -41,21 +41,21 @@ function LoginForm() {
       <form onSubmit={handleLogin} style={{
         width: 360,
         padding: '48px 36px',
-        background: '#0A0A0A',
-        border: '1px solid #1A1A1A',
+        background: '#111827',
+        border: '1px solid #1E293B',
         borderRadius: 10,
       }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <img
             src="/echo-local-logo.png"
             alt="Echo Local"
-            style={{ width: 48, height: 48, objectFit: 'contain', borderRadius: 10, marginBottom: 16 }}
+            style={{ width: 56, height: 56, objectFit: 'contain', marginBottom: 16, display: 'inline-block' }}
           />
-          <div style={{ fontSize: 18, fontWeight: 700, color: '#F0F2F5' }}>Echo Local</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: '#F1F5F9' }}>Echo Local</div>
           <div style={{
             fontSize: 10,
             fontFamily: "'JetBrains Mono', monospace",
-            color: '#8A8F98',
+            color: '#94A3B8',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
             marginTop: 4,
@@ -83,7 +83,7 @@ function LoginForm() {
             display: 'block',
             fontSize: 11,
             fontFamily: "'JetBrains Mono', monospace",
-            color: '#8A8F98',
+            color: '#94A3B8',
             textTransform: 'uppercase',
             letterSpacing: '0.05em',
             marginBottom: 6,
@@ -98,10 +98,10 @@ function LoginForm() {
             style={{
               width: '100%',
               padding: '10px 12px',
-              background: '#000',
-              border: '1px solid #1A1A1A',
+              background: '#0B1120',
+              border: '1px solid #1E293B',
               borderRadius: 6,
-              color: '#F0F2F5',
+              color: '#F1F5F9',
               fontSize: 14,
               fontFamily: "'Space Grotesk', sans-serif",
               outline: 'none',
@@ -115,7 +115,7 @@ function LoginForm() {
             display: 'block',
             fontSize: 11,
             fontFamily: "'JetBrains Mono', monospace",
-            color: '#8A8F98',
+            color: '#94A3B8',
             textTransform: 'uppercase',
             letterSpacing: '0.05em',
             marginBottom: 6,
@@ -130,10 +130,10 @@ function LoginForm() {
             style={{
               width: '100%',
               padding: '10px 12px',
-              background: '#000',
-              border: '1px solid #1A1A1A',
+              background: '#0B1120',
+              border: '1px solid #1E293B',
               borderRadius: 6,
-              color: '#F0F2F5',
+              color: '#F1F5F9',
               fontSize: 14,
               fontFamily: "'Space Grotesk', sans-serif",
               outline: 'none',
@@ -148,8 +148,8 @@ function LoginForm() {
           style={{
             width: '100%',
             padding: '12px',
-            background: loading ? '#666' : '#E8FF00',
-            color: '#000',
+            background: loading ? '#64748B' : '#06B6D4',
+            color: '#FFF',
             border: 'none',
             borderRadius: 8,
             fontSize: 14,
@@ -167,7 +167,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#000' }} />}>
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#0B1120' }} />}>
       <LoginForm />
     </Suspense>
   );
