@@ -43,7 +43,8 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
     : [...(allReports ?? reports)].sort((a, b) => b.run_date.localeCompare(a.run_date))
         .find((rep) => (rep.psi_mobile_score ?? 0) > 0) ?? r;
 
-  const { score, factors } = calcHealthScore(psiReport);
+  const recentForHealth = (allReports ?? reports).slice(-14);
+  const { score, factors } = calcHealthScore(psiReport, recentForHealth);
 
   const mobileScore = psiReport.psi_mobile_score;
   const lcpMobile = parseMetricValue(psiReport.psi_lcp_mobile);

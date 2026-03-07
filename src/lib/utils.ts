@@ -57,10 +57,10 @@ export function calcHealthScore(report: {
   gsc_avg_position: number | null;
   ga4_organic: number | null;
   ga4_organic_prev: number | null;
-}): { score: number; factors: HealthFactor[] } {
+}, recentReports?: { gsc_avg_position: number | null; ga4_organic: number | null }[]): { score: number; factors: HealthFactor[] } {
   const factors: HealthFactor[] = [];
 
-  // Mobile speed (weight 25) — treat 0 as missing (PSI API failure)
+  // Mobile speed (weight 25) -- treat 0 as missing (PSI API failure)
   const mobile = report.psi_mobile_score;
   const mobileScore = mobile ? Math.min(mobile, 100) : 50;
   factors.push({ label: 'Mobile Speed', score: mobileScore, weight: 25 });
@@ -70,23 +70,40 @@ export function calcHealthScore(report: {
   const desktopScore = desktop ? Math.min(desktop, 100) : 50;
   factors.push({ label: 'Desktop Speed', score: desktopScore, weight: 15 });
 
-  // LCP (weight 20) — under 2.5s = 100, under 4s = 60, over = 30
+  // LCP (weight 20) -- under 2.5s = 100, under 4s = 60, over = 30
   const lcp = parseMetricValue(report.psi_lcp_mobile);
   const lcpScore = lcp == null ? 50 : lcp <= 2.5 ? 100 : lcp <= 4 ? 60 : 30;
   factors.push({ label: 'LCP (Mobile)', score: lcpScore, weight: 20 });
 
-  // Search position (weight 20) — pos 1=100, 10=60, 20=30, 50+=10
-  const pos = report.gsc_avg_position;
-  const posScore = pos == null ? 50 : pos <= 3 ? 100 : pos <= 10 ? 80 : pos <= 20 ? 50 : pos <= 50 ? 25 : 10;
+  // Search position (weight 20) -- use 14-day average if available
+  // Relaxed thresholds for small/new businesses
+  const recent = recentReports ?? [];
+  const posValues = recent.map(r => r.gsc_avg_position).filter((v): v is number => v != null && v > 0);
+  const pos = posValues.length >= 3
+    ? posValues.reduce((s, v) => s + v, 0) / posValues.length
+    : report.gsc_avg_position;
+  const posScore = pos == null ? 50 : pos <= 5 ? 100 : pos <= 15 ? 80 : pos <= 30 ? 60 : pos <= 50 ? 40 : 20;
   factors.push({ label: 'Avg Position', score: posScore, weight: 20 });
 
-  // Organic growth (weight 20)
-  const organic = report.ga4_organic;
-  const organicPrev = report.ga4_organic_prev;
+  // Organic growth (weight 20) -- use 14-day totals to smooth noise
+  const organicValues = recent.map(r => r.ga4_organic ?? 0);
   let growthScore = 50;
-  if (organic != null && organicPrev != null && organicPrev > 0) {
-    const delta = ((organic - organicPrev) / organicPrev) * 100;
-    growthScore = delta >= 20 ? 100 : delta >= 5 ? 80 : delta >= -5 ? 60 : delta >= -20 ? 35 : 15;
+  if (organicValues.length >= 14) {
+    const recentSum = organicValues.slice(-7).reduce((s, v) => s + v, 0);
+    const priorSum = organicValues.slice(-14, -7).reduce((s, v) => s + v, 0);
+    if (priorSum > 0) {
+      const delta = ((recentSum - priorSum) / priorSum) * 100;
+      growthScore = delta >= 20 ? 100 : delta >= 5 ? 80 : delta >= -5 ? 60 : delta >= -20 ? 40 : 20;
+    } else if (recentSum > 0) {
+      growthScore = 80;
+    }
+  } else {
+    const organic = report.ga4_organic;
+    const organicPrev = report.ga4_organic_prev;
+    if (organic != null && organicPrev != null && organicPrev > 0) {
+      const delta = ((organic - organicPrev) / organicPrev) * 100;
+      growthScore = delta >= 20 ? 100 : delta >= 5 ? 80 : delta >= -5 ? 60 : delta >= -20 ? 40 : 20;
+    }
   }
   factors.push({ label: 'Organic Growth', score: growthScore, weight: 20 });
 
