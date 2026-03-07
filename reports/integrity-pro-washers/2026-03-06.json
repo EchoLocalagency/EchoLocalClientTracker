@@ -1,0 +1,245 @@
+{
+  "client": "Integrity Pro Washers",
+  "slug": "integrity-pro-washers",
+  "date": "2026-03-06",
+  "period_start": "2026-03-03",
+  "period_end": "2026-03-03",
+  "prev_start": "2026-02-24",
+  "prev_end": "2026-02-24",
+  "primary_market": "San Diego, CA",
+  "error_flags": [
+    "psi_failed",
+    "gbp_failed"
+  ],
+  "ga4": {
+    "sessions": 7,
+    "sessions_prev": 7,
+    "organic": 1,
+    "organic_prev": 2,
+    "phone_clicks": 0,
+    "phone_clicks_prev": 0,
+    "form_submits": 0,
+    "form_submits_prev": 0
+  },
+  "gsc": {
+    "impressions": 36,
+    "impressions_prev": 29,
+    "clicks": 0,
+    "clicks_prev": 0,
+    "avg_position": 28.9,
+    "avg_position_prev": 42.3,
+    "top_queries": [
+      {
+        "query": "integrity pressure washing",
+        "impressions": 1,
+        "clicks": 0,
+        "position": 44
+      },
+      {
+        "query": "integrity pro cleaning",
+        "impressions": 5,
+        "clicks": 0,
+        "position": 19.8
+      },
+      {
+        "query": "power washing in san diego",
+        "impressions": 1,
+        "clicks": 0,
+        "position": 20
+      },
+      {
+        "query": "power washing san diego",
+        "impressions": 2,
+        "clicks": 0,
+        "position": 47.5
+      },
+      {
+        "query": "pressure wash san diego",
+        "impressions": 1,
+        "clicks": 0,
+        "position": 16
+      },
+      {
+        "query": "pressure washer san diego",
+        "impressions": 2,
+        "clicks": 0,
+        "position": 18
+      },
+      {
+        "query": "pressure washing company san diego ca",
+        "impressions": 3,
+        "clicks": 0,
+        "position": 45.3
+      },
+      {
+        "query": "pressure washing in san diego",
+        "impressions": 1,
+        "clicks": 0,
+        "position": 18
+      },
+      {
+        "query": "pressure washing san diego",
+        "impressions": 5,
+        "clicks": 0,
+        "position": 15.6
+      },
+      {
+        "query": "pressure washing services san diego ca",
+        "impressions": 2,
+        "clicks": 0,
+        "position": 38.5
+      },
+      {
+        "query": "roof washers san diego",
+        "impressions": 1,
+        "clicks": 0,
+        "position": 99
+      },
+      {
+        "query": "san diego pressure washing",
+        "impressions": 2,
+        "clicks": 0,
+        "position": 14.5
+      }
+    ]
+  },
+  "target_keyword_rankings": [
+    {
+      "keyword": "pressure washing san diego",
+      "impressions": 5,
+      "clicks": 0,
+      "position": 15.6,
+      "status": "ranking"
+    },
+    {
+      "keyword": "soft washing san diego",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "solar panel cleaning san diego",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "pressure washing north park",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "pressure washing hillcrest",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "pressure washing south park",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "pressure washing normal heights",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "pressure washing university heights",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "pressure washing kensington",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "soft washing north park",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "driveway cleaning san diego",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "roof cleaning san diego",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "house washing san diego",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "gutter cleaning san diego",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "integrity pro washers",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "window cleaning san diego",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    },
+    {
+      "keyword": "window washing san diego",
+      "impressions": 0,
+      "clicks": 0,
+      "position": null,
+      "status": "not ranking"
+    }
+  ],
+  "pagespeed": {
+    "mobile_score": 0,
+    "desktop_score": 0,
+    "lcp_mobile": "",
+    "lcp_desktop": "",
+    "cls_mobile": "",
+    "cls_desktop": "",
+    "tbt_mobile": "",
+    "tbt_desktop": ""
+  },
+  "ghl_form_submits": 0,
+  "ghl_form_submits_prev": 0,
+  "gbp_keywords": [],
+  "flags": [
+    "Mobile speed score critically low (0)",
+    "Organic sessions dropped 50% vs last week"
+  ],
+  "conversion_rate": 0.0
+}

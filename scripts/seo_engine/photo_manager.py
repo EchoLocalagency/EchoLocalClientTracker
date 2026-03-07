@@ -427,7 +427,7 @@ def get_gbp_upload_candidates(client_slug, max_candidates=3):
     candidates = []
 
     for drive_id, info in manifest.items():
-        if not info.get("gbp_uploaded", False):
+        if not info.get("gbp_uploaded", False) and info.get("local_filename"):
             candidates.append({
                 "drive_id": drive_id,
                 "filename": info["local_filename"],

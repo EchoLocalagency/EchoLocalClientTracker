@@ -922,55 +922,55 @@
       "type": "trend",
       "query": "TOP 10 BEST Artificial Turf Cleaning in San Diego, CA",
       "urgency_score": 5,
-      "reason": "Rising query contains key terms: cleaning, diego"
+      "reason": "Rising query contains key terms: diego, cleaning"
     },
     {
       "type": "trend",
       "query": "Yelp Top 10 Best Artificial Turf Cleaning in San Diego, CA",
       "urgency_score": 5,
-      "reason": "Rising query contains key terms: cleaning, diego"
+      "reason": "Rising query contains key terms: diego, cleaning"
     },
     {
       "type": "trend",
       "query": "TOP 10 BEST Artificial Turf Cleaning near Mount Hope, San Diego, CA",
       "urgency_score": 5,
-      "reason": "Rising query contains key terms: cleaning, diego"
+      "reason": "Rising query contains key terms: diego, cleaning"
     },
     {
       "type": "trend",
       "query": "Yelp See more artificial turf cleaning near San Diego.",
       "urgency_score": 5,
-      "reason": "Rising query contains key terms: cleaning, diego"
+      "reason": "Rising query contains key terms: diego, cleaning"
     },
     {
       "type": "trend",
       "query": "Local San Diego Pressure Washing: All",
       "urgency_score": 5,
-      "reason": "Rising query contains key terms: washing, pressure, diego"
+      "reason": "Rising query contains key terms: washing, diego, pressure"
     },
     {
       "type": "trend",
       "query": "Local San Diego Pressure Washing",
       "urgency_score": 5,
-      "reason": "Rising query contains key terms: washing, pressure, diego"
+      "reason": "Rising query contains key terms: washing, diego, pressure"
     },
     {
       "type": "trend",
       "query": "Artificial Turf Cleaning Services in San Diego, CA",
       "urgency_score": 5,
-      "reason": "Rising query contains key terms: cleaning, diego"
+      "reason": "Rising query contains key terms: diego, cleaning"
     },
     {
       "type": "trend",
       "query": "Pressure washing service San Diego",
       "urgency_score": 5,
-      "reason": "Rising query contains key terms: washing, pressure, diego"
+      "reason": "Rising query contains key terms: washing, diego, pressure"
     },
     {
       "type": "trend",
       "query": "SAN DIEGO SOFTWASH",
       "urgency_score": 5,
-      "reason": "Rising query contains key terms: soft, diego"
+      "reason": "Rising query contains key terms: diego, soft"
     },
     {
       "type": "trend",
@@ -982,14 +982,14 @@
       "type": "trend",
       "query": "Soft Washing In San Diego",
       "urgency_score": 5,
-      "reason": "Rising query contains key terms: washing, soft, diego"
+      "reason": "Rising query contains key terms: washing, diego, soft"
     },
     {
       "type": "trend",
       "query": "TOP 10 BEST Soft Wash in San Diego, CA",
       "urgency_score": 5,
-      "reason": "Rising query contains key terms: soft, diego"
+      "reason": "Rising query contains key terms: diego, soft"
     }
   ],
-  "fast_research_date": "2026-03-05"
+  "fast_research_date": "2026-03-06"
 }

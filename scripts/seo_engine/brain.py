@@ -267,8 +267,8 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
     if gbp_candidates:
         prompt += "GBP PHOTO UPLOAD CANDIDATES (not yet uploaded to Google Business Profile):\n"
         for c in gbp_candidates:
-            prompt += f"  {c['filename']} ({c.get('context', 'general')}) | alt: {c.get('alt_text_hint', '')}\n"
-        prompt += "  Use action_type 'gbp_photo' to upload 2-3 of these per cycle.\n\n"
+            prompt += f"  {c['filename']} (drive_id: {c['drive_id']}) ({c.get('context', 'general')}) | alt: {c.get('alt_text_hint', '')}\n"
+        prompt += "  Use action_type 'gbp_photo' to upload 2-3 of these per cycle. MUST include drive_id from above.\n\n"
 
     # ── Section 16: Keyword opportunities (discovered, not in target list) ──
     if keyword_opportunities:

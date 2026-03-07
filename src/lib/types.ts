@@ -116,7 +116,7 @@ export interface SeoBrainDecision {
   created_at: string;
 }
 
-export type TabId = 'overview' | 'seo' | 'conversions' | 'gbp' | 'seo-engine' | 'summary';
+export type TabId = 'overview' | 'seo' | 'conversions' | 'gbp' | 'seo-engine';
 export type SeoEngineSubTab = 'action-feed' | 'brain-decisions' | 'keyword-tracker' | 'outcome-patterns';
 export type SeoEngineTabId = 'clients' | 'actions' | 'brain' | 'keywords';
 export type TimeRange = '4w' | '3m' | '6m' | 'all';

@@ -31,7 +31,9 @@
       "roof cleaning san diego",
       "house washing san diego",
       "gutter cleaning san diego",
-      "integrity pro washers"
+      "integrity pro washers",
+      "window cleaning san diego",
+      "window washing san diego"
     ],
     "service_areas": [
       "North Park", "Hillcrest", "South Park", "Normal Heights",
@@ -131,14 +133,15 @@
     "ga4_measurement_id": "",
     "gsc_url": "",
     "website": "https://www.azturfcleaningllc.com/",
-    "github": "",
+    "github": "https://github.com/EchoLocalagency/AZTurfCleaning",
     "phone": "+16025356804",
     "conversion_events": ["phone_click", "form_submit"],
     "ghl_token": "",
     "ghl_location_id": "",
     "ghl_form_name": "",
     "gbp_location": "locations/12070345971854326869",
-    "website_local_path": "/Users/brianegan/Desktop/AZ Turf Cleaning Website/website",
+    "website_local_path": "/Users/brianegan/Desktop/AZ Turf Cleaning/AZ Turf Cleaning Website/website",
+    "drive_folder_id": "1f1x4V67CHxPyx5V0To5zHUPIXVeqeemv",
     "primary_market": "Mesa, AZ",
     "target_keywords": [
       "turf cleaning mesa az",

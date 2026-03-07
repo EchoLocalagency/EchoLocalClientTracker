@@ -1,1 +1,17 @@
-{}
+{
+  "_note": "gbp_photo suppressed 2026-03-06: Google GBP Media API v4 returning 404/500 errors. All uploads failing. Suppress until API stabilizes. Re-enable by removing suppressed_action_types entries.",
+  "mr-green-turf-clean": {
+    "suppressed_action_types": ["gbp_photo"],
+    "rate_limit_overrides": {},
+    "action_type_rankings": [],
+    "learned_rules": [],
+    "keyword_insights": []
+  },
+  "integrity-pro-washers": {
+    "suppressed_action_types": ["gbp_photo"],
+    "rate_limit_overrides": {},
+    "action_type_rankings": [],
+    "learned_rules": [],
+    "keyword_insights": []
+  }
+}

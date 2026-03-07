@@ -14,18 +14,20 @@ const tabs: Tab[] = [
   { id: 'conversions', label: 'Conversions' },
   { id: 'gbp', label: 'GBP' },
   { id: 'seo-engine', label: 'SEO Engine' },
-  { id: 'summary', label: 'Summary' },
 ];
 
 interface TabNavProps {
   activeTab: TabId;
   onTabChange: (tab: TabId) => void;
+  isAdmin?: boolean;
 }
 
-export default function TabNav({ activeTab, onTabChange }: TabNavProps) {
+export default function TabNav({ activeTab, onTabChange, isAdmin = false }: TabNavProps) {
+  const visibleTabs = isAdmin ? tabs : tabs.filter(t => t.id !== 'seo-engine');
+
   return (
     <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--border)', marginBottom: 24 }}>
-      {tabs.map((tab) => (
+      {visibleTabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => !tab.disabled && onTabChange(tab.id)}

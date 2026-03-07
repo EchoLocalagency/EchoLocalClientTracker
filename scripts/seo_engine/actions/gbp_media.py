@@ -1,10 +1,12 @@
 """
 GBP Media Uploader
 ==================
-Uploads photos to Google Business Profile via the My Business API v1.
+Uploads photos to Google Business Profile via the My Business API v4 sourceUrl method.
 Slow-drip strategy: 2-3 photos per cycle, rate limited to 3/week.
 
-Auth: existing business.manage scope covers media uploads.
+Flow: local photo -> Supabase storage (temp) -> GBP sourceUrl -> cleanup.
+The v4 bytes upload (3-step) has a known Google bug (500 on create).
+The sourceUrl method works reliably when hosted on Supabase storage.
 """
 
 import json
@@ -15,6 +17,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
+from supabase import create_client
 
 load_dotenv()
 
@@ -30,6 +33,11 @@ def _get_access_token():
     )
     creds.refresh(Request())
     return creds.token
+
+
+def _get_supabase():
+    """Get a Supabase client for temp photo hosting."""
+    return create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
 
 
 def _find_account_for_location(token, location_id):
@@ -85,16 +93,20 @@ def _find_account_for_location(token, location_id):
     return None
 
 
-def upload_photo(location_id, photo_path, category="EXTERIOR",
-                 description="", dry_run=True):
-    """Upload a photo to GBP.
+def upload_photo(location_id, photo_path, category="ADDITIONAL",
+                 description="", dry_run=True, supabase_url=None):
+    """Upload a photo to GBP via sourceUrl.
+
+    If supabase_url is provided (pre-staged by sync_photos_to_supabase.py),
+    uses it directly. Otherwise uploads to Supabase as a temp file.
 
     Args:
         location_id: GBP location ID (e.g. "locations/381063877...")
         photo_path: Local path to the photo file
-        category: Media category - EXTERIOR, INTERIOR, PRODUCT, AT_WORK, TEAMS
+        category: Media category - ADDITIONAL, INTERIOR, AT_WORK, TEAMS, etc.
         description: Photo description
         dry_run: If True, skips the actual upload
+        supabase_url: Pre-staged public URL (from sync pipeline)
 
     Returns:
         dict with status and media_name (GBP's ID for the uploaded media)
@@ -117,39 +129,51 @@ def upload_photo(location_id, photo_path, category="EXTERIOR",
     if not full_resource:
         return {"status": "error", "reason": f"Could not resolve account for {location_id}"}
 
-    # Read photo bytes
-    photo_bytes = photo_path.read_bytes()
-
+    temp_storage_name = None
     try:
-        # GBP Media API v1 endpoint
-        url = f"https://mybusiness.googleapis.com/v1/{full_resource}/media"
+        # Get a public URL for the photo
+        if supabase_url:
+            public_url = supabase_url
+            print(f"  [gbp_media] Using pre-staged URL: {public_url}")
+        else:
+            # Temp upload to Supabase
+            sb = _get_supabase()
+            temp_storage_name = f"gbp-temp-{photo_path.stem}-{os.getpid()}.jpg"
+            photo_bytes = photo_path.read_bytes()
+            sb.storage.from_("gbp-photos").upload(
+                temp_storage_name, photo_bytes, {"content-type": "image/jpeg"}
+            )
+            public_url = f"{os.getenv('SUPABASE_URL')}/storage/v1/object/public/gbp-photos/{temp_storage_name}"
+            print(f"  [gbp_media] Temp hosted at: {public_url}")
 
+        # Create media item via sourceUrl
+        base_url = "https://mybusiness.googleapis.com/v4"
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        }
         create_payload = {
             "mediaFormat": "PHOTO",
-            "locationAssociation": {
-                "category": category,
-            },
+            "locationAssociation": {"category": category},
+            "sourceUrl": public_url,
         }
+        if description:
+            create_payload["description"] = description
 
-        # Upload using multipart: metadata + photo bytes
-        boundary = "----GBPMediaBoundary"
-        body = (
-            f"--{boundary}\r\n"
-            f"Content-Type: application/json\r\n\r\n"
-            f"{json.dumps(create_payload)}\r\n"
-            f"--{boundary}\r\n"
-            f"Content-Type: image/jpeg\r\n\r\n"
-        ).encode("utf-8") + photo_bytes + f"\r\n--{boundary}--\r\n".encode("utf-8")
+        create_resp = requests.post(
+            f"{base_url}/{full_resource}/media",
+            headers=headers, json=create_payload, timeout=30
+        )
 
-        upload_headers = {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": f"multipart/related; boundary={boundary}",
-        }
+        # Clean up temp file (only if we created one)
+        if temp_storage_name:
+            try:
+                sb.storage.from_("gbp-photos").remove([temp_storage_name])
+            except Exception:
+                pass
 
-        resp = requests.post(url, headers=upload_headers, data=body, timeout=60)
-
-        if resp.status_code in (200, 201):
-            data = resp.json()
+        if create_resp.status_code in (200, 201):
+            data = create_resp.json()
             media_name = data.get("name", "")
             print(f"  [gbp_media] Uploaded {photo_path.name}: {media_name}")
             return {
@@ -158,10 +182,10 @@ def upload_photo(location_id, photo_path, category="EXTERIOR",
                 "photo": photo_path.name,
             }
         else:
-            print(f"  [gbp_media] Upload failed ({resp.status_code}): {resp.text[:200]}")
+            print(f"  [gbp_media] Create media failed ({create_resp.status_code}): {create_resp.text[:200]}")
             return {
                 "status": "error",
-                "reason": f"API error {resp.status_code}: {resp.text[:200]}",
+                "reason": f"Create media error {create_resp.status_code}: {create_resp.text[:200]}",
             }
 
     except Exception as e:
@@ -208,8 +232,19 @@ def execute_gbp_photo(action, client, website_path, dry_run=True):
     if not photo_path.exists():
         return {"status": "error", "reason": f"Photo not found: {photo_path}"}
 
-    category = action.get("category", "AT_WORK")
+    category = action.get("category", "ADDITIONAL")
     description = action.get("description", "")
+
+    # Check manifest for pre-staged Supabase URL
+    supabase_url = None
+    manifest_path = Path("/Users/brianegan/EchoLocalClientTracker/assets") / client["slug"] / "photos.json"
+    if manifest_path.exists():
+        import json as _json
+        manifest = _json.loads(manifest_path.read_text())
+        for info in manifest.values():
+            if info.get("local_filename") == photo_path.name:
+                supabase_url = info.get("supabase_url")
+                break
 
     result = upload_photo(
         location_id=location_id,
@@ -217,13 +252,21 @@ def execute_gbp_photo(action, client, website_path, dry_run=True):
         category=category,
         description=description,
         dry_run=dry_run,
+        supabase_url=supabase_url,
     )
 
     # Mark as uploaded in manifest if successful
     if result.get("status") == "uploaded":
         from ..photo_manager import mark_as_gbp_uploaded
-        # Find the drive_id from the manifest by filename
         drive_id = action.get("drive_id", "")
+        # Fallback: look up drive_id by filename if brain didn't include it
+        if not drive_id and manifest_path.exists():
+            import json as _json2
+            manifest = _json2.loads(manifest_path.read_text())
+            for did, info in manifest.items():
+                if info.get("local_filename") == photo_path.name:
+                    drive_id = did
+                    break
         if drive_id:
             mark_as_gbp_uploaded(client["slug"], drive_id)
 

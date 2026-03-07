@@ -168,8 +168,15 @@ def generate_windows(start, end):
 
 
 def main():
+    import sys
+    slug_filter = set(sys.argv[1:]) if len(sys.argv) > 1 else None
+
     with open(CLIENTS_FILE) as f:
         clients = json.load(f)
+
+    if slug_filter:
+        clients = [c for c in clients if c["slug"] in slug_filter]
+        print(f"Filtering to: {[c['name'] for c in clients]}")
 
     creds = get_creds()
     sb = create_client(SUPABASE_URL, SUPABASE_KEY)
