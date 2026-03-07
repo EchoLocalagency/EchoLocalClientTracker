@@ -37,10 +37,16 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
     ? new Date(firstReport.run_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
     : null;
 
-  const { score, factors } = calcHealthScore(r);
+  // Fall back to most recent report with real PSI data (non-zero) when latest failed
+  const psiReport = (r.psi_mobile_score ?? 0) > 0
+    ? r
+    : [...(allReports ?? reports)].sort((a, b) => b.run_date.localeCompare(a.run_date))
+        .find((rep) => (rep.psi_mobile_score ?? 0) > 0) ?? r;
 
-  const mobileScore = r.psi_mobile_score;
-  const lcpMobile = parseMetricValue(r.psi_lcp_mobile);
+  const { score, factors } = calcHealthScore(psiReport);
+
+  const mobileScore = psiReport.psi_mobile_score;
+  const lcpMobile = parseMetricValue(psiReport.psi_lcp_mobile);
 
   const alerts: AlertItem[] = [];
   if (mobileScore != null && mobileScore < 50) {
@@ -101,11 +107,11 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
 
   const brushStart = Math.max(0, chartData.length - 8);
 
-  // PSI metrics for absorbed Health row
-  const psiMobile = r.psi_mobile_score;
-  const psiDesktop = r.psi_desktop_score;
-  const lcpVal = r.psi_lcp_mobile;
-  const clsVal = r.psi_cls_mobile;
+  // PSI metrics for absorbed Health row (use fallback report)
+  const psiMobile = psiReport.psi_mobile_score;
+  const psiDesktop = psiReport.psi_desktop_score;
+  const lcpVal = psiReport.psi_lcp_mobile;
+  const clsVal = psiReport.psi_cls_mobile;
 
   function psiColor(score: number | null): string {
     if (score == null) return 'var(--text-secondary)';
@@ -321,7 +327,7 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
         />
         <StatCard
           label="Mobile Speed Score"
-          value={r.psi_mobile_score}
+          value={psiReport.psi_mobile_score}
           format="score"
           alert={mobileScore != null && mobileScore < 50 ? 'Below threshold' : null}
         />

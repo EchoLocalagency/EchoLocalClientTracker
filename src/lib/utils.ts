@@ -60,14 +60,14 @@ export function calcHealthScore(report: {
 }): { score: number; factors: HealthFactor[] } {
   const factors: HealthFactor[] = [];
 
-  // Mobile speed (weight 25)
+  // Mobile speed (weight 25) — treat 0 as missing (PSI API failure)
   const mobile = report.psi_mobile_score;
-  const mobileScore = mobile != null ? Math.min(mobile, 100) : 50;
+  const mobileScore = mobile ? Math.min(mobile, 100) : 50;
   factors.push({ label: 'Mobile Speed', score: mobileScore, weight: 25 });
 
   // Desktop speed (weight 15)
   const desktop = report.psi_desktop_score;
-  const desktopScore = desktop != null ? Math.min(desktop, 100) : 50;
+  const desktopScore = desktop ? Math.min(desktop, 100) : 50;
   factors.push({ label: 'Desktop Speed', score: desktopScore, weight: 15 });
 
   // LCP (weight 20) — under 2.5s = 100, under 4s = 60, over = 30

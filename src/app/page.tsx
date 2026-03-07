@@ -103,22 +103,34 @@ export default function Dashboard() {
     }
 
     async function loadPrevQueries() {
-      if (reports.length < 2) {
+      // Look back across recent reports (not just yesterday) so keywords
+      // that fluctuate in/out of the daily top-25 don't falsely show as "new"
+      const recentReportIds = reports
+        .filter((rep) => rep.id !== latestReport!.id)
+        .slice(-14)
+        .map((rep) => rep.id);
+      if (recentReportIds.length === 0) {
         setPrevQueries([]);
         return;
       }
-      const prevReport = reports[reports.length - 2];
       const { data, error } = await supabase
         .from('gsc_queries')
         .select('*')
-        .eq('report_id', prevReport.id)
-        .order('impressions', { ascending: false });
+        .in('report_id', recentReportIds)
+        .order('run_date', { ascending: false });
 
       if (error) {
         console.error('Prev queries fetch error:', error);
         setPrevQueries([]);
       } else {
-        setPrevQueries(data || []);
+        // Deduplicate: keep only the most recent appearance per query
+        const seen = new Map<string, GscQuery>();
+        for (const q of (data || [])) {
+          if (!seen.has(q.query)) {
+            seen.set(q.query, q);
+          }
+        }
+        setPrevQueries(Array.from(seen.values()));
       }
     }
 
@@ -246,7 +258,7 @@ export default function Dashboard() {
                 <OverviewTab reports={filteredReports} latestReport={latestReport} allReports={reports} />
               )}
               {activeTab === 'seo' && (
-                <SeoTab reports={filteredReports} queries={queries} latestReport={latestReport} prevQueries={prevQueries} clientId={activeClient?.id} />
+                <SeoTab reports={filteredReports} queries={queries} latestReport={latestReport} prevQueries={prevQueries} clientId={activeClient?.id} clientName={activeClient?.name} />
               )}
               {activeTab === 'conversions' && (
                 <ConversionsTab reports={filteredReports} latestReport={latestReport} hasFormTracking={hasFormTracking} />

@@ -22,39 +22,96 @@ interface SeoTabProps {
   latestReport: Report | null;
   prevQueries?: GscQuery[];
   clientId?: string;
+  clientName?: string;
 }
 
-export default function SeoTab({ reports, queries, latestReport, prevQueries, clientId }: SeoTabProps) {
-  const [selectedQuery, setSelectedQuery] = useState<string | null>(null);
-  const [queryHistory, setQueryHistory] = useState<{ date: string; position: number }[]>([]);
+// Inline sparkline for position history (inverted: lower position = higher on chart)
+function PositionSparkline({ data }: { data: number[] }) {
+  if (data.length < 2) return null;
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+  const range = max - min || 1;
+  const w = 80;
+  const h = 24;
+  const pad = 2;
+
+  const points = data.map((v, i) => {
+    const x = pad + (i / (data.length - 1)) * (w - pad * 2);
+    // Inverted: lower position = higher on chart
+    const y = pad + ((v - min) / range) * (h - pad * 2);
+    return `${x},${y}`;
+  }).join(' ');
+
+  const last = data[data.length - 1];
+  const first = data[0];
+  // Improving = position going down (lower number)
+  const color = last <= first ? 'var(--success)' : 'var(--danger)';
+
+  return (
+    <svg width={w} height={h} style={{ display: 'block' }}>
+      <polyline
+        points={points}
+        fill="none"
+        stroke={color}
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export default function SeoTab({ reports, queries, latestReport, prevQueries, clientId, clientName }: SeoTabProps) {
+  const [expandedQuery, setExpandedQuery] = useState<string | null>(null);
+  const [allHistory, setAllHistory] = useState<Record<string, { date: string; position: number }[]>>({});
   const [historyLoading, setHistoryLoading] = useState(false);
 
+  // Filter out branded queries and sort by best position (lowest = highest ranking)
+  const brandWords = (clientName || '').toLowerCase().split(/\s+/);
+  const brandPrefix = brandWords.slice(0, 2).join(' ');
+  const isBranded = (q: string) => {
+    return brandPrefix.length > 0 && q.toLowerCase().includes(brandPrefix);
+  };
+  const sortedQueries = [...queries]
+    .filter((q) => !isBranded(q.query))
+    .sort((a, b) => a.position - b.position)
+    .slice(0, 10);
+
+  // Batch-fetch position history for all displayed keywords
   useEffect(() => {
-    if (!selectedQuery || !clientId) {
-      setQueryHistory([]);
+    if (!clientId || sortedQueries.length === 0) {
+      setAllHistory({});
       return;
     }
+
+    const queryNames = sortedQueries.map((q) => q.query);
     setHistoryLoading(true);
+
     supabase
       .from('gsc_queries')
-      .select('run_date, position')
+      .select('query, run_date, position')
       .eq('client_id', clientId)
-      .eq('query', selectedQuery)
+      .in('query', queryNames)
       .order('run_date', { ascending: true })
       .then(({ data, error }) => {
         if (error || !data) {
-          setQueryHistory([]);
+          setAllHistory({});
         } else {
-          setQueryHistory(
-            data.map((d) => ({
+          const grouped: Record<string, { date: string; position: number }[]> = {};
+          for (const d of data) {
+            if (!grouped[d.query]) grouped[d.query] = [];
+            grouped[d.query].push({
               date: new Date(d.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
               position: d.position,
-            }))
-          );
+            });
+          }
+          setAllHistory(grouped);
         }
         setHistoryLoading(false);
       });
-  }, [selectedQuery, clientId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientId, queries.length]);
+
   if (!latestReport) {
     return <div style={{ color: 'var(--text-secondary)', padding: 40, textAlign: 'center' }}>No data yet.</div>;
   }
@@ -79,8 +136,6 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
     date: new Date(r.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     position: r.gsc_avg_position ?? 0,
   }));
-
-  const sortedQueries = [...queries].sort((a, b) => b.impressions - a.impressions).slice(0, 10);
 
   const prevQueryMap = new Map<string, GscQuery>();
   if (prevQueries) {
@@ -184,127 +239,135 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
         </div>
       </div>
 
-      {/* Top keywords table */}
+      {/* Top keywords table with inline sparklines and expandable charts */}
       <div style={chartStyle}>
-        <div style={sectionLabel}>Top Keywords</div>
+        <div style={sectionLabel}>Top Keyword Rankings</div>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
               <th style={{ textAlign: 'left', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Query</th>
-              <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Impressions</th>
-              <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Clicks</th>
               <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Position</th>
               {prevQueries && prevQueries.length > 0 && (
                 <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Movement</th>
               )}
+              <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Trend</th>
+              <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Impr.</th>
+              <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Clicks</th>
             </tr>
           </thead>
           <tbody>
             {sortedQueries.map((q) => {
               const prev = prevQueryMap.get(q.query);
               const posMovement = prev ? prev.position - q.position : null;
+              const history = allHistory[q.query] || [];
+              const sparkData = history.map((h) => h.position);
+              const isExpanded = expandedQuery === q.query;
 
               return (
-                <tr
-                  key={q.id}
-                  onClick={() => setSelectedQuery(selectedQuery === q.query ? null : q.query)}
-                  style={{
-                    borderBottom: '1px solid var(--border)',
-                    cursor: 'pointer',
-                    background: selectedQuery === q.query ? 'rgba(232, 255, 0, 0.06)' : 'transparent',
-                  }}
-                >
-                  <td style={{ padding: '10px 12px' }}>{q.query}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'right', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>{q.impressions.toLocaleString()}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'right', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>{q.clicks.toLocaleString()}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'right' }}>
-                    <span style={{
-                      fontFamily: 'var(--font-mono)',
-                      color: q.position <= 10 ? 'var(--success)' : q.position <= 20 ? 'var(--accent)' : 'var(--text-secondary)',
-                      fontWeight: q.position <= 10 ? 600 : 400,
-                    }}>
-                      {q.position.toFixed(1)}
-                    </span>
-                  </td>
-                  {prevQueries && prevQueries.length > 0 && (
-                    <td style={{ padding: '10px 12px', textAlign: 'right', fontFamily: 'var(--font-mono)', fontSize: 12 }}>
-                      {posMovement != null ? (
+                <tr key={q.id} style={{ verticalAlign: 'top' }}>
+                  <td colSpan={6} style={{ padding: 0 }}>
+                    {/* Main row */}
+                    <div
+                      onClick={() => setExpandedQuery(isExpanded ? null : q.query)}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: prevQueries && prevQueries.length > 0
+                          ? '1fr 70px 80px 90px 60px 60px'
+                          : '1fr 70px 90px 60px 60px',
+                        alignItems: 'center',
+                        cursor: 'pointer',
+                        padding: '10px 12px',
+                        borderBottom: isExpanded ? 'none' : '1px solid var(--border)',
+                        background: isExpanded ? 'rgba(232, 255, 0, 0.04)' : 'transparent',
+                        transition: 'background 0.15s',
+                      }}
+                      onMouseEnter={(e) => { if (!isExpanded) e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; }}
+                      onMouseLeave={(e) => { if (!isExpanded) e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 10, color: 'var(--text-secondary)', transition: 'transform 0.15s', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>&#9654;</span>
+                        <span>{q.query}</span>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
                         <span style={{
-                          color: posMovement > 0 ? 'var(--success)' : posMovement < 0 ? 'var(--danger)' : 'var(--text-secondary)',
+                          fontFamily: 'var(--font-mono)',
+                          color: q.position <= 10 ? 'var(--success)' : q.position <= 20 ? 'var(--accent)' : 'var(--text-secondary)',
+                          fontWeight: q.position <= 10 ? 600 : 400,
                         }}>
-                          {posMovement > 0 ? `+${posMovement.toFixed(1)}` : posMovement.toFixed(1)}
+                          {q.position.toFixed(1)}
                         </span>
-                      ) : (
-                        <span style={{ color: 'var(--text-secondary)' }}>new</span>
+                      </div>
+                      {prevQueries && prevQueries.length > 0 && (
+                        <div style={{ textAlign: 'right', fontFamily: 'var(--font-mono)', fontSize: 12 }}>
+                          {posMovement != null ? (
+                            <span style={{
+                              color: posMovement > 0 ? 'var(--success)' : posMovement < 0 ? 'var(--danger)' : 'var(--text-secondary)',
+                            }}>
+                              {posMovement > 0 ? `+${posMovement.toFixed(1)}` : posMovement.toFixed(1)}
+                            </span>
+                          ) : (
+                            <span style={{ color: 'var(--text-secondary)' }}>new</span>
+                          )}
+                        </div>
                       )}
-                    </td>
-                  )}
+                      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        {historyLoading ? (
+                          <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>...</span>
+                        ) : (
+                          <PositionSparkline data={sparkData} />
+                        )}
+                      </div>
+                      <div style={{ textAlign: 'right', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>{q.impressions.toLocaleString()}</div>
+                      <div style={{ textAlign: 'right', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>{q.clicks.toLocaleString()}</div>
+                    </div>
+
+                    {/* Expanded chart */}
+                    {isExpanded && (
+                      <div style={{
+                        padding: '12px 12px 16px 30px',
+                        borderBottom: '1px solid var(--border)',
+                        background: 'rgba(232, 255, 0, 0.04)',
+                      }}>
+                        {history.length < 2 ? (
+                          <div style={{ color: 'var(--text-secondary)', fontSize: 12, padding: '8px 0' }}>
+                            Not enough history yet.
+                          </div>
+                        ) : (
+                          <div style={{ height: 160 }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                              <LineChart data={history} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                                <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'var(--text-secondary)' }} />
+                                <YAxis
+                                  reversed
+                                  tick={{ fontSize: 10, fill: 'var(--text-secondary)' }}
+                                  domain={['dataMin - 2', 'dataMax + 2']}
+                                  width={30}
+                                />
+                                <Tooltip content={<ChartTooltip />} />
+                                <Line
+                                  type="monotone"
+                                  dataKey="position"
+                                  stroke="#E8FF00"
+                                  strokeWidth={2}
+                                  dot={false}
+                                  name="Position"
+                                  isAnimationActive={false}
+                                  activeDot={{ r: 4, stroke: '#E8FF00', strokeWidth: 2, fill: 'var(--bg-surface)' }}
+                                />
+                              </LineChart>
+                            </ResponsiveContainer>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
       </div>
-
-      {/* Keyword position history */}
-      {selectedQuery && (
-        <div style={chartStyle}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div>
-              <div style={sectionLabel}>Position History</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: -12 }}>
-                {selectedQuery}
-              </div>
-            </div>
-            <button
-              onClick={() => setSelectedQuery(null)}
-              style={{
-                background: 'none',
-                border: '1px solid var(--border)',
-                borderRadius: 6,
-                color: 'var(--text-secondary)',
-                fontSize: 11,
-                padding: '4px 10px',
-                cursor: 'pointer',
-              }}
-            >
-              Close
-            </button>
-          </div>
-          {historyLoading ? (
-            <div style={{ color: 'var(--text-secondary)', fontSize: 13, padding: '20px 0' }}>Loading...</div>
-          ) : queryHistory.length < 2 ? (
-            <div style={{ color: 'var(--text-secondary)', fontSize: 13, padding: '20px 0' }}>
-              Not enough history yet. Position tracking starts appearing after multiple daily reports.
-            </div>
-          ) : (
-            <div style={{ height: 200 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={queryHistory} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                  <YAxis
-                    reversed
-                    tick={{ fontSize: 11 }}
-                    domain={['dataMin - 2', 'dataMax + 2']}
-                  />
-                  <Tooltip content={<ChartTooltip />} />
-                  <Line
-                    type="monotone"
-                    dataKey="position"
-                    stroke="#E8FF00"
-                    strokeWidth={2}
-                    dot={false}
-                    name="Position"
-                    isAnimationActive={false}
-                    activeDot={{ r: 4, stroke: '#E8FF00', strokeWidth: 2, fill: 'var(--bg-surface)' }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }
