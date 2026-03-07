@@ -57,7 +57,7 @@ export function calcHealthScore(report: {
   gsc_avg_position: number | null;
   ga4_organic: number | null;
   ga4_organic_prev: number | null;
-}, recentReports?: { gsc_avg_position: number | null; ga4_organic: number | null }[]): { score: number; factors: HealthFactor[] } {
+}, recentReports?: { gsc_avg_position: number | null; ga4_organic: number | null }[], top5AvgPosition?: number | null): { score: number; factors: HealthFactor[] } {
   const factors: HealthFactor[] = [];
 
   // Mobile speed (weight 25) -- treat 0 as missing (PSI API failure)
@@ -75,15 +75,11 @@ export function calcHealthScore(report: {
   const lcpScore = lcp == null ? 50 : lcp <= 2.5 ? 100 : lcp <= 4 ? 60 : 30;
   factors.push({ label: 'LCP (Mobile)', score: lcpScore, weight: 20 });
 
-  // Search position (weight 20) -- use 14-day average if available
-  // Relaxed thresholds for small/new businesses
-  const recent = recentReports ?? [];
-  const posValues = recent.map(r => r.gsc_avg_position).filter((v): v is number => v != null && v > 0);
-  const pos = posValues.length >= 3
-    ? posValues.reduce((s, v) => s + v, 0) / posValues.length
-    : report.gsc_avg_position;
+  // Search position (weight 20) -- average of top 5 ranked keywords
+  // Falls back to gsc_avg_position if no keyword data available
+  const pos = top5AvgPosition ?? report.gsc_avg_position;
   const posScore = pos == null ? 50 : pos <= 5 ? 100 : pos <= 15 ? 80 : pos <= 30 ? 60 : pos <= 50 ? 40 : 20;
-  factors.push({ label: 'Avg Position', score: posScore, weight: 20 });
+  factors.push({ label: 'Avg Keyword Rank (Top 5)', score: posScore, weight: 20 });
 
   // Organic growth (weight 20) -- use 14-day totals to smooth noise
   const organicValues = recent.map(r => r.ga4_organic ?? 0);

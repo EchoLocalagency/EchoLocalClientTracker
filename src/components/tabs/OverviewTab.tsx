@@ -1,6 +1,6 @@
 'use client';
 
-import { Report } from '@/lib/types';
+import { Report, GscQuery } from '@/lib/types';
 import { parseMetricValue, calcHealthScore, calcVelocity, rollingSum14 } from '@/lib/utils';
 import StatCard from '@/components/StatCard';
 import HealthScoreCard from '@/components/HealthScoreCard';
@@ -24,9 +24,10 @@ interface OverviewTabProps {
   reports: Report[];
   latestReport: Report | null;
   allReports?: Report[];
+  queries?: GscQuery[];
 }
 
-export default function OverviewTab({ reports, latestReport, allReports }: OverviewTabProps) {
+export default function OverviewTab({ reports, latestReport, allReports, queries = [] }: OverviewTabProps) {
   if (!latestReport) {
     return <div style={{ color: 'var(--text-secondary)', padding: 40, textAlign: 'center' }}>No data yet. Run your first report to see metrics here.</div>;
   }
@@ -44,7 +45,17 @@ export default function OverviewTab({ reports, latestReport, allReports }: Overv
         .find((rep) => (rep.psi_mobile_score ?? 0) > 0) ?? r;
 
   const recentForHealth = (allReports ?? reports).slice(-14);
-  const { score, factors } = calcHealthScore(psiReport, recentForHealth);
+
+  // Top 5 keyword avg: sort by position (best first), take top 5, average
+  const rankedQueries = queries
+    .filter(q => q.position != null && q.position > 0)
+    .sort((a, b) => a.position - b.position)
+    .slice(0, 5);
+  const top5AvgPosition = rankedQueries.length > 0
+    ? rankedQueries.reduce((sum, q) => sum + q.position, 0) / rankedQueries.length
+    : null;
+
+  const { score, factors } = calcHealthScore(psiReport, recentForHealth, top5AvgPosition);
 
   const mobileScore = psiReport.psi_mobile_score;
   const lcpMobile = parseMetricValue(psiReport.psi_lcp_mobile);
