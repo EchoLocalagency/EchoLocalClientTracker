@@ -274,7 +274,7 @@ export default function Dashboard() {
               <img
                 src="/echo-local-logo.png"
                 alt="Echo Local"
-                style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 8 }}
+                style={{ width: 36, height: 36, objectFit: 'contain' }}
               />
             )}
             <div>

@@ -39,7 +39,7 @@ export default function Sidebar({ clients, activeClient, onSelectClient, collaps
             <img
               src="/echo-local-logo.png"
               alt="Echo Local"
-              style={{ width: 32, height: 32, objectFit: 'contain', borderRadius: 6 }}
+              style={{ width: 32, height: 32, objectFit: 'contain' }}
             />
           </div>
         ) : (
@@ -47,7 +47,7 @@ export default function Sidebar({ clients, activeClient, onSelectClient, collaps
             <img
               src="/echo-local-logo.png"
               alt="Echo Local"
-              style={{ width: 38, height: 38, objectFit: 'contain', borderRadius: 8 }}
+              style={{ width: 38, height: 38, objectFit: 'contain' }}
             />
             <div>
               <div style={{
