@@ -105,9 +105,9 @@ export default function Sidebar({ clients, activeClient, onSelectClient, collaps
                 padding: collapsed ? '10px 0' : '10px 12px',
                 justifyContent: collapsed ? 'center' : 'flex-start',
                 background: isActive
-                  ? 'rgba(232, 255, 0, 0.08)'
+                  ? 'rgba(6, 182, 212, 0.08)'
                   : 'transparent',
-                border: isActive ? '1px solid rgba(232, 255, 0, 0.15)' : '1px solid transparent',
+                border: isActive ? '1px solid rgba(6, 182, 212, 0.15)' : '1px solid transparent',
                 borderRadius: 8,
                 cursor: 'pointer',
                 color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
@@ -138,7 +138,7 @@ export default function Sidebar({ clients, activeClient, onSelectClient, collaps
                   background: isActive
                     ? 'var(--accent)'
                     : 'rgba(255, 255, 255, 0.06)',
-                  color: isActive ? '#000' : 'var(--text-secondary)',
+                  color: isActive ? '#fff' : 'var(--text-secondary)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -239,7 +239,7 @@ export default function Sidebar({ clients, activeClient, onSelectClient, collaps
             transition: 'all 0.15s ease',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(232, 255, 0, 0.06)';
+            e.currentTarget.style.background = 'rgba(6, 182, 212, 0.06)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.background = 'transparent';
@@ -300,7 +300,7 @@ export default function Sidebar({ clients, activeClient, onSelectClient, collaps
           transition: 'all 0.15s ease',
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = 'rgba(232, 255, 0, 0.06)';
+          e.currentTarget.style.background = 'rgba(6, 182, 212, 0.06)';
           e.currentTarget.style.color = 'var(--accent)';
         }}
         onMouseLeave={(e) => {

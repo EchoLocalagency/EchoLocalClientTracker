@@ -231,7 +231,7 @@ export default function Dashboard() {
         <div>No profile found for this account.</div>
         <button
           onClick={async () => { await supabase.auth.signOut(); window.location.href = '/login'; }}
-          style={{ padding: '8px 20px', background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}
+          style={{ padding: '8px 20px', background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}
         >
           Sign Out
         </button>
