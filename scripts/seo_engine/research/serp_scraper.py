@@ -1,112 +1,118 @@
 """
-SERP Scraper via Apify
-======================
-Scrapes Google Search results for target keywords to see who outranks you.
-Uses the Google Search Results Scraper actor on Apify.
+SERP Scraper via SerpAPI
+========================
+Scrapes Google Search results for target keywords using SerpAPI.
+Budget-gated through serpapi_client (200/client/month, 950/global).
 
-Cost: ~$0.005 per search. 18 keywords = ~$0.09 per run.
+Replaces the previous Apify-based scraper. Same return format for backward
+compatibility, plus raw extras (AI Overview, PAA, Featured Snippets) for Phase 2.
 """
 
-import os
-import time
-import requests
-from dotenv import load_dotenv
-
-load_dotenv()
-APIFY_TOKEN = os.getenv("APIFY_TOKEN", "")
-
-# Apify Google Search Results Scraper actor
-ACTOR_ID = "nFJndFXA5zjCTuudP"  # apify/google-search-scraper
+from scripts.seo_engine.serpapi_client import search_google, format_organic_results
 
 
-def scrape_serp(keywords, location="Poway, California, United States", max_results=10):
-    """Scrape Google SERPs for a list of keywords via Apify.
+# SerpAPI needs full location strings. Map short client formats.
+LOCATION_MAP = {
+    "Poway, CA": "Poway, California, United States",
+    "San Diego, CA": "San Diego, California, United States",
+    "Mesa, AZ": "Mesa, Arizona, United States",
+    "Oceanside, CA": "Oceanside, California, United States",
+    "Phoenix, AZ": "Phoenix, Arizona, United States",
+    "Scottsdale, AZ": "Scottsdale, Arizona, United States",
+    "Tucson, AZ": "Tucson, Arizona, United States",
+    "Los Angeles, CA": "Los Angeles, California, United States",
+}
+
+# Common state abbreviation -> full name for fallback expansion
+STATE_ABBREVS = {
+    "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas",
+    "CA": "California", "CO": "Colorado", "CT": "Connecticut", "DE": "Delaware",
+    "FL": "Florida", "GA": "Georgia", "HI": "Hawaii", "ID": "Idaho",
+    "IL": "Illinois", "IN": "Indiana", "IA": "Iowa", "KS": "Kansas",
+    "KY": "Kentucky", "LA": "Louisiana", "ME": "Maine", "MD": "Maryland",
+    "MA": "Massachusetts", "MI": "Michigan", "MN": "Minnesota", "MS": "Mississippi",
+    "MO": "Missouri", "MT": "Montana", "NE": "Nebraska", "NV": "Nevada",
+    "NH": "New Hampshire", "NJ": "New Jersey", "NM": "New Mexico", "NY": "New York",
+    "NC": "North Carolina", "ND": "North Dakota", "OH": "Ohio", "OK": "Oklahoma",
+    "OR": "Oregon", "PA": "Pennsylvania", "RI": "Rhode Island", "SC": "South Carolina",
+    "SD": "South Dakota", "TN": "Tennessee", "TX": "Texas", "UT": "Utah",
+    "VT": "Vermont", "VA": "Virginia", "WA": "Washington", "WV": "West Virginia",
+    "WI": "Wisconsin", "WY": "Wyoming",
+}
+
+
+def resolve_location(short_location: str) -> str:
+    """Map client primary_market to SerpAPI location format.
+
+    Handles:
+      - Direct lookup in LOCATION_MAP
+      - Already-full format ("City, State, United States")
+      - Auto-expansion of "City, XX" using STATE_ABBREVS
+      - Unknown formats passed through with a warning
+    """
+    if short_location in LOCATION_MAP:
+        return LOCATION_MAP[short_location]
+
+    # Already in full format
+    if ", United States" in short_location:
+        return short_location
+
+    # Try auto-expanding "City, XX" -> "City, StateName, United States"
+    parts = [p.strip() for p in short_location.split(",")]
+    if len(parts) == 2 and parts[1].upper() in STATE_ABBREVS:
+        full_state = STATE_ABBREVS[parts[1].upper()]
+        return f"{parts[0]}, {full_state}, United States"
+
+    print(f"  [serp] WARNING: Unknown location format '{short_location}', passing as-is")
+    return short_location
+
+
+def scrape_serp(keywords, location="Poway, California, United States", max_results=10, client_id=None):
+    """Scrape Google SERPs for a list of keywords via SerpAPI.
 
     Args:
         keywords: List of search queries.
-        location: Google Ads location string for local results.
-        max_results: Number of organic results per keyword.
+        location: Location string (short "City, ST" or full SerpAPI format).
+        max_results: Number of organic results per keyword (currently informational).
+        client_id: Supabase client UUID for budget tracking. If None, prints a warning.
 
     Returns:
-        dict mapping keyword -> list of result dicts (position, title, url, description).
+        Tuple of (organic_results, raw_extras):
+          - organic_results: dict mapping keyword -> list of result dicts
+            (position, title, url, description). Same format as the old Apify scraper.
+          - raw_extras: dict mapping keyword -> dict with ai_overview,
+            related_questions, and answer_box from SerpAPI (for Phase 2).
     """
-    if not APIFY_TOKEN:
-        print("  [serp] Missing APIFY_TOKEN in .env")
-        return {}
+    if client_id is None:
+        print("  [serp] WARNING: No client_id provided -- budget tracking disabled for this run")
 
-    results = {}
+    # Resolve short location format to full SerpAPI location
+    resolved_location = resolve_location(location)
 
-    # Process keywords individually to keep costs predictable
+    organic_results = {}
+    raw_extras = {}
+
     for kw in keywords:
         try:
-            # Start the actor run
-            run_resp = requests.post(
-                f"https://api.apify.com/v2/acts/{ACTOR_ID}/runs",
-                params={"token": APIFY_TOKEN},
-                json={
-                    "queries": kw,
-                    "maxPagesPerQuery": 1,
-                    "resultsPerPage": max_results,
-                    "languageCode": "en",
-                    "countryCode": "us",
-                    "customDataFunction": "",
-                    "mobileResults": False,
-                },
-                timeout=30,
-            )
-            if run_resp.status_code != 201:
-                print(f"  [serp] Failed to start run for '{kw}': {run_resp.status_code}")
+            result = search_google(kw, client_id, resolved_location)
+
+            # Budget gate blocked this search
+            if result.get("blocked"):
+                print(f"  [serp] SKIPPED '{kw}': {result.get('reason', 'budget exceeded')}")
                 continue
 
-            run_id = run_resp.json().get("data", {}).get("id")
-            if not run_id:
-                continue
+            # Format organic results in legacy format
+            organic_results[kw] = format_organic_results(result)
 
-            # Poll for completion (max 60 seconds)
-            for _ in range(12):
-                time.sleep(5)
-                status_resp = requests.get(
-                    f"https://api.apify.com/v2/actor-runs/{run_id}",
-                    params={"token": APIFY_TOKEN},
-                    timeout=10,
-                )
-                status = status_resp.json().get("data", {}).get("status")
-                if status == "SUCCEEDED":
-                    break
-                if status in ("FAILED", "ABORTED", "TIMED-OUT"):
-                    print(f"  [serp] Run {status} for '{kw}'")
-                    break
-            else:
-                print(f"  [serp] Timed out waiting for '{kw}'")
-                continue
-
-            # Get results from dataset
-            dataset_id = status_resp.json().get("data", {}).get("defaultDatasetId")
-            if not dataset_id:
-                continue
-
-            items_resp = requests.get(
-                f"https://api.apify.com/v2/datasets/{dataset_id}/items",
-                params={"token": APIFY_TOKEN, "format": "json"},
-                timeout=15,
-            )
-            items = items_resp.json() if items_resp.status_code == 200 else []
-
-            kw_results = []
-            for item in items:
-                organic = item.get("organicResults", [])
-                for r in organic[:max_results]:
-                    kw_results.append({
-                        "position": r.get("position", 0),
-                        "title": r.get("title", ""),
-                        "url": r.get("url", ""),
-                        "description": r.get("description", ""),
-                    })
-
-            results[kw] = kw_results
+            # Store raw data for Phase 2 (AI Overview, PAA, Featured Snippets)
+            raw_extras[kw] = {
+                "ai_overview": result.get("ai_overview"),
+                "related_questions": result.get("related_questions", []),
+                "answer_box": result.get("answer_box"),
+            }
 
         except Exception as e:
             print(f"  [serp] Error for '{kw}': {e}")
             continue
 
-    return results
+    return organic_results, raw_extras
