@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: unknown
-last_updated: "2026-03-10T18:20:27.010Z"
+status: in-progress
+last_updated: "2026-03-10T21:33:48.000Z"
 progress:
-  total_phases: 3
+  total_phases: 4
   completed_phases: 3
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 7
+  completed_plans: 7
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** The brain knows which pages are citation-ready and which aren't, and prioritizes making uncitable content citable.
-**Current focus:** Phase 3: Brain Integration + Content Upgrades
+**Current focus:** Phase 4: Entity Authority Building
 
 ## Current Position
 
-Phase: 3 of 6 (Brain Integration + Content Upgrades) -- COMPLETE
-Plan: 2 of 2 in current phase
-Status: Phase 03 complete
-Last activity: 2026-03-10 -- Completed 03-02 GEO Content Upgrade Execution Pipeline
+Phase: 4 of 6 (Entity Authority Building)
+Plan: 1 of 2 in current phase
+Status: 04-01 complete, 04-02 pending
+Last activity: 2026-03-10 -- Completed 04-01 Organization Schema + sameAs Links
 
-Progress: [██████░░░░] 50%
+Progress: [███████░░░] 58%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 3.2min
-- Total execution time: 0.30 hours
+- Total plans completed: 7
+- Average duration: 3.1min
+- Total execution time: 0.35 hours
 
 **By Phase:**
 
@@ -43,6 +43,7 @@ Progress: [██████░░░░] 50%
 | 01-serpapi-foundation | 2 | 7min | 3.5min |
 | 02-geo-scoring-ai-overview-detection | 1 | 3min | 3min |
 | 03-brain-integration-content-upgrades | 2 | 6min | 3min |
+| 04-entity-authority-building | 1 | 3min | 3min |
 
 **Recent Trend:**
 - Last 5 plans: -
@@ -75,6 +76,9 @@ Recent decisions affecting current work:
 - [Phase 03]: GEO scores sorted worst-first, SERP features sorted AIO=True first
 - [Phase 03]: String-level HTML insertion over BeautifulSoup serialization for HTML fidelity
 - [Phase 03]: FAQ auto-detect as post-action hook (zero-cost, piggybacks on content creation)
+- [Phase 04]: Organization schema separate from LocalBusiness (Google reads both independently)
+- [Phase 04]: sameAs key omitted when no URLs configured (no empty arrays in JSON-LD)
+- [Phase 04]: same_as_urls only on clients with website_local_path
 
 ### Pending Todos
 
@@ -87,5 +91,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-10
-Stopped at: Completed 03-02-PLAN.md (GEO Content Upgrade Execution Pipeline)
+Stopped at: Completed 04-01-PLAN.md (Organization Schema + sameAs Links)
 Resume file: None
