@@ -9,10 +9,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### SerpAPI Foundation
 
-- [ ] **SERP-01**: SerpAPI client module replaces Apify SERP scraper with structured results (organic, AI Overview, PAA, Featured Snippets) in a single API call
-- [ ] **SERP-02**: Per-client monthly usage tracking in Supabase with hard cap at 200 searches/client/month and 950 global
-- [ ] **SERP-03**: Usage counter checked before every API call; hard-stop when cap reached (no silent overages)
-- [ ] **SERP-04**: SerpAPI Account API integration for free usage verification (no credit cost to check remaining balance)
+- [x] **SERP-01**: SerpAPI client module replaces Apify SERP scraper with structured results (organic, AI Overview, PAA, Featured Snippets) in a single API call
+- [x] **SERP-02**: Per-client monthly usage tracking in Supabase with hard cap at 200 searches/client/month and 950 global
+- [x] **SERP-03**: Usage counter checked before every API call; hard-stop when cap reached (no silent overages)
+- [x] **SERP-04**: SerpAPI Account API integration for free usage verification (no credit cost to check remaining balance)
 - [ ] **SERP-05**: AI Overview detection per tracked keyword (knows which queries trigger AI Overviews)
 - [ ] **SERP-06**: AI Overview citation check (knows if client URL appears in AI Overview references)
 - [ ] **SERP-07**: Two-step AI Overview fetch handles page_token expiration (60-second window) correctly
@@ -95,10 +95,10 @@ Deferred to future release.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SERP-01 | Phase 1 | Pending |
-| SERP-02 | Phase 1 | Pending |
-| SERP-03 | Phase 1 | Pending |
-| SERP-04 | Phase 1 | Pending |
+| SERP-01 | Phase 1 | Complete |
+| SERP-02 | Phase 1 | Complete |
+| SERP-03 | Phase 1 | Complete |
+| SERP-04 | Phase 1 | Complete |
 | SERP-05 | Phase 2 | Pending |
 | SERP-06 | Phase 2 | Pending |
 | SERP-07 | Phase 2 | Pending |

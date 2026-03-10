@@ -10,24 +10,24 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 ## Current Position
 
 Phase: 1 of 6 (SerpAPI Foundation)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-10 -- Roadmap created
+Plan: 1 of 2 in current phase
+Status: Executing
+Last activity: 2026-03-10 -- Completed 01-01 SerpAPI Client
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█░░░░░░░░░] 8%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: 0 hours
+- Total plans completed: 1
+- Average duration: 5min
+- Total execution time: 0.08 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 01-serpapi-foundation | 1 | 5min | 5min |
 
 **Recent Trend:**
 - Last 5 plans: -
@@ -46,6 +46,8 @@ Recent decisions affecting current work:
 - 200 searches/client/month budget (scales to 5 clients)
 - Reddit via Brave Search (Reddit API auth blocked)
 - Measurement-first: 2-4 weeks of baseline data before brain acts on GEO scores
+- Starter Plan has 1000 searches/mo (not 100), budget caps unchanged as safety margin
+- Used count='exact' Supabase queries for budget checks -- no caching
 
 ### Pending Todos
 
@@ -53,11 +55,10 @@ None yet.
 
 ### Blockers/Concerns
 
-- SERPAPI_KEY must be added to .env before Phase 1 execution
 - Per-client sameAs URLs need manual collection before Phase 4
 
 ## Session Continuity
 
 Last session: 2026-03-10
-Stopped at: Roadmap created, ready to plan Phase 1
+Stopped at: Completed 01-01-PLAN.md (SerpAPI Client)
 Resume file: None
