@@ -29,15 +29,15 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Brain Integration
 
-- [ ] **BRAIN-01**: Brain prompt includes GEO scores as compact table rows (page, score, missing factors) within 3000-char budget for all GEO sections
+- [x] **BRAIN-01**: Brain prompt includes GEO scores as compact table rows (page, score, missing factors) within 3000-char budget for all GEO sections
 - [ ] **BRAIN-02**: Brain can recommend geo_content_upgrade action type to fix low-scoring pages
-- [ ] **BRAIN-03**: Brain factors AI Overview citation data into daily action prioritization
-- [ ] **BRAIN-04**: Brain prioritizes pages that are striking-distance AND low GEO score (highest ROI)
+- [x] **BRAIN-03**: Brain factors AI Overview citation data into daily action prioritization
+- [x] **BRAIN-04**: Brain prioritizes pages that are striking-distance AND low GEO score (highest ROI)
 
 ### Content Upgrades
 
-- [ ] **CONT-01**: Enhanced answer capsules: 40-60 word self-contained answers after first H2, formatted for AI extraction
-- [ ] **CONT-02**: Blog engine generates new posts with citation-ready structure by default (answer blocks, stats, lists, comparison tables)
+- [x] **CONT-01**: Enhanced answer capsules: 40-60 word self-contained answers after first H2, formatted for AI extraction
+- [x] **CONT-02**: Blog engine generates new posts with citation-ready structure by default (answer blocks, stats, lists, comparison tables)
 - [ ] **CONT-03**: page_edit action can retrofit existing pages with answer blocks and improved heading structure
 - [ ] **CONT-04**: FAQ schema applied aggressively to pages with question-format content (extends existing schema_injector)
 
@@ -109,12 +109,12 @@ Deferred to future release.
 | GEO-03 | Phase 2 | Complete |
 | GEO-04 | Phase 2 | Complete |
 | GEO-05 | Phase 2 | Complete |
-| BRAIN-01 | Phase 3 | Pending |
+| BRAIN-01 | Phase 3 | Complete |
 | BRAIN-02 | Phase 3 | Pending |
-| BRAIN-03 | Phase 3 | Pending |
-| BRAIN-04 | Phase 3 | Pending |
-| CONT-01 | Phase 3 | Pending |
-| CONT-02 | Phase 3 | Pending |
+| BRAIN-03 | Phase 3 | Complete |
+| BRAIN-04 | Phase 3 | Complete |
+| CONT-01 | Phase 3 | Complete |
+| CONT-02 | Phase 3 | Complete |
 | CONT-03 | Phase 3 | Pending |
 | CONT-04 | Phase 3 | Pending |
 | ENT-01 | Phase 4 | Pending |
