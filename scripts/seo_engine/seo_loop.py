@@ -96,6 +96,19 @@ def run_client(client, dry_run=True):
             print(f"  No fallback data available. Skipping.")
             return
 
+    # ── Step 1b: GEO scoring (daily, zero API cost) ──
+    print(f"\n  [1b/7] Scoring pages for GEO citation-readiness...")
+    try:
+        from .geo_scorer import score_all_pages
+        geo_results = score_all_pages(client)
+        if geo_results:
+            avg_score = sum(r["score"] for r in geo_results) / len(geo_results)
+            print(f"  Scored {len(geo_results)} pages (avg GEO score: {avg_score:.1f}/5)")
+        else:
+            print(f"  No HTML pages found for GEO scoring")
+    except Exception as e:
+        print(f"  GEO scoring failed (non-fatal): {e}")
+
     # ── Step 2: Research ──
     print(f"\n  [2/7] Research...")
     today = date.today()
