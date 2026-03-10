@@ -39,6 +39,8 @@ def get_clusters(client_id, status="active"):
     for c in clusters:
         c["supporting_count"] = len(c.get("supporting_posts") or [])
         c["gap_count"] = len(c.get("gap_topics") or [])
+        total = c["supporting_count"] + c["gap_count"]
+        c["authority_completeness"] = round(c["supporting_count"] / total, 2) if total > 0 else 0.0
 
     return clusters
 

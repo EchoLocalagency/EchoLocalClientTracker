@@ -23,6 +23,51 @@ def _get_supabase():
     return create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
 
 
+def get_all_paa_questions(client_id: str) -> list:
+    """Fetch deduplicated PAA questions from serp_features for a client.
+
+    Queries serp_features table ordered by collected_at desc, deduplicates
+    by keyword (keeps latest), collects all unique questions across keywords.
+
+    Returns list of unique question strings.
+    """
+    import json as _json
+
+    sb = _get_supabase()
+    resp = (
+        sb.table("serp_features")
+        .select("keyword, paa_questions")
+        .eq("client_id", client_id)
+        .order("collected_at", desc=True)
+        .limit(100)
+        .execute()
+    )
+
+    seen_keywords = set()
+    all_questions = set()
+    for row in resp.data or []:
+        kw = row.get("keyword", "")
+        if kw in seen_keywords:
+            continue
+        seen_keywords.add(kw)
+
+        paa = row.get("paa_questions")
+        if paa is None:
+            continue
+        # Handle paa_questions being either a list or a JSON string
+        if isinstance(paa, str):
+            try:
+                paa = _json.loads(paa)
+            except (ValueError, _json.JSONDecodeError):
+                continue
+        if isinstance(paa, list):
+            for q in paa:
+                if isinstance(q, str) and q.strip():
+                    all_questions.add(q.strip())
+
+    return list(all_questions)
+
+
 def get_latest_geo_scores(client_id: str) -> list:
     """Query Supabase geo_scores for latest scores per page for this client.
 
