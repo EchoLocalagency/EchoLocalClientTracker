@@ -6,16 +6,20 @@ Budget caps are enforced in Supabase before each API call.
 
 Usage:
     from scripts.seo_engine.serpapi_client import search_google, check_budget, check_account_balance
+    from scripts.seo_engine.serpapi_client import fetch_ai_overview, url_matches_client
 
 Functions:
     search_google(query, client_id, location, search_type) -> dict
     check_budget(client_id) -> dict
     check_account_balance() -> dict
     format_organic_results(serpapi_results) -> list
+    fetch_ai_overview(page_token, client_id) -> dict
+    url_matches_client(url, client_website) -> bool
 """
 
 import os
 from datetime import date
+from urllib.parse import urlparse
 
 import requests
 from dotenv import load_dotenv
@@ -173,3 +177,74 @@ def check_account_balance() -> dict:
     except Exception as e:
         print(f"[serpapi] Account API error: {e}")
         return {"error": str(e)}
+
+
+def fetch_ai_overview(page_token: str, client_id: str) -> dict:
+    """Fetch full AI Overview using page_token from initial search.
+
+    IMPORTANT: page_token expires in ~60 seconds. Call immediately after
+    initial search, before processing the next keyword.
+    Costs 1 additional SerpAPI credit.
+
+    Args:
+        page_token: Token from ai_overview.page_token in initial search response.
+        client_id: Supabase client UUID for budget tracking.
+
+    Returns:
+        Full AI Overview response dict, or {"blocked": True, "reason": ...} if over budget,
+        or {"error": ...} on failure.
+    """
+    # Budget gate
+    budget = check_budget(client_id)
+    if not budget["allowed"]:
+        print(f"[serpapi] AI Overview BLOCKED: {budget['reason']}")
+        return {"blocked": True, "reason": budget["reason"]}
+
+    try:
+        params = {
+            "engine": "google_ai_overview",
+            "page_token": page_token,
+            "api_key": os.getenv("SERPAPI_KEY"),
+        }
+        search = GoogleSearch(params)
+        results = search.get_dict()
+
+        # Log usage with search_type="ai_overview"
+        sb = _get_supabase()
+        sb.table("serpapi_usage").insert(
+            {
+                "client_id": client_id,
+                "query": "ai_overview_followup",
+                "search_type": "ai_overview",
+                "location": "",
+            }
+        ).execute()
+
+        return results
+    except Exception as e:
+        print(f"[serpapi] AI Overview fetch error: {e}")
+        return {"error": str(e)}
+
+
+def url_matches_client(url: str, client_website: str) -> bool:
+    """Check if a URL belongs to the client's website domain.
+
+    Normalizes domains by stripping www. prefix and comparing netloc.
+    Handles trailing slashes, different paths, etc.
+
+    Args:
+        url: URL to check (e.g. "https://www.mrgreenturfclean.com/services").
+        client_website: Client's website URL (e.g. "https://mrgreenturfclean.com/").
+
+    Returns:
+        True if the URL belongs to the client's domain.
+    """
+    if not url or not client_website:
+        return False
+
+    try:
+        url_domain = urlparse(url).netloc.lower().lstrip("www.")
+        client_domain = urlparse(client_website).netloc.lower().lstrip("www.")
+        return url_domain == client_domain
+    except Exception:
+        return False
