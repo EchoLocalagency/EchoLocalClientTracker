@@ -78,5 +78,17 @@ SerpAPI budget: 200 searches/client/month, 950 global cap. $25/mo Starter Plan.
 | Organization schema separate from LocalBusiness | Google reads both independently | Good -- clean separation |
 | difflib for PAA matching | Stdlib, 0.6 threshold, no external dependency | Good -- lightweight and accurate enough |
 
+## Current Milestone: v1.1 Mention Tracking + GEO Dashboard
+
+**Goal:** Surface all GEO data in the dashboard and track where clients are mentioned online, so Brian and clients can see citation-readiness and AI visibility at a glance.
+
+**Target features:**
+- Reddit question mining via Brave Search
+- Cross-platform mention tracking and source diversity scoring
+- Competitor AI Overview monitoring
+- GEO scores, citation status, and trends visible in Next.js dashboard
+- SerpAPI budget usage and Featured Snippet ownership in dashboard
+- Tech debt cleanup (word count mismatch, orphaned function, empty sameAs URLs)
+
 ---
-*Last updated: 2026-03-10 after v1.0 milestone*
+*Last updated: 2026-03-10 after v1.1 milestone start*
