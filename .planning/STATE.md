@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Mention Tracking + GEO Dashboard
-status: defining_requirements
-last_updated: "2026-03-10T23:30:00Z"
+status: roadmap_complete
+last_updated: "2026-03-10T23:45:00Z"
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -18,14 +18,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** The brain knows which pages are citation-ready and which aren't, and prioritizes making uncitable content citable.
-**Current focus:** v1.1 Mention Tracking + GEO Dashboard
+**Current focus:** v1.1 Mention Tracking + GEO Dashboard -- Phase 5 ready to plan
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 5 of 7 (Brave Infra + Mention Tracking + Tech Debt)
 Plan: --
-Status: Defining requirements
-Last activity: 2026-03-10 -- Milestone v1.1 started
+Status: Ready to plan
+Last activity: 2026-03-10 -- Roadmap created for v1.1 (Phases 5-7)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -40,19 +40,24 @@ Progress: [░░░░░░░░░░] 0%
 ### Decisions
 
 Full decision log in PROJECT.md Key Decisions table.
+Recent:
+- Phase 5 bundles tech debt with infra/mentions (small fixes, no separate phase needed)
+- Phases 5+6 can run in parallel (Python backend vs Next.js frontend)
+- Phase 7 deferred until Phase 5 data accumulates 1-2 weeks
 
 ### Pending Todos
 
-- Populate same_as_urls in clients.json with real GBP/Yelp/BBB/social URLs per client
-- Fix content_validator.py capsule word count range (50-150 -> 40-60)
-- Wire inject_organization_on_all_pages() into runtime or remove
+- Populate same_as_urls in clients.json (DEBT-03, Phase 5)
+- Fix content_validator.py capsule word count (DEBT-01, Phase 5)
+- Wire inject_organization_on_all_pages() (DEBT-02, Phase 5)
 
 ### Blockers/Concerns
 
-None.
+- Brave Search free tier eliminated Feb 2026. Now $5 credit with metered billing at $5/1k queries. Budget gating is critical.
+- Brave Reddit coverage for niche subreddits (r/ArtificialTurf) unverified. Validate with test queries during Phase 5 planning.
 
 ## Session Continuity
 
 Last session: 2026-03-10
-Stopped at: Defining v1.1 requirements
+Stopped at: Roadmap created for v1.1
 Resume file: None
