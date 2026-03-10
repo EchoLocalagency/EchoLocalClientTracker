@@ -1,189 +1,205 @@
-# Feature Research: GEO Module
+# Feature Research: v1.1 Mention Tracking + GEO Dashboard
 
-**Domain:** Generative Engine Optimization for local service businesses
+**Domain:** GEO mention tracking and dashboard visualization for local SEO engine
 **Researched:** 2026-03-10
-**Confidence:** MEDIUM (emerging domain, patterns stabilizing but tools/metrics still evolving)
+**Confidence:** MEDIUM-HIGH
+
+## Context
+
+v1.0 shipped with all backend GEO infrastructure: SerpAPI client, AI Overview detection, citation matching, GEO scorer (5-factor binary checklist), brain integration, content upgrades, entity building. All data flows into Supabase (`geo_scores`, `serp_features`, `serpapi_usage` tables).
+
+v1.1 focuses on two gaps:
+1. **Mention Tracking** -- where does the client appear online? Reddit questions, brand mentions, source diversity.
+2. **GEO Dashboard** -- making the collected GEO data visible in the Next.js dashboard instead of only existing in brain prompts and Supabase.
 
 ## Feature Landscape
 
 ### Table Stakes (Users Expect These)
 
-Features that any GEO-aware SEO engine must have in 2026. Without these, the system is just traditional SEO pretending to care about AI search.
+Features Brian and clients assume exist once "GEO" is mentioned in the dashboard. Missing these = the dashboard feels incomplete and v1.0 data stays invisible.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| AI Overview detection per keyword | Every GEO tool tracks whether AI Overviews appear for tracked keywords. SerpAPI returns this structured data directly. | LOW | SerpAPI `ai_overview` field in search results. Already in PROJECT.md scope. |
-| AI Overview citation tracking | Knowing IF client pages are cited in AI Overviews is the core GEO metric. 76% of AIO citations link to top-10 pages (dropping to 38% in recent data). | MEDIUM | SerpAPI extracts `references` with titles, links, snippets from AI Overview blocks. Requires matching against client URLs. |
-| GEO content score per page | Every major GEO tool (Frase, Surfer, eSEOspace) scores content 0-100 for AI-readiness. Standard components: structure, schema, semantic richness, conversational relevance. | MEDIUM | Build a lightweight scorer. Does NOT need to match commercial tools exactly -- needs to rank pages relative to each other so the brain prioritizes the worst ones. |
-| Answer block injection | Self-contained 40-60 word answer blocks after H2s are the single most cited content pattern. LLMs are 28-40% more likely to cite content with clear answer formatting. | LOW | Extends existing blog_engine and page_optimizer. Brain already generates content -- just needs formatting rules. |
-| FAQ schema injection | FAQPage schema is the #1 schema type for AI citations. Pages with schema markup are 36% more likely to appear in AI responses. | LOW | schema_injector.py already supports FAQ. Needs to be applied more aggressively and tied to AEO opportunity data. |
-| People Also Ask extraction | PAA boxes reveal the exact questions AI systems answer. Every GEO tool mines these. SerpAPI returns structured PAA data. | LOW | SerpAPI `related_questions` field. Direct extraction, store in research_cache. |
-| Content structure optimization | Clear heading hierarchy (H1>H2>H3), short paragraphs (3-4 sentences), lists, tables, key takeaway boxes. Pages with this structure are 2.8x more likely to be cited. | LOW | Content rules for the brain to follow during generation. Audit existing pages for compliance. |
-| Featured snippet tracking | Knowing who holds the featured snippet for target queries. Featured snippets feed directly into AI Overviews. | LOW | SerpAPI `featured_snippet` field. Track client vs competitor ownership. |
+| GEO scores visible per page (DASH-01) | v1.0 computes scores daily but they only show in brain prompts. Brian has no way to see them without SQL queries. | LOW | Read-only query against `geo_scores` table (page_path, score/5, factors, scored_at). Render as Recharts bar chart, color-coded by score. Data already exists and is populated daily. |
+| AI Overview citation status per keyword (DASH-02) | The core GEO metric. Without seeing which keywords trigger AI Overviews and whether the client is cited, v1.0's value is invisible. | LOW | Query `serp_features` table (has_ai_overview, client_cited_in_ai_overview, keyword). Render as sortable table with green/red status indicators. No new data collection needed. |
+| SerpAPI budget usage indicator (DASH-05) | Brian manually runs `check_budget()` in Python. At $25/mo with 4 clients scaling to potentially more, silent budget exhaustion would kill the engine. | LOW | Query `serpapi_usage` count for current month + call `check_account_balance()`. Simple progress bar: X/950 global, X/200 per client. No new infrastructure. |
+| Featured Snippet ownership tracker (DASH-06) | `serp_features` already tracks `has_featured_snippet`, `featured_snippet_holder`, `client_has_snippet`. Not surfacing this wastes data the engine already collects. | LOW | Filterable table: keyword, snippet holder domain, client owns Y/N. Show only keywords where snippets exist. Pure frontend read. |
+| Reddit question mining via Brave Search (MENT-01) | Existing `reddit.py` uses Reddit API auth. Per PROJECT.md, "Reddit API auth blocked, Brave site:reddit.com search works fine." Current module is dead code. Brave path is the decided approach. | MEDIUM | Replace `reddit.py` internals with Brave Search queries (`site:reddit.com "artificial turf cleaning" OR "turf odor"`). Parse results for question-format titles. Store in new `reddit_questions` Supabase table. Brave API pattern already proven in `brand_mentions.py`. |
 
 ### Differentiators (Competitive Advantage)
 
-Features that separate this from a generic GEO checker. These leverage the existing brain/engine architecture in ways standalone tools cannot.
+Features that make this internal tool genuinely useful beyond what commercial GEO tools ($200-500/mo) provide. The value is integration with the brain + zero marginal API cost for dashboard features.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| Brain-integrated GEO prioritization | Commercial GEO tools score content but leave action to humans. Our brain sees GEO scores AND can autonomously fix low-scoring pages through page_edit, blog_post, and schema_update actions. Closed-loop optimization. | MEDIUM | Brain already prioritizes by SEO signals. Add GEO score as a decision input. The brain decides "this page has a GEO score of 35, it needs answer blocks and FAQ schema" and executes. |
-| Topical authority completeness scoring | Measures how thoroughly each content cluster covers its topic. Domains with comprehensive topical coverage get cited more than those with more backlinks. Extends existing cluster_manager. | MEDIUM | Count gaps in clusters, measure coverage breadth. cluster_manager.py already tracks pillar pages and supporting posts. Add a completeness metric. |
-| Entity graph building (Organization + sameAs) | Organization schema with sameAs links to verified profiles (GBP, Yelp, BBB, social) helps AI systems verify entity legitimacy. sameAs portfolios correlate with higher AI citation rates. | LOW | Extend schema_injector to generate Organization schema with sameAs array. One-time setup per client, then maintain. |
-| Source diversity scoring | 48% of AI citations come from community platforms, not owned sites. Track where clients are mentioned (Reddit, directories, forums) and identify gaps. | MEDIUM | Brave Search `site:reddit.com`, `site:yelp.com`, etc. Quantify presence across source types. Feeds into the brain's action planning. |
-| Cross-platform mention tracking | Monitor where client brand appears across the web. Not just "are we cited in AI Overviews" but "are we building the web presence that makes AI citation likely." | MEDIUM | Brave Search brand monitoring. Store mention history in Supabase. Track growth over time. |
-| Question-to-content matching | Map AEO opportunity questions to existing content. Show which questions have answers on the site and which are gaps. Brain auto-fills gaps via blog posts. | LOW | Cross-reference aeo_opportunities output with existing page content. The data already exists -- just needs connecting. |
-| SerpAPI budget management with smart allocation | Hard monthly cap with intelligent distribution across keywords. Prioritize high-value queries (high impressions, question format, known AI Overview presence) over low-value ones. | MEDIUM | Track usage in Supabase. Allocate budget per client (200/month). Prioritize keywords by value. Hard-stop at cap. |
-| Competitor AI Overview monitoring | Track which competitors get cited for your target keywords. Know when a competitor displaces you in AI Overviews. | LOW | SerpAPI already returns all cited URLs in AI Overviews. Compare against known competitor domains. |
+| AI Overview citation trends chart (DASH-03) | Shows movement over time: "2 weeks ago 0 citations, now 3." This is the ROI proof for GEO work. Commercial tools charge $200+/mo for this. Our data is free -- already in `serp_features` with timestamps. | MEDIUM | Query `serp_features` grouped by week. Recharts LineChart: two lines (total keywords with AIO, keywords where client is cited). Needs 2-4 weeks of historical data. v1.0 has been collecting since late February -- data should be sufficient now. |
+| Cross-platform mention tracking (MENT-02) | Track where the client's brand appears beyond their own site: Reddit, Yelp, directories, forums, news. AI models build an "authority graph" from these mentions. Commercial tools charge $100+/mo. | MEDIUM | Extend `brand_mentions.py` pattern (already uses Brave Search + domain extraction + deduplication) to search for each client's brand name. Store in new `brand_mentions` table (platform, url, domain, title, found_at). Run weekly with research. |
+| Source diversity scoring (MENT-03) | AI Overviews cite 13+ sources on average. If a client only appears on their own domain, AI won't cite them. A "source diversity score" measuring distinct platform presence gives the brain a new optimization signal. Reddit alone accounts for 3 of every 100 AI citations. | MEDIUM | Count distinct platform categories mentioning client (from MENT-02 data). Score: 0-2 platforms = poor (0-3), 3-5 = moderate (4-6), 6+ = strong (7-10). Store in `source_diversity_scores` table. Brain uses this to prioritize outreach signals. |
+| Source diversity visualization (DASH-04) | Visual breakdown of where the client appears online: pie chart showing Reddit, Yelp, directories, news, forums. Makes the abstract diversity score tangible and client-presentable. | LOW | Depends on MENT-02 data. Recharts PieChart grouping mentions by platform category. Only meaningful after mention tracking has run 2+ cycles. |
+| Competitor AI Overview monitoring (MENT-04) | For each tracked keyword, show which competitors ARE cited in AI Overviews. "For 'turf cleaning Poway', HomeAdvisor and TurfCleanSD are cited but you aren't." Directly actionable intelligence at zero API cost. | MEDIUM | `serp_features.ai_overview_references` already stores the full list of cited URLs per keyword (JSONB). Parse these to extract competitor domains, count frequency, rank by citation share. No new API calls -- just data transformation. Dashboard table view. |
 
 ### Anti-Features (Commonly Requested, Often Problematic)
 
 | Feature | Why Requested | Why Problematic | Alternative |
 |---------|---------------|-----------------|-------------|
-| Perplexity API citation tracking | "Track citations across ALL AI platforms" | Perplexity API is unreliable for citation tracking, results inconsistent, adds cost for partial coverage. PROJECT.md already scoped this out. | Monitor Perplexity presence via manual spot-checks or Brave Search brand queries. Revisit if API stabilizes. |
-| ChatGPT citation tracking | "Know when ChatGPT recommends us" | No public API. Results vary by session, user, and prompt. Impossible to get consistent data. Commercial tools that claim to track this use prompt simulation (unreliable). | Focus on Google AI Overviews (trackable via SerpAPI) and building the authority signals that make all AI engines cite you. |
-| Automated Reddit/Quora posting | "Get mentioned on community platforms to boost citations" | ToS violation. Ban risk. Destroys brand trust if discovered. Legal liability. | Manual participation only. Engine identifies relevant threads, Brian decides whether to engage personally. |
-| Real-time AI visibility dashboard | "See citation changes live" | SerpAPI budget is 200/client/month. Real-time monitoring would burn through budget in days. Commercial tools charging $95-495/mo for this have much larger API budgets. | Weekly AI visibility snapshots. Run targeted checks on research days (Wed + Sat). Dashboard shows trends, not live data. |
-| Full commercial GEO scoring parity | "Match Frase/Surfer scoring exactly" | Their scores use proprietary training data, NLP models, and massive SERP datasets. Replicating them is impossible and unnecessary. | Build a simpler, opinionated GEO score focused on the 5 factors that matter most for local service businesses. Good enough to rank pages relative to each other. |
-| YouTube transcript optimization | "Optimize video content for AI citation" | Current clients have no YouTube presence. Zero ROI for now. | Revisit when a client has active YouTube content. |
-| Multi-language GEO | "Support Spanish market content" | AI Overview detection via SerpAPI only works for English (hl=en). Current clients are English-only. | English only. Revisit if client base expands to multilingual markets. |
+| Real-time AI Overview monitoring | "Know the moment we get cited" | Would burn 950 SerpAPI searches/mo in hours. At 20 keywords checked 3x/day = budget gone in 16 days. Explicitly out of scope in PROJECT.md. | Weekly SERP checks (Wed + Sat research runs). Trends chart shows movement without real-time cost. |
+| ChatGPT/Perplexity citation tracking | Commercial tools track 10+ AI platforms | No public API for ChatGPT citations. Perplexity API unreliable (PROJECT.md: out of scope). Would require $200+/mo third-party tool. | Focus on Google AI Overviews (88% search market share). SerpAPI gives structured data for this. Other platforms lack reliable APIs. |
+| Reddit/Quora answer posting automation | "Auto-reply to relevant threads" | ToS violation. Ban risk. Explicitly out of scope in PROJECT.md. Destroys trust if discovered. | Surface Reddit questions to the brain as content inspiration. Brain suggests blog topics or FAQ entries. Brian answers manually if desired. |
+| Sentiment analysis of mentions | Commercial tools score positive/neutral/negative | Requires LLM call per mention (cost scales with volume). For 2-4 local service clients, mention volume is ~5-15/month -- Brian can read them. Complexity not justified. | Track mention existence and platform. Let Brian read context manually. Add sentiment only if mention volume exceeds 50/month per client. |
+| Multi-platform AI visibility aggregate score | Tools like Profound/Peec score visibility across all LLMs | Requires API access to each platform ($200-500/mo combined). These tools target enterprise SaaS with $10K+/mo budgets. Overkill for 4 local service clients. | Google AI Overview citation rate is the single metric that matters for local service SEO. Track that one thing well at $25/mo. |
+| YouTube transcript optimization | Some GEO guides recommend YouTube presence | No YouTube presence for current clients (PROJECT.md: out of scope). Building YouTube content is a business decision, not a dashboard feature. | Revisit only if a client starts YouTube. |
+| Full GEO scoring parity with Frase/Surfer | "Match their 100-point scoring system" | Their scores use proprietary NLP models and massive datasets. Replicating them is impossible and unnecessary. | v1.0's 5-factor binary checklist already works for relative page ranking. Good enough for the brain to prioritize. |
 
 ## Feature Dependencies
 
 ```
-[SerpAPI Integration]
-    |--provides--> [AI Overview Detection]
-    |                   |--enables--> [AI Overview Citation Tracking]
-    |                   |--enables--> [Competitor AI Overview Monitoring]
-    |--provides--> [PAA Extraction]
-    |                   |--feeds--> [Question-to-Content Matching]
-    |                                    |--feeds--> [Brain GEO Prioritization]
-    |--provides--> [Featured Snippet Tracking]
-    |--requires--> [SerpAPI Budget Management]
+[MENT-01: Reddit Mining via Brave]
+    (independent -- no deps, reuses existing Brave API pattern from brand_mentions.py)
 
-[GEO Content Score]
-    |--requires--> [Content Structure Audit] (check heading hierarchy, paragraph length, etc.)
-    |--requires--> [Schema Audit] (check FAQ, HowTo, Organization presence)
-    |--requires--> [Answer Block Detection] (check for 40-60 word self-contained answers)
-    |--feeds--> [Brain GEO Prioritization]
+[MENT-02: Cross-platform Mentions]
+    └──requires──> Brave Search API (already configured, pattern in brand_mentions.py)
+    └──feeds──> [MENT-03: Source Diversity Scoring]
+                    └──feeds──> [DASH-04: Source Diversity Viz]
 
-[Entity Graph Building]
-    |--requires--> [Organization Schema] (schema_injector extension)
-    |--requires--> [sameAs Link Collection] (GBP, Yelp, BBB, social URLs per client)
-    |--enhances--> [GEO Content Score] (entity signals boost score)
+[MENT-04: Competitor AIO Monitoring]
+    └──requires──> serp_features.ai_overview_references (already collected in v1.0)
+    (independent of MENT-01/02/03)
 
-[Topical Authority Scoring]
-    |--requires--> [cluster_manager.py] (already exists)
-    |--enhances--> [GEO Content Score]
-    |--feeds--> [Brain GEO Prioritization]
+[DASH-01: GEO Scores Display]
+    └──requires──> geo_scores table (already populated daily by v1.0 geo_scorer.py)
 
-[Source Diversity Scoring]
-    |--requires--> [Brave Search Brand Queries]
-    |--requires--> [Cross-Platform Mention Tracking]
-    |--feeds--> [Brain GEO Prioritization]
+[DASH-02: AIO Citation Status]
+    └──requires──> serp_features table (already populated by v1.0 serp_scraper.py)
 
-[Brain GEO Prioritization]
-    |--requires--> [GEO Content Score]
-    |--requires--> [AI Overview Citation Tracking]
-    |--consumes--> all upstream data to decide daily actions
+[DASH-03: Citation Trends Chart]
+    └──requires──> serp_features historical data (2-4 weeks needed, available since late Feb)
+    └──enhances──> [DASH-02]
+
+[DASH-05: Budget Indicator]
+    └──requires──> serpapi_usage table (already populated by v1.0 serpapi_client.py)
+
+[DASH-06: Snippet Tracker]
+    └──requires──> serp_features table (already populated by v1.0)
 ```
 
 ### Dependency Notes
 
-- **SerpAPI Integration is the foundation:** AI Overview detection, PAA, featured snippets all come from SerpAPI. Budget management must ship with it or before it.
-- **GEO Content Score requires auditing infrastructure:** Must be able to analyze existing page structure, schema, and answer blocks before you can score them.
-- **Brain GEO Prioritization is the capstone:** It needs GEO scores + citation data to make informed decisions. Build the inputs first.
-- **Entity Graph is independent:** Can be built in parallel with SerpAPI work. Low complexity, high signal value.
-- **Source Diversity requires Brave Search:** Already configured per PROJECT.md. Reddit queries replace broken Reddit API.
+- **DASH-01/02/05/06 have zero backend dependencies:** All read from existing Supabase tables populated by v1.0. Pure frontend work. Can be built in parallel or any order.
+- **MENT-03 requires MENT-02:** Can't score source diversity without mention data to count platforms. Build MENT-02 first, let it run 1-2 weeks, then add scoring.
+- **DASH-04 requires MENT-03:** Can't visualize source diversity without the scoring data.
+- **DASH-03 needs historical data:** The trends chart requires 2-4 weeks of `serp_features` rows. v1.0 has been collecting since late February 2026, so sufficient data likely exists.
+- **MENT-01 is fully independent:** Reddit mining via Brave has no dependencies on other new features. Can be built anytime.
+- **MENT-04 is fully independent:** Competitor monitoring parses existing `ai_overview_references` JSONB data. No new API calls needed.
 
 ## MVP Definition
 
-### Launch With (v1)
+### Phase 1: Dashboard (v1.1a) -- Make Existing Data Visible
 
-Minimum viable GEO capability -- what's needed to start improving AI visibility.
+Pure frontend. No new APIs, no new Python code. All data already in Supabase.
 
-- [ ] SerpAPI integration with budget tracking (200/client/month cap) -- foundation for all SERP intelligence
-- [ ] AI Overview detection per tracked keyword -- know which queries trigger AI Overviews
-- [ ] AI Overview citation check -- know if client pages are cited
-- [ ] PAA extraction -- structured question data for content targeting
-- [ ] GEO content score (simplified) -- score pages on structure, schema, answer blocks
-- [ ] Answer block formatting in blog engine -- new content is citation-ready from day one
-- [ ] Brain integration -- GEO scores influence daily action selection
+- [ ] DASH-01: GEO scores per page display -- Brian sees what the brain sees
+- [ ] DASH-02: AI Overview citation status per keyword -- core GEO metric visible
+- [ ] DASH-05: SerpAPI budget usage progress bar -- prevents silent budget exhaustion
+- [ ] DASH-06: Featured Snippet ownership table -- surfaces already-collected data
 
-### Add After Validation (v1.x)
+### Phase 2: Mention Tracking Backend (v1.1b) -- New Data Collection
 
-Features to add once core GEO scoring and SerpAPI are working.
+New Python modules extending existing patterns. Creates the data for Phase 3.
 
-- [ ] Topical authority completeness scoring -- once cluster_manager data is flowing
-- [ ] Entity graph building (Organization schema + sameAs) -- one-time setup per client
-- [ ] Question-to-content matching -- connect AEO opportunities to existing content
-- [ ] Featured snippet tracking and optimization -- extends SerpAPI data already collected
-- [ ] Competitor AI Overview monitoring -- uses same SerpAPI data, just adds comparison logic
-- [ ] Content structure audit for existing pages -- retroactive scoring of old content
+- [ ] MENT-01: Reddit question mining via Brave Search -- replaces dead `reddit.py` Reddit API code
+- [ ] MENT-02: Cross-platform mention tracking -- extends `brand_mentions.py` to per-client tracking
+- [ ] MENT-04: Competitor AIO monitoring -- parse existing `ai_overview_references` data
 
-### Future Consideration (v2+)
+### Phase 3: Scoring + Visualization (v1.1c) -- After Data Accumulates
 
-Features to defer until GEO fundamentals are proven.
+Depends on Phase 2 data running for 1-2 weeks.
 
-- [ ] Source diversity scoring -- requires Brave Search integration work, lower urgency than on-site optimization
-- [ ] Cross-platform mention tracking -- valuable but not urgent for 2-4 client scale
-- [ ] Smart SerpAPI budget allocation (priority-weighted) -- simple equal distribution works for now
-- [ ] Dashboard GEO metrics visualization -- report on GEO scores and citation trends in the Next.js dashboard
+- [ ] MENT-03: Source diversity scoring -- needs MENT-02 mention data accumulated
+- [ ] DASH-03: Citation trends chart -- needs serp_features history (likely already sufficient)
+- [ ] DASH-04: Source diversity visualization -- needs MENT-03 scores
+
+### Future (v1.2+)
+
+- [ ] Sentiment analysis of mentions -- only if mention volume exceeds 50/month per client
+- [ ] ChatGPT/Perplexity tracking -- only when reliable APIs exist or client demand justifies cost
+- [ ] Multi-platform AI visibility aggregate score -- enterprise feature, not needed at current scale
 
 ## Feature Prioritization Matrix
 
 | Feature | User Value | Implementation Cost | Priority |
 |---------|------------|---------------------|----------|
-| SerpAPI integration + budget tracking | HIGH | MEDIUM | P1 |
-| AI Overview detection | HIGH | LOW | P1 |
-| AI Overview citation tracking | HIGH | LOW | P1 |
-| PAA extraction | HIGH | LOW | P1 |
-| GEO content score (simplified) | HIGH | MEDIUM | P1 |
-| Answer block formatting | HIGH | LOW | P1 |
-| Brain GEO integration | HIGH | MEDIUM | P1 |
-| FAQ schema (aggressive application) | MEDIUM | LOW | P1 |
-| Topical authority scoring | MEDIUM | MEDIUM | P2 |
-| Entity graph building | MEDIUM | LOW | P2 |
-| Question-to-content matching | MEDIUM | LOW | P2 |
-| Featured snippet tracking | MEDIUM | LOW | P2 |
-| Competitor AI Overview monitoring | MEDIUM | LOW | P2 |
-| Content structure audit (existing pages) | MEDIUM | MEDIUM | P2 |
-| Source diversity scoring | MEDIUM | MEDIUM | P3 |
-| Cross-platform mention tracking | LOW | MEDIUM | P3 |
-| Dashboard GEO visualization | LOW | MEDIUM | P3 |
+| DASH-01: GEO Scores Display | HIGH | LOW | P1 |
+| DASH-02: AIO Citation Status | HIGH | LOW | P1 |
+| DASH-05: Budget Indicator | HIGH | LOW | P1 |
+| DASH-06: Snippet Tracker | MEDIUM | LOW | P1 |
+| MENT-01: Reddit Mining (Brave) | HIGH | MEDIUM | P1 |
+| MENT-02: Cross-platform Mentions | HIGH | MEDIUM | P1 |
+| MENT-04: Competitor AIO Monitoring | HIGH | MEDIUM | P1 |
+| DASH-03: Citation Trends Chart | HIGH | MEDIUM | P2 |
+| MENT-03: Source Diversity Score | MEDIUM | MEDIUM | P2 |
+| DASH-04: Source Diversity Viz | MEDIUM | LOW | P2 |
 
 **Priority key:**
-- P1: Must have for launch -- enables GEO scoring and brain-driven optimization
-- P2: Should have, add when core GEO loop is working
-- P3: Nice to have, defer until ROI from P1/P2 is demonstrated
+- P1: Must have for v1.1 -- dashboard reads + mention tracking backend
+- P2: Add after P1 data has accumulated 1-2 weeks
 
 ## Competitor Feature Analysis
 
-| Feature | Frase ($39+/mo) | Surfer AI Tracker ($95-495/mo) | SE Ranking Visible ($varies) | Our Approach |
-|---------|-----------------|-------------------------------|------------------------------|--------------|
-| GEO content score | Authority + Readability + Structure (3 pillars) | Content Score (500+ signals) + AI Search Guidelines | AI visibility tied to search outcomes | Simplified 5-factor score: structure, schema, answer blocks, semantic richness, conversational relevance. Focused on local service content. |
-| AI platform tracking | ChatGPT, Perplexity, Claude | ChatGPT, Google AIO, Perplexity, Gemini, AI Mode | ChatGPT, Perplexity, Google AIO, Gemini | Google AI Overviews only (via SerpAPI). Highest ROI for local search. Others deferred. |
-| Content optimization | 40+ AI writing tools, real-time scoring | Auto-Optimize (one-click entity/fact injection) | Automated content creation | Brain-driven: scores page, decides action, executes (blog_post, page_edit, schema_update). Fully autonomous. |
-| Tracking frequency | On-demand | Daily/weekly monitoring | Continuous | Weekly snapshots (Wed + Sat research days). Budget-conscious. |
-| Action automation | None (suggestions only) | None (suggestions only) | Partial (content creation) | Full closed-loop: detect problem, score it, prioritize it, fix it, measure outcome. No human in the loop for routine fixes. |
-| Local business focus | Generic | Generic | Generic | Purpose-built for local service businesses. GBP integration, location pages, local schema. |
-| Pricing model | Per-seat SaaS | Per-seat SaaS + add-on | Per-seat SaaS | Built into existing engine. SerpAPI cost: ~$6/client/month (200 searches at $25/1000). |
+| Feature | Commercial GEO Tools ($200-500/mo) | This Build ($25/mo SerpAPI + free Brave) | Tradeoff |
+|---------|-----------------------------------|-----------------------------------------|----------|
+| AI Overview citation tracking | Multi-platform (ChatGPT, Gemini, Perplexity, Google) | Google AI Overviews only via SerpAPI | Google = 88% of search. Others lack reliable APIs. Sufficient for local service businesses. |
+| Brand mention monitoring | Real-time, 10+ platforms, sentiment scoring | Weekly Brave Search, major platforms, no sentiment | Volume too low (5-15 mentions/mo per client) to justify real-time. Weekly is fine. |
+| Competitor analysis | Full competitor domains, share of voice scoring | Parse existing `ai_overview_references` for competitor URLs | Data already collected. Zero extra API cost. Just parse and display. |
+| Source diversity | Automated scoring across web presence | Brave Search-based platform counting | Same core metric, different data source. Brave API is free-tier viable. |
+| Dashboard | Polished multi-tenant SaaS with role-based access | Internal Next.js dashboard (existing tab system) | Only Brian + clients use it. Functional beats pretty. |
+| Reddit intelligence | Dedicated monitoring with sentiment + engagement metrics | Brave Search `site:reddit.com` queries | Brave indexes Reddit well. Sufficient for question discovery. |
+| Trends/history | Real-time continuous monitoring | Weekly snapshots on research days (Wed + Sat) | Budget-conscious. Trends still visible over weeks/months. |
+
+## Key Implementation Notes
+
+**Existing infrastructure to leverage:**
+- `brand_mentions.py` already has the Brave Search API pattern (headers, rate limiting, domain extraction, link verification)
+- `geo_data.py` already formats GEO scores and SERP features for the brain -- dashboard queries can mirror these exact functions
+- `SeoTabNav.tsx` tab system is extensible -- add "GEO" tab ID alongside existing `clients | actions | brain | keywords`
+- `serp_features.ai_overview_references` JSONB column already stores competitor citation URLs -- MENT-04 is a parse, not a fetch
+- Recharts is already installed and used in the dashboard
+- `SeoEngineTabId` type in `types.ts` needs a new union member
+
+**New Supabase tables needed:**
+- `reddit_questions` -- client_id, title, url, subreddit, search_term, found_at (for MENT-01)
+- `client_mentions` -- client_id, platform, url, domain, title, context, found_at (for MENT-02, extends current brand_mentions.py which tracks Echo Local mentions to also track client brand mentions)
+- `source_diversity_scores` -- client_id, score (0-10), platform_counts JSONB, scored_at (for MENT-03)
+
+**No new external APIs required.** Everything uses existing SerpAPI (data already collected) and Brave Search API (already in `.env`, proven in `brand_mentions.py`).
+
+**Dashboard architecture:**
+- New "GEO" tab in SeoTabNav with sub-sections (scores, citations, budget, snippets, trends, diversity)
+- Or split into two tabs: "GEO Scores" + "Mentions" to keep each focused
+- All components are client-side Supabase reads -- no API routes needed
+- Follow existing pattern: `useEffect` on activeClient change, query Supabase, render with Recharts
+
+## Tech Debt to Address in This Milestone
+
+Per PROJECT.md, three items should be cleaned up alongside new features:
+
+| Debt Item | Impact | Recommended Fix |
+|-----------|--------|-----------------|
+| `content_validator.py` capsule word count (50-150) vs brain rule (40-60) | Brain and validator disagree on valid capsule length, causing false positives/negatives | Align to 40-80 words (brain's lower bound, wider upper bound for flexibility) |
+| `inject_organization_on_all_pages()` defined but never called | Dead code in schema_injector, confusing | Wire into seo_loop.py research cycle or delete if Organization schema is handled elsewhere |
+| `same_as_urls` empty in clients.json | Organization schema has empty sameAs array, weakens entity signals for AI citation | Populate with actual GBP, Yelp, BBB, social URLs for each client |
 
 ## Sources
 
-- [Frase GEO Scoring](https://www.frase.io/blog/geo-scoring-in-frase) -- Authority, Readability, Structure pillars (MEDIUM confidence)
-- [GEO Content Score Methodology](https://eseospace.com/blog/geo-content-score-how-to-measure-ai-visibility/) -- 5-component weighted scoring framework (MEDIUM confidence)
-- [SerpAPI AI Overview API](https://serpapi.com/ai-overview) -- Structured AI Overview extraction capabilities (HIGH confidence, official docs)
-- [Surfer AI Tracker](https://surferseo.com/) -- AI Search Guidelines, multi-platform tracking ($95-495/mo) (MEDIUM confidence)
-- [AI Overview Citation Stats](https://koanthic.com/en/ai-overview-citations-76-link-to-top-10-rankings/) -- 76% of citations from top-10 pages (MEDIUM confidence)
-- [Content Structure Citation Impact](https://www.semrush.com/blog/how-to-optimize-content-for-ai-search-engines/) -- 2.8x citation increase with structured content (MEDIUM confidence)
-- [Schema Markup Impact](https://almcorp.com/blog/schema-markup-detailed-guide-2026-serp-visibility/) -- 36% more likely to appear in AI responses (MEDIUM confidence)
-- [Entity Graph for GEO](https://agenxus.com/blog/building-entity-graph-organization-person-schema) -- Organization + sameAs for AI entity verification (MEDIUM confidence)
-- [Source Diversity Data](https://www.incremys.com/en/resources/blog/geo-content-strategy) -- 48% of citations from community platforms (LOW confidence, single source)
-- [Topical Authority for AI](https://www.keywordinsights.ai/blog/how-to-build-topical-authority-in-seo/) -- Coverage breadth matters more than backlinks for AI citation (MEDIUM confidence)
-- [Fingerlakes GEO Tools Overview](https://www.fingerlakes1.com/2026/03/08/best-generative-engine-optimization-geo-tools-in-2026-what-actually-use-to-track-ai-visibility/) -- Tool landscape survey (LOW confidence)
-- [Search Engine Land GEO Guide](https://searchengineland.com/mastering-generative-engine-optimization-in-2026-full-guide-469142) -- GEO best practices (MEDIUM confidence)
+- [Search Engine Land: Mastering GEO in 2026](https://searchengineland.com/mastering-generative-engine-optimization-in-2026-full-guide-469142) -- GEO best practices, mention tracking patterns (MEDIUM confidence)
+- [ReplyAgent: Reddit GEO Guide](https://www.replyagent.ai/blog/reddit-geo-generative-engine-optimization-guide) -- Reddit's role in AI citations, 450% growth in Reddit citations (MEDIUM confidence)
+- [Averi: How to Track AI Citations](https://www.averi.ai/how-to/how-to-track-ai-citations-and-measure-geo-success-the-2026-metrics-guide) -- Citation tracking metrics framework (MEDIUM confidence)
+- [Otterly: State of AI Search 2025](https://otterly.ai/blog/ai-search-study-2025/) -- AI citation statistics, source diversity data (MEDIUM confidence)
+- [UseOmnia: AI Search Monitoring Tools 2026](https://www.useomnia.com/blog/ai-search-monitoring-tools) -- Commercial tool comparison, pricing (MEDIUM confidence)
+- [AnswerSignals: Track Competitor Citations](https://answersignals.org/llm-visibility/track-competitor-citations-ai-search-responses-2026-guide) -- Competitor monitoring patterns (MEDIUM confidence)
+- [SE Ranking: AI Visibility Tools 2026](https://visible.seranking.com/blog/best-ai-visibility-tools/) -- Tool landscape survey (MEDIUM confidence)
+- [Search Engine Journal: Enterprise SEO and AI Trends 2026](https://www.searchenginejournal.com/key-enterprise-seo-and-ai-trends/532337/) -- Source diversity importance (MEDIUM confidence)
+- Existing codebase: `brand_mentions.py`, `reddit.py`, `geo_scorer.py`, `geo_data.py`, `serpapi_client.py`, `serp_scraper.py`, `SeoTabNav.tsx`, Supabase schemas (HIGH confidence)
 
 ---
-*Feature research for: GEO Module (Generative Engine Optimization)*
+*Feature research for: v1.1 Mention Tracking + GEO Dashboard*
 *Researched: 2026-03-10*

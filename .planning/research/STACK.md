@@ -1,218 +1,213 @@
-# Stack Research: GEO Module
+# Technology Stack
 
-**Domain:** Generative Engine Optimization for local SEO engine
+**Project:** EchoLocal ClientTracker v1.1 -- Mention Tracking + GEO Dashboard
 **Researched:** 2026-03-10
-**Confidence:** HIGH (SerpAPI), MEDIUM (GEO scoring approach), HIGH (Brave Search)
+**Confidence:** HIGH
 
-## Recommended Stack
+## Existing Stack (validated, NOT changing)
 
-### Core Technologies
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Next.js | 16.1.6 | Dashboard frontend |
+| React | 19.2.3 | UI framework |
+| Recharts | 3.7.0 | Charts (already installed) |
+| Supabase JS | 2.97.0 | Browser client for dashboard |
+| Tailwind CSS | 4.x | Styling |
+| Python 3 | 3.x | SEO engine backend |
+| supabase-py | installed | Python Supabase client |
+| SerpAPI (`google-search-results`) | 2.4.2 | SERP data, AI Overview detection (budget-gated) |
+| `requests` | installed | HTTP calls |
+| `python-dotenv` | installed | Env var loading |
 
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| `google-search-results` | 2.4.2 | SerpAPI Python client -- AI Overview detection, PAA extraction, Featured Snippet data, organic SERP results | Official SerpAPI SDK. Single package covers all SERP engines (google, google_ai_overview, google_related_questions). Replaces Apify SERP scraper entirely. Stable -- last release Mar 2023, API changes happen server-side not in SDK. |
-| `requests` | (already installed) | HTTP client for direct SerpAPI Account API calls | Already in the codebase. Needed for usage tracking endpoint (`serpapi.com/account.json`) which the SDK doesn't wrap. |
-| Brave Search API (direct HTTP) | v1 | Reddit question mining, cross-platform mention tracking, source diversity scoring | Already integrated via `requests` in brand_mentions.py, keyword_discovery.py, etc. No new library needed -- keep using direct HTTP with `BRAVE_API_KEY`. |
+## New Stack Additions
 
-### Supporting Libraries
+### Python Backend: Zero New Dependencies
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| `python-dotenv` | (already installed) | Load `SERPAPI_KEY` from .env | Already in codebase. Add `SERPAPI_KEY` to .env alongside existing keys. |
-| `urllib.parse` | (stdlib) | URL/domain normalization for citation matching | Used to compare SerpAPI reference URLs against client domains. Already used elsewhere in codebase. |
+#### Brave Search API Client (via raw `requests`)
 
-### No New Libraries Needed
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| `requests` (already installed) | existing | Brave Search API calls for Reddit mining and cross-platform mentions | The Brave Search API is a single REST endpoint (`GET https://api.search.brave.com/res/v1/web/search`). The existing codebase already uses raw `requests` for SerpAPI account checks and other HTTP calls. No wrapper library needed. |
 
-The GEO module requires **one new pip install** (`google-search-results`) and **one new env var** (`SERPAPI_KEY`). Everything else builds on what's already installed.
+**API details:**
+- **Endpoint:** `GET https://api.search.brave.com/res/v1/web/search`
+- **Auth:** `X-Subscription-Token: <BRAVE_API_KEY>` header
+- **Site operator:** Fully supported. `q=turf+cleaning+site:reddit.com` returns Reddit-only results.
+- **Other operators:** `"exact match"`, `-exclusion`, `intitle:`, `inbody:` all work. Logical `AND`, `OR`, `NOT` (uppercase) supported.
+- **Known limitation:** Multiple `site:` operators with `OR` only returns results from the first domain. Use separate queries per platform instead.
+- **Response format:** JSON with `web.results[]` containing `title`, `url`, `description`, `profile` per result.
+- **Confidence:** HIGH (verified against official API docs and operator documentation)
+
+**Pricing (as of Feb 2026):**
+- $5 per 1,000 requests
+- $5/month free credit (~1,000 searches/month)
+- No free tier anymore -- credit card required
+- Budget estimate: 4 clients x 6 queries x 4 runs/month = 96 queries/month. Comfortably within the $5 free credit.
+
+**New env var:** `BRAVE_API_KEY`
+
+#### Reddit Mining Approach
+
+The existing `scripts/seo_engine/research/reddit.py` uses Reddit OAuth API with `REDDIT_CLIENT_ID` and `REDDIT_CLIENT_SECRET`. This module should be **replaced** with Brave Search `site:reddit.com` queries because:
+
+1. PROJECT.md constraint: "No Reddit API -- Reddit data via Brave Search site:reddit.com only"
+2. Eliminates two env vars (`REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`)
+3. Brave returns title, URL, description -- sufficient for mining questions
+4. One API, one budget tracking table, simpler operations
+
+#### What Each Feature Uses
+
+| Feature | Library/Tool | Rationale |
+|---------|-------------|-----------|
+| Reddit question mining (MENT-01) | `requests` to Brave Search API with `site:reddit.com` | Single HTTP call per query. Results include title + URL + snippet. |
+| Cross-platform mentions (MENT-02) | `requests` to Brave Search API with `"business name"` (no site: filter) | Same API, broader query. Count unique domains in results. |
+| Source diversity scoring (MENT-03) | Pure Python (`collections.Counter`, `urllib.parse`) | Extract domains from mention URLs, compute diversity ratio. All stdlib. |
+| Competitor AI Overview monitoring (MENT-04) | Existing `serpapi_client.py` | Already built -- `search_google()` + `fetch_ai_overview()`. Just run for competitor keywords. |
+| GEO dashboard charts (DASH-01 to DASH-06) | Existing Recharts 3.7.0 + Supabase browser client | All chart types needed are standard Recharts components. Data already in Supabase tables. |
+
+### Next.js Dashboard: Zero New npm Packages
+
+All dashboard visualizations use Recharts 3.7.0 (already installed):
+
+| Dashboard Feature | Recharts Component | Implementation Notes |
+|-------------------|-------------------|----------------------|
+| GEO scores per page (DASH-01) | No chart -- stat cards | Score/5 with colored indicator. Match existing `StatCard.tsx` pattern. |
+| AI Overview citation status (DASH-02) | No chart -- table rows | Colored dots (cited/not cited) per keyword. Simple JSX. |
+| Citation trends over time (DASH-03) | `LineChart` or `AreaChart` | Two series: total keywords with AIO, keywords where client is cited. Standard Recharts. |
+| Source diversity visualization (DASH-04) | `PieChart` or horizontal `BarChart` | Domain distribution. Categorical data. |
+| SerpAPI budget gauge (DASH-05) | `RadialBarChart` | Half-circle gauge: `startAngle={180}` `endAngle={0}`. Well-documented pattern -- see shadcn/ui radial chart examples. |
+| Featured Snippet tracker (DASH-06) | No chart -- table with status | Keyword + current holder + owned/not-owned indicator. |
+
+**Do NOT install:** `react-gauge-chart`, `react-circular-progressbar`, or any gauge-specific library. Recharts handles gauges natively with `RadialBarChart`.
+
+### Supabase: New Tables (no new client libraries)
+
+Python writes, Next.js reads. Both use existing Supabase clients.
+
+| New Table | Purpose | Key Columns |
+|-----------|---------|-------------|
+| `brave_search_usage` | Budget tracking (mirrors `serpapi_usage` pattern) | `id, client_id, query, search_type, searched_at` |
+| `mentions` | Cross-platform mention records | `id, client_id, platform, url, title, snippet, found_at, query_used` |
+| `mention_sources` | Source diversity aggregation per scoring run | `id, client_id, domain, mention_count, scored_at` |
+| `competitor_ai_overviews` | Competitor AIO monitoring snapshots | `id, client_id, competitor_name, keyword, has_ai_overview, competitor_cited, checked_at` |
+
+**Existing tables already cover GEO dashboard needs (no changes):**
+- `geo_scores` -- `page_path, page_url, score, factors, scored_at, client_id`
+- `serp_features` -- `keyword, has_ai_overview, client_cited_in_ai_overview, has_featured_snippet, featured_snippet_holder, client_has_snippet, collected_at, client_id`
+- `serpapi_usage` -- `client_id, query, search_type, searched_at`
+
+### Dashboard Data Fetching Pattern
+
+The existing `seo-engine/page.tsx` queries Supabase directly from the browser client -- no API routes. All new GEO dashboard components follow the same pattern:
+
+```typescript
+// Existing pattern from seo-engine/page.tsx:
+const { data, error } = await supabase
+  .from('geo_scores')
+  .select('*')
+  .eq('client_id', activeClient.id)
+  .order('scored_at', { ascending: false })
+  .limit(50);
+```
+
+No Next.js API routes needed. Supabase RLS handles auth. New components plug into the existing tab system via `SeoTabNav`.
+
+## Alternatives Considered
+
+| Category | Recommended | Alternative | Why Not |
+|----------|-------------|-------------|---------|
+| Brave Search Python client | Raw `requests` | `brave-search-python-client` 0.4.27 | Adds a dependency for one GET call. Project pattern is raw requests. The library hasn't seen major updates since its initial release cycle. |
+| Brave Search Python client | Raw `requests` | `brave-search` (kayvane1) | Last updated Apr 2024. Stale. Same argument -- unnecessary wrapper. |
+| Reddit data source | Brave Search `site:reddit.com` | Reddit OAuth API (existing `reddit.py`) | PROJECT.md constraint says no Reddit API. Brave approach is simpler. |
+| Budget gauge chart | Recharts `RadialBarChart` | `react-gauge-chart` npm package | Extra dependency when Recharts already handles this. Zero benefit. |
+| Dashboard state management | Direct Supabase queries in `useEffect` | SWR or React Query | Overkill for 1-2 internal users. Existing pattern works. Revisit if data freshness becomes an issue. |
+| Mention storage | Supabase tables | Local JSON files | Need historical trends, dashboard reads, cross-device access. Supabase is the existing pattern. |
+
+## What NOT to Add
+
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| `brave-search-python-client` or `brave-search` pip packages | Unnecessary abstraction. One REST endpoint. | Raw `requests` with `X-Subscription-Token` header |
+| `react-gauge-chart` or similar | Recharts 3.7.0 already does gauges via `RadialBarChart` | Recharts `RadialBarChart` with `startAngle/endAngle` |
+| `httpx` or `aiohttp` | SEO engine runs sequentially. Async adds complexity for zero benefit. | `requests` (already everywhere) |
+| Any Reddit API library (PRAW, etc.) | PROJECT.md says no Reddit API | Brave Search `site:reddit.com` |
+| Perplexity API | Unreliable for citation tracking, only one AI engine | SerpAPI for Google AI Overviews |
+| SWR / React Query / TanStack Query | 1-2 users, internal dashboard. `useEffect` + Supabase client is fine. | Direct Supabase browser queries |
+
+## Environment Variables
+
+```bash
+# New (add to .env)
+BRAVE_API_KEY=your_brave_search_api_key
+
+# Existing (no changes)
+SERPAPI_KEY=already_configured
+SUPABASE_URL=already_configured
+SUPABASE_KEY=already_configured
+NEXT_PUBLIC_SUPABASE_URL=already_configured
+NEXT_PUBLIC_SUPABASE_ANON_KEY=already_configured
+```
+
+**Can remove after migration:**
+- `REDDIT_CLIENT_ID` -- replaced by Brave Search
+- `REDDIT_CLIENT_SECRET` -- replaced by Brave Search
 
 ## Installation
 
 ```bash
-pip install google-search-results
+# Python: Nothing to install
+python -c "import requests; print('requests available')"
+
+# Next.js: Nothing to install
+npm ls recharts  # Should show 3.7.0
 ```
 
-Add to `.env`:
+**Total new pip packages: 0**
+**Total new npm packages: 0**
+**Total new env vars: 1** (`BRAVE_API_KEY`)
+
+## Integration Architecture
+
 ```
-SERPAPI_KEY=your_key_here
+brave_search_client.py (NEW)
+  |-- Mirrors serpapi_client.py pattern exactly
+  |-- Budget gating via brave_search_usage Supabase table
+  |-- search_brave(query, client_id) -> dict
+  |-- check_brave_budget(client_id) -> dict
+
+mention_tracker.py (NEW)
+  |-- Reddit mining: brave_search_client.search_brave("query site:reddit.com", client_id)
+  |-- Cross-platform: brave_search_client.search_brave('"business name"', client_id)
+  |-- Source diversity: count unique domains from mentions, store in mention_sources
+  |-- Called from seo_loop.py (extends existing daily cycle)
+
+competitor_monitor.py (NEW)
+  |-- Uses existing serpapi_client.search_google() for competitor keywords
+  |-- Uses existing serpapi_client.fetch_ai_overview() for competitor AIO checks
+  |-- Stores results in competitor_ai_overviews table
+  |-- Called from seo_loop.py
+
+Dashboard components (NEW, in src/components/seo-engine/):
+  |-- GeoScoreCards.tsx -- reads geo_scores table
+  |-- CitationTrends.tsx -- reads serp_features table, LineChart
+  |-- SourceDiversity.tsx -- reads mention_sources table, PieChart
+  |-- BudgetGauge.tsx -- reads serpapi_usage table, RadialBarChart
+  |-- SnippetTracker.tsx -- reads serp_features table, table component
+  |-- MentionFeed.tsx -- reads mentions table, list component
+  |-- New tab "GEO" added to SeoTabNav.tsx
 ```
-
-## SerpAPI Integration Architecture
-
-### How AI Overview Detection Works (Two-Step Process)
-
-**Step 1: Initial Google Search** (1 search credit)
-```python
-from serpapi import GoogleSearch
-
-params = {
-    "engine": "google",
-    "q": "best turf cleaning service poway",
-    "location": "Poway, California, United States",
-    "api_key": SERPAPI_KEY,
-    "no_cache": "true"  # Required -- page_token expires in 60 seconds
-}
-search = GoogleSearch(params)
-results = search.get_dict()
-
-# Check if AI Overview exists
-ai_overview = results.get("ai_overview", {})
-page_token = ai_overview.get("page_token")
-```
-
-**Step 2: Fetch Full AI Overview** (1 additional search credit, only if page_token exists)
-```python
-if page_token:
-    params = {
-        "engine": "google_ai_overview",
-        "page_token": page_token,
-        "api_key": SERPAPI_KEY
-    }
-    overview_search = GoogleSearch(params)
-    overview = overview_search.get_dict()
-
-    # Extract citations
-    references = overview.get("ai_overview", {}).get("references", [])
-    # Each reference: {"title": "...", "link": "...", "snippet": "...", "source": "..."}
-```
-
-**Critical billing detail:** AI Overview detection costs 1-2 searches per query. If the initial search returns the AI Overview inline (no page_token), it's 1 search. If a page_token is returned, the follow-up costs a second search. Budget accordingly -- assume worst case of 2 per query.
-
-### Data Available Per Search
-
-One SerpAPI Google search returns ALL of these in a single response:
-
-| Field | JSON Key | What You Get |
-|-------|----------|--------------|
-| AI Overview (inline) | `ai_overview` | Text blocks, references with URLs, page_token if lazy-loaded |
-| People Also Ask | `related_questions` | Question text, snippet answer, source URL, source title |
-| Featured Snippet | `answer_box` or `featured_snippet` | Snippet text, source URL, snippet type (paragraph/list/table) |
-| Organic Results | `organic_results` | Position, title, URL, snippet, sitelinks |
-| Local Pack | `local_results` | Business name, rating, reviews, position |
-| Knowledge Graph | `knowledge_graph` | Entity info if present |
-
-This means one search credit gives you AI Overview presence, PAA questions, Featured Snippet holder, and organic rankings simultaneously. Far more efficient than the current Apify scraper which only returns organic results.
-
-### People Also Ask (Expanded)
-
-PAA questions from the initial search are free (included in the response). Expanding individual PAA questions requires the `google_related_questions` engine with a `next_page_token`, costing 1 additional search each. **Do not expand PAA questions** -- the initial question + snippet is sufficient for content targeting.
-
-### Usage Tracking Endpoint
-
-```python
-import requests
-
-resp = requests.get("https://serpapi.com/account.json", params={"api_key": SERPAPI_KEY})
-account = resp.json()
-# account["this_month_usage"] -> searches used this month
-# account["plan_searches_left"] -> remaining searches
-# account["searches_per_month"] -> plan limit (1000)
-```
-
-This endpoint is free (does not count as a search). Call it before every batch to enforce the hard cap.
-
-## Budget Math
-
-**Plan:** $25/month, 1000 searches/month.
-
-**Per-client weekly allocation:** 50 searches (200/month / 4 weeks).
-
-**What 50 searches/week buys per client:**
-- 15 priority keywords x 1-2 searches each = 15-30 searches (SERP + AI Overview)
-- Remaining 20-35 for Featured Snippet checks on opportunity queries
-
-**Scaling to 5 clients:** 200 searches/client/month x 5 = 1000. Exactly fits the plan. No room for waste -- usage tracking and hard caps are mandatory.
-
-**If AI Overviews require 2 searches consistently:** Budget drops to ~7-8 keywords tracked weekly per client. Monitor the ratio of 1-step vs 2-step queries in the first week and adjust.
-
-## GEO Scoring Approach
-
-### No Off-the-Shelf Python Library Exists
-
-There is no established open-source Python library for GEO scoring. The commercial tools (ZipTie, GetCito, Scrunch, Semrush AI Visibility) are SaaS platforms, not libraries. **Build the scoring in-house.** This is the right call because:
-
-1. The scoring is simple math, not complex ML
-2. It needs to integrate with the brain's decision-making
-3. Commercial tools cost $200-500/month and overlap with what SerpAPI already provides
-
-### Recommended GEO Score Components
-
-Build a 0-100 composite score per page:
-
-| Signal | Weight | How to Measure | Source |
-|--------|--------|----------------|--------|
-| Answer block present | 25 | Parse page HTML for 50-150 word self-contained answer blocks | Local file/git |
-| Structured data (FAQ, HowTo, Organization schema) | 20 | Check for schema types in page source | Local file/git |
-| Statistics/data density | 15 | Count numerical claims, percentages, dollar amounts | Local file/git |
-| Definitive list formatting | 10 | Check for numbered/bulleted lists with descriptive items | Local file/git |
-| Citation in AI Overview | 15 | SerpAPI -- is this page's domain in AI Overview references? | SerpAPI |
-| Featured Snippet held | 10 | SerpAPI -- does this page hold the featured snippet? | SerpAPI |
-| Source diversity (mentioned on Reddit, forums, directories) | 5 | Brave Search site: queries | Brave API |
-
-**On-page signals (70 points)** are measurable without any API calls by parsing the page content from the local git repo or deployed site. **Off-page signals (30 points)** require SerpAPI and Brave Search.
-
-This split means the brain can calculate a partial GEO score (on-page only) for every page without burning API credits, and prioritize API checks for pages that score well on-page but haven't been verified off-page yet.
-
-## Brave Search Integration (Existing)
-
-Already in the codebase. Used by: `brand_mentions.py`, `keyword_discovery.py`, `trends.py`, `journalist_monitor.py`, `backlink_gap.py`, `directory_audit.py`.
-
-**Pattern:** Direct HTTP via `requests` to `https://api.search.brave.com/res/v1/web/search` with `BRAVE_API_KEY` header.
-
-**For GEO, use Brave Search for:**
-- `site:reddit.com "[topic] [city]"` -- find Reddit questions about client's service area
-- `"[client business name]" -site:[client domain]` -- find mentions across the web (already in brand_mentions.py)
-- `site:reddit.com OR site:quora.com "[keyword]"` -- source diversity checks
-
-No new library needed. Extend existing patterns.
-
-## Alternatives Considered
-
-| Recommended | Alternative | Why Not |
-|-------------|-------------|---------|
-| SerpAPI (`google-search-results`) | DataForSEO SERP API | More expensive at low volume ($0.003/result but charges per result type). SerpAPI charges per search regardless of result types returned -- better value when extracting AI Overview + PAA + organic in one call. |
-| SerpAPI (`google-search-results`) | SearchAPI.io | Cheaper ($50/5000 searches) but AI Overview support is less mature. SerpAPI has dedicated `google_ai_overview` engine with structured references. |
-| SerpAPI (`google-search-results`) | Direct scraping via Playwright | Fragile, blocks on rate limits, no structured AI Overview data, requires parsing unstable HTML. Not worth the maintenance burden. |
-| Custom GEO scoring | GetCito (open-source) | GetCito tracks AI mentions across ChatGPT/Claude/Perplexity -- different scope. We need page-level citation-readiness scoring, not brand mention tracking across LLMs. |
-| Custom GEO scoring | Semrush AI Visibility | $200+/month SaaS tool. Overkill for 2-5 clients. The data we need (AI Overview citations, content structure) is available via SerpAPI + local parsing. |
-| Brave Search (direct HTTP) | `brave-search-python-client` 0.4.27 | Adding a library for what's already a simple `requests.get()` call adds unnecessary dependency. The existing pattern works. Keep it consistent. |
-
-## What NOT to Use
-
-| Avoid | Why | Use Instead |
-|-------|-----|-------------|
-| Apify Google Search Scraper | Slower (polling for results), no AI Overview/PAA data, more expensive per search | SerpAPI `google-search-results` |
-| `httpx` or `aiohttp` | The SEO engine runs sequentially in a single loop. Async adds complexity for zero benefit here. | `requests` (already used everywhere) |
-| `beautifulsoup4` for SerpAPI parsing | SerpAPI returns structured JSON. No HTML parsing needed for SERP data. | Direct dict access on SerpAPI response |
-| Perplexity API | Unreliable for citation tracking, only covers one AI engine, expensive | SerpAPI for Google AI Overviews (where the traffic actually is) |
-| Reddit API (PRAW) | Auth was never successfully configured. Reddit blocks scraping. | Brave Search `site:reddit.com` queries |
-| `brave-search` or `brave-search-python-client` pip packages | Unnecessary abstraction over a single REST endpoint. Existing `requests` pattern is simpler and already proven in the codebase. | Direct HTTP with `requests` |
-
-## Version Compatibility
-
-| Package | Compatible With | Notes |
-|---------|-----------------|-------|
-| `google-search-results` 2.4.2 | Python 3.x | Stable SDK. API changes happen server-side. Last PyPI release Mar 2023 but actively maintained -- SDK is thin wrapper over REST API. |
-| `google-search-results` 2.4.2 | `requests` (any version) | Uses `requests` internally. No conflict with existing `requests` usage. |
-
-## Key Environment Variables
-
-| Variable | Value | Where |
-|----------|-------|-------|
-| `SERPAPI_KEY` | SerpAPI API key | `.env` (new) |
-| `BRAVE_API_KEY` | Brave Search API key | `.env` (existing) |
-| `APIFY_TOKEN` | Apify token | `.env` (existing, can be removed after migration) |
 
 ## Sources
 
-- [SerpAPI Google AI Overview API docs](https://serpapi.com/google-ai-overview-api) -- two-step process, response structure, parameters (HIGH confidence)
-- [SerpAPI AI Overview Rank Tracker tutorial](https://serpapi.com/blog/ai-overview-rank-tracker-using-python/) -- Python code patterns, citation extraction (HIGH confidence)
-- [SerpAPI Google Related Questions API](https://serpapi.com/google-related-questions-api) -- PAA response fields (HIGH confidence)
-- [SerpAPI Account API](https://serpapi.com/account-api) -- usage tracking endpoint, free to call (HIGH confidence)
-- [SerpAPI Pricing](https://serpapi.com/pricing) -- $25/mo for 1000 searches, only successful searches counted (HIGH confidence)
-- [google-search-results on PyPI](https://pypi.org/project/google-search-results/) -- version 2.4.2 confirmed (HIGH confidence)
-- [GEO tools landscape 2026](https://www.alexbirkett.com/generative-engine-optimization-software/) -- commercial tools survey, no Python libraries exist (MEDIUM confidence)
-- [brave-search-python-client on PyPI](https://pypi.org/project/brave-search-python-client/) -- v0.4.27, unnecessary for this project (LOW confidence -- not using)
+- [Brave Search API](https://brave.com/search/api/) -- endpoints, auth, capabilities (HIGH confidence)
+- [Brave Search Operators](https://search.brave.com/help/operators) -- site: operator confirmed working (HIGH confidence)
+- [Brave API Pricing Changes Feb 2026](https://www.implicator.ai/brave-drops-free-search-api-tier-puts-all-developers-on-metered-billing/) -- $5/1k, $5 credit (HIGH confidence)
+- [brave-search-python-client on PyPI](https://pypi.org/project/brave-search-python-client/) -- v0.4.27, evaluated and rejected (HIGH confidence)
+- [Recharts RadialBarChart API](https://recharts.github.io/en-US/api/RadialBarChart/) -- gauge pattern documented (HIGH confidence)
+- [shadcn/ui Radial Charts](https://ui.shadcn.com/charts/radial) -- copy-paste Recharts radial examples matching dark aesthetic (MEDIUM confidence)
+- [Recharts Gauge Gist](https://gist.github.com/emiloberg/ee549049ea0f6b83e25f1a1110947086) -- half-circle gauge implementation (MEDIUM confidence)
+- Existing codebase: `serpapi_client.py`, `geo_data.py`, `reddit.py`, `seo-engine/page.tsx` -- established patterns (HIGH confidence)
 
 ---
-*Stack research for: GEO module addition to existing Python SEO engine*
-*Researched: 2026-03-10*
+*v1.1 stack research -- Mention Tracking + GEO Dashboard*
+*Replaces v1.0 stack research from 2026-03-10*

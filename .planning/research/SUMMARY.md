@@ -1,170 +1,156 @@
 # Project Research Summary
 
-**Project:** GEO Module for SEO Engine
-**Domain:** Generative Engine Optimization for local service business SEO automation
+**Project:** EchoLocal ClientTracker v1.1 -- Mention Tracking + GEO Dashboard
+**Domain:** Local SEO engine extension (mention tracking + dashboard visualization)
 **Researched:** 2026-03-10
 **Confidence:** MEDIUM-HIGH
 
 ## Executive Summary
 
-The GEO module adds AI Overview detection, citation tracking, and citation-readiness scoring to the existing Python SEO engine. The stack is minimal: one new pip package (`google-search-results` for SerpAPI) and one new env var. Everything else builds on existing infrastructure -- Brave Search, Supabase, the brain/loop architecture, and the research-day pattern. The architecture research confirms that GEO should integrate into the existing `seo_loop.py` pipeline rather than run as a separate system. This is an enhancement to the existing engine, not a new product.
+v1.1 extends the existing ClientTracker SEO engine with two capabilities: (1) tracking where clients appear online via Brave Search API, replacing the broken Reddit OAuth path, and (2) making all the GEO data collected by v1.0 visible in the Next.js dashboard. The good news is that v1.0 already built the hard parts -- SerpAPI integration, GEO scoring, AI Overview detection, and Supabase storage. v1.1 is primarily about surfacing existing data and adding one new data source (Brave Search for mentions). Zero new pip packages, zero new npm packages, one new env var (`BRAVE_API_KEY`).
 
-The recommended approach is measurement-first. Build the SerpAPI client with hard budget caps before anything else (the $25/month plan gives exactly enough searches for 5 clients with zero margin for waste). Then add GEO scoring as a local-only page analysis tool -- no API cost, immediate visibility into content gaps. Only after 2-4 weeks of baseline data should the brain be given authority to execute GEO content upgrades. This phased approach prevents the top risk: optimizing for a GEO score that has not been validated against actual citation outcomes.
+The recommended approach is to build mention tracking backend first, then dashboard components. Mention tracking needs 1-2 weeks of data accumulation before source diversity scoring and visualization become meaningful. Meanwhile, four dashboard components (GEO scores, citation status, budget gauge, snippet tracker) can be built immediately since they read from tables v1.0 already populates daily. The architecture follows established patterns exactly: Python modules mirror `serpapi_client.py` for budget gating, dashboard components mirror existing Supabase-direct queries with Recharts visualization.
 
-The key risks are budget blowout (SerpAPI's two-step AI Overview detection can silently double costs), brain prompt bloat (adding GEO data to an already large prompt degrades action quality), and vanity metrics (no validated GEO scoring formula exists for local service content). All three are preventable with specific guardrails documented in the pitfalls research: centralized budget tracking, a hard 3000-char prompt budget for GEO sections, and starting with a binary checklist instead of a weighted score.
+The primary risks are Brave Search budget surprises (free tier is dead -- now $5 credit with metered billing) and breaking the daily SEO loop by inserting new module calls without proper try/except wrapping. Both are preventable with disciplined pattern-following. A shared `brave_client.py` with budget tracking must be built before any new Brave calls. Every new module integration must use the existing non-fatal error wrapping pattern. Secondary risks include Recharts SVG performance with time-series data (solved by weekly aggregation) and Supabase query performance (solved by proper indexing and 90-day default ranges).
 
 ## Key Findings
 
 ### Recommended Stack
 
-The stack is intentionally thin. SerpAPI replaces the existing Apify SERP scraper with a single package that returns AI Overviews, People Also Ask, Featured Snippets, and organic results in one API call -- far more data per credit than Apify. Brave Search is already integrated and handles Reddit question mining and cross-platform mention tracking. No new libraries beyond the SerpAPI SDK.
+No new dependencies. The entire v1.1 build uses existing installed packages on both Python (`requests`, `supabase-py`, `python-dotenv`) and Next.js (`recharts`, `@supabase/supabase-js`, Tailwind CSS) sides. The only infrastructure addition is the `BRAVE_API_KEY` env var, and the Brave API is already proven in the codebase via `brand_mentions.py`.
 
-**Core technologies:**
-- `google-search-results` (SerpAPI SDK): AI Overview detection, PAA extraction, Featured Snippet data, organic SERP results -- replaces Apify scraper entirely
-- Brave Search API (existing): Reddit question mining, cross-platform mention tracking, source diversity scoring -- already in codebase via `requests`
-- Custom GEO scorer (build in-house): 0-100 page scoring based on answer blocks, schema, stats density, structure -- no off-the-shelf library exists and commercial tools ($200-500/mo) are overkill
-
-**Critical version/config:**
-- SerpAPI plan: $25/mo for 1000 searches. Hard cap at 200/client/month, 950 global.
-- `SERPAPI_KEY` must be added to `.env`
+**Core technologies (all existing):**
+- **Brave Search API** (via raw `requests`): Reddit mining + cross-platform mentions -- replaces broken Reddit OAuth
+- **SerpAPI** (existing `serpapi_client.py`): Competitor AI Overview data already collected, just needs parsing
+- **Recharts 3.7.0** (already installed): All chart types needed (LineChart, RadialBarChart for gauge, PieChart)
+- **Supabase** (existing clients): 1 new table (`client_mentions`), 3 existing tables provide all dashboard data
 
 ### Expected Features
 
 **Must have (table stakes):**
-- AI Overview detection per keyword (SerpAPI `ai_overview` field)
-- AI Overview citation tracking (is client domain in references?)
-- GEO content score per page (structure, schema, answer blocks)
-- Answer block formatting in blog engine (40-60 word self-contained answers)
-- FAQ schema injection (aggressive application via existing `schema_injector.py`)
-- PAA extraction (structured question data for content targeting)
-- Featured snippet tracking (who holds it for target queries)
-- SerpAPI budget management with hard caps
+- DASH-01: GEO scores visible per page -- data exists, no way to see it without SQL
+- DASH-02: AI Overview citation status per keyword -- the core GEO metric, currently invisible
+- DASH-05: SerpAPI budget gauge -- prevents silent budget exhaustion at $25/mo
+- DASH-06: Featured Snippet tracker -- surfaces already-collected data
+- MENT-01: Reddit question mining via Brave -- replaces dead `reddit.py` OAuth code
 
 **Should have (differentiators):**
-- Brain-integrated GEO prioritization (closed-loop: detect, score, fix, measure)
-- Topical authority completeness scoring (extends `cluster_manager.py`)
-- Entity graph building (Organization schema + sameAs links)
-- Question-to-content matching (map PAA questions to existing content gaps)
-- Competitor AI Overview monitoring (same SerpAPI data, comparison logic)
+- MENT-02: Cross-platform mention tracking -- authority signal for AI citation
+- MENT-04: Competitor AI Overview monitoring -- zero API cost, parses existing data
+- DASH-03: Citation trends chart -- ROI proof over time
+- MENT-03: Source diversity scoring -- new optimization signal for the brain
 
 **Defer (v2+):**
-- Source diversity scoring (lower urgency than on-site optimization)
-- Cross-platform mention tracking (valuable but not urgent at 2-4 client scale)
-- Dashboard GEO visualization (report after proving value, not before)
-- Multi-language GEO, YouTube optimization, Perplexity/ChatGPT tracking (no reliable APIs)
+- Sentiment analysis of mentions (volume too low to justify)
+- ChatGPT/Perplexity citation tracking (no reliable APIs)
+- Multi-platform AI visibility aggregate score (enterprise feature)
+- YouTube transcript optimization (no client YouTube presence)
 
 ### Architecture Approach
 
-GEO integrates into the existing four-layer pipeline: research (SerpAPI + Brave), data collection (GEO scorer), brain context (new prompt sections), and actions (content upgrades + schema). No new orchestrator. The `seo_loop.py` daily loop gains GEO awareness through new modules that slot into existing steps. Two new Supabase tables (`serpapi_usage` for budget tracking, `geo_scores` for score history) are the only infrastructure additions.
+The architecture extends the existing 7-step `seo_loop.py` orchestrator without adding new steps. Two new Python modules (`mention_tracker.py`, `competitor_aio_monitor.py`) plug into existing integration points: mention tracking as research step 11 in `research_runner.py` (Wed+Sat only), competitor monitoring as a Step 1c addition reading existing Supabase data. On the dashboard side, a new "GEO" tab in `SeoTabNav` renders a `GeoDashboard` container that fetches from Supabase directly (no API routes) and distributes data to 5 child components.
 
 **Major components:**
-1. `serpapi_client.py` (NEW) -- centralized SerpAPI wrapper with per-client and global budget caps, usage logging to Supabase
-2. `research/serp_api.py` (NEW, replaces `serp_scraper.py`) -- AI Overview detection, PAA, Featured Snippets, organic results via SerpAPI
-3. `geo_scorer.py` (NEW) -- local HTML analysis for citation-readiness: answer blocks, stats density, schema presence, heading structure
-4. `actions/geo_content.py` (NEW) -- content structure upgrades: enhanced answer capsules, comparison tables, stat-dense formatting
-5. `brain.py` (MODIFIED) -- new GEO sections in prompt with hard 3000-char budget; GEO scores as compact table rows, not paragraphs
-6. `research/mention_tracker.py` (NEW, absorbs `reddit.py`) -- Brave Search for Reddit questions and cross-platform mentions
+1. **`brave_client.py`** (NEW) -- Shared Brave API wrapper with budget gating, rate limiting (1.1s between calls), usage logging to `brave_usage` Supabase table
+2. **`mention_tracker.py`** (NEW) -- Brave Search queries for Reddit + cross-platform mentions, source diversity scoring
+3. **`competitor_aio_monitor.py`** (NEW) -- Parses existing `ai_overview_references` JSONB for competitor presence, zero API cost
+4. **`GeoDashboard.tsx`** (NEW) -- Container component with Supabase data fetching, renders 5 child chart/table components
+5. **`brain.py`** (MODIFIED) -- Two new prompt sections (competitor AIO presence, source diversity) with char_budget enforcement
 
 ### Critical Pitfalls
 
-1. **SerpAPI budget blowout** -- AI Overview detection costs 1-2 searches per keyword (two-step page_token flow). Build the budget tracker as the absolute first deliverable. Hard-stop at 950/month global, 200/client. Only fetch AI Overviews for striking-distance keywords.
-2. **Brain prompt token explosion** -- Current prompt is ~10K+ chars. Adding GEO data without a budget will degrade action quality. Cap all GEO sections at 3000 chars. Add data as table columns, not new sections. Only include pages where the brain can act.
-3. **No baseline before optimization** -- Without before/after data, GEO work is unjustifiable. Capture AI Overview presence, citation status, and GEO scores for all target keywords before any content changes execute.
-4. **AI Overview page_token race condition** -- Token expires in 60 seconds. Must fetch AI Overview immediately after the initial search for each keyword. Never batch searches then batch AI Overview fetches.
-5. **GEO score as vanity metric** -- No validated scoring formula exists for local service content. Start with a binary checklist (0-5), validate against real citation data after 30+ data points, then weight the formula.
+1. **Brave Search budget surprise** -- Free tier eliminated Feb 2026. Build `brave_client.py` with budget tracking (mirror `serpapi_client.py` pattern) before any new Brave calls. Hard cap at 500 queries/month. Batch Reddit queries with OR operators.
+2. **Breaking the daily loop** -- New module exceptions crash the entire 7-step loop silently. Every new call must use try/except with empty-list fallback. Never make mention data a required param for `call_brain()`.
+3. **Recharts SVG performance** -- 17 keywords x 90 days = 1,530 SVG elements per chart. Downsample to weekly aggregates beyond 30 days. Limit visible series to top 5. Use `React.memo` and `'use client'` directive.
+4. **Competitor monitoring burning SerpAPI budget** -- Do NOT make new SerpAPI calls. Parse existing `ai_overview_references` data from `serp_features` table. Zero additional API cost.
+5. **Empty `same_as_urls` in clients.json** -- Source diversity scoring needs baseline platform presence. Populate URLs for all clients before building the scorer (30 min manual work).
 
 ## Implications for Roadmap
 
-### Phase 1: SerpAPI Foundation + Budget Infrastructure
-**Rationale:** Everything depends on SerpAPI data, and budget tracking must exist before any API calls. The architecture research and pitfalls research both independently identified this as the non-negotiable first step.
-**Delivers:** `serpapi_client.py` with usage tracking, `serpapi_usage` Supabase table, `SERPAPI_KEY` env var, basic organic search replacing Apify scraper.
-**Addresses:** SerpAPI integration (P1), budget management (P1)
-**Avoids:** Budget blowout (Pitfall #1), page_token race condition (Pitfall #4)
+Based on research, suggested phase structure:
 
-### Phase 2: GEO Scoring + Baseline Capture
-**Rationale:** GEO scoring is local-only analysis (zero API cost) and provides immediate visibility. Baseline data must be captured before any optimization. This phase is measurement-only -- the brain sees data but cannot act on it yet.
-**Delivers:** `geo_scorer.py`, GEO scores per page, `geo_scores` Supabase table, baseline AI Overview/citation snapshots for all tracked keywords.
-**Addresses:** GEO content score (P1), AI Overview detection (P1), citation tracking (P1), PAA extraction (P1)
-**Avoids:** No baseline (Pitfall #3), vanity metric (Pitfall #5)
+### Phase 1: Brave Client + Mention Tracking Backend
+**Rationale:** Mention data needs 1-2 weeks to accumulate before dashboard visualization is meaningful. Start data collection first. The shared Brave client with budget gating is a prerequisite for all new Brave API usage.
+**Delivers:** Shared Brave API client with budget gating, Reddit question mining via Brave Search, cross-platform mention tracking, competitor AIO analysis (zero-cost), brain prompt integration with new sections.
+**Addresses:** MENT-01, MENT-02, MENT-04, `brave_client.py` infrastructure
+**Avoids:** Budget surprise (Pitfall 1), loop crashes (Pitfall 2), SerpAPI budget burn (Pitfall 7), rate limiting (Pitfall 8), dedup issues (Pitfall 10)
 
-### Phase 3: Brain Integration + Content Upgrades
-**Rationale:** With 2-4 weeks of baseline data from Phase 2, the brain can now make informed GEO decisions. This is where the closed-loop differentiator comes alive: brain sees GEO gaps, prioritizes fixes, executes content upgrades.
-**Delivers:** GEO sections in brain prompt, `geo_content_upgrade` action type, `actions/geo_content.py`, enhanced answer capsule pattern, FAQ schema aggressive application.
-**Addresses:** Brain GEO integration (P1), answer block formatting (P1), FAQ schema (P1)
-**Avoids:** Prompt explosion (Pitfall #2), answer capsule cannibalization (Pitfall #6)
+### Phase 2: GEO Dashboard -- Existing Data
+**Rationale:** Four components read from v1.0 tables that are already populated daily. No backend work needed. Can ship immediately while mention data accumulates from Phase 1. This is the phase that makes v1.0's investment visible to Brian and clients.
+**Delivers:** GEO tab with score cards, citation status table, budget gauge, snippet tracker. Dashboard foundation (types, tab nav, container component).
+**Addresses:** DASH-01, DASH-02, DASH-05, DASH-06
+**Avoids:** SSR/CSR mismatch (Pitfall 12), Supabase query perf (Pitfall 3)
 
-### Phase 4: Entity + Authority Building
-**Rationale:** Once the core GEO loop is working (score, detect, fix, measure), layer on the authority signals that make citations more likely. These are independent of the core loop and can be built in parallel once Phase 3 stabilizes.
-**Delivers:** Organization schema with sameAs, topical authority scoring, question-to-content matching, competitor AI Overview monitoring, content structure audit for existing pages.
-**Addresses:** Entity graph (P2), topical authority (P2), question-to-content matching (P2), competitor monitoring (P2)
-**Avoids:** Premature topical authority scoring (Pitfall #9), schema injection conflicts (Pitfall #8)
+### Phase 3: Trends + Source Diversity
+**Rationale:** Depends on Phase 1 data accumulating (1-2 weeks) and Phase 2 dashboard foundation existing. Citation trends need historical serp_features data (available from v1.0). Source diversity needs mention data from Phase 1.
+**Delivers:** Citation trends chart (ROI proof), source diversity scoring, source diversity visualization.
+**Addresses:** DASH-03, MENT-03, DASH-04
+**Avoids:** Recharts perf (Pitfall 4), meaningless scores without baseline (Pitfall 6)
 
-### Phase 5: Mention Tracking + Source Diversity
-**Rationale:** Off-site signals are lower priority than on-site optimization. Source diversity scoring and cross-platform mention tracking are valuable for strategy but do not drive immediate content actions. Defer until ROI from Phases 1-4 is demonstrated.
-**Delivers:** `mention_tracker.py`, Reddit question mining with subreddit whitelist, source diversity scoring, cross-platform mention history in Supabase.
-**Addresses:** Source diversity (P3), cross-platform mentions (P3)
-**Avoids:** Reddit noise (Pitfall #7), low-quality citation chasing (Pitfall #12), Brave rate limits (Pitfall #13)
+### Phase 4: Tech Debt Cleanup
+**Rationale:** Independent of feature work. Improves data quality for all features. `same_as_urls` population strengthens entity signals and source diversity baselines.
+**Delivers:** Fixed content_validator word count mismatch, wired `inject_organization_on_all_pages()`, populated `same_as_urls` in clients.json.
+**Addresses:** Tech debt items from PROJECT.md
 
 ### Phase Ordering Rationale
 
-- Budget infrastructure must exist before any SerpAPI calls (dependency, not preference)
-- Measurement before optimization: GEO scores and baselines must precede brain-driven actions (Pitfall #3 and #5 both demand this)
-- On-site optimization before off-site signals: on-page GEO factors account for 70% of the scoring model and are fully within our control
-- Authority and mentions are enhancement layers that compound on a working core loop
-- Each phase delivers standalone value: Phase 1 alone improves SERP data quality by replacing Apify
+- Phase 1 before Phase 2: Starts data collection early. Mention data needs 1-2 weeks of accumulation. While data builds, Phase 2 dashboard work can proceed.
+- Phase 2 before Phase 3: Dashboard container, tab infrastructure, and type definitions must exist before trend charts and diversity panels can be added.
+- Phase 3 after 1-2 week gap: Source diversity visualization requires accumulated mention data. Citation trends benefit from more historical data points.
+- Phase 4 is independent: Can run alongside any phase. Ideally `same_as_urls` population happens before Phase 1 source diversity scoring, but auto-discovery via Brave is a fallback.
+- Phases 1 and 2 can run in parallel if resources allow: they touch different layers (Python backend vs Next.js frontend) with no shared work.
 
 ### Research Flags
 
 Phases likely needing deeper research during planning:
-- **Phase 3 (Brain Integration):** The prompt budget constraint (3000 chars for GEO) requires careful design of data formatting. Needs experimentation with the brain to find the right level of detail.
-- **Phase 4 (Entity Building):** Organization schema + sameAs implementation details are straightforward but per-client sameAs URL collection requires a manual data-gathering step.
+- **Phase 1 (Brave client + mention tracking):** Validate Brave Search `site:reddit.com` coverage for target subreddits (r/lawncare, r/ArtificialTurf) with 5-10 test queries before committing to full module. Also confirm rate limit behavior under combined brand_mentions + mention_tracker load.
+- **Phase 3 (Source diversity):** Define scoring rubric with concrete benchmarks. No industry standard exists for home service businesses. Need to establish what "good" looks like by analyzing competitor presence.
 
 Phases with standard patterns (skip research-phase):
-- **Phase 1 (SerpAPI Foundation):** SerpAPI docs are excellent, code patterns are well-documented, budget tracking is simple CRUD.
-- **Phase 2 (GEO Scoring):** Local HTML analysis with known patterns. The scoring formula is custom but the implementation is straightforward string/DOM parsing.
-- **Phase 5 (Mention Tracking):** Extends existing Brave Search patterns already in the codebase.
+- **Phase 2 (Dashboard existing data):** All components are standard Recharts + Supabase reads. Patterns already used in the codebase. Well-documented.
+- **Phase 4 (Tech debt):** Straightforward fixes with clear scope from PROJECT.md.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | SerpAPI docs are official and include working Python examples. Only 1 new dependency. |
-| Features | MEDIUM | GEO is an emerging domain. Table stakes are clear but differentiator value is unproven for local service businesses specifically. |
-| Architecture | HIGH | Extends proven existing patterns. Codebase was directly analyzed. No new orchestration or infrastructure paradigms. |
-| Pitfalls | MEDIUM | Budget and prompt risks are well-understood. GEO scoring validation risk is real but mitigation (binary checklist, delayed brain authority) is sound. |
+| Stack | HIGH | Zero new dependencies. All tools already in use and verified against official docs. |
+| Features | MEDIUM-HIGH | Feature scope well-defined with clear dependency chains. Some uncertainty on source diversity scoring rubric (novel metric). |
+| Architecture | HIGH | Extends existing patterns exactly. Code-level integration points identified via direct codebase review. |
+| Pitfalls | MEDIUM-HIGH | Budget and loop-stability risks well-understood from codebase analysis. Brave Reddit coverage is the main unknown. |
 
 **Overall confidence:** MEDIUM-HIGH
 
 ### Gaps to Address
 
-- **GEO score validation:** No existing data on what content signals actually drive AI Overview citations for local service businesses. The scoring formula is a hypothesis that needs 4-6 weeks of data to validate. Plan for a scoring formula revision after Phase 2 baseline collection.
-- **AI Overview appearance rate for local queries:** One source claims ~7% of local searches trigger AI Overviews. If the actual rate is lower, the entire GEO module delivers less value than projected. Phase 2 baseline data will resolve this.
-- **SerpAPI AI Overview consistency:** Citation data is volatile (Pitfall #10). The frequency-based reporting approach is sound but needs real data to calibrate expectations with clients.
-- **Brain prompt capacity:** The exact current prompt size was estimated at ~10K+ chars but not precisely measured. Measure before Phase 3 to set the real GEO budget.
+- **Brave Reddit coverage quality:** Brave's independent index may miss niche subreddits. Validate with test queries before building the full module. If coverage is poor for r/ArtificialTurf, use broader terms rather than subreddit-specific searches.
+- **Source diversity benchmarks:** No industry standard for what constitutes "good" source diversity for home service businesses. Establish benchmarks by analyzing competitor presence across platforms during Phase 1.
+- **Recharts RadialBarChart gauge:** No production example in this codebase yet. First chart component should validate the gauge pattern (startAngle/endAngle approach).
+- **Brave API rate limit enforcement:** Existing `brand_mentions.py` uses 0.4s sleep which is below the documented 1 req/sec limit. Needs testing under combined load before production use.
+- **`same_as_urls` population timing:** Ideally populated before Phase 1 source diversity scoring, but classified as Phase 4 tech debt. Consider pulling this task forward as pre-work.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- [SerpAPI Google AI Overview API](https://serpapi.com/google-ai-overview-api) -- two-step retrieval, response structure, page_token behavior
-- [SerpAPI AI Overview Rank Tracker tutorial](https://serpapi.com/blog/ai-overview-rank-tracker-using-python/) -- Python implementation patterns
-- [SerpAPI Account API](https://serpapi.com/account-api) -- free usage tracking endpoint
-- [SerpAPI Pricing](https://serpapi.com/pricing) -- $25/mo for 1000 searches
-- [google-search-results on PyPI](https://pypi.org/project/google-search-results/) -- version 2.4.2
-- [GEO: Generative Engine Optimization (arXiv)](https://arxiv.org/abs/2311.09735) -- academic GEO scoring methodology
-- Codebase analysis: seo_loop.py, brain.py, research_runner.py, data_collector.py, schema_injector.py, serp_scraper.py
+- Existing codebase: `seo_loop.py`, `serpapi_client.py`, `brand_mentions.py`, `reddit.py`, `geo_scorer.py`, `geo_data.py`, `serp_scraper.py`, `research_runner.py`, `page.tsx`, `SeoTabNav.tsx`, `types.ts`
+- [Brave Search API docs](https://brave.com/search/api/) -- endpoints, auth, operators
+- [Brave Search operators](https://search.brave.com/help/operators) -- site: operator confirmed working
+- [Brave API rate limiting](https://api-dashboard.search.brave.com/documentation/guides/rate-limiting) -- 1/sec free tier
+- [Recharts RadialBarChart API](https://recharts.github.io/en-US/api/RadialBarChart/) -- gauge pattern
+- [Supabase performance docs](https://supabase.com/docs/guides/platform/performance) -- Postgres tuning
 
 ### Secondary (MEDIUM confidence)
-- [Frase GEO Scoring](https://www.frase.io/blog/geo-scoring-in-frase) -- commercial GEO scoring approach
-- [eSEOspace GEO Content Score](https://eseospace.com/blog/geo-content-score-how-to-measure-ai-visibility/) -- 5-component scoring framework
-- [Semrush AI Search Optimization](https://www.semrush.com/blog/how-to-optimize-content-for-ai-search-engines/) -- content structure impact (2.8x citation increase)
-- [Search Engine Land GEO Guide 2026](https://searchengineland.com/mastering-generative-engine-optimization-in-2026-full-guide-469142) -- best practices
-- [ALM Corp Schema Markup Impact](https://almcorp.com/blog/schema-markup-detailed-guide-2026-serp-visibility/) -- 36% citation increase with schema
-- [ALM Corp AI Overview Citation Volatility](https://almcorp.com/blog/google-ai-overview-citations-drop-top-ranking-pages-2026/) -- citations dropping from 76% to 38%
+- [Brave pricing changes Feb 2026](https://www.implicator.ai/brave-drops-free-search-api-tier-puts-all-developers-on-metered-billing/) -- $5/1k, $5 credit
+- [Search Engine Land: GEO 2026](https://searchengineland.com/mastering-generative-engine-optimization-in-2026-full-guide-469142) -- mention tracking patterns
+- [Otterly: AI Search 2025](https://otterly.ai/blog/ai-search-study-2025/) -- citation statistics, source diversity data
+- [Recharts performance patterns](https://belchior.hashnode.dev/improving-recharts-performance-clp5w295y000b0ajq8hu6cnmm) -- memoization, dataKey stability
+- [shadcn/ui radial charts](https://ui.shadcn.com/charts/radial) -- gauge implementation examples
+- [Supabase analytics limitations](https://www.tinybird.co/blog/can-i-use-supabase-for-user-facing-analytics) -- 500K row performance cliff
 
 ### Tertiary (LOW confidence)
-- [Heroic Rankings AI Overview Statistics](https://heroicrankings.com/seo/managed/google-ai-overview-statistics-2026/) -- 7% local search AI Overview rate (single source)
-- [Incremys Source Diversity Data](https://www.incremys.com/en/resources/blog/geo-content-strategy) -- 48% citations from community platforms (single source)
+- [Reddit scraping post-API](https://medium.com/@arjuns0206/you-dont-need-the-reddit-api-to-acquire-its-data-here-s-how-41ef8f15e1db) -- .json endpoint workaround (may break)
 
 ---
 *Research completed: 2026-03-10*
+*Replaces v1.0 research summary*
 *Ready for roadmap: yes*
