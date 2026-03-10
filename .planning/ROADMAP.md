@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: SerpAPI Foundation** - Replace Apify SERP scraper with SerpAPI client and budget infrastructure
 - [ ] **Phase 2: GEO Scoring + AI Overview Detection** - Score pages for citation-readiness and detect AI Overview citations across tracked keywords
-- [ ] **Phase 3: Brain Integration + Content Upgrades** - Brain uses GEO data to prioritize actions; new content upgrade action type
+- [x] **Phase 3: Brain Integration + Content Upgrades** - Brain uses GEO data to prioritize actions; new content upgrade action type
 - [ ] **Phase 4: Entity + Authority Building** - Organization schema, sameAs links, topical authority scoring, PAA-to-content mapping
 - [ ] **Phase 5: Mention Tracking** - Reddit question mining and cross-platform mention tracking via Brave Search
 - [ ] **Phase 6: GEO Dashboard** - Surface all GEO scoring, citation tracking, and mention data in the Next.js dashboard
@@ -66,7 +66,7 @@ Plans:
 
 Plans:
 - [x] 03-01-PLAN.md -- GEO data fetching, brain prompt integration, updated rules for citation-ready content and prioritization
-- [ ] 03-02-PLAN.md -- geo_content_upgrade action execution pipeline + FAQ schema auto-detection hook
+- [x] 03-02-PLAN.md -- geo_content_upgrade action execution pipeline + FAQ schema auto-detection hook
 
 ### Phase 4: Entity + Authority Building
 **Goal**: Client sites emit strong entity signals (Organization schema, sameAs links) and have measurable topical authority completeness
@@ -125,7 +125,7 @@ Note: Phase 5 depends only on Phase 1 (not Phase 4), so it could run in parallel
 |-------|----------------|--------|-----------|
 | 1. SerpAPI Foundation | 2/2 | Complete | 2026-03-10 |
 | 2. GEO Scoring + AI Overview Detection | 2/2 | Complete | 2026-03-10 |
-| 3. Brain Integration + Content Upgrades | 1/3 | In progress | - |
+| 3. Brain Integration + Content Upgrades | 2/2 | Complete | 2026-03-10 |
 | 4. Entity + Authority Building | 0/TBD | Not started | - |
 | 5. Mention Tracking | 0/TBD | Not started | - |
 | 6. GEO Dashboard | 0/TBD | Not started | - |
