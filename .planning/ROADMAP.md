@@ -41,12 +41,11 @@ See: milestones/v1.0-ROADMAP.md for full details
   3. Cross-platform mention tracking finds client name mentions across directories, forums, and review sites, stored in Supabase
   4. Competitor AI Overview citations are parsed from existing SERP data for target keywords with zero additional API calls
   5. content_validator.py uses 40-60 word range, inject_organization_on_all_pages() is wired into runtime, and same_as_urls are populated for all active clients
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
-- [ ] 05-03: TBD
+- [ ] 05-01-PLAN.md -- Brave client + Supabase table + tech debt fixes + same_as_urls
+- [ ] 05-02-PLAN.md -- Reddit mining + mention tracking + competitor AIO parsing
 
 ### Phase 6: GEO Dashboard (Existing Data)
 **Goal**: Brian and clients can see GEO scores, citation status, API budget, and snippet ownership in the dashboard without writing SQL
@@ -88,6 +87,6 @@ Phases 5 and 6 can run in parallel (different layers: Python backend vs Next.js 
 | 2. GEO Scoring + AI Overview Detection | v1.0 | 2/2 | Complete | 2026-03-10 |
 | 3. Brain Integration + Content Upgrades | v1.0 | 2/2 | Complete | 2026-03-10 |
 | 4. Entity + Authority Building | v1.0 | 2/2 | Complete | 2026-03-10 |
-| 5. Brave Infra + Mention Tracking + Tech Debt | v1.1 | 0/TBD | Not started | - |
+| 5. Brave Infra + Mention Tracking + Tech Debt | v1.1 | 0/2 | Planning complete | - |
 | 6. GEO Dashboard (Existing Data) | v1.1 | 0/TBD | Not started | - |
 | 7. Trends + Source Diversity | v1.1 | 0/TBD | Not started | - |
