@@ -2,86 +2,27 @@
 
 ## Overview
 
-Add Generative Engine Optimization to the existing SEO engine in six phases following a measurement-first approach. Phase 1 builds the SerpAPI data foundation with hard budget caps. Phase 2 adds GEO scoring and AI Overview detection to establish baselines before any optimization. Phase 3 gives the brain authority to act on GEO data and execute content upgrades. Phase 4 layers entity and authority signals. Phase 5 adds off-site mention tracking via Brave Search. Phase 6 surfaces all GEO data in the Next.js dashboard. Each phase delivers standalone value and unblocks the next.
+Add Generative Engine Optimization to the existing SEO engine. Measurement-first approach: build data foundation, score citation-readiness, let the brain act on it, then surface everything in the dashboard.
+
+## Milestones
+
+- v1.0 **GEO Module** -- Phases 1-4 (shipped 2026-03-10)
+- Phase 5: Mention Tracking (planned)
+- Phase 6: GEO Dashboard (planned)
 
 ## Phases
 
-**Phase Numbering:**
-- Integer phases (1, 2, 3): Planned milestone work
-- Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
+<details>
+<summary>v1.0 GEO Module (Phases 1-4) -- SHIPPED 2026-03-10</summary>
 
-Decimal phases appear between their surrounding integers in numeric order.
+- [x] Phase 1: SerpAPI Foundation (2/2 plans) -- completed 2026-03-10
+- [x] Phase 2: GEO Scoring + AI Overview Detection (2/2 plans) -- completed 2026-03-10
+- [x] Phase 3: Brain Integration + Content Upgrades (2/2 plans) -- completed 2026-03-10
+- [x] Phase 4: Entity + Authority Building (2/2 plans) -- completed 2026-03-10
 
-- [x] **Phase 1: SerpAPI Foundation** - Replace Apify SERP scraper with SerpAPI client and budget infrastructure
-- [ ] **Phase 2: GEO Scoring + AI Overview Detection** - Score pages for citation-readiness and detect AI Overview citations across tracked keywords
-- [x] **Phase 3: Brain Integration + Content Upgrades** - Brain uses GEO data to prioritize actions; new content upgrade action type
-- [ ] **Phase 4: Entity + Authority Building** - Organization schema, sameAs links, topical authority scoring, PAA-to-content mapping
-- [ ] **Phase 5: Mention Tracking** - Reddit question mining and cross-platform mention tracking via Brave Search
-- [ ] **Phase 6: GEO Dashboard** - Surface all GEO scoring, citation tracking, and mention data in the Next.js dashboard
+See: milestones/v1.0-ROADMAP.md for full details
 
-## Phase Details
-
-### Phase 1: SerpAPI Foundation
-**Goal**: The SEO engine fetches structured SERP data from SerpAPI instead of Apify, with budget tracking that prevents overages
-**Depends on**: Nothing (first phase)
-**Requirements**: SERP-01, SERP-02, SERP-03, SERP-04
-**Success Criteria** (what must be TRUE):
-  1. Running `seo_loop.py` for a client fetches organic SERP results from SerpAPI instead of Apify
-  2. Every SerpAPI call is logged to Supabase with client ID, timestamp, and search type
-  3. When a client hits 200 searches/month or global hits 950, subsequent API calls are blocked (not just warned)
-  4. The SerpAPI Account API can be queried to verify remaining balance without spending a credit
-**Plans**: 2 plans
-
-Plans:
-- [x] 01-01-PLAN.md -- SerpAPI client module with budget gate, usage tracking, and account API
-- [x] 01-02-PLAN.md -- Wire SerpAPI into existing SEO engine (replace Apify in serp_scraper.py)
-
-### Phase 2: GEO Scoring + AI Overview Detection
-**Goal**: Every tracked page has a GEO citation-readiness score and every tracked keyword has AI Overview/PAA/snippet data, establishing baselines before optimization begins
-**Depends on**: Phase 1
-**Requirements**: SERP-05, SERP-06, SERP-07, SERP-08, SERP-09, GEO-01, GEO-02, GEO-03, GEO-04, GEO-05
-**Success Criteria** (what must be TRUE):
-  1. Each tracked keyword shows whether it triggers an AI Overview and whether the client URL appears in AI Overview references
-  2. The two-step AI Overview fetch handles page_token expiration within the 60-second window without errors
-  3. PAA questions and Featured Snippet holders are captured per keyword in Supabase
-  4. Every client page has a GEO score (0-5 binary checklist) stored in Supabase with daily timestamps for trend tracking
-  5. GEO scoring runs daily during data collection at zero API cost (local HTML analysis only)
-**Plans**: 2 plans
-
-Plans:
-- [x] 02-01-PLAN.md -- SERP feature extraction (AI Overview two-step, PAA, Featured Snippets) with Supabase storage
-- [x] 02-02-PLAN.md -- GEO scorer module with daily scoring integration into data collection
-
-### Phase 3: Brain Integration + Content Upgrades
-**Goal**: The brain sees GEO gaps and actively prioritizes content upgrades to make pages more citation-ready
-**Depends on**: Phase 2
-**Requirements**: BRAIN-01, BRAIN-02, BRAIN-03, BRAIN-04, CONT-01, CONT-02, CONT-03, CONT-04
-**Success Criteria** (what must be TRUE):
-  1. The brain prompt includes GEO scores as compact table rows within a 3000-char budget for all GEO sections
-  2. The brain can recommend and execute a `geo_content_upgrade` action that retrofits pages with answer blocks, improved headings, and stats
-  3. New blog posts generated by the blog engine include citation-ready structure by default (answer blocks after first H2, comparison tables, stat-dense formatting)
-  4. The brain prioritizes pages that are striking-distance in SERPs AND have low GEO scores
-  5. FAQ schema is applied aggressively to pages with question-format content via the existing schema_injector
-**Plans**: 2 plans
-
-Plans:
-- [x] 03-01-PLAN.md -- GEO data fetching, brain prompt integration, updated rules for citation-ready content and prioritization
-- [x] 03-02-PLAN.md -- geo_content_upgrade action execution pipeline + FAQ schema auto-detection hook
-
-### Phase 4: Entity + Authority Building
-**Goal**: Client sites emit strong entity signals (Organization schema, sameAs links) and have measurable topical authority completeness
-**Depends on**: Phase 3
-**Requirements**: ENT-01, ENT-02, ENT-03, ENT-04
-**Success Criteria** (what must be TRUE):
-  1. All client pages include Organization schema with sameAs links to GBP, Yelp, BBB, and social profiles
-  2. sameAs URLs are configurable per client in clients.json without code changes
-  3. Each content cluster has a topical authority completeness score showing coverage gaps
-  4. PAA questions are matched against existing content, with gaps identified as potential new content targets
-**Plans**: 2 plans
-
-Plans:
-- [ ] 04-01-PLAN.md -- Organization schema with sameAs links, clients.json config, seo_loop dispatch
-- [ ] 04-02-PLAN.md -- Topical authority scoring, PAA question-to-content matching, brain prompt integration
+</details>
 
 ### Phase 5: Mention Tracking
 **Goal**: The engine knows where clients are mentioned online and identifies Reddit/forum opportunities for manual engagement
@@ -117,15 +58,11 @@ Plans:
 
 ## Progress
 
-**Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
-Note: Phase 5 depends only on Phase 1 (not Phase 4), so it could run in parallel with Phases 3-4 if desired.
-
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. SerpAPI Foundation | 2/2 | Complete | 2026-03-10 |
-| 2. GEO Scoring + AI Overview Detection | 2/2 | Complete | 2026-03-10 |
-| 3. Brain Integration + Content Upgrades | 2/2 | Complete | 2026-03-10 |
-| 4. Entity + Authority Building | 0/2 | Not started | - |
-| 5. Mention Tracking | 0/TBD | Not started | - |
-| 6. GEO Dashboard | 0/TBD | Not started | - |
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 1. SerpAPI Foundation | v1.0 | 2/2 | Complete | 2026-03-10 |
+| 2. GEO Scoring + AI Overview Detection | v1.0 | 2/2 | Complete | 2026-03-10 |
+| 3. Brain Integration + Content Upgrades | v1.0 | 2/2 | Complete | 2026-03-10 |
+| 4. Entity + Authority Building | v1.0 | 2/2 | Complete | 2026-03-10 |
+| 5. Mention Tracking | -- | 0/TBD | Not started | - |
+| 6. GEO Dashboard | -- | 0/TBD | Not started | - |

@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Generative Engine Optimization (GEO) capabilities built into the existing SEO engine. Makes client content more likely to be cited by AI search engines (Google AI Overviews, Perplexity, ChatGPT) and tracks when citations happen. Extends brain.py, research modules, actions, and schema_injector for both active clients.
+Generative Engine Optimization (GEO) capabilities built into the existing SEO engine. The engine now fetches structured SERP data via SerpAPI, scores every page for citation-readiness, detects AI Overview citations, and gives the brain full visibility to prioritize content upgrades. Organization schema and topical authority scoring round out entity signals.
 
 ## Core Value
 
@@ -12,66 +12,71 @@ The brain knows which pages are citation-ready and which aren't, and prioritizes
 
 ### Validated
 
-- Existing SEO engine loop (data collection, brain, actions, outcome logging)
-- AEO crawler check (robots.txt verification for AI bots)
-- AEO opportunity extraction (question queries from GSC)
-- Answer capsules in blog posts (50-150 word self-contained answers)
-- FAQ schema injection
-- Content clusters and internal linking
-- Brave Search API configured
-- SerpAPI key configured ($25/mo, 1000 searches/month)
+- v1.0 SerpAPI client replaces Apify with budget-gated, usage-tracked structured data (SERP-01 through SERP-04)
+- v1.0 AI Overview detection, citation matching, PAA extraction, Featured Snippet tracking (SERP-05 through SERP-09)
+- v1.0 GEO scorer: 5-factor binary checklist, daily zero-cost local HTML analysis, Supabase storage with trends (GEO-01 through GEO-05)
+- v1.0 Brain integration: GEO scores in prompt, geo_content_upgrade action, striking-distance prioritization (BRAIN-01 through BRAIN-04)
+- v1.0 Content upgrades: answer capsules, citation-ready blog structure, page retrofitting, FAQ auto-detect (CONT-01 through CONT-04)
+- v1.0 Entity building: Organization schema with sameAs, topical authority scoring, PAA gap detection (ENT-01 through ENT-04)
 
 ### Active
 
-- [ ] AI Overview detection via SerpAPI (are client pages cited in Google AI Overviews?)
-- [ ] People Also Ask extraction via SerpAPI (structured PAA data for content targeting)
-- [ ] Replace Apify SERP scraper with SerpAPI (structured data, cheaper, faster)
-- [ ] SerpAPI usage tracking with hard monthly cap (200/client/month)
-- [ ] GEO score per page (citation readiness: answer blocks, stats, structure, schema)
-- [ ] Brain integration (GEO scores influence daily action decisions)
-- [ ] Content structure upgrades (definitive lists, stat-dense formatting, comparison tables)
-- [ ] Enhanced answer blocks (beyond basic capsule -- multi-format, question-matched)
-- [ ] Entity/authority building (Organization schema, sameAs links, knowledge panel signals)
-- [ ] Topical authority scoring (how complete is coverage of each topic cluster?)
-- [ ] Reddit question mining via Brave Search (replace broken Reddit API integration)
-- [ ] Cross-platform mention tracking via Brave Search (where is client mentioned online?)
-- [ ] Source diversity scoring (Reddit, forums, directories -- where should client be mentioned?)
-- [ ] Featured Snippet optimization (SerpAPI tells us who holds the snippet)
+- [ ] Reddit question mining via Brave Search (MENT-01)
+- [ ] Cross-platform mention tracking (MENT-02)
+- [ ] Source diversity scoring (MENT-03)
+- [ ] Competitor AI Overview monitoring (MENT-04)
+- [ ] GEO scores visible in Next.js dashboard (DASH-01)
+- [ ] AI Overview citation status per keyword in dashboard (DASH-02)
+- [ ] AI Overview citation trends chart (DASH-03)
+- [ ] Source diversity visualization (DASH-04)
+- [ ] SerpAPI budget usage indicator (DASH-05)
+- [ ] Featured Snippet ownership tracker (DASH-06)
 
 ### Out of Scope
 
 - Perplexity API integration -- unreliable for citation tracking, add later if API improves
 - ChatGPT citation tracking -- no public API, results inconsistent
-- Reddit/Quora answer posting automation -- legal/ToS risk, manual only
+- Reddit/Quora answer posting automation -- ToS violation, ban risk
 - YouTube transcript optimization -- no YouTube presence for current clients
 - Apify SERP scraping -- replaced entirely by SerpAPI
+- Real-time AI visibility dashboard -- would burn SerpAPI budget in days
+- Multi-language GEO -- English only, current client base
 
 ## Context
 
-- Two active clients: mr-green-turf-clean (Poway turf cleaning) and integrity-pro-washers (San Diego pressure washing)
-- SEO engine runs daily at noon via launchd. Research runs Wed + Sat.
-- Brain calls `claude -p` subprocess. Actions: blog_post, gbp_post, location_page, page_edit, schema_update, newsjack_post, gbp_photo.
-- Reddit API was never configured (auth issues). Reddit data will come from Brave Search `site:reddit.com` queries.
-- SerpAPI budget: 200 searches/client/month. ~50/client/week. Hard cap at 950/month total (50 buffer for manual).
-- New clients onboarding this month (AZ Turf, SoCal Turfs) -- budget must scale.
+Shipped v1.0 with ~9,150 LOC Python (seo_engine).
+Tech stack: Python 3, Supabase, SerpAPI, Next.js dashboard, Claude brain via `claude -p`.
+Two active clients: mr-green-turf-clean, integrity-pro-washers. Two onboarding: AZ Turf, SoCal Turfs.
+SEO engine runs daily at noon via launchd. Research runs Wed + Sat.
+SerpAPI budget: 200 searches/client/month, 950 global cap. $25/mo Starter Plan.
+
+**Known tech debt from v1.0:**
+- content_validator.py capsule word count (50-150) mismatches brain rule (40-60)
+- inject_organization_on_all_pages() defined but never called from runtime
+- same_as_urls empty in clients.json for all clients (needs manual population)
 
 ## Constraints
 
-- **API Budget**: SerpAPI 1000 searches/month at $25/mo. 200 per client. Engine must track usage and hard-stop before limit.
-- **No Reddit API**: Reddit data exclusively via Brave Search site:reddit.com queries.
-- **Existing Architecture**: All new code extends existing modules. No new orchestration patterns -- fits into seo_loop.py daily cycle.
-- **Brain Pattern**: All AI decisions go through `claude -p` subprocess. No direct Anthropic API calls.
-- **Content Rules**: No em dashes, no emojis, experience signals required. All existing brain rules apply to GEO content.
+- **API Budget**: SerpAPI 1000 searches/month at $25/mo. Hard-stop at caps.
+- **No Reddit API**: Reddit data via Brave Search site:reddit.com only.
+- **Existing Architecture**: All new code extends existing modules within seo_loop.py cycle.
+- **Brain Pattern**: All AI decisions go through `claude -p` subprocess.
+- **Content Rules**: No em dashes, no emojis, experience signals required.
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| SerpAPI over Apify for SERPs | Structured AI Overview + PAA data, single API call, no polling | -- Pending |
-| 200 searches/client/month budget | Sustainable scaling as clients onboard, leaves room for 5 clients | -- Pending |
-| Skip Perplexity API | Only tracks Perplexity citations, not worth the cost for partial coverage | -- Pending |
-| Reddit via Brave Search | Reddit API auth blocked, Brave site:reddit.com search works fine | -- Pending |
-| GEO scores feed into brain | Brain should actively prioritize GEO improvements, not just track passively | -- Pending |
+| SerpAPI over Apify for SERPs | Structured AI Overview + PAA data, single API call, no polling | Good -- clean data, budget-gated |
+| 200 searches/client/month budget | Sustainable scaling as clients onboard, leaves room for 5 clients | Good -- never hit cap |
+| Skip Perplexity API | Only tracks Perplexity citations, not worth the cost for partial coverage | Good -- revisit when API matures |
+| Reddit via Brave Search | Reddit API auth blocked, Brave site:reddit.com search works fine | Good -- implementation pending Phase 5 |
+| GEO scores feed into brain | Brain should actively prioritize GEO improvements, not just track passively | Good -- brain sees and acts on GEO data |
+| Measurement-first approach | 2-4 weeks baseline before brain acts | Good -- prevents blind optimization |
+| String-level HTML insertion | BeautifulSoup serialization mangles attributes and whitespace | Good -- preserves HTML fidelity |
+| FAQ auto-detect as post-hook | Zero-cost, piggybacks on all content creation actions | Good -- catches all question-format content |
+| Organization schema separate from LocalBusiness | Google reads both independently | Good -- clean separation |
+| difflib for PAA matching | Stdlib, 0.6 threshold, no external dependency | Good -- lightweight and accurate enough |
 
 ---
-*Last updated: 2026-03-10 after initialization*
+*Last updated: 2026-03-10 after v1.0 milestone*

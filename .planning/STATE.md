@@ -1,9 +1,9 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.0
-milestone_name: milestone
-status: unknown
-last_updated: "2026-03-10T21:40:01.388Z"
+milestone_name: GEO Module
+status: completed
+last_updated: "2026-03-10T23:00:00Z"
 progress:
   total_phases: 4
   completed_phases: 4
@@ -18,16 +18,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** The brain knows which pages are citation-ready and which aren't, and prioritizes making uncitable content citable.
-**Current focus:** Phase 4: Entity Authority Building -- COMPLETE
+**Current focus:** v1.0 milestone complete. Phases 5-6 (Mention Tracking, GEO Dashboard) remain for next milestone.
 
 ## Current Position
 
-Phase: 4 of 6 (Entity Authority Building) -- COMPLETE
-Plan: 2 of 2 in current phase
-Status: Phase 04 complete
-Last activity: 2026-03-10 -- Completed 04-02 Authority Scoring + PAA Gap Matching
+Milestone: v1.0 GEO Module -- SHIPPED 2026-03-10
+Phases 1-4 complete (8/8 plans). 26/26 requirements satisfied.
+Next: /gsd:new-milestone to define v1.1 scope (Phases 5-6 + any new work).
 
-Progress: [████████░░] 67%
+Progress: [██████████] 100% (v1.0)
 
 ## Performance Metrics
 
@@ -45,54 +44,23 @@ Progress: [████████░░] 67%
 | 03-brain-integration-content-upgrades | 2 | 6min | 3min |
 | 04-entity-authority-building | 2 | 8min | 4min |
 
-**Recent Trend:**
-- Last 5 plans: -
-- Trend: -
-
-*Updated after each plan completion*
-
 ## Accumulated Context
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
-
-- SerpAPI over Apify for SERPs (structured AI Overview + PAA data, single API call)
-- 200 searches/client/month budget (scales to 5 clients)
-- Reddit via Brave Search (Reddit API auth blocked)
-- Measurement-first: 2-4 weeks of baseline data before brain acts on GEO scores
-- Starter Plan has 1000 searches/mo (not 100), budget caps unchanged as safety margin
-- Used count='exact' Supabase queries for budget checks -- no caching
-- STATE_ABBREVS auto-expansion for location mapping (no manual entries needed for new clients)
-- Tuple return from scrape_serp (organic, extras) -- caller updated in same plan
-- BeautifulSoup4 with html.parser for GEO factor detection (DOM-aware, handles malformed HTML)
-- Non-recursive glob for flat static sites in GEO scorer
-- Lazy import pattern in seo_loop for GEO scorer (matches existing modules)
-- [Phase 02]: Two-step AI Overview fetch inline per keyword to respect 60s token expiry
-- [Phase 02]: process_serp_features wrapped in try/except so failures do not block research pipeline
-- [Phase 03]: Separate geo_data.py module for GEO data fetching (reusable, clean separation)
-- [Phase 03]: 3000-char budget with early-break loops for GEO prompt sections
-- [Phase 03]: GEO scores sorted worst-first, SERP features sorted AIO=True first
-- [Phase 03]: String-level HTML insertion over BeautifulSoup serialization for HTML fidelity
-- [Phase 03]: FAQ auto-detect as post-action hook (zero-cost, piggybacks on content creation)
-- [Phase 04]: Organization schema separate from LocalBusiness (Google reads both independently)
-- [Phase 04]: sameAs key omitted when no URLs configured (no empty arrays in JSON-LD)
-- [Phase 04]: same_as_urls only on clients with website_local_path
-- [Phase 04]: difflib.SequenceMatcher for PAA heading matching (stdlib, 0.6 threshold)
-- [Phase 04]: Authority scores only for clusters with 5+ items (avoids misleading sparse data)
-- [Phase 04]: PAA + authority sections have dedicated char budgets separate from GEO budget
+Full decision log in PROJECT.md Key Decisions table.
 
 ### Pending Todos
 
-None yet.
+- Populate same_as_urls in clients.json with real GBP/Yelp/BBB/social URLs per client
+- Fix content_validator.py capsule word count range (50-150 -> 40-60)
 
 ### Blockers/Concerns
 
-- Per-client sameAs URLs need manual collection before Phase 4
+None for v1.0. Next milestone TBD.
 
 ## Session Continuity
 
 Last session: 2026-03-10
-Stopped at: Completed 04-02-PLAN.md (Authority Scoring + PAA Gap Matching)
+Stopped at: v1.0 milestone completion
 Resume file: None
