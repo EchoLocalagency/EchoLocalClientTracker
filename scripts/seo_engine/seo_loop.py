@@ -109,6 +109,17 @@ def run_client(client, dry_run=True):
     except Exception as e:
         print(f"  GEO scoring failed (non-fatal): {e}")
 
+    # ── Step 1c: Fetch GEO data for brain ──
+    geo_scores_data = []
+    serp_features_data = []
+    try:
+        from .geo_data import get_latest_geo_scores, get_latest_serp_features
+        geo_scores_data = get_latest_geo_scores(client_id)
+        serp_features_data = get_latest_serp_features(client_id)
+        print(f"  Loaded {len(geo_scores_data)} GEO scores, {len(serp_features_data)} SERP features for brain")
+    except Exception as e:
+        print(f"  GEO data fetch failed (non-fatal): {e}")
+
     # ── Step 2: Research ──
     print(f"\n  [2/7] Research...")
     today = date.today()
@@ -271,6 +282,8 @@ def run_client(client, dry_run=True):
         existing_area_pages=existing_area_pages,
         keyword_opportunities=keyword_opportunities,
         aeo_opportunities=aeo_opportunities,
+        geo_scores=geo_scores_data,
+        serp_features=serp_features_data,
         dry_run=dry_run,
     )
 
