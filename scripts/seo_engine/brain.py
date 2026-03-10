@@ -40,7 +40,7 @@ def _build_prompt(client_config, performance_data, keyword_rankings,
                   gbp_candidates=None, service_areas=None,
                   existing_area_pages=None, keyword_opportunities=None,
                   aeo_opportunities=None, geo_scores=None,
-                  serp_features=None):
+                  serp_features=None, paa_gaps=None):
     """Build the full prompt string for Claude."""
 
     name = client_config["name"]
@@ -323,6 +323,39 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
                 prompt += f"    {cg['cluster_name']}: {cg['gap_count']} gaps ({', '.join(cg['gap_topics'][:3])})\n"
         prompt += "\n"
 
+    # ── Section 14b: Topical authority scores ──
+    if clusters:
+        # Only show authority for clusters with 5+ total items (meaningful signal)
+        auth_clusters = [
+            c for c in clusters
+            if (c.get("supporting_count", 0) + c.get("gap_count", 0)) >= 5
+        ]
+        if auth_clusters:
+            prompt += "TOPICAL AUTHORITY (cluster | completeness | gaps | top gap topics):\n"
+            char_count = 0
+            for c in auth_clusters:
+                pct = int(c.get("authority_completeness", 0) * 100)
+                gap_count = c.get("gap_count", 0)
+                top_gaps = ", ".join((c.get("gap_topics") or [])[:2]) or "none"
+                line = f"  {c['cluster_name']:<25} {pct}% complete  {gap_count} gaps  [{top_gaps}]\n"
+                if char_count + len(line) > 500:
+                    break
+                prompt += line
+                char_count += len(line)
+            prompt += "  Complete one cluster to 80% authority before starting the next. Focus beats breadth.\n\n"
+
+    # ── Section 14c: PAA content gaps ──
+    if paa_gaps:
+        prompt += "PAA CONTENT GAPS (questions searchers ask that the site doesn't answer):\n"
+        char_count = 0
+        for i, gap in enumerate(paa_gaps[:10], 1):
+            line = f"  {i}. {gap}\n"
+            if char_count + len(line) > 400:
+                break
+            prompt += line
+            char_count += len(line)
+        prompt += "  PAA gaps that align with the lowest-authority cluster are highest priority.\n\n"
+
     # ── Section 15: Service area page candidates ──
     if service_areas:
         covered = set()
@@ -504,7 +537,7 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
                cluster_gaps=None, gbp_candidates=None, service_areas=None,
                existing_area_pages=None, keyword_opportunities=None,
                aeo_opportunities=None, geo_scores=None,
-               serp_features=None, dry_run=True):
+               serp_features=None, paa_gaps=None, dry_run=True):
     """Build prompt, call claude -p, parse response, return actions."""
 
     prompt = _build_prompt(
@@ -513,7 +546,7 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
         recent_keywords, week_counts, research_data, photo_manifest,
         schema_audit, clusters, cluster_gaps, gbp_candidates,
         service_areas, existing_area_pages, keyword_opportunities,
-        aeo_opportunities, geo_scores, serp_features,
+        aeo_opportunities, geo_scores, serp_features, paa_gaps,
     )
 
     print(f"  [brain] Prompt built ({len(prompt)} chars). Calling Claude...")

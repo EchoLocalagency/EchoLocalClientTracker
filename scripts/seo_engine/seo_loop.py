@@ -246,6 +246,24 @@ def run_client(client, dry_run=True):
     except Exception as e:
         print(f"  Cluster load failed (non-fatal): {e}")
 
+    # PAA question-to-content matching
+    paa_gaps = []
+    try:
+        from .paa_matcher import match_paa_to_content, extract_page_headings
+        from .geo_data import get_all_paa_questions
+        paa_questions = get_all_paa_questions(client_id)
+        if paa_questions and website_path:
+            page_data = extract_page_headings(website_path)
+            paa_result = match_paa_to_content(paa_questions, page_data)
+            paa_gaps = paa_result.get("gaps", [])
+            matched_count = len(paa_result.get("matched", []))
+            print(f"  PAA matching: {matched_count} answered, {len(paa_gaps)} gaps")
+        elif paa_questions:
+            paa_gaps = paa_questions
+            print(f"  PAA questions found: {len(paa_gaps)} (no website to match against)")
+    except Exception as e:
+        print(f"  PAA matching failed (non-fatal): {e}")
+
     # GBP upload candidates
     gbp_candidates = []
     try:
@@ -285,6 +303,7 @@ def run_client(client, dry_run=True):
         aeo_opportunities=aeo_opportunities,
         geo_scores=geo_scores_data,
         serp_features=serp_features_data,
+        paa_gaps=paa_gaps,
         dry_run=dry_run,
     )
 
