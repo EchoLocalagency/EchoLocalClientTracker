@@ -77,11 +77,11 @@ Plans:
   2. sameAs URLs are configurable per client in clients.json without code changes
   3. Each content cluster has a topical authority completeness score showing coverage gaps
   4. PAA questions are matched against existing content, with gaps identified as potential new content targets
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
+- [ ] 04-01-PLAN.md -- Organization schema with sameAs links, clients.json config, seo_loop dispatch
+- [ ] 04-02-PLAN.md -- Topical authority scoring, PAA question-to-content matching, brain prompt integration
 
 ### Phase 5: Mention Tracking
 **Goal**: The engine knows where clients are mentioned online and identifies Reddit/forum opportunities for manual engagement
@@ -126,6 +126,6 @@ Note: Phase 5 depends only on Phase 1 (not Phase 4), so it could run in parallel
 | 1. SerpAPI Foundation | 2/2 | Complete | 2026-03-10 |
 | 2. GEO Scoring + AI Overview Detection | 2/2 | Complete | 2026-03-10 |
 | 3. Brain Integration + Content Upgrades | 2/2 | Complete | 2026-03-10 |
-| 4. Entity + Authority Building | 0/TBD | Not started | - |
+| 4. Entity + Authority Building | 0/2 | Not started | - |
 | 5. Mention Tracking | 0/TBD | Not started | - |
 | 6. GEO Dashboard | 0/TBD | Not started | - |
