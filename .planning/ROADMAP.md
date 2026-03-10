@@ -46,11 +46,11 @@ Plans:
   3. PAA questions and Featured Snippet holders are captured per keyword in Supabase
   4. Every client page has a GEO score (0-5 binary checklist) stored in Supabase with daily timestamps for trend tracking
   5. GEO scoring runs daily during data collection at zero API cost (local HTML analysis only)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md -- SERP feature extraction (AI Overview two-step, PAA, Featured Snippets) with Supabase storage
+- [ ] 02-02-PLAN.md -- GEO scorer module with daily scoring integration into data collection
 
 ### Phase 3: Brain Integration + Content Upgrades
 **Goal**: The brain sees GEO gaps and actively prioritizes content upgrades to make pages more citation-ready
@@ -124,7 +124,7 @@ Note: Phase 5 depends only on Phase 1 (not Phase 4), so it could run in parallel
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. SerpAPI Foundation | 2/2 | Complete | 2026-03-10 |
-| 2. GEO Scoring + AI Overview Detection | 0/TBD | Not started | - |
+| 2. GEO Scoring + AI Overview Detection | 0/2 | Not started | - |
 | 3. Brain Integration + Content Upgrades | 0/TBD | Not started | - |
 | 4. Entity + Authority Building | 0/TBD | Not started | - |
 | 5. Mention Tracking | 0/TBD | Not started | - |
