@@ -440,7 +440,7 @@ def _execute_action(action, client, website_path, dry_run):
 
 def _execute_schema_update(action, client, website_path, dry_run):
     """Execute a schema_update action: inject schema markup into a page."""
-    from .schema_injector import inject_faq_schema, inject_local_business_schema, inject_service_schema
+    from .schema_injector import inject_faq_schema, inject_local_business_schema, inject_service_schema, inject_organization_schema
 
     filename = action.get("filename", "")
     schema_type = action.get("schema_type", "")
@@ -474,6 +474,12 @@ def _execute_schema_update(action, client, website_path, dry_run):
         html = inject_service_schema(
             html, action.get("service_name", ""), action.get("description", ""),
             client["name"], client.get("website", ""), client.get("phone", ""), area,
+        )
+    elif schema_type == "organization":
+        same_as_urls = client.get("same_as_urls", {})
+        html = inject_organization_schema(
+            html, client["name"], client.get("website", ""),
+            client.get("phone", ""), same_as_urls,
         )
 
     if html == original:
