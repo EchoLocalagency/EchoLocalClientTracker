@@ -30,11 +30,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Every SerpAPI call is logged to Supabase with client ID, timestamp, and search type
   3. When a client hits 200 searches/month or global hits 950, subsequent API calls are blocked (not just warned)
   4. The SerpAPI Account API can be queried to verify remaining balance without spending a credit
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
+- [ ] 01-01-PLAN.md -- SerpAPI client module with budget gate, usage tracking, and account API
+- [ ] 01-02-PLAN.md -- Wire SerpAPI into existing SEO engine (replace Apify in serp_scraper.py)
 
 ### Phase 2: GEO Scoring + AI Overview Detection
 **Goal**: Every tracked page has a GEO citation-readiness score and every tracked keyword has AI Overview/PAA/snippet data, establishing baselines before optimization begins
@@ -123,7 +123,7 @@ Note: Phase 5 depends only on Phase 1 (not Phase 4), so it could run in parallel
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. SerpAPI Foundation | 0/TBD | Not started | - |
+| 1. SerpAPI Foundation | 0/2 | Planning complete | - |
 | 2. GEO Scoring + AI Overview Detection | 0/TBD | Not started | - |
 | 3. Brain Integration + Content Upgrades | 0/TBD | Not started | - |
 | 4. Entity + Authority Building | 0/TBD | Not started | - |
