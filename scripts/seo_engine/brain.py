@@ -39,7 +39,8 @@ def _build_prompt(client_config, performance_data, keyword_rankings,
                   schema_audit=None, clusters=None, cluster_gaps=None,
                   gbp_candidates=None, service_areas=None,
                   existing_area_pages=None, keyword_opportunities=None,
-                  aeo_opportunities=None):
+                  aeo_opportunities=None, geo_scores=None,
+                  serp_features=None):
     """Build the full prompt string for Claude."""
 
     name = client_config["name"]
@@ -354,13 +355,24 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
             opp = "HIGH" if q["_sd_score"] > 500 else "MEDIUM" if q["_sd_score"] > 100 else "LOW"
             prompt += f"  {q['query']:<45} {q['position']:<10.1f} {q.get('impressions', 0):<12} {q.get('clicks', 0):<8} {opp}\n"
         prompt += "  These pages are already ranking. A page_edit to improve content, headings, and internal links\n"
-        prompt += "  will move them to page 1 faster than writing a brand new blog post. OPTIMIZE BEFORE YOU CREATE.\n\n"
+        prompt += "  will move them to page 1 faster than writing a brand new blog post. OPTIMIZE BEFORE YOU CREATE.\n"
+        if geo_scores:
+            prompt += "  See GEO CITATION-READINESS SCORES below to cross-reference which of these pages need content upgrades.\n"
+        prompt += "\n"
+
+    # ── Section 18: GEO citation-readiness data ──
+    if geo_scores or serp_features:
+        from .geo_data import format_geo_section
+        geo_section = format_geo_section(geo_scores or [], serp_features or [])
+        if geo_section:
+            prompt += geo_section
+            prompt += "\n"
 
     # ── Section 13: Rules ──
     prompt += """RULES (follow exactly):
 1. Return ONLY a JSON array of action objects. No other text.
 2. Each action must have: action_type, target_keywords (array), priority (1-5, 1=highest), reasoning (1 sentence), and type-specific content fields.
-3. Action types: gbp_post, blog_post, page_edit, location_page, gbp_photo, schema_update, newsjack_post (NOTE: gbp_qanda is DISCONTINUED -- Google killed Q&A in Dec 2025. Do NOT generate gbp_qanda actions.)
+3. Action types: gbp_post, blog_post, page_edit, location_page, gbp_photo, schema_update, newsjack_post, geo_content_upgrade (NOTE: gbp_qanda is DISCONTINUED -- Google killed Q&A in Dec 2025. Do NOT generate gbp_qanda actions.)
 4. CONTENT VOICE: You are writing as the business owner/operator, not a marketing agency. Write in first person plural ("we", "our crew"). Reference specific neighborhoods, streets, landmarks. Include technical details (PSI, square footage, materials, time durations). State opinions directly ("We stopped using X because..."). Start with specific observations or job details, never with questions or cliches.
 4a. BANNED WORDS (never use): delve, tapestry, realm, beacon, testament, landscape (metaphorical), paradigm, synergy, framework, nuanced, multifaceted, comprehensive, robust, seamless, cutting-edge, transformative, innovative, pivotal, intricate, holistic, bespoke, scalable, unprecedented, intuitive, tailored, streamlined, best-in-class, world-class, groundbreaking, revolutionary, game-changing, supercharge, captivating, fascinating, meticulous, vibrant, proactive, thrilled, moreover, furthermore, additionally, consequently, subsequently, indeed, certainly, arguably, essentially, fundamentally, significantly, notably.
 4b. BANNED PHRASES (never use): "in today's [anything]", "ever-evolving", "in an era of", "when it comes to", "it's important to note", "it is worth mentioning", "first and foremost", "at the end of the day", "in conclusion", "in summary", "in essence", "let's dive in", "let's explore", "have you ever wondered", "imagine a world", "picture this", "unlock the potential", "unleash the power", "pave the way", "at the forefront", "push the boundaries", "embark on a journey", "I hope this helps", "feel free to reach out", "don't hesitate to", "here's the thing".
@@ -388,7 +400,7 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
 24. When NEWSJACK ALERTS show urgency >= 7, seriously consider a newsjack_post. These are time-sensitive.
 25. Blog posts should link to relevant existing pages (services, area pages) using relative paths.
 26. Target hyperlocal neighborhoods and niche keywords, not broad city terms. Dominate small ponds first.
-27. AEO (Answer Engine Optimization): Every blog post MUST start with a 50-150 word "answer capsule" after the first H2 -- a self-contained answer to the target query. No links inside the capsule. This is what AI engines will cite.
+27. AEO (Answer Engine Optimization): Every blog post MUST start with a 40-60 word answer capsule (class="answer-capsule") after the first H2 -- a self-contained answer to the target query. No links inside the capsule. This is what AI engines will cite.
 28. Use question-format H2s where natural (e.g. "How much does turf cleaning cost in San Diego?"). This maps directly to how people query AI assistants.
 29. Include comparison tables for "X vs Y" queries (e.g. "Artificial Turf vs Natural Grass Maintenance"). Tables get pulled into AI Overviews.
 30. Add "Last updated: {date}" visible text near the top of blog content. Freshness signals matter for AI citation.
@@ -399,6 +411,9 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
 35. EXPERIENCE SIGNALS (MANDATORY): Every blog_post, newsjack_post, and location_page MUST include at least 3 of these in the body: (a) specific measurements or specs (PSI, sq ft, temperature, cost), (b) first person voice (we/our), (c) named neighborhood or street, (d) price range or cost detail, (e) reference to a specific job or customer situation. Generic content that could have been written without doing the work will be rejected.
 36. NO OVERLAPPING BLOG POSTS: Never generate two blog posts in the same cycle that cover substantially the same topic, even if they come from different content clusters. Example: "Pressure Washing vs Soft Washing" and "What is Soft Washing" overlap too much. Pick the stronger angle and save the other for a future cycle.
 34. OPTIMIZE BEFORE YOU CREATE: If STRIKING DISTANCE PAGES are listed above, you MUST prioritize page_edit actions to improve those pages BEFORE proposing any new blog_post. Position 1 gets 2x the CTR of position 2, and 10x position 10. Moving an existing page from position 8 to position 3 is faster and higher-ROI than writing new content from scratch. Add better headings, expand thin sections, improve internal links, add schema, and update dates.
+37. geo_content_upgrade: a new action type for retrofitting existing pages with citation-ready structure. Must include: filename, target_keywords, reasoning, and an upgrades array. Each upgrade has type (answer_block, stats_injection, freshness_update), and type-specific fields: answer_block needs after_heading + content (40-60 word HTML paragraph with class="answer-capsule"); stats_injection needs target_section + content; freshness_update needs content. Max 2 per week.
+38. HIGHEST ROI RULE: When a striking-distance page (position 3-20) also has a low GEO score (0-2), prioritize a geo_content_upgrade for that page ABOVE all other action types. These pages already rank but aren't citation-ready -- fixing them is the single highest-ROI action.
+39. CITATION-READY BLOG POSTS: Every blog_post body_content MUST include: (a) answer capsule (40-60 words, class="answer-capsule") as first element after first H2, (b) at least one comparison table for any "vs" topic, (c) at least 3 stat-dense data points (numbers, costs, measurements), (d) question-format H2 headings where the topic is a question, (e) "Last updated: {current month and year}" visible near top, (f) short scannable paragraphs (max 3 sentences each).
 
 OUTPUT FORMAT:
 [
@@ -463,6 +478,18 @@ OUTPUT FORMAT:
     "title": "Turf Cleaning in Rancho Bernardo | Mr. Green Turf Clean",
     "meta_description": "Professional artificial turf cleaning in Rancho Bernardo...",
     "body_content": "<h2>Turf Cleaning Services in Rancho Bernardo</h2><p>...</p>"
+  },
+  {
+    "action_type": "geo_content_upgrade",
+    "target_keywords": ["turf cleaning poway"],
+    "priority": 1,
+    "reasoning": "Striking distance at position 6 with GEO score 1/5 -- highest ROI upgrade.",
+    "filename": "services.html",
+    "upgrades": [
+      {"type": "answer_block", "after_heading": "Professional Turf Cleaning", "content": "<p class=\"answer-capsule\">Professional turf cleaning in Poway removes bacteria, pet waste, and allergens from synthetic grass using 180-degree steam treatment. Most 500 sq ft yards take 45 minutes and cost $150-250 depending on infill type and debris level.</p>"},
+      {"type": "stats_injection", "target_section": "Why Clean Your Turf", "content": "<p>Our Poway crews cleaned 127 turf yards last year. Average bacterial reduction after treatment: 99.2%. Surface temperature drop after deodorizing rinse: 15-20 degrees.</p>"},
+      {"type": "freshness_update", "content": "<p class=\"last-updated\">Last updated: March 2026</p>"}
+    ]
   }
 ]
 """
@@ -476,7 +503,8 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
                photo_manifest=None, schema_audit=None, clusters=None,
                cluster_gaps=None, gbp_candidates=None, service_areas=None,
                existing_area_pages=None, keyword_opportunities=None,
-               aeo_opportunities=None, dry_run=True):
+               aeo_opportunities=None, geo_scores=None,
+               serp_features=None, dry_run=True):
     """Build prompt, call claude -p, parse response, return actions."""
 
     prompt = _build_prompt(
@@ -485,7 +513,7 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
         recent_keywords, week_counts, research_data, photo_manifest,
         schema_audit, clusters, cluster_gaps, gbp_candidates,
         service_areas, existing_area_pages, keyword_opportunities,
-        aeo_opportunities,
+        aeo_opportunities, geo_scores, serp_features,
     )
 
     print(f"  [brain] Prompt built ({len(prompt)} chars). Calling Claude...")
@@ -701,9 +729,9 @@ def _validate_action(action):
     # Map action type to content fields and validation types
     content_fields = {
         "gbp_post": [("summary", "gbp_post")],
-        "blog_post": [("body_content", "blog_post"), ("title", "gbp_post"), ("meta_description", "gbp_post")],
-        "newsjack_post": [("body_content", "newsjack_post"), ("title", "gbp_post"), ("meta_description", "gbp_post")],
-        "location_page": [("body_content", "location_page"), ("title", "gbp_post"), ("meta_description", "gbp_post")],
+        "blog_post": [("body_content", "blog_post")],
+        "newsjack_post": [("body_content", "newsjack_post")],
+        "location_page": [("body_content", "location_page")],
         "page_edit": [],
         "gbp_qanda": [("question", "gbp_qanda_question"), ("answer", "gbp_qanda_answer")],
         "gbp_photo": [],
