@@ -264,6 +264,82 @@ def inject_person_schema(html, name, url, job_title, description):
     return _inject_json_ld(html, schema)
 
 
+def inject_organization_schema(html, name, url, phone, same_as_urls=None):
+    """Inject Organization schema with sameAs links into HTML.
+
+    Args:
+        html: Full HTML string
+        name: Business name
+        url: Business website URL
+        phone: Business phone number
+        same_as_urls: Optional dict of profile URLs (gbp, yelp, bbb, facebook, instagram)
+
+    Returns:
+        Modified HTML string, or original if Organization schema already exists
+    """
+    if _has_schema_type(html, "Organization"):
+        return html
+
+    schema = {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": name,
+        "url": url,
+        "telephone": phone,
+    }
+
+    # Only include sameAs if at least one URL is non-empty
+    if same_as_urls:
+        filtered = [v for v in same_as_urls.values() if v]
+        if filtered:
+            schema["sameAs"] = filtered
+
+    return _inject_json_ld(html, schema)
+
+
+def inject_organization_on_all_pages(client_config):
+    """Bulk-inject Organization schema across all HTML pages for a client.
+
+    Args:
+        client_config: Client dict from clients.json
+
+    Returns:
+        List of injected file paths (relative to website_path)
+    """
+    website_path = client_config.get("website_local_path", "")
+    if not website_path:
+        return []
+
+    website_path = Path(website_path)
+    if not website_path.is_dir():
+        return []
+
+    same_as_urls = client_config.get("same_as_urls", {})
+    if not any(same_as_urls.values()):
+        return []
+
+    name = client_config["name"]
+    url = client_config.get("website", "")
+    phone = client_config.get("phone", "")
+
+    # Collect HTML files (same glob pattern as geo_scorer -- non-recursive, flat)
+    html_files = sorted(website_path.glob("*.html"))
+    if (website_path / "blog").exists():
+        html_files += sorted((website_path / "blog").glob("*.html"))
+    if (website_path / "areas").exists():
+        html_files += sorted((website_path / "areas").glob("*.html"))
+
+    injected = []
+    for f in html_files:
+        html = f.read_text()
+        updated = inject_organization_schema(html, name, url, phone, same_as_urls)
+        if updated != html:
+            f.write_text(updated)
+            injected.append(str(f.relative_to(website_path)))
+
+    return injected
+
+
 def detect_faq_candidates(html):
     """Find question-format H2 headings and their answer paragraphs.
 
@@ -365,6 +441,14 @@ def inject_schemas_for_page(html, page_path, client_config):
     address = addresses.get(client_config["slug"], {})
 
     page_lower = page_path.lower()
+
+    # Organization schema on all page types (represents the business entity)
+    same_as_urls = client_config.get("same_as_urls", {})
+    if same_as_urls and any(same_as_urls.values()):
+        before = html
+        html = inject_organization_schema(html, name, url, phone, same_as_urls)
+        if html != before:
+            injected.append("Organization")
 
     # Service pages and area pages get LocalBusiness + Service schema
     if "service" in page_lower or "areas/" in page_lower:

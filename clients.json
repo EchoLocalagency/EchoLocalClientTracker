@@ -41,7 +41,14 @@
       "Golden Hill", "City Heights", "Talmadge", "College Area",
       "La Mesa", "El Cajon", "Santee", "Clairemont",
       "Pacific Beach", "Ocean Beach", "Point Loma", "Coronado"
-    ]
+    ],
+    "same_as_urls": {
+      "gbp": "",
+      "yelp": "",
+      "bbb": "",
+      "facebook": "",
+      "instagram": ""
+    }
   },
   {
     "name": "Mr Green Turf Clean",
@@ -86,7 +93,14 @@
       "Del Sur", "Santaluz", "Black Mountain Ranch", "Mira Mesa",
       "Escondido", "San Marcos", "Vista", "Encinitas",
       "Carlsbad", "Oceanside", "Fallbrook", "Valley Center"
-    ]
+    ],
+    "same_as_urls": {
+      "gbp": "",
+      "yelp": "",
+      "bbb": "",
+      "facebook": "",
+      "instagram": ""
+    }
   },
   {
     "name": "Echo Local",
@@ -124,7 +138,14 @@
       "Oceanside", "Carlsbad", "Encinitas", "San Marcos", "Vista",
       "Escondido", "San Diego", "Chula Vista", "El Cajon", "La Mesa",
       "Poway", "Temecula", "Murrieta", "Fallbrook"
-    ]
+    ],
+    "same_as_urls": {
+      "gbp": "",
+      "yelp": "",
+      "bbb": "",
+      "facebook": "",
+      "instagram": ""
+    }
   },
   {
     "name": "AZ Turf Cleaning",
@@ -161,7 +182,14 @@
     "service_areas": [
       "Mesa", "Tempe", "Scottsdale", "Chandler", "Gilbert",
       "Apache Junction", "San Tan", "Fountain Hills"
-    ]
+    ],
+    "same_as_urls": {
+      "gbp": "",
+      "yelp": "",
+      "bbb": "",
+      "facebook": "",
+      "instagram": ""
+    }
   },
   {
     "name": "Primal Plates",
