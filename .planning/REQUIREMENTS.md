@@ -13,19 +13,19 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **SERP-02**: Per-client monthly usage tracking in Supabase with hard cap at 200 searches/client/month and 950 global
 - [x] **SERP-03**: Usage counter checked before every API call; hard-stop when cap reached (no silent overages)
 - [x] **SERP-04**: SerpAPI Account API integration for free usage verification (no credit cost to check remaining balance)
-- [ ] **SERP-05**: AI Overview detection per tracked keyword (knows which queries trigger AI Overviews)
-- [ ] **SERP-06**: AI Overview citation check (knows if client URL appears in AI Overview references)
-- [ ] **SERP-07**: Two-step AI Overview fetch handles page_token expiration (60-second window) correctly
-- [ ] **SERP-08**: PAA extraction returns structured question + answer data from SerpAPI related_questions field
-- [ ] **SERP-09**: Featured Snippet tracking (who holds the snippet for each target keyword)
+- [x] **SERP-05**: AI Overview detection per tracked keyword (knows which queries trigger AI Overviews)
+- [x] **SERP-06**: AI Overview citation check (knows if client URL appears in AI Overview references)
+- [x] **SERP-07**: Two-step AI Overview fetch handles page_token expiration (60-second window) correctly
+- [x] **SERP-08**: PAA extraction returns structured question + answer data from SerpAPI related_questions field
+- [x] **SERP-09**: Featured Snippet tracking (who holds the snippet for each target keyword)
 
 ### GEO Scoring
 
-- [ ] **GEO-01**: GEO scorer analyzes local HTML pages for citation-readiness signals (answer blocks, stats density, schema presence, heading structure, freshness)
-- [ ] **GEO-02**: Score stored per page in Supabase geo_scores table with timestamp for trend tracking
-- [ ] **GEO-03**: Scoring runs daily as part of data collection step (zero API cost -- local analysis only)
-- [ ] **GEO-04**: Baseline capture: 2-4 weeks of GEO scores + AI Overview data collected before brain acts on them
-- [ ] **GEO-05**: Score starts as binary checklist (0-5 factors present) not weighted formula; validated against citation data after 30+ data points
+- [x] **GEO-01**: GEO scorer analyzes local HTML pages for citation-readiness signals (answer blocks, stats density, schema presence, heading structure, freshness)
+- [x] **GEO-02**: Score stored per page in Supabase geo_scores table with timestamp for trend tracking
+- [x] **GEO-03**: Scoring runs daily as part of data collection step (zero API cost -- local analysis only)
+- [x] **GEO-04**: Baseline capture: 2-4 weeks of GEO scores + AI Overview data collected before brain acts on them
+- [x] **GEO-05**: Score starts as binary checklist (0-5 factors present) not weighted formula; validated against citation data after 30+ data points
 
 ### Brain Integration
 
@@ -99,16 +99,16 @@ Deferred to future release.
 | SERP-02 | Phase 1 | Complete |
 | SERP-03 | Phase 1 | Complete |
 | SERP-04 | Phase 1 | Complete |
-| SERP-05 | Phase 2 | Pending |
-| SERP-06 | Phase 2 | Pending |
-| SERP-07 | Phase 2 | Pending |
-| SERP-08 | Phase 2 | Pending |
-| SERP-09 | Phase 2 | Pending |
-| GEO-01 | Phase 2 | Pending |
-| GEO-02 | Phase 2 | Pending |
-| GEO-03 | Phase 2 | Pending |
-| GEO-04 | Phase 2 | Pending |
-| GEO-05 | Phase 2 | Pending |
+| SERP-05 | Phase 2 | Complete |
+| SERP-06 | Phase 2 | Complete |
+| SERP-07 | Phase 2 | Complete |
+| SERP-08 | Phase 2 | Complete |
+| SERP-09 | Phase 2 | Complete |
+| GEO-01 | Phase 2 | Complete |
+| GEO-02 | Phase 2 | Complete |
+| GEO-03 | Phase 2 | Complete |
+| GEO-04 | Phase 2 | Complete |
+| GEO-05 | Phase 2 | Complete |
 | BRAIN-01 | Phase 3 | Pending |
 | BRAIN-02 | Phase 3 | Pending |
 | BRAIN-03 | Phase 3 | Pending |
