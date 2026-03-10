@@ -45,8 +45,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **ENT-01**: Organization schema with sameAs links injected on all client pages (GBP, Yelp, BBB, social profiles)
 - [x] **ENT-02**: sameAs URLs configurable per client in clients.json
-- [ ] **ENT-03**: Topical authority completeness score per content cluster (extends cluster_manager)
-- [ ] **ENT-04**: Question-to-content matching maps PAA questions to existing pages and identifies gaps
+- [x] **ENT-03**: Topical authority completeness score per content cluster (extends cluster_manager)
+- [x] **ENT-04**: Question-to-content matching maps PAA questions to existing pages and identifies gaps
 
 ### Mention Tracking
 
@@ -119,8 +119,8 @@ Deferred to future release.
 | CONT-04 | Phase 3 | Complete |
 | ENT-01 | Phase 4 | Complete |
 | ENT-02 | Phase 4 | Complete |
-| ENT-03 | Phase 4 | Pending |
-| ENT-04 | Phase 4 | Pending |
+| ENT-03 | Phase 4 | Complete |
+| ENT-04 | Phase 4 | Complete |
 | MENT-01 | Phase 5 | Pending |
 | MENT-02 | Phase 5 | Pending |
 | MENT-03 | Phase 5 | Pending |
