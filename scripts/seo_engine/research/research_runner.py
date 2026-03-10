@@ -83,16 +83,22 @@ def run_research(client_config, force=False):
         print(f"  [research] Reddit error: {e}")
         cache["reddit_questions"] = []
 
-    # 3. SERP scraping
+    # 3. SERP scraping (via SerpAPI with budget tracking)
     if serp_keywords:
         print(f"  [research] Scraping SERPs for {len(serp_keywords)} keywords...")
         try:
-            cache["competitor_serps"] = scrape_serp(serp_keywords)
+            client_id = client_config.get("_supabase_id")
+            location = client_config.get("primary_market", "Poway, California, United States")
+            organic, serp_extras = scrape_serp(serp_keywords, location=location, client_id=client_id)
+            cache["competitor_serps"] = organic
+            cache["serp_extras"] = serp_extras  # AI Overview, PAA, Snippets for Phase 2
         except Exception as e:
             print(f"  [research] SERP error: {e}")
             cache["competitor_serps"] = {}
+            cache["serp_extras"] = {}
     else:
         cache["competitor_serps"] = {}
+        cache["serp_extras"] = {}
 
     # 4. News
     print(f"  [research] Pulling trending news...")
