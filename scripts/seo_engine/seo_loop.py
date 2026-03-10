@@ -43,6 +43,7 @@ WEEKLY_LIMITS = {
     "gbp_photo": 3,
     "schema_update": 4,
     "newsjack_post": 1,
+    "geo_content_upgrade": 2,
 }
 
 # Clients eligible for the SEO engine
@@ -420,6 +421,15 @@ def _execute_action(action, client, website_path, dry_run):
         from .actions.gbp_media import execute_gbp_photo
         return execute_gbp_photo(action, client, website_path, dry_run=dry_run)
 
+    elif action_type == "geo_content_upgrade":
+        from .actions.geo_upgrade import execute_geo_upgrade
+        return execute_geo_upgrade(
+            website_path=website_path,
+            filename=action.get("filename", ""),
+            upgrades=action.get("upgrades", []),
+            dry_run=dry_run,
+        )
+
     elif action_type == "schema_update":
         return _execute_schema_update(action, client, website_path, dry_run)
 
@@ -514,7 +524,7 @@ def _run_post_action_hooks(action, client, website_path, client_id, dry_run):
     target_keywords = action.get("target_keywords", [])
 
     # Auto internal linking after content creation actions
-    if action_type in ("blog_post", "newsjack_post", "location_page", "page_edit") and website_path:
+    if action_type in ("blog_post", "newsjack_post", "location_page", "page_edit", "geo_content_upgrade") and website_path:
         try:
             from .internal_linker import inject_links
             target_url = ""
@@ -535,6 +545,33 @@ def _run_post_action_hooks(action, client, website_path, client_id, dry_run):
                     print(f"  [post-hook] Internal linker: {len(links)} link opportunities")
         except Exception as e:
             print(f"  [post-hook] Internal linking failed (non-fatal): {e}")
+
+    # Auto FAQ schema detection + injection
+    if action_type in ("blog_post", "newsjack_post", "location_page", "geo_content_upgrade") and website_path:
+        try:
+            from .schema_injector import detect_faq_candidates, inject_faq_schema
+            # Determine which file was created/modified
+            if action_type in ("blog_post", "newsjack_post"):
+                target_file = Path(website_path) / "blog" / f"{action.get('slug', '')}.html"
+            elif action_type == "location_page":
+                target_file = Path(website_path) / "areas" / f"{action.get('slug', '')}.html"
+            elif action_type == "geo_content_upgrade":
+                target_file = Path(website_path) / action.get("filename", "")
+            else:
+                target_file = None
+
+            if target_file and target_file.exists():
+                html = target_file.read_text()
+                qa_pairs = detect_faq_candidates(html)
+                if qa_pairs:
+                    updated_html = inject_faq_schema(html, qa_pairs)
+                    if updated_html != html and not dry_run:
+                        target_file.write_text(updated_html)
+                        print(f"  [faq-auto] Injected FAQ schema ({len(qa_pairs)} Q&As) into {target_file.name}")
+                    elif updated_html != html:
+                        print(f"  [faq-auto] Would inject FAQ schema ({len(qa_pairs)} Q&As) into {target_file.name}")
+        except Exception as e:
+            print(f"  [faq-auto] FAQ auto-detect failed (non-fatal): {e}")
 
     # Auto-update content clusters after blog posts
     if action_type in ("blog_post", "newsjack_post"):

@@ -264,6 +264,54 @@ def inject_person_schema(html, name, url, job_title, description):
     return _inject_json_ld(html, schema)
 
 
+def detect_faq_candidates(html):
+    """Find question-format H2 headings and their answer paragraphs.
+
+    A heading is considered a question if it ends with '?' or starts with
+    a question word (how, what, why, when, where, is, can, do, does, should, will, are).
+
+    Returns:
+        List of {"question": str, "answer": str} dicts.
+    """
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(html, "html.parser")
+    candidates = []
+    question_pattern = re.compile(
+        r'^(how|what|why|when|where|is|can|do|does|should|will|are)\b', re.IGNORECASE
+    )
+
+    for h2 in soup.find_all("h2"):
+        text = h2.get_text(strip=True)
+        if not text:
+            continue
+
+        is_question = text.endswith("?") or bool(question_pattern.match(text))
+        if not is_question:
+            continue
+
+        # Collect answer from next 1-2 sibling <p> tags (stop at next heading)
+        answer_parts = []
+        for sibling in h2.find_next_siblings():
+            if sibling.name in ("h2", "h3"):
+                break
+            if sibling.name == "p":
+                p_text = sibling.get_text(strip=True)
+                if p_text:
+                    answer_parts.append(p_text)
+                if len(answer_parts) >= 2:
+                    break
+
+        if not answer_parts:
+            continue
+
+        question = text.rstrip("?") + "?"
+        answer = " ".join(answer_parts)
+        candidates.append({"question": question, "answer": answer})
+
+    return candidates
+
+
 def _has_schema_type(html, schema_type):
     """Check if HTML already contains a JSON-LD block with the given @type."""
     existing = _extract_schema_types(html)
