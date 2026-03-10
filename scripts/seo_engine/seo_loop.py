@@ -110,6 +110,18 @@ def run_client(client, dry_run=True):
     except Exception as e:
         print(f"  GEO scoring failed (non-fatal): {e}")
 
+    # ── Step 1b2: Organization schema injection (daily, zero API cost) ──
+    if client.get("website_local_path"):
+        try:
+            from .schema_injector import inject_organization_on_all_pages
+            org_injected = inject_organization_on_all_pages(client)
+            if org_injected:
+                print(f"  Injected Organization schema on {len(org_injected)} pages")
+            else:
+                print(f"  Organization schema already present (or no same_as_urls)")
+        except Exception as e:
+            print(f"  Organization schema injection failed (non-fatal): {e}")
+
     # ── Step 1c: Fetch GEO data for brain ──
     geo_scores_data = []
     serp_features_data = []

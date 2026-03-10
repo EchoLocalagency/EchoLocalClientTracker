@@ -176,7 +176,7 @@ def check_min_length(text, content_type):
 
 
 def check_answer_capsule(html):
-    """Verify the first content block after the first H2 is a 50-150 word answer capsule.
+    """Verify the first content block after the first H2 is a 40-60 word answer capsule.
 
     An answer capsule is a self-contained paragraph that directly answers the target query.
     It should have no links inside it.
@@ -213,11 +213,11 @@ def check_answer_capsule(html):
     capsule_text = re.sub(r"<[^>]+>", "", capsule_html).strip()
     word_count = len(capsule_text.split())
 
-    if word_count < 50:
-        issues.append(f"Answer capsule too short: {word_count} words (min 50)")
+    if word_count < 40:
+        issues.append(f"Answer capsule too short: {word_count} words (min 40)")
         return False, issues
-    elif word_count > 150:
-        issues.append(f"Answer capsule too long: {word_count} words (max 150)")
+    elif word_count > 60:
+        issues.append(f"Answer capsule too long: {word_count} words (max 60)")
         return False, issues
 
     return len(issues) == 0, issues
