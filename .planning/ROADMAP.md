@@ -12,7 +12,7 @@ Add Generative Engine Optimization to the existing SEO engine in six phases foll
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: SerpAPI Foundation** - Replace Apify SERP scraper with SerpAPI client and budget infrastructure
+- [x] **Phase 1: SerpAPI Foundation** - Replace Apify SERP scraper with SerpAPI client and budget infrastructure
 - [ ] **Phase 2: GEO Scoring + AI Overview Detection** - Score pages for citation-readiness and detect AI Overview citations across tracked keywords
 - [ ] **Phase 3: Brain Integration + Content Upgrades** - Brain uses GEO data to prioritize actions; new content upgrade action type
 - [ ] **Phase 4: Entity + Authority Building** - Organization schema, sameAs links, topical authority scoring, PAA-to-content mapping
@@ -33,8 +33,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 2 plans
 
 Plans:
-- [ ] 01-01-PLAN.md -- SerpAPI client module with budget gate, usage tracking, and account API
-- [ ] 01-02-PLAN.md -- Wire SerpAPI into existing SEO engine (replace Apify in serp_scraper.py)
+- [x] 01-01-PLAN.md -- SerpAPI client module with budget gate, usage tracking, and account API
+- [x] 01-02-PLAN.md -- Wire SerpAPI into existing SEO engine (replace Apify in serp_scraper.py)
 
 ### Phase 2: GEO Scoring + AI Overview Detection
 **Goal**: Every tracked page has a GEO citation-readiness score and every tracked keyword has AI Overview/PAA/snippet data, establishing baselines before optimization begins
@@ -123,7 +123,7 @@ Note: Phase 5 depends only on Phase 1 (not Phase 4), so it could run in parallel
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. SerpAPI Foundation | 0/2 | Planning complete | - |
+| 1. SerpAPI Foundation | 2/2 | Complete | 2026-03-10 |
 | 2. GEO Scoring + AI Overview Detection | 0/TBD | Not started | - |
 | 3. Brain Integration + Content Upgrades | 0/TBD | Not started | - |
 | 4. Entity + Authority Building | 0/TBD | Not started | - |
