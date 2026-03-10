@@ -8,7 +8,7 @@ Replaces the previous Apify-based scraper. Same return format for backward
 compatibility, plus raw extras (AI Overview, PAA, Featured Snippets) for Phase 2.
 """
 
-from scripts.seo_engine.serpapi_client import search_google, format_organic_results
+from scripts.seo_engine.serpapi_client import search_google, format_organic_results, fetch_ai_overview
 
 
 # SerpAPI needs full location strings. Map short client formats.
@@ -105,8 +105,23 @@ def scrape_serp(keywords, location="Poway, California, United States", max_resul
             organic_results[kw] = format_organic_results(result)
 
             # Store raw data for Phase 2 (AI Overview, PAA, Featured Snippets)
+            ai_overview_data = result.get("ai_overview")
+
+            # Two-step AI Overview: if page_token exists, fetch full AI Overview immediately
+            # Token expires in ~60 seconds, must be called before next keyword
+            if ai_overview_data and ai_overview_data.get("page_token") and client_id:
+                print(f"  [serp] AI Overview page_token found for '{kw}', fetching full overview...")
+                followup = fetch_ai_overview(ai_overview_data["page_token"], client_id)
+                if not followup.get("blocked") and not followup.get("error"):
+                    # Replace with full AI Overview data from follow-up
+                    ai_overview_data = followup.get("ai_overview", ai_overview_data)
+                    print(f"  [serp] Full AI Overview fetched for '{kw}'")
+                else:
+                    reason = followup.get("reason") or followup.get("error", "unknown")
+                    print(f"  [serp] AI Overview follow-up skipped for '{kw}': {reason}")
+
             raw_extras[kw] = {
-                "ai_overview": result.get("ai_overview"),
+                "ai_overview": ai_overview_data,
                 "related_questions": result.get("related_questions", []),
                 "answer_box": result.get("answer_box"),
             }

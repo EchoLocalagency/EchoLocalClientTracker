@@ -13,12 +13,81 @@ from .trends import pull_trends, score_trend_urgency
 from .reddit import pull_reddit_questions
 from .serp_scraper import scrape_serp
 from .news import pull_news, score_news_urgency
+from scripts.seo_engine.serpapi_client import url_matches_client, _get_supabase
 
 REPORTS_DIR = Path("/Users/brianegan/EchoLocalClientTracker/reports")
 
 
 def _cache_path(slug):
     return REPORTS_DIR / slug / "research_cache.json"
+
+
+def process_serp_features(serp_extras: dict, client_id: str, client_website: str):
+    """Extract and store SERP feature data (AI Overview, PAA, Featured Snippets) per keyword.
+
+    Inserts one row per keyword into serp_features table in Supabase.
+    Called after scrape_serp() in run_research().
+
+    Args:
+        serp_extras: Dict mapping keyword -> {ai_overview, related_questions, answer_box}
+        client_id: Supabase client UUID.
+        client_website: Client website URL for citation matching.
+    """
+    if not serp_extras or not client_id:
+        return
+
+    sb = _get_supabase()
+    success_count = 0
+    error_count = 0
+
+    for keyword, extras in serp_extras.items():
+        try:
+            ai_overview = extras.get("ai_overview") or {}
+            related_questions = extras.get("related_questions") or []
+            answer_box = extras.get("answer_box") or {}
+
+            # AI Overview detection
+            has_ai_overview = bool(ai_overview and not ai_overview.get("error"))
+
+            # Check if client is cited in AI Overview references
+            references = ai_overview.get("references", [])
+            client_cited = False
+            if has_ai_overview and references:
+                for ref in references:
+                    ref_link = ref.get("link", "")
+                    if url_matches_client(ref_link, client_website):
+                        client_cited = True
+                        break
+
+            # PAA questions
+            paa_questions = [q.get("question", "") for q in related_questions if q.get("question")]
+
+            # Featured Snippet detection
+            has_featured_snippet = bool(answer_box)
+            featured_snippet_holder = answer_box.get("link", "") if answer_box else ""
+            client_has_snippet = url_matches_client(featured_snippet_holder, client_website) if featured_snippet_holder else False
+
+            row = {
+                "client_id": client_id,
+                "keyword": keyword,
+                "has_ai_overview": has_ai_overview,
+                "client_cited_in_ai_overview": client_cited,
+                "ai_overview_references": json.dumps(references),
+                "paa_questions": json.dumps(paa_questions),
+                "paa_data": json.dumps(related_questions),
+                "has_featured_snippet": has_featured_snippet,
+                "featured_snippet_holder": featured_snippet_holder,
+                "client_has_snippet": client_has_snippet,
+            }
+
+            sb.table("serp_features").insert(row).execute()
+            success_count += 1
+
+        except Exception as e:
+            print(f"  [serp_features] Error storing features for '{keyword}': {e}")
+            error_count += 1
+
+    print(f"  [serp_features] Stored {success_count} keyword features ({error_count} errors)")
 
 
 def load_research_cache(slug):
@@ -92,6 +161,13 @@ def run_research(client_config, force=False):
             organic, serp_extras = scrape_serp(serp_keywords, location=location, client_id=client_id)
             cache["competitor_serps"] = organic
             cache["serp_extras"] = serp_extras  # AI Overview, PAA, Snippets for Phase 2
+
+            # Store SERP features (AI Overview, PAA, Snippets) in Supabase
+            try:
+                client_website = client_config.get("website", "")
+                process_serp_features(serp_extras, client_id, client_website)
+            except Exception as feat_err:
+                print(f"  [research] SERP features storage error: {feat_err}")
         except Exception as e:
             print(f"  [research] SERP error: {e}")
             cache["competitor_serps"] = {}
