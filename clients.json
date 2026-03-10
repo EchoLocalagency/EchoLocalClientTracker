@@ -43,11 +43,11 @@
       "Pacific Beach", "Ocean Beach", "Point Loma", "Coronado"
     ],
     "same_as_urls": {
-      "gbp": "",
-      "yelp": "",
+      "gbp": "https://www.google.com/maps?cid=3810638775821930387",
+      "yelp": "https://www.yelp.com/biz/integrity-pro-washers-san-diego",
       "bbb": "",
-      "facebook": "",
-      "instagram": ""
+      "facebook": "https://www.facebook.com/people/Integrity-Pro-Washers/61562202600617/",
+      "instagram": "https://www.instagram.com/integrityprowashers/"
     }
   },
   {
@@ -95,10 +95,10 @@
       "Carlsbad", "Oceanside", "Fallbrook", "Valley Center"
     ],
     "same_as_urls": {
-      "gbp": "",
-      "yelp": "",
+      "gbp": "https://www.google.com/maps?cid=5141565760909944493",
+      "yelp": "https://www.yelp.com/biz/mr-green-turf-clean-san-diego",
       "bbb": "",
-      "facebook": "",
+      "facebook": "https://www.facebook.com/Mr.GreenTurfClean/",
       "instagram": ""
     }
   },

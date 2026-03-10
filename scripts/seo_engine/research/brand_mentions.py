@@ -3,19 +3,24 @@ Brand Mention Monitor
 =====================
 Finds mentions of "Echo Local" or "echolocalagency" online that don't link back to us.
 These are free backlink opportunities -- just ask for the link.
+
+All Brave Search calls route through brave_client.py for budget tracking.
 """
 
 import os
-import time
 
 import requests
 from dotenv import load_dotenv
+from supabase import create_client
+
+from scripts.seo_engine.brave_client import search_brave
 
 load_dotenv()
-BRAVE_API_KEY = os.getenv("BRAVE_API_KEY", "")
-BRAVE_URL = "https://api.search.brave.com/res/v1/web/search"
 
 OUR_DOMAIN = "echolocalagency.com"
+
+# Echo Local's Supabase client ID for budget tracking
+ECHO_LOCAL_CLIENT_ID = "ccb14e38-cd5f-4517-a24f-3f156bcd6b9d"
 
 # Brand name variations to search for
 BRAND_QUERIES = [
@@ -36,35 +41,27 @@ SKIP_DOMAINS = [
 def find_unlinked_mentions():
     """Find pages mentioning our brand without linking to us.
 
+    Uses brave_client.search_brave() for budget-gated Brave Search calls.
+
     Returns:
         List of mention dicts with page_url, domain, context
     """
-    if not BRAVE_API_KEY:
-        print("  [brand_mentions] No BRAVE_API_KEY")
-        return []
-
-    headers = {
-        "Accept": "application/json",
-        "Accept-Encoding": "gzip",
-        "X-Subscription-Token": BRAVE_API_KEY,
-    }
-
     mentions = []
     seen_domains = set()
 
     for query in BRAND_QUERIES:
         try:
-            resp = requests.get(BRAVE_URL, headers=headers, params={
-                "q": query,
-                "count": 10,
-                "search_lang": "en",
-                "country": "US",
-            }, timeout=10)
+            data = search_brave(
+                query=query,
+                client_id=ECHO_LOCAL_CLIENT_ID,
+                count=10,
+            )
 
-            if resp.status_code != 200:
-                continue
+            # Handle budget blocks
+            if data.get("blocked"):
+                print(f"  [brand_mentions] Budget blocked: {data.get('reason', 'unknown')}")
+                break
 
-            data = resp.json()
             results = data.get("web", {}).get("results", [])
 
             for r in results:
@@ -92,8 +89,6 @@ def find_unlinked_mentions():
                     "context": f"Mentions Echo Local but no backlink",
                     "relevance_score": 8,
                 })
-
-            time.sleep(0.4)
 
         except Exception as e:
             print(f"  [brand_mentions] Error for query '{query[:30]}': {e}")
