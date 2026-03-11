@@ -1,6 +1,7 @@
 'use client';
 
 import { GeoScore, SerpFeature } from '@/lib/types';
+import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 
 interface GeoTabProps {
   geoScores: GeoScore[];
@@ -8,6 +9,7 @@ interface GeoTabProps {
   serpApiUsageCount: number;
   isAdmin: boolean;
   seoEngineEnabled: boolean;
+  geoScoreTrends: Record<string, Array<{ score: number; scored_at: string }>>;
 }
 
 const FACTOR_LABELS: Record<string, string> = {
@@ -39,7 +41,7 @@ function budgetGaugeColor(pct: number): string {
   return 'var(--success)';
 }
 
-export default function GeoTab({ geoScores, serpFeatures, serpApiUsageCount, isAdmin, seoEngineEnabled }: GeoTabProps) {
+export default function GeoTab({ geoScores, serpFeatures, serpApiUsageCount, isAdmin, seoEngineEnabled, geoScoreTrends }: GeoTabProps) {
   if (!seoEngineEnabled) {
     return (
       <div style={{
@@ -87,80 +89,112 @@ export default function GeoTab({ geoScores, serpFeatures, serpApiUsageCount, isA
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {geoScores.map((gs) => (
-              <div
-                key={gs.page_path}
-                style={{
-                  background: 'var(--bg-surface)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius-card)',
-                  padding: 20,
-                }}
-              >
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                  marginBottom: 12,
-                }}>
-                  <div>
-                    <div style={{
-                      fontSize: 15,
-                      fontWeight: 600,
-                      color: 'var(--text-primary)',
-                    }}>
-                      {gs.page_path}
+            {geoScores.map((gs) => {
+              const trendData = geoScoreTrends[gs.page_path];
+              const hasSparkline = trendData && trendData.length >= 2;
+              return (
+                <div
+                  key={gs.page_path}
+                  style={{
+                    background: 'var(--bg-surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-card)',
+                    padding: 20,
+                  }}
+                >
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    marginBottom: 12,
+                  }}>
+                    {/* Left side: page info + score */}
+                    <div style={{ flex: 1 }}>
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                      }}>
+                        <div>
+                          <div style={{
+                            fontSize: 15,
+                            fontWeight: 600,
+                            color: 'var(--text-primary)',
+                          }}>
+                            {gs.page_path}
+                          </div>
+                          <div style={{
+                            fontSize: 11,
+                            color: 'var(--text-secondary)',
+                            marginTop: 2,
+                          }}>
+                            {new Date(gs.scored_at).toLocaleDateString()}
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
+                          <span style={{
+                            fontSize: 28,
+                            fontWeight: 700,
+                            color: geoScoreColor(gs.score),
+                            fontFamily: 'var(--font-mono)',
+                          }}>
+                            {gs.score}
+                          </span>
+                          <span style={{
+                            fontSize: 14,
+                            color: 'var(--text-secondary)',
+                            fontWeight: 400,
+                          }}>
+                            /5
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div style={{
-                      fontSize: 11,
-                      color: 'var(--text-secondary)',
-                      marginTop: 2,
-                    }}>
-                      {new Date(gs.scored_at).toLocaleDateString()}
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
-                    <span style={{
-                      fontSize: 28,
-                      fontWeight: 700,
-                      color: geoScoreColor(gs.score),
-                      fontFamily: 'var(--font-mono)',
-                    }}>
-                      {gs.score}
-                    </span>
-                    <span style={{
-                      fontSize: 14,
-                      color: 'var(--text-secondary)',
-                      fontWeight: 400,
-                    }}>
-                      /5
-                    </span>
-                  </div>
-                </div>
 
-                {/* Factor pills */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {Object.entries(gs.factors).map(([key, value]) => (
-                    <span
-                      key={key}
-                      style={{
-                        display: 'inline-block',
-                        padding: '4px 10px',
-                        borderRadius: 20,
-                        fontSize: 12,
-                        fontWeight: 500,
-                        color: value === 1 ? 'var(--success)' : 'var(--danger)',
-                        background: value === 1
-                          ? 'rgba(16,185,129,0.1)'
-                          : 'rgba(255,61,87,0.1)',
-                      }}
-                    >
-                      {FACTOR_LABELS[key] || key}
-                    </span>
-                  ))}
+                    {/* Right side: sparkline */}
+                    {hasSparkline && (
+                      <div style={{ width: 120, height: 40, marginLeft: 16, flexShrink: 0 }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart data={trendData}>
+                            <Area
+                              type="monotone"
+                              dataKey="score"
+                              stroke="var(--accent)"
+                              fill="rgba(6,182,212,0.1)"
+                              strokeWidth={1.5}
+                              dot={false}
+                              isAnimationActive={false}
+                            />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Factor pills */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {Object.entries(gs.factors).map(([key, value]) => (
+                      <span
+                        key={key}
+                        style={{
+                          display: 'inline-block',
+                          padding: '4px 10px',
+                          borderRadius: 20,
+                          fontSize: 12,
+                          fontWeight: 500,
+                          color: value === 1 ? 'var(--success)' : 'var(--danger)',
+                          background: value === 1
+                            ? 'rgba(16,185,129,0.1)'
+                            : 'rgba(255,61,87,0.1)',
+                        }}
+                      >
+                        {FACTOR_LABELS[key] || key}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>

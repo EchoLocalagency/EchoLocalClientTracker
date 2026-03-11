@@ -32,6 +32,7 @@ export default function Dashboard() {
   const [geoScores, setGeoScores] = useState<GeoScore[]>([]);
   const [serpFeatures, setSerpFeatures] = useState<SerpFeature[]>([]);
   const [serpApiUsageCount, setSerpApiUsageCount] = useState<number>(0);
+  const [geoScoreTrends, setGeoScoreTrends] = useState<Record<string, Array<{ score: number; scored_at: string }>>>({});
   const [loading, setLoading] = useState(true);
 
   const filteredReports = useFilteredReports(reports, timeRange);
@@ -225,6 +226,7 @@ export default function Dashboard() {
       setGeoScores([]);
       setSerpFeatures([]);
       setSerpApiUsageCount(0);
+      setGeoScoreTrends({});
       return;
     }
 
@@ -232,6 +234,7 @@ export default function Dashboard() {
       setGeoScores([]);
       setSerpFeatures([]);
       setSerpApiUsageCount(0);
+      setGeoScoreTrends({});
       return;
     }
 
@@ -297,9 +300,30 @@ export default function Dashboard() {
       }
     }
 
+    async function loadGeoScoreTrends() {
+      const { data: allScores, error } = await supabase
+        .from('geo_scores')
+        .select('page_path, score, scored_at')
+        .eq('client_id', activeClient!.id)
+        .order('scored_at', { ascending: true });
+
+      if (error) {
+        console.error('GEO trends fetch error:', error);
+        setGeoScoreTrends({});
+      } else {
+        const trends: Record<string, Array<{ score: number; scored_at: string }>> = {};
+        for (const row of (allScores || [])) {
+          if (!trends[row.page_path]) trends[row.page_path] = [];
+          trends[row.page_path].push({ score: row.score, scored_at: row.scored_at });
+        }
+        setGeoScoreTrends(trends);
+      }
+    }
+
     loadGeoScores();
     loadSerpFeatures();
     loadSerpApiUsage();
+    loadGeoScoreTrends();
   }, [activeClient]);
 
   const hasFormTracking = reports.some(r => r.ga4_form_submits != null && r.ga4_form_submits > 0);
@@ -433,6 +457,7 @@ export default function Dashboard() {
                   serpApiUsageCount={serpApiUsageCount}
                   isAdmin={isAdmin}
                   seoEngineEnabled={activeClient?.seo_engine_enabled ?? false}
+                  geoScoreTrends={geoScoreTrends}
                 />
               )}
             </>
