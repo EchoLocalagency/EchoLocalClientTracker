@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Mention Tracking + GEO Dashboard
-status: unknown
-last_updated: "2026-03-11T02:05:42.025Z"
+status: in-progress
+last_updated: "2026-03-11T02:22:00Z"
 progress:
   total_phases: 1
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 3
+  completed_plans: 3
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** The brain knows which pages are citation-ready and which aren't, and prioritizes making uncitable content citable.
-**Current focus:** v1.1 Mention Tracking + GEO Dashboard -- Phase 5 complete, ready for Phase 6
+**Current focus:** v1.1 Mention Tracking + GEO Dashboard -- Phase 6 Plan 01 complete
 
 ## Current Position
 
 Phase: 6 of 7 (GEO Dashboard)
-Plan: 1 of 1
-Status: Ready
-Last activity: 2026-03-11 -- Completed 05-02 (Mention tracking + competitor AIO)
+Plan: 1 of 1 (COMPLETE)
+Status: Phase 6 complete
+Last activity: 2026-03-11 -- Completed 06-01 (GEO data layer + tab scaffold)
 
-Progress: [#####░░░░░] 50%
+Progress: [######░░░░] 60%
 
 ## Performance Metrics
 
@@ -50,6 +50,8 @@ Recent:
 - Reddit mining uses Brave site:reddit.com queries (no Reddit API dependency)
 - Mention tracking searches 8 platforms via Brave (Yelp, BBB, HomeAdvisor, Thumbtack, Angi, Nextdoor, reviews, forums)
 - Competitor AIO citations parsed from existing serp_features data (zero API cost)
+- GEO tab visible to all users (not admin-gated) per DASH-01 requirement
+- serpapi_usage budget query is global (no client_id filter) matching Python behavior
 
 ### Pending Todos
 
@@ -63,5 +65,5 @@ Recent:
 ## Session Continuity
 
 Last session: 2026-03-11
-Stopped at: Completed 05-02-PLAN.md (Phase 5 complete)
+Stopped at: Completed 06-01-PLAN.md (GEO data layer + tab scaffold)
 Resume file: None

@@ -56,7 +56,7 @@ Plans:
   2. Each tracked keyword shows AI Overview citation status (cited / not cited / no AI Overview) in the dashboard
   3. SerpAPI budget gauge shows searches used vs remaining this month, updating after each engine run
   4. Featured Snippet ownership is displayed per keyword showing whether the client or a competitor holds it
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 06-01-PLAN.md -- Data layer + GEO tab scaffold (types, data fetching, score display + factor breakdown)
@@ -88,5 +88,5 @@ Phases 5 and 6 can run in parallel (different layers: Python backend vs Next.js 
 | 3. Brain Integration + Content Upgrades | v1.0 | 2/2 | Complete | 2026-03-10 |
 | 4. Entity + Authority Building | v1.0 | 2/2 | Complete | 2026-03-10 |
 | 5. Brave Infra + Mention Tracking + Tech Debt | v1.1 | 0/2 | Planning complete | - |
-| 6. GEO Dashboard (Existing Data) | v1.1 | 0/2 | Planning complete | - |
+| 6. GEO Dashboard (Existing Data) | 1/2 | In Progress|  | - |
 | 7. Trends + Source Diversity | v1.1 | 0/TBD | Not started | - |

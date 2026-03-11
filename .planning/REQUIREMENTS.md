@@ -19,7 +19,7 @@
 
 ### GEO Dashboard
 
-- [ ] **DASH-01**: GEO scores visible per page in Next.js dashboard with missing factors and score trend
+- [x] **DASH-01**: GEO scores visible per page in Next.js dashboard with missing factors and score trend
 - [ ] **DASH-02**: AI Overview citation status per keyword (cited / not cited / no AI Overview)
 - [ ] **DASH-03**: AI Overview citation trends charted as weekly snapshots over time
 - [ ] **DASH-04**: Source diversity visualization showing which platforms mention the client
@@ -65,7 +65,7 @@
 | MENT-02 | Phase 5 | Complete |
 | MENT-03 | Phase 7 | Pending |
 | MENT-04 | Phase 5 | Complete |
-| DASH-01 | Phase 6 | Pending |
+| DASH-01 | Phase 6 | Complete |
 | DASH-02 | Phase 6 | Pending |
 | DASH-03 | Phase 7 | Pending |
 | DASH-04 | Phase 7 | Pending |
