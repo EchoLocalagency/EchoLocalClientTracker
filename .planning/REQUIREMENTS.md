@@ -14,7 +14,7 @@
 
 - [x] **MENT-01**: Reddit question mining via Brave Search `site:reddit.com` returns relevant local service questions per client niche
 - [x] **MENT-02**: Cross-platform mention tracking finds client mentions across directories, forums, and review sites
-- [ ] **MENT-03**: Each client has a source diversity score showing how many platform types mention the business
+- [x] **MENT-03**: Each client has a source diversity score showing how many platform types mention the business
 - [x] **MENT-04**: Competitor AI Overview citations tracked for target keywords (reuses existing SERP data, zero additional API calls)
 
 ### GEO Dashboard
@@ -22,7 +22,7 @@
 - [x] **DASH-01**: GEO scores visible per page in Next.js dashboard with missing factors and score trend
 - [x] **DASH-02**: AI Overview citation status per keyword (cited / not cited / no AI Overview)
 - [x] **DASH-03**: AI Overview citation trends charted as weekly snapshots over time
-- [ ] **DASH-04**: Source diversity visualization showing which platforms mention the client
+- [x] **DASH-04**: Source diversity visualization showing which platforms mention the client
 - [x] **DASH-05**: SerpAPI budget usage indicator (searches used vs remaining this month)
 - [x] **DASH-06**: Featured Snippet ownership displayed per keyword (client vs competitor)
 
@@ -63,12 +63,12 @@
 | INFRA-02 | Phase 5 | Complete |
 | MENT-01 | Phase 5 | Complete |
 | MENT-02 | Phase 5 | Complete |
-| MENT-03 | Phase 7 | Pending |
+| MENT-03 | Phase 7 | Complete |
 | MENT-04 | Phase 5 | Complete |
 | DASH-01 | Phase 6 | Complete |
 | DASH-02 | Phase 6 | Complete |
 | DASH-03 | Phase 7 | Complete |
-| DASH-04 | Phase 7 | Pending |
+| DASH-04 | Phase 7 | Complete |
 | DASH-05 | Phase 6 | Complete |
 | DASH-06 | Phase 6 | Complete |
 | DEBT-01 | Phase 5 | Complete |

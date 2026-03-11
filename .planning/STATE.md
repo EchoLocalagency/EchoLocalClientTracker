@@ -56,6 +56,8 @@ Recent:
 - Trend data fetched separately from deduped scores for full sparkline history
 - Set-based dedup per week bucket for unique keyword counts in citation trends
 - Separate serp_features query for trends (all rows, 90-day) vs status table (latest-per-keyword)
+- Source diversity computed client-side from mentions data (no new Supabase tables)
+- Platform-to-category mapping with fallback to mention_type for unknown platforms
 
 ### Pending Todos
 
@@ -69,5 +71,5 @@ Recent:
 ## Session Continuity
 
 Last session: 2026-03-11
-Stopped at: Completed 07-01-PLAN.md (weekly AIO citation trend charts)
+Stopped at: Completed 07-02-PLAN.md (source diversity scoring and visualization)
 Resume file: None
