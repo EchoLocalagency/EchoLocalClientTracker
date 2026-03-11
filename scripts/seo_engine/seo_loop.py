@@ -437,9 +437,12 @@ def _execute_action(action, client, website_path, dry_run):
 
     elif action_type == "location_page":
         from .actions.location_pages import create_location_page
+        # Sanitize slug: brain sometimes includes path prefixes
+        loc_slug = action.get("slug", "").replace("areas/", "").replace(".html", "").strip("/")
+        action["slug"] = loc_slug
         return create_location_page(
             city=action.get("city", ""),
-            slug=action.get("slug", ""),
+            slug=loc_slug,
             title=action.get("title", ""),
             meta_description=action.get("meta_description", ""),
             body_content=action.get("body_content", ""),

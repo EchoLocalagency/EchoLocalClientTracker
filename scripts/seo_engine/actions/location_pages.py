@@ -45,6 +45,9 @@ def create_location_page(city, slug, title, meta_description, body_content,
     Returns:
         dict with file_path and commit_sha (if live)
     """
+    # Sanitize slug: brain sometimes includes path prefixes like "areas/"
+    slug = slug.replace("areas/", "").replace(".html", "").strip("/")
+
     website_path = Path(website_path)
     areas_dir = website_path / "areas"
     areas_dir.mkdir(exist_ok=True)
