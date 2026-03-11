@@ -114,6 +114,7 @@ export default function Dashboard() {
     }
 
     async function loadQueries() {
+      // Try latest report first, then fall back to most recent report with queries
       const { data, error } = await supabase
         .from('gsc_queries')
         .select('*')
@@ -123,8 +124,30 @@ export default function Dashboard() {
       if (error) {
         console.error('Queries fetch error:', error);
         setQueries([]);
+      } else if (data && data.length > 0) {
+        setQueries(data);
       } else {
-        setQueries(data || []);
+        // Latest report has no queries -- find the most recent report that does
+        const fallbackIds = reports
+          .filter((r) => r.id !== latestReport!.id)
+          .slice(-5)
+          .map((r) => r.id);
+        if (fallbackIds.length > 0) {
+          const { data: fallback } = await supabase
+            .from('gsc_queries')
+            .select('*')
+            .in('report_id', fallbackIds)
+            .order('run_date', { ascending: false });
+          if (fallback && fallback.length > 0) {
+            // Keep only the latest run_date's queries
+            const latestDate = fallback[0].run_date;
+            setQueries(fallback.filter((q) => q.run_date === latestDate));
+          } else {
+            setQueries([]);
+          }
+        } else {
+          setQueries([]);
+        }
       }
     }
 
