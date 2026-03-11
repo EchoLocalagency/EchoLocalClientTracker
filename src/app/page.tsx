@@ -560,7 +560,7 @@ export default function Dashboard() {
                 <OverviewTab reports={filteredReports} latestReport={latestReport} allReports={reports} queries={queries} />
               )}
               {activeTab === 'seo' && (
-                <SeoTab reports={filteredReports} queries={queries} latestReport={latestReport} prevQueries={prevQueries} clientId={activeClient?.id} clientName={activeClient?.name} trackedKeywords={trackedKeywords} keywordSnapshots={keywordSnapshots} />
+                <SeoTab reports={filteredReports} queries={queries} latestReport={latestReport} prevQueries={prevQueries} clientId={activeClient?.id} clientName={activeClient?.name} />
               )}
               {activeTab === 'conversions' && (
                 <ConversionsTab reports={filteredReports} latestReport={latestReport} hasFormTracking={hasFormTracking} />
