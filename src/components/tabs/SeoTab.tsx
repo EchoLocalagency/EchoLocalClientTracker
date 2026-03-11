@@ -80,8 +80,20 @@ function SourceBadge({ source }: { source: string }) {
   );
 }
 
-function PositionCell({ position }: { position: number | null }) {
+function PositionCell({ position, hasData = true }: { position: number | null; hasData?: boolean }) {
   if (position == null) {
+    if (!hasData) {
+      return (
+        <span style={{
+          fontFamily: 'var(--font-mono)',
+          color: 'var(--text-secondary)',
+          fontSize: 11,
+          opacity: 0.6,
+        }}>
+          Pending
+        </span>
+      );
+    }
     return (
       <span style={{
         fontFamily: 'var(--font-mono)',
@@ -111,6 +123,7 @@ interface ProcessedKeyword {
   keyword: string;
   latestPosition: number | null;
   latestSource: string;
+  hasData: boolean; // true if at least one snapshot exists
   change: number | null;
   impressions: number;
   clicks: number;
@@ -179,6 +192,7 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
         keyword: tk.keyword,
         latestPosition: latest?.position ?? null,
         latestSource: latest?.source ?? 'gsc',
+        hasData: sorted.length > 0,
         change,
         impressions: totalImpressions,
         clicks: totalClicks,
@@ -438,7 +452,7 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
                           )}
                         </div>
                         <div style={{ textAlign: 'right' }}>
-                          <PositionCell position={kw.latestPosition} />
+                          <PositionCell position={kw.latestPosition} hasData={kw.hasData} />
                         </div>
                         <div style={{ textAlign: 'right', fontFamily: 'var(--font-mono)', fontSize: 12 }}>
                           {kw.change != null ? (
@@ -457,7 +471,7 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
                         <div style={{ textAlign: 'right', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>{kw.impressions.toLocaleString()}</div>
                         <div style={{ textAlign: 'right', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>{kw.clicks.toLocaleString()}</div>
                         <div style={{ textAlign: 'center' }}>
-                          <SourceBadge source={kw.latestSource} />
+                          {kw.hasData ? <SourceBadge source={kw.latestSource} /> : <span style={{ fontSize: 10, color: 'var(--text-secondary)', opacity: 0.5 }}>--</span>}
                         </div>
                       </div>
 
