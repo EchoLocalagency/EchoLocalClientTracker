@@ -155,6 +155,61 @@ def compute_impact_score(action_id):
     }).eq("id", action_id).execute()
 
 
+# ── Directory Coverage ─────────────────────────────────────────────────
+
+def get_directory_summary(client_id, client_trades=None):
+    """Return submitted/verified/total_eligible counts for brain context.
+
+    Non-fatal: returns zeros on any error so it never blocks the brain.
+    """
+    try:
+        sb = _get_sb()
+
+        # Submitted count (includes submitted, approved, verified)
+        sub_resp = (
+            sb.table("submissions")
+            .select("id", count="exact")
+            .eq("client_id", client_id)
+            .in_("status", ["submitted", "approved", "verified"])
+            .execute()
+        )
+        submitted = sub_resp.count or 0
+
+        # Verified count
+        ver_resp = (
+            sb.table("submissions")
+            .select("id", count="exact")
+            .eq("client_id", client_id)
+            .eq("status", "verified")
+            .execute()
+        )
+        verified = ver_resp.count or 0
+
+        # Total eligible directories
+        dir_resp = (
+            sb.table("directories")
+            .select("id, trades", count="exact")
+            .eq("enabled", True)
+            .execute()
+        )
+        if client_trades:
+            # Count directories whose trades overlap with client_trades or have empty trades
+            client_trade_set = set(client_trades)
+            total_eligible = 0
+            for d in (dir_resp.data or []):
+                dir_trades = d.get("trades") or []
+                if not dir_trades or client_trade_set & set(dir_trades):
+                    total_eligible += 1
+        else:
+            total_eligible = dir_resp.count or 0
+
+        return {"submitted": submitted, "verified": verified, "total_eligible": total_eligible}
+
+    except Exception as e:
+        print(f"  [outcome_logger] get_directory_summary failed: {e}")
+        return {"submitted": 0, "verified": 0, "total_eligible": 0}
+
+
 # ── History & Patterns ─────────────────────────────────────────────────
 
 def get_action_history(client_id, days=90):

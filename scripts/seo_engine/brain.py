@@ -40,7 +40,8 @@ def _build_prompt(client_config, performance_data, keyword_rankings,
                   gbp_candidates=None, service_areas=None,
                   existing_area_pages=None, keyword_opportunities=None,
                   aeo_opportunities=None, geo_scores=None,
-                  serp_features=None, paa_gaps=None):
+                  serp_features=None, paa_gaps=None,
+                  directory_summary=None):
     """Build the full prompt string for Claude."""
 
     name = client_config["name"]
@@ -401,6 +402,16 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
             prompt += geo_section
             prompt += "\n"
 
+    # ── Section 19: Directory coverage ──
+    if directory_summary:
+        submitted = directory_summary.get("submitted", 0)
+        verified = directory_summary.get("verified", 0)
+        total = directory_summary.get("total_eligible", 0)
+        prompt += "DIRECTORY COVERAGE:\n"
+        prompt += f"  {submitted}/{total} directories submitted | {verified}/{submitted if submitted else total} verified live\n"
+        prompt += "  Do NOT propose directory_submission actions -- that is handled by submission_engine.py separately.\n"
+        prompt += "\n"
+
     # ── Section 13: Rules ──
     prompt += """RULES (follow exactly):
 1. Return ONLY a JSON array of action objects. No other text.
@@ -537,7 +548,8 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
                cluster_gaps=None, gbp_candidates=None, service_areas=None,
                existing_area_pages=None, keyword_opportunities=None,
                aeo_opportunities=None, geo_scores=None,
-               serp_features=None, paa_gaps=None, dry_run=True):
+               serp_features=None, paa_gaps=None,
+               directory_summary=None, dry_run=True):
     """Build prompt, call claude -p, parse response, return actions."""
 
     prompt = _build_prompt(
@@ -547,6 +559,7 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
         schema_audit, clusters, cluster_gaps, gbp_candidates,
         service_areas, existing_area_pages, keyword_opportunities,
         aeo_opportunities, geo_scores, serp_features, paa_gaps,
+        directory_summary,
     )
 
     print(f"  [brain] Prompt built ({len(prompt)} chars). Calling Claude...")

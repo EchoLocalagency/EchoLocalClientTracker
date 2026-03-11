@@ -14,6 +14,7 @@ Usage:
 import argparse
 import json
 import sys
+import time
 from datetime import date
 from pathlib import Path
 
@@ -50,13 +51,24 @@ WEEKLY_LIMITS = {
 ELIGIBLE_SLUGS = {"mr-green-turf-clean", "integrity-pro-washers"}
 
 
-def get_client_id(slug):
-    """Look up Supabase client ID by slug."""
-    sb = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
-    resp = sb.table("clients").select("id").eq("slug", slug).execute()
-    if resp.data:
-        return resp.data[0]["id"]
-    return None
+def get_client_id(slug, retries=3, delay=10):
+    """Look up Supabase client ID by slug. Retries on transient network errors."""
+    for attempt in range(retries):
+        try:
+            sb = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
+            resp = sb.table("clients").select("id").eq("slug", slug).execute()
+            if resp.data:
+                return resp.data[0]["id"]
+            return None
+        except Exception as e:
+            if attempt < retries - 1:
+                print(f"  [retry] Supabase connection failed (attempt {attempt + 1}/{retries}): {e}")
+                print(f"  [retry] Waiting {delay}s before retry...")
+                time.sleep(delay)
+                delay *= 2  # exponential backoff
+            else:
+                print(f"  [FATAL] Supabase connection failed after {retries} attempts: {e}")
+                raise
 
 
 def run_client(client, dry_run=True):
@@ -303,6 +315,17 @@ def run_client(client, dry_run=True):
         if areas_dir.exists():
             existing_area_pages = [f.stem for f in areas_dir.glob("*.html")]
 
+    # Directory submission coverage for brain context
+    directory_summary = None
+    try:
+        from .outcome_logger import get_directory_summary
+        directory_summary = get_directory_summary(client_id)
+        ds_sub = directory_summary.get("submitted", 0)
+        ds_total = directory_summary.get("total_eligible", 0)
+        print(f"  Directory coverage: {ds_sub}/{ds_total} submitted")
+    except Exception as e:
+        print(f"  Directory summary failed (non-fatal): {e}")
+
     actions = call_brain(
         client_config=client,
         performance_data=perf_data,
@@ -327,6 +350,7 @@ def run_client(client, dry_run=True):
         geo_scores=geo_scores_data,
         serp_features=serp_features_data,
         paa_gaps=paa_gaps,
+        directory_summary=directory_summary,
         dry_run=dry_run,
     )
 
