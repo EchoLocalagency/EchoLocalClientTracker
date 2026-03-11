@@ -84,7 +84,7 @@ Plans:
   4. Submissions still unverified after 21 days are marked needs_review for manual investigation, clearly separated from active pending submissions
 **Plans:** 1/1 plans complete
 Plans:
-- [ ] 10-01-PLAN.md -- Verification script with Brave Search site: checking, status updates, 14/21-day escalation, and dry-run validation
+- [x] 10-01-PLAN.md -- Verification script with Brave Search site: checking, status updates, 14/21-day escalation, and dry-run validation
 
 ### Phase 11: Brain Integration
 **Goal**: The brain sees current directory coverage per client and all submissions appear in the action log so the brain never duplicates or conflicts with automation work
@@ -93,7 +93,9 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. The brain prompt for each client includes a directory_summary section showing X/Y submitted and X/Y verified counts, so the brain knows current coverage without querying separately
   2. Every directory submission appears in the seo_actions table with action_type='directory_submission', visible in the same action log the brain already reads
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 11-01-PLAN.md -- Add get_directory_summary() to outcome_logger, wire into brain prompt, log submissions to seo_actions
 
 ### Phase 12: Directory Dashboard
 **Goal**: Brian and clients can see directory submission status, tier progress, actionable Tier 1/2 recommendations, and backlink portfolio value in the dashboard without writing SQL
@@ -122,6 +124,6 @@ Phases 8-12 execute sequentially. Phase 11 can start after Phase 9 (does not nee
 | 7. Trends + Source Diversity | v1.1 | 2/2 | Complete | 2026-03-11 |
 | 8. Data Foundation + Discovery | v1.2 | 3/3 | Complete | 2026-03-11 |
 | 9. Submission Engine | v1.2 | 2/2 | Complete | 2026-03-11 |
-| 10. Verification Loop | 1/1 | Complete    | 2026-03-11 | - |
-| 11. Brain Integration | v1.2 | 0/? | Not started | - |
+| 10. Verification Loop | v1.2 | 1/1 | Complete | 2026-03-11 |
+| 11. Brain Integration | v1.2 | 0/1 | Not started | - |
 | 12. Directory Dashboard | v1.2 | 0/? | Not started | - |
