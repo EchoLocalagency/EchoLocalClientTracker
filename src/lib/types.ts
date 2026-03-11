@@ -163,3 +163,60 @@ export interface Mention {
   title: string;
   source_url: string;
 }
+
+// Directory Submission System types
+
+export interface ClientProfile {
+  id: string;
+  client_id: string;
+  business_name: string;
+  phone: string | null;
+  address_street: string | null;
+  address_city: string | null;
+  address_state: string | null;
+  address_zip: string | null;
+  email: string | null;
+  website: string | null;
+  description: string | null;
+  short_description: string | null;
+  services: string[];
+  certifications: string[];
+  payment_methods: string[];
+  hours: Record<string, string>;
+  social_links: Record<string, string>;
+  year_established: number | null;
+  logo_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Directory {
+  id: string;
+  name: string;
+  domain: string;
+  submission_url: string | null;
+  tier: number;
+  trades: string[];
+  submission_method: string;
+  captcha_status: string;
+  captcha_checked_at: string | null;
+  da_score: number | null;
+  enabled: boolean;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Submission {
+  id: string;
+  client_id: string;
+  directory_id: string;
+  status: string;
+  live_url: string | null;
+  submitted_at: string | null;
+  verified_at: string | null;
+  notes: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
