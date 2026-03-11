@@ -1,85 +1,107 @@
-# Requirements: GEO Module v1.1
+# Requirements: Directory Submission & Tracking System (v1.2)
 
 **Defined:** 2026-03-10
-**Core Value:** The brain knows which pages are citation-ready and which aren't, and prioritizes making uncitable content citable -- because AI search is where discovery is shifting.
+**Core Value:** Each client gains 20-30 new backlinks from niche directories GHL/Yext misses, tracked and verified automatically.
 
-## v1.1 Requirements
+## v1.2 Requirements
 
-### Infrastructure
+### Data Foundation
 
-- [x] **INFRA-01**: Brave Search client with budget gating, rate limiting, and usage tracking (mirrors serpapi_client.py pattern)
-- [x] **INFRA-02**: Brave Search usage stored in Supabase with monthly caps
+- [ ] **DATA-01**: Client profiles stored in Supabase with canonical NAP, services, descriptions, certifications, and hours -- one source of truth for all form fills
+- [ ] **DATA-02**: Directory master list seeded in Supabase from research doc with tier, trade, submission method, CAPTCHA status, DA score, and URL for all 55 directories
+- [ ] **DATA-03**: Submission tracking table with UNIQUE(client_id, directory_id) constraint and status workflow: pending / submitted / approved / rejected / verified / skipped
+- [ ] **DATA-04**: Pre-existing listing discovery searches each target directory for client business name + phone before any submission to avoid duplicates
+- [ ] **DATA-05**: CAPTCHA audit categorizes every directory form URL as no_captcha / simple_captcha / advanced_captcha to determine automation eligibility
 
-### Mention Tracking
+### Submission Engine
 
-- [x] **MENT-01**: Reddit question mining via Brave Search `site:reddit.com` returns relevant local service questions per client niche
-- [x] **MENT-02**: Cross-platform mention tracking finds client mentions across directories, forums, and review sites
-- [x] **MENT-03**: Each client has a source diversity score showing how many platform types mention the business
-- [x] **MENT-04**: Competitor AI Overview citations tracked for target keywords (reuses existing SERP data, zero additional API calls)
+- [ ] **SUB-01**: Playwright auto-submits client profiles to Tier 3 no-CAPTCHA directories with human-like typing delays and playwright-stealth anti-detection
+- [ ] **SUB-02**: Submission rate limiter enforces max 5 submissions per client per day and 8 per client per week as hard caps
+- [ ] **SUB-03**: Submission state machine tracks form_loaded / form_filled / post_sent stages so failures after POST never trigger re-submission
+- [ ] **SUB-04**: NAP consistency audit runs before each submission to verify form data matches canonical client profile exactly
+- [ ] **SUB-05**: Failed submissions store screenshot and error details for debugging, marked as failed (not retried automatically)
 
-### GEO Dashboard
+### Verification Loop
 
-- [x] **DASH-01**: GEO scores visible per page in Next.js dashboard with missing factors and score trend
-- [x] **DASH-02**: AI Overview citation status per keyword (cited / not cited / no AI Overview)
-- [x] **DASH-03**: AI Overview citation trends charted as weekly snapshots over time
-- [x] **DASH-04**: Source diversity visualization showing which platforms mention the client
-- [x] **DASH-05**: SerpAPI budget usage indicator (searches used vs remaining this month)
-- [x] **DASH-06**: Featured Snippet ownership displayed per keyword (client vs competitor)
+- [ ] **VER-01**: Brave Search site: query checks each submitted directory for client listing presence after 7 days
+- [ ] **VER-02**: Verified listings update submission status to verified with live URL stored
+- [ ] **VER-03**: Unverified submissions after 14 days trigger alert to Brian with directory name and client
+- [ ] **VER-04**: Submissions unverified after 21 days marked as needs_review for manual investigation
 
-### Tech Debt
+### Brain Integration
 
-- [x] **DEBT-01**: Fix content_validator.py capsule word count range (50-150 -> 40-60)
-- [x] **DEBT-02**: Wire inject_organization_on_all_pages() into runtime or remove
-- [x] **DEBT-03**: Populate same_as_urls in clients.json for all active clients
+- [ ] **BRAIN-01**: Brain prompt includes directory_summary section showing current coverage per client (X/Y submitted, X/Y verified)
+- [ ] **BRAIN-02**: Directory submissions logged to seo_actions table with action_type='directory_submission' for full brain visibility
 
-## Future Requirements
+### Dashboard
 
-### Notifications
+- [ ] **DASH-01**: Directories tab in dashboard shows per-client directory status grid with color-coded badges (verified=green, submitted=yellow, pending=grey, rejected=red, skipped=muted)
+- [ ] **DASH-02**: Tier progress bars show X/Y submitted and X/Y verified per tier per client
+- [ ] **DASH-03**: Tier 1/2 directories displayed as actionable recommendation checklist requiring client input (not automated)
+- [ ] **DASH-04**: Backlink value score per client calculated as DA-weighted sum of verified directory listings
 
-- **NOTF-01**: Brain alerts when a client loses an AI Overview citation
-- **NOTF-02**: Weekly GEO summary email to Brian
+## v1.1 Requirements (Complete)
+
+All v1.1 requirements shipped. See milestones archive for details.
+
+- INFRA-01, INFRA-02: Brave Search client + usage tracking
+- MENT-01 through MENT-04: Mention tracking + source diversity + competitor AIO
+- DASH-01 through DASH-06 (v1.1): GEO dashboard, citations, budget, snippets
+- DEBT-01 through DEBT-03: Tech debt resolved
+
+## v1.3 Requirements (Deferred)
+
+### Email Verification
+
+- **EMAIL-01**: Confirmation email processing via Gmail API for directories requiring email verification
+- **EMAIL-02**: Automated link-clicking in confirmation emails via Playwright
 
 ### Advanced Tracking
 
-- **ADVT-01**: Perplexity API citation tracking (when API matures)
-- **ADVT-02**: ChatGPT citation tracking (when public API available)
+- **ADV-01**: Sentiment/review tracking on directory listings
+- **ADV-02**: Competitor directory presence comparison
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Perplexity API integration | Unreliable for citation tracking, revisit when API improves |
-| ChatGPT citation tracking | No public API, results inconsistent |
-| Reddit/Quora answer posting | ToS violation, ban risk |
-| Real-time dashboard updates | Would burn API budgets; daily refresh sufficient |
-| Multi-language GEO | English only, current client base |
-| YouTube transcript optimization | No YouTube presence for current clients |
+| Auto-submit to Tier 1/2 directories | Reputation risk -- requires real business relationships and certifications |
+| CAPTCHA solving services | Adversarial, wasteful on free directory listings |
+| Parallel browser farm | Infrastructure complexity for under 1-hour sequential runtime |
+| Mass submission to DA < 10 directories | Pre-2015 spam pattern, harms rather than helps SEO |
+| Real-time submission status updates | Polling waste; batch verification at 7-day intervals is sufficient |
+| Confirmation email processing | HIGH complexity, defer to v1.3 after seeing which directories require it |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 5 | Complete |
-| INFRA-02 | Phase 5 | Complete |
-| MENT-01 | Phase 5 | Complete |
-| MENT-02 | Phase 5 | Complete |
-| MENT-03 | Phase 7 | Complete |
-| MENT-04 | Phase 5 | Complete |
-| DASH-01 | Phase 6 | Complete |
-| DASH-02 | Phase 6 | Complete |
-| DASH-03 | Phase 7 | Complete |
-| DASH-04 | Phase 7 | Complete |
-| DASH-05 | Phase 6 | Complete |
-| DASH-06 | Phase 6 | Complete |
-| DEBT-01 | Phase 5 | Complete |
-| DEBT-02 | Phase 5 | Complete |
-| DEBT-03 | Phase 5 | Complete |
+| DATA-01 | - | Pending |
+| DATA-02 | - | Pending |
+| DATA-03 | - | Pending |
+| DATA-04 | - | Pending |
+| DATA-05 | - | Pending |
+| SUB-01 | - | Pending |
+| SUB-02 | - | Pending |
+| SUB-03 | - | Pending |
+| SUB-04 | - | Pending |
+| SUB-05 | - | Pending |
+| VER-01 | - | Pending |
+| VER-02 | - | Pending |
+| VER-03 | - | Pending |
+| VER-04 | - | Pending |
+| BRAIN-01 | - | Pending |
+| BRAIN-02 | - | Pending |
+| DASH-01 | - | Pending |
+| DASH-02 | - | Pending |
+| DASH-03 | - | Pending |
+| DASH-04 | - | Pending |
 
 **Coverage:**
-- v1.1 requirements: 15 total
-- Mapped to phases: 15
-- Unmapped: 0
+- v1.2 requirements: 20 total
+- Mapped to phases: 0
+- Unmapped: 20
 
 ---
 *Requirements defined: 2026-03-10*
-*Last updated: 2026-03-10 after roadmap creation*
+*Last updated: 2026-03-10 after initial definition*
