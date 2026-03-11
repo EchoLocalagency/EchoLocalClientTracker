@@ -49,12 +49,18 @@ const filterBtnBase: React.CSSProperties = {
   transition: 'all 0.15s ease',
 };
 
-export default function DirectoryManager() {
+interface DirectoryManagerProps {
+  /** When provided, enables "Relevant" filter that shows only directories matching these trades + universal ones */
+  clientTrades?: string[];
+}
+
+export default function DirectoryManager({ clientTrades }: DirectoryManagerProps) {
   const [directories, setDirectories] = useState<Directory[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [tierFilter, setTierFilter] = useState<number | null>(null);
   const [captchaFilter, setCaptchaFilter] = useState<string | null>(null);
+  const [tradeFilter, setTradeFilter] = useState<'relevant' | 'all'>(clientTrades ? 'relevant' : 'all');
   const [saving, setSaving] = useState(false);
 
   // Add form state
@@ -111,6 +117,14 @@ export default function DirectoryManager() {
   const filtered = directories.filter((d) => {
     if (tierFilter !== null && d.tier !== tierFilter) return false;
     if (captchaFilter !== null && d.captcha_status !== captchaFilter) return false;
+    // Trade relevance filter: show universal (empty trades) + matching trades
+    if (tradeFilter === 'relevant' && clientTrades && clientTrades.length > 0) {
+      if (d.trades && d.trades.length > 0) {
+        const hasOverlap = d.trades.some((t) => clientTrades.includes(t));
+        if (!hasOverlap) return false;
+      }
+      // trades=[] means universal, always show
+    }
     return true;
   });
 
@@ -145,6 +159,28 @@ export default function DirectoryManager() {
 
       {/* Filters */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+        {clientTrades && clientTrades.length > 0 && (
+          <>
+            {[
+              { label: 'Relevant', value: 'relevant' as const },
+              { label: 'All Directories', value: 'all' as const },
+            ].map((f) => (
+              <button
+                key={f.label}
+                onClick={() => setTradeFilter(f.value)}
+                style={{
+                  ...filterBtnBase,
+                  background: tradeFilter === f.value ? 'var(--accent)' : 'transparent',
+                  color: tradeFilter === f.value ? '#000' : 'var(--text-secondary)',
+                  borderColor: tradeFilter === f.value ? 'var(--accent)' : 'var(--border)',
+                }}
+              >
+                {f.label}
+              </button>
+            ))}
+            <div style={{ width: 1, background: 'var(--border)', margin: '0 4px' }} />
+          </>
+        )}
         {[
           { label: 'All', value: null },
           { label: 'Tier 1', value: 1 },

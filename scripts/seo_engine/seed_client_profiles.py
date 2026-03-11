@@ -34,6 +34,82 @@ SAME_AS_DOMAIN_MAP = {
     "gbp": "google.com",
 }
 
+# Service definitions per client slug -- these populate the client_profiles.services
+# array AND determine which directory trades are relevant.
+#
+# Trade mapping:
+#   integrity-pro-washers -> pressure_washing, home_services
+#   mr-green-turf-clean   -> turf, home_services
+#   az-turf-cleaning      -> turf, landscaping, home_services
+#   echo-local            -> seo_agency
+CLIENT_SERVICES = {
+    "integrity-pro-washers": {
+        "services": [
+            "Pressure Washing",
+            "Soft Washing",
+            "House Washing",
+            "Roof Cleaning",
+            "Driveway Cleaning",
+            "Solar Panel Cleaning",
+            "Gutter Cleaning",
+            "Window Cleaning",
+            "Window Washing",
+            "Deck Cleaning",
+            "Fence Cleaning",
+            "Patio Cleaning",
+            "Commercial Pressure Washing",
+        ],
+        "trades": ["pressure_washing", "home_services"],
+        "description": "Professional pressure washing and soft washing services in San Diego. We specialize in house washing, roof cleaning, driveway cleaning, solar panel cleaning, gutter cleaning, and window washing. Serving North Park, Hillcrest, La Mesa, and surrounding areas.",
+        "short_description": "San Diego's trusted pressure washing and soft washing professionals.",
+    },
+    "mr-green-turf-clean": {
+        "services": [
+            "Artificial Turf Cleaning",
+            "Synthetic Grass Cleaning",
+            "Pet Turf Cleaning",
+            "Dog Turf Sanitizing",
+            "Turf Deodorizing",
+            "Turf Maintenance",
+            "Artificial Grass Maintenance",
+        ],
+        "trades": ["turf", "home_services"],
+        "description": "Professional artificial turf cleaning and sanitizing services in Poway and San Diego County. We clean, deodorize, and maintain synthetic grass for residential and commercial properties. Specializing in pet turf cleaning and odor removal.",
+        "short_description": "Poway's artificial turf cleaning and pet turf sanitizing experts.",
+    },
+    "az-turf-cleaning": {
+        "services": [
+            "Artificial Turf Cleaning",
+            "Turf Installation",
+            "Paver Installation",
+            "Landscape Remodel",
+            "Pergola Installation",
+            "Synthetic Grass Cleaning",
+            "Pet Turf Cleaning",
+            "Hardscaping",
+            "Outdoor Living Design",
+        ],
+        "trades": ["turf", "landscaping", "home_services"],
+        "description": "Full-service turf cleaning, installation, and landscaping company in Mesa, AZ. We handle artificial turf cleaning, turf installation, paver installation, pergolas, and complete landscape remodels for residential and commercial properties.",
+        "short_description": "Mesa AZ turf cleaning, installation, and landscaping services.",
+    },
+    "echo-local": {
+        "services": [
+            "Local SEO",
+            "Google Business Profile Optimization",
+            "Website Design",
+            "AI Automation",
+            "Content Marketing",
+            "Directory Management",
+            "Citation Building",
+            "Review Management",
+        ],
+        "trades": ["seo_agency"],
+        "description": "Echo Local is a San Diego SEO agency specializing in home service businesses. We build compounding systems that drive organic traffic, manage Google Business Profiles, and automate digital marketing for contractors, landscapers, and service providers.",
+        "short_description": "SEO and AI automation for home service businesses in San Diego.",
+    },
+}
+
 
 def _get_supabase():
     """Returns a Supabase client using env vars."""
@@ -75,6 +151,9 @@ def seed_profiles():
 
         city, state = _parse_city_state(client.get("primary_market", ""))
 
+        # Get service/trade metadata for this client
+        client_meta = CLIENT_SERVICES.get(slug, {})
+
         profile = {
             "client_id": client_id,
             "business_name": client["name"],
@@ -82,6 +161,9 @@ def seed_profiles():
             "address_city": city,
             "address_state": state,
             "website": client.get("website") or None,
+            "services": client_meta.get("services", []),
+            "description": client_meta.get("description"),
+            "short_description": client_meta.get("short_description"),
             "social_links": {},
         }
 

@@ -13,6 +13,16 @@ import KeywordDashboard from '@/components/seo-engine/KeywordDashboard';
 import ClientProfileForm from '@/components/directories/ClientProfileForm';
 import DirectoryManager from '@/components/directories/DirectoryManager';
 
+// Maps client slugs to their relevant directory trade tags.
+// Universal directories (trades=[]) always show for everyone.
+// Trade-specific directories only show when the client's trades overlap.
+const CLIENT_TRADE_MAP: Record<string, string[]> = {
+  'integrity-pro-washers': ['pressure_washing', 'home_services'],
+  'mr-green-turf-clean': ['turf', 'home_services'],
+  'az-turf-cleaning': ['turf', 'landscaping', 'home_services'],
+  'echo-local': ['seo_agency'],
+};
+
 export default function SeoEnginePage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
@@ -178,7 +188,7 @@ export default function SeoEnginePage() {
         {activeTab === 'directories' && activeClient && (
           <div>
             <ClientProfileForm clientId={activeClient.id} />
-            <DirectoryManager />
+            <DirectoryManager clientTrades={CLIENT_TRADE_MAP[activeClient.slug] || []} />
           </div>
         )}
       </div>
