@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Client, Report, GscQuery, GbpKeyword, SeoAction, SeoBrainDecision, GeoScore, SerpFeature, TabId, TimeRange } from '@/lib/types';
+import { Client, Report, GscQuery, GbpKeyword, SeoAction, SeoBrainDecision, GeoScore, SerpFeature, WeeklyTrendPoint, TabId, TimeRange } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
 import { useFilteredReports } from '@/hooks/useFilteredReports';
@@ -33,6 +33,7 @@ export default function Dashboard() {
   const [serpFeatures, setSerpFeatures] = useState<SerpFeature[]>([]);
   const [serpApiUsageCount, setSerpApiUsageCount] = useState<number>(0);
   const [geoScoreTrends, setGeoScoreTrends] = useState<Record<string, Array<{ score: number; scored_at: string }>>>({});
+  const [citationTrends, setCitationTrends] = useState<WeeklyTrendPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
   const filteredReports = useFilteredReports(reports, timeRange);
@@ -227,6 +228,7 @@ export default function Dashboard() {
       setSerpFeatures([]);
       setSerpApiUsageCount(0);
       setGeoScoreTrends({});
+      setCitationTrends([]);
       return;
     }
 
@@ -235,6 +237,7 @@ export default function Dashboard() {
       setSerpFeatures([]);
       setSerpApiUsageCount(0);
       setGeoScoreTrends({});
+      setCitationTrends([]);
       return;
     }
 
@@ -320,10 +323,53 @@ export default function Dashboard() {
       }
     }
 
+    async function loadCitationTrends() {
+      const ninetyDaysAgo = new Date();
+      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+      const { data: trendRows, error } = await supabase
+        .from('serp_features')
+        .select('keyword, has_ai_overview, client_cited_in_ai_overview, collected_at')
+        .eq('client_id', activeClient!.id)
+        .gte('collected_at', ninetyDaysAgo.toISOString())
+        .order('collected_at', { ascending: true });
+
+      if (error) {
+        console.error('Citation trends fetch error:', error);
+        setCitationTrends([]);
+        return;
+      }
+
+      const weekMap = new Map<string, { cited: Set<string>; aio: Set<string> }>();
+      for (const row of (trendRows || [])) {
+        const date = new Date(row.collected_at);
+        const weekStart = new Date(date);
+        weekStart.setDate(date.getDate() - date.getDay());
+        const key = weekStart.toISOString().slice(0, 10);
+        if (!weekMap.has(key)) weekMap.set(key, { cited: new Set(), aio: new Set() });
+        const bucket = weekMap.get(key)!;
+        if (row.has_ai_overview) {
+          bucket.aio.add(row.keyword);
+          if (row.client_cited_in_ai_overview) bucket.cited.add(row.keyword);
+        }
+      }
+
+      const trends: WeeklyTrendPoint[] = Array.from(weekMap.entries())
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([week, data]) => ({
+          week: new Date(week).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          citedCount: data.cited.size,
+          aioCount: data.aio.size,
+          citationRate: data.aio.size > 0 ? Math.round((data.cited.size / data.aio.size) * 100) : 0,
+        }));
+      setCitationTrends(trends);
+    }
+
     loadGeoScores();
     loadSerpFeatures();
     loadSerpApiUsage();
     loadGeoScoreTrends();
+    loadCitationTrends();
   }, [activeClient]);
 
   const hasFormTracking = reports.some(r => r.ga4_form_submits != null && r.ga4_form_submits > 0);
@@ -458,6 +504,7 @@ export default function Dashboard() {
                   isAdmin={isAdmin}
                   seoEngineEnabled={activeClient?.seo_engine_enabled ?? false}
                   geoScoreTrends={geoScoreTrends}
+                  citationTrends={citationTrends}
                 />
               )}
             </>

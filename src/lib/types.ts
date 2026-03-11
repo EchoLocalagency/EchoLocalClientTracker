@@ -148,3 +148,18 @@ export interface SerpFeature {
 export interface SerpApiUsage {
   count: number;
 }
+
+export interface WeeklyTrendPoint {
+  week: string;        // Formatted label: "Mar 3"
+  citedCount: number;  // Keywords where client is cited in AI Overview
+  aioCount: number;    // Keywords that have an AI Overview
+  citationRate: number; // citedCount / aioCount as percentage (0-100)
+}
+
+export interface Mention {
+  platform: string;
+  source_domain: string;
+  mention_type: string;
+  title: string;
+  source_url: string;
+}
