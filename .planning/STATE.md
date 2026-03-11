@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Directory Submission & Tracking
 status: unknown
-last_updated: "2026-03-11T16:37:10.738Z"
+last_updated: "2026-03-11T19:57:44.732Z"
 progress:
-  total_phases: 7
-  completed_phases: 5
-  total_plans: 13
-  completed_plans: 11
+  total_phases: 8
+  completed_phases: 6
+  total_plans: 14
+  completed_plans: 12
 ---
 
 # Project State
@@ -18,22 +18,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Each client gains 20-30 new backlinks from niche directories GHL/Yext misses, tracked and verified automatically.
-**Current focus:** Phase 9 - Submission Engine
+**Current focus:** Phase 10 - Verification Loop
 
 ## Current Position
 
-Phase: 9 of 12 (Submission Engine) -- COMPLETE
-Plan: 2 of 2 in current phase (all complete)
-Status: Phase 9 complete, ready for Phase 10
-Last activity: 2026-03-11 -- Completed 09-02 (dry-run validation and Brian approval)
+Phase: 10 of 12 (Verification Loop) -- COMPLETE
+Plan: 1 of 1 in current phase (all complete)
+Status: Phase 10 complete, ready for Phase 11
+Last activity: 2026-03-11 -- Completed 10-01 (verification loop with Brave Search)
 
-Progress: [####################] 100% (v1.0 + v1.1 complete, v1.2: phase 9 complete, 2/2 plans)
+Progress: [####################] 100% (v1.0 + v1.1 complete, v1.2: phase 10 complete, 1/1 plans)
 
 ## Performance Metrics
 
 **Velocity (from v1.0 + v1.1):**
 - Average duration: 3.1min per plan
-- Total plans completed: 16 (v1.0: 8, v1.1: 6, v1.2: 2 so far)
+- Total plans completed: 17 (v1.0: 8, v1.1: 6, v1.2: 3 so far)
 
 ## Accumulated Context
 
@@ -41,6 +41,9 @@ Progress: [####################] 100% (v1.0 + v1.1 complete, v1.2: phase 9 compl
 
 Full decision log in PROJECT.md Key Decisions table.
 Recent (v1.2):
+- 10-01: Named constants for threshold days (7/14/21) instead of inline magic numbers
+- 10-01: 21-day escalation processed before 14-day alerts to prevent double-processing
+- 10-01: All-clients mode queries distinct client_ids from submissions table
 - 09-02: 3 directories (Manta, Hotfrog, CitySquares) require account creation -- flagged REQUIRES_ACCOUNT and skipped
 - 09-02: 4 directories eligible for mr-green-turf-clean: EZLocal, iBegin, n49, Tupalo
 - 09-02: 18 no_captcha directories found by captcha audit
@@ -66,6 +69,7 @@ Recent (v1.2):
 Carried from v1.1:
 - GLOBAL_MONTHLY_LIMIT for Brave set to 800 (conservative under $5/1k pricing)
 - Brave Search free tier eliminated Feb 2026. $5 credit with metered billing at $5/1k queries.
+- [Phase 10-verification-loop]: 21-day escalation before 14-day alerts to prevent double-processing
 
 ### Pending Todos
 
@@ -78,5 +82,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-11
-Stopped at: Completed 09-02-PLAN.md (dry-run validation, overrides, Brian approval -- Phase 9 complete)
+Stopped at: Completed 10-01-PLAN.md (verification loop with Brave Search -- Phase 10 complete)
 Resume file: None

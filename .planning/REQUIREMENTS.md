@@ -23,10 +23,10 @@
 
 ### Verification Loop
 
-- [ ] **VER-01**: Brave Search site: query checks each submitted directory for client listing presence after 7 days
-- [ ] **VER-02**: Verified listings update submission status to verified with live URL stored
-- [ ] **VER-03**: Unverified submissions after 14 days trigger alert to Brian with directory name and client
-- [ ] **VER-04**: Submissions unverified after 21 days marked as needs_review for manual investigation
+- [x] **VER-01**: Brave Search site: query checks each submitted directory for client listing presence after 7 days
+- [x] **VER-02**: Verified listings update submission status to verified with live URL stored
+- [x] **VER-03**: Unverified submissions after 14 days trigger alert to Brian with directory name and client
+- [x] **VER-04**: Submissions unverified after 21 days marked as needs_review for manual investigation
 
 ### Brain Integration
 
@@ -86,10 +86,10 @@ All v1.1 requirements shipped. See milestones archive for details.
 | SUB-03 | Phase 9 | Complete |
 | SUB-04 | Phase 9 | Complete |
 | SUB-05 | Phase 9 | Complete |
-| VER-01 | Phase 10 | Pending |
-| VER-02 | Phase 10 | Pending |
-| VER-03 | Phase 10 | Pending |
-| VER-04 | Phase 10 | Pending |
+| VER-01 | Phase 10 | Complete |
+| VER-02 | Phase 10 | Complete |
+| VER-03 | Phase 10 | Complete |
+| VER-04 | Phase 10 | Complete |
 | BRAIN-01 | Phase 11 | Pending |
 | BRAIN-02 | Phase 11 | Pending |
 | DASH-01 | Phase 12 | Pending |

@@ -37,7 +37,7 @@ See: milestones/v1.0-ROADMAP.md for full details
 
 - [x] **Phase 8: Data Foundation + Discovery** - Supabase tables, client profiles, directory master list, CAPTCHA audit, and pre-existing listing detection
 - [x] **Phase 9: Submission Engine** - Playwright auto-submission for Tier 3 directories with rate limiting, state machine, NAP audit, and failure capture
-- [ ] **Phase 10: Verification Loop** - Brave Search site: verification at 7/14/21 day intervals with escalation to Brian
+- [x] **Phase 10: Verification Loop** - Brave Search site: verification at 7/14/21 day intervals with escalation to Brian (completed 2026-03-11)
 - [ ] **Phase 11: Brain Integration** - Directory coverage summary in brain prompt and submission logging to seo_actions
 - [ ] **Phase 12: Directory Dashboard** - Directories tab with status grid, tier progress bars, Tier 1/2 recommendations, and backlink value score
 
@@ -82,7 +82,7 @@ Plans:
   2. Verified listings update to verified status with the live URL stored in the submission record
   3. Submissions still unverified after 14 days trigger an alert to Brian identifying the directory and client
   4. Submissions still unverified after 21 days are marked needs_review for manual investigation, clearly separated from active pending submissions
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
 - [ ] 10-01-PLAN.md -- Verification script with Brave Search site: checking, status updates, 14/21-day escalation, and dry-run validation
 
@@ -122,6 +122,6 @@ Phases 8-12 execute sequentially. Phase 11 can start after Phase 9 (does not nee
 | 7. Trends + Source Diversity | v1.1 | 2/2 | Complete | 2026-03-11 |
 | 8. Data Foundation + Discovery | v1.2 | 3/3 | Complete | 2026-03-11 |
 | 9. Submission Engine | v1.2 | 2/2 | Complete | 2026-03-11 |
-| 10. Verification Loop | v1.2 | 0/1 | Not started | - |
+| 10. Verification Loop | 1/1 | Complete   | 2026-03-11 | - |
 | 11. Brain Integration | v1.2 | 0/? | Not started | - |
 | 12. Directory Dashboard | v1.2 | 0/? | Not started | - |
