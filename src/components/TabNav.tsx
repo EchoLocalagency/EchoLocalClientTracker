@@ -14,6 +14,7 @@ const tabs: Tab[] = [
   { id: 'conversions', label: 'Conversions' },
   { id: 'gbp', label: 'GBP' },
   { id: 'geo', label: 'GEO' },
+  { id: 'directories', label: 'Directories' },
   { id: 'seo-engine', label: 'SEO Engine' },
 ];
 

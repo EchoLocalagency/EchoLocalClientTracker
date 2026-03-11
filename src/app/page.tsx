@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Client, Report, GscQuery, GbpKeyword, SeoAction, SeoBrainDecision, GeoScore, SerpFeature, Mention, WeeklyTrendPoint, TabId, TimeRange, TrackedKeyword, KeywordSnapshot } from '@/lib/types';
+import { Client, Report, GscQuery, GbpKeyword, SeoAction, SeoBrainDecision, GeoScore, SerpFeature, Mention, WeeklyTrendPoint, TabId, TimeRange, TrackedKeyword, KeywordSnapshot, SubmissionWithDirectory } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
 import { useFilteredReports } from '@/hooks/useFilteredReports';
@@ -14,6 +14,7 @@ import ConversionsTab from '@/components/tabs/ConversionsTab';
 import GbpTab from '@/components/tabs/GbpTab';
 import SeoEngineTab from '@/components/tabs/SeoEngineTab';
 import GeoTab from '@/components/tabs/GeoTab';
+import DirectoriesTab from '@/components/tabs/DirectoriesTab';
 
 export default function Dashboard() {
   const { profile, loading: authLoading, isAdmin } = useAuth();
@@ -36,6 +37,7 @@ export default function Dashboard() {
   const [mentions, setMentions] = useState<Mention[]>([]);
   const [trackedKeywords, setTrackedKeywords] = useState<TrackedKeyword[]>([]);
   const [keywordSnapshots, setKeywordSnapshots] = useState<KeywordSnapshot[]>([]);
+  const [directorySubmissions, setDirectorySubmissions] = useState<SubmissionWithDirectory[]>([]);
   const [loading, setLoading] = useState(true);
 
   const filteredReports = useFilteredReports(reports, timeRange);
@@ -450,6 +452,34 @@ export default function Dashboard() {
     loadMentions();
   }, [activeClient]);
 
+  // Load directory submissions
+  useEffect(() => {
+    if (!activeClient) {
+      setDirectorySubmissions([]);
+      return;
+    }
+
+    async function loadDirectorySubmissions() {
+      const { data, error } = await supabase
+        .from('submissions')
+        .select(`
+          id, status, live_url, submitted_at, verified_at,
+          directories (id, name, domain, tier, da_score, trades, submission_url, enabled)
+        `)
+        .eq('client_id', activeClient!.id)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Directory submissions fetch error:', error);
+        setDirectorySubmissions([]);
+      } else {
+        setDirectorySubmissions((data as unknown as SubmissionWithDirectory[]) || []);
+      }
+    }
+
+    loadDirectorySubmissions();
+  }, [activeClient]);
+
   const hasFormTracking = reports.some(r => r.ga4_form_submits != null && r.ga4_form_submits > 0);
   const sidebarWidth = isAdmin ? (sidebarCollapsed ? 68 : 260) : 0;
 
@@ -581,6 +611,13 @@ export default function Dashboard() {
                   geoScoreTrends={geoScoreTrends}
                   citationTrends={citationTrends}
                   mentions={mentions}
+                />
+              )}
+              {activeTab === 'directories' && (
+                <DirectoriesTab
+                  submissions={directorySubmissions}
+                  seoEngineEnabled={activeClient?.seo_engine_enabled ?? false}
+                  isAdmin={isAdmin}
                 />
               )}
             </>

@@ -144,7 +144,16 @@ export interface KeywordSnapshot {
   created_at: string;
 }
 
-export type TabId = 'overview' | 'seo' | 'conversions' | 'gbp' | 'seo-engine' | 'geo';
+export interface SubmissionWithDirectory {
+  id: string;
+  status: string;
+  live_url: string | null;
+  submitted_at: string | null;
+  verified_at: string | null;
+  directories: Pick<Directory, 'id' | 'name' | 'domain' | 'tier' | 'da_score' | 'trades' | 'submission_url' | 'enabled'> | null;
+}
+
+export type TabId = 'overview' | 'seo' | 'conversions' | 'gbp' | 'seo-engine' | 'geo' | 'directories';
 export type SeoEngineSubTab = 'action-feed' | 'brain-decisions' | 'keyword-tracker' | 'outcome-patterns';
 export type SeoEngineTabId = 'clients' | 'actions' | 'brain' | 'keywords' | 'directories';
 export type TimeRange = '4w' | '3m' | '6m' | 'all';
