@@ -1,7 +1,9 @@
 'use client';
 
-import { GeoScore, SerpFeature } from '@/lib/types';
+import { GeoScore, SerpFeature, Mention, WeeklyTrendPoint } from '@/lib/types';
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
+import CitationTrendChart from '@/components/geo/CitationTrendChart';
+import SourceDiversityPanel from '@/components/geo/SourceDiversityPanel';
 
 interface GeoTabProps {
   geoScores: GeoScore[];
@@ -10,6 +12,8 @@ interface GeoTabProps {
   isAdmin: boolean;
   seoEngineEnabled: boolean;
   geoScoreTrends: Record<string, Array<{ score: number; scored_at: string }>>;
+  citationTrends: WeeklyTrendPoint[];
+  mentions: Mention[];
 }
 
 const FACTOR_LABELS: Record<string, string> = {
@@ -41,7 +45,7 @@ function budgetGaugeColor(pct: number): string {
   return 'var(--success)';
 }
 
-export default function GeoTab({ geoScores, serpFeatures, serpApiUsageCount, isAdmin, seoEngineEnabled, geoScoreTrends }: GeoTabProps) {
+export default function GeoTab({ geoScores, serpFeatures, serpApiUsageCount, isAdmin, seoEngineEnabled, geoScoreTrends, citationTrends, mentions }: GeoTabProps) {
   if (!seoEngineEnabled) {
     return (
       <div style={{
@@ -286,6 +290,11 @@ export default function GeoTab({ geoScores, serpFeatures, serpApiUsageCount, isA
         )}
       </section>
 
+      {/* Citation Trend Chart -- DASH-03 */}
+      <div style={{ marginTop: 32 }}>
+        <CitationTrendChart data={citationTrends} />
+      </div>
+
       {/* Featured Snippets */}
       <section style={{ marginTop: 32 }}>
         <div style={{ marginBottom: 16 }}>
@@ -468,6 +477,11 @@ export default function GeoTab({ geoScores, serpFeatures, serpApiUsageCount, isA
           </div>
         </section>
       )}
+
+      {/* Source Diversity -- MENT-03 + DASH-04 */}
+      <div style={{ marginTop: 32 }}>
+        <SourceDiversityPanel mentions={mentions} />
+      </div>
     </div>
   );
 }
