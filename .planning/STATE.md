@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Directory Submission & Tracking
-status: unknown
-last_updated: "2026-03-11T21:34:48.595Z"
+status: complete
+last_updated: "2026-03-11T23:48:00Z"
 progress:
   total_phases: 9
-  completed_phases: 7
+  completed_phases: 9
   total_plans: 15
-  completed_plans: 13
+  completed_plans: 15
 ---
 
 # Project State
@@ -18,22 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Each client gains 20-30 new backlinks from niche directories GHL/Yext misses, tracked and verified automatically.
-**Current focus:** Phase 12 - Dashboard Directory
+**Current focus:** v1.2 COMPLETE
 
 ## Current Position
 
-Phase: 11 of 12 (Brain Integration) -- COMPLETE
+Phase: 12 of 12 (Directory Dashboard) -- COMPLETE
 Plan: 1 of 1 in current phase (all complete)
-Status: Phase 11 complete, ready for Phase 12
-Last activity: 2026-03-11 -- Completed 11-01 (brain integration for directory submissions)
+Status: v1.2 Directory Submission & Tracking fully complete (all 5 phases, 8 plans, 20 requirements)
+Last activity: 2026-03-11 -- Completed 12-01 (Directories tab with status grid, tier progress, recommendations, backlink score)
 
-Progress: [####################] 100% (v1.0 + v1.1 complete, v1.2: phase 11 complete, 1/1 plans)
+Progress: [####################] 100% (v1.0 + v1.1 + v1.2 complete)
 
 ## Performance Metrics
 
 **Velocity (from v1.0 + v1.1):**
 - Average duration: 3.1min per plan
-- Total plans completed: 18 (v1.0: 8, v1.1: 6, v1.2: 4 so far)
+- Total plans completed: 19 (v1.0: 8, v1.1: 6, v1.2: 5)
+- 12-01: 4min (3 tasks, 4 files)
 
 ## Accumulated Context
 
@@ -41,6 +42,9 @@ Progress: [####################] 100% (v1.0 + v1.1 complete, v1.2: phase 11 comp
 
 Full decision log in PROJECT.md Key Decisions table.
 Recent (v1.2):
+- 12-01: Directories tab visible to all users (not admin-only like GEO/SEO Engine)
+- 12-01: Inline CSS styles only in DirectoriesTab (consistent with GeoTab pattern)
+- 12-01: SUBMITTED_STATUSES includes submitted/approved/verified for tier progress counting
 - 11-01: Used .in_() for submitted count to include submitted/approved/verified statuses
 - 11-01: Only log clean submissions to seo_actions (not post-submit-error or skipped/failed)
 - 11-01: Brain prompt explicitly tells brain NOT to propose directory_submission actions
@@ -85,5 +89,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-11
-Stopped at: Completed 11-01-PLAN.md (brain integration for directory submissions -- Phase 11 complete)
+Stopped at: Completed 12-01-PLAN.md (Directories tab -- Phase 12 complete, v1.2 complete)
 Resume file: None

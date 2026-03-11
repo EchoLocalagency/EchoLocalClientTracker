@@ -39,7 +39,7 @@ See: milestones/v1.0-ROADMAP.md for full details
 - [x] **Phase 9: Submission Engine** - Playwright auto-submission for Tier 3 directories with rate limiting, state machine, NAP audit, and failure capture
 - [x] **Phase 10: Verification Loop** - Brave Search site: verification at 7/14/21 day intervals with escalation to Brian (completed 2026-03-11)
 - [x] **Phase 11: Brain Integration** - Directory coverage summary in brain prompt and submission logging to seo_actions (completed 2026-03-11)
-- [ ] **Phase 12: Directory Dashboard** - Directories tab with status grid, tier progress bars, Tier 1/2 recommendations, and backlink value score
+- [x] **Phase 12: Directory Dashboard** - Directories tab with status grid, tier progress bars, Tier 1/2 recommendations, and backlink value score (completed 2026-03-11)
 
 ## Phase Details
 
@@ -106,9 +106,9 @@ Plans:
   2. Tier progress bars show X/Y submitted and X/Y verified per tier for each client, giving an at-a-glance view of coverage depth
   3. Tier 1/2 directories appear as an actionable recommendation checklist per client, clearly marked as requiring client input rather than automation
   4. Each client has a backlink value score calculated as the DA-weighted sum of verified directory listings, showing the SEO value of the directory portfolio
-**Plans:** 1 plans
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 12-01-PLAN.md -- DirectoriesTab with status grid, tier progress bars, Tier 1/2 recommendations, and backlink value score
+- [x] 12-01-PLAN.md -- DirectoriesTab with status grid, tier progress bars, Tier 1/2 recommendations, and backlink value score
 
 ## Progress
 
@@ -128,4 +128,4 @@ Phases 8-12 execute sequentially. Phase 11 can start after Phase 9 (does not nee
 | 9. Submission Engine | v1.2 | 2/2 | Complete | 2026-03-11 |
 | 10. Verification Loop | v1.2 | 1/1 | Complete | 2026-03-11 |
 | 11. Brain Integration | v1.2 | 1/1 | Complete | 2026-03-11 |
-| 12. Directory Dashboard | v1.2 | 0/1 | Not started | - |
+| 12. Directory Dashboard | v1.2 | 1/1 | Complete | 2026-03-11 |

@@ -35,10 +35,10 @@
 
 ### Dashboard
 
-- [ ] **DASH-01**: Directories tab in dashboard shows per-client directory status grid with color-coded badges (verified=green, submitted=yellow, pending=grey, rejected=red, skipped=muted)
-- [ ] **DASH-02**: Tier progress bars show X/Y submitted and X/Y verified per tier per client
-- [ ] **DASH-03**: Tier 1/2 directories displayed as actionable recommendation checklist requiring client input (not automated)
-- [ ] **DASH-04**: Backlink value score per client calculated as DA-weighted sum of verified directory listings
+- [x] **DASH-01**: Directories tab in dashboard shows per-client directory status grid with color-coded badges (verified=green, submitted=yellow, pending=grey, rejected=red, skipped=muted)
+- [x] **DASH-02**: Tier progress bars show X/Y submitted and X/Y verified per tier per client
+- [x] **DASH-03**: Tier 1/2 directories displayed as actionable recommendation checklist requiring client input (not automated)
+- [x] **DASH-04**: Backlink value score per client calculated as DA-weighted sum of verified directory listings
 
 ## v1.1 Requirements (Complete)
 
@@ -92,10 +92,10 @@ All v1.1 requirements shipped. See milestones archive for details.
 | VER-04 | Phase 10 | Complete |
 | BRAIN-01 | Phase 11 | Complete |
 | BRAIN-02 | Phase 11 | Complete |
-| DASH-01 | Phase 12 | Pending |
-| DASH-02 | Phase 12 | Pending |
-| DASH-03 | Phase 12 | Pending |
-| DASH-04 | Phase 12 | Pending |
+| DASH-01 | Phase 12 | Complete |
+| DASH-02 | Phase 12 | Complete |
+| DASH-03 | Phase 12 | Complete |
+| DASH-04 | Phase 12 | Complete |
 
 **Coverage:**
 - v1.2 requirements: 20 total
