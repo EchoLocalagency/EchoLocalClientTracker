@@ -10,7 +10,8 @@ from datetime import date
 from pathlib import Path
 
 from .trends import pull_trends, score_trend_urgency
-from .reddit import pull_reddit_questions
+from .reddit import pull_reddit_questions_brave
+from .mention_tracker import track_mentions, parse_competitor_citations
 from .serp_scraper import scrape_serp
 from .news import pull_news, score_news_urgency
 from scripts.seo_engine.serpapi_client import url_matches_client, _get_supabase
@@ -144,10 +145,10 @@ def run_research(client_config, force=False):
         print(f"  [research] Trends error: {e}")
         cache["trends"] = {}
 
-    # 2. Reddit
-    print(f"  [research] Pulling Reddit questions...")
+    # 2. Reddit (via Brave site:reddit.com queries)
+    print(f"  [research] Pulling Reddit questions via Brave...")
     try:
-        cache["reddit_questions"] = pull_reddit_questions()
+        cache["reddit_questions"] = pull_reddit_questions_brave(client_config)
     except Exception as e:
         print(f"  [research] Reddit error: {e}")
         cache["reddit_questions"] = []
@@ -249,6 +250,27 @@ def run_research(client_config, force=False):
     except Exception as e:
         print(f"  [research] AEO opportunities error: {e}")
         cache["aeo_opportunities"] = []
+
+    # 10. Cross-platform mention tracking
+    print(f"  [research] Tracking cross-platform mentions...")
+    try:
+        cache["client_mentions"] = track_mentions(client_config)
+    except Exception as e:
+        print(f"  [research] Mention tracking error: {e}")
+        cache["client_mentions"] = []
+
+    # 11. Competitor AIO citation parsing (zero API cost)
+    print(f"  [research] Parsing competitor AIO citations...")
+    try:
+        client_id = client_config.get("_supabase_id")
+        client_website = client_config.get("website", "")
+        if client_id and client_website:
+            cache["competitor_aio_citations"] = parse_competitor_citations(client_id, client_website)
+        else:
+            cache["competitor_aio_citations"] = []
+    except Exception as e:
+        print(f"  [research] Competitor AIO parsing error: {e}")
+        cache["competitor_aio_citations"] = []
 
     # Save cache
     cache_path = _cache_path(slug)
