@@ -1,29 +1,17 @@
 """
-Reddit API
-==========
-Pulls recent questions from relevant subreddits about turf cleaning,
-artificial grass, pets, and local SD topics.
+Reddit Question Mining (Brave-powered)
+=======================================
+Pulls relevant Reddit questions using Brave Search site:reddit.com queries.
+No Reddit API dependency -- all searches go through brave_client.py budget gate.
 
-Requires a Reddit app: reddit.com/prefs/apps (free, "script" type).
-Add REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET to .env.
+Usage:
+    from scripts.seo_engine.research.reddit import pull_reddit_questions_brave
 """
 
-import os
-import requests
-from dotenv import load_dotenv
+import warnings
+from urllib.parse import urlparse
 
-load_dotenv()
-REDDIT_CLIENT_ID = os.getenv("REDDIT_CLIENT_ID", "")
-REDDIT_CLIENT_SECRET = os.getenv("REDDIT_CLIENT_SECRET", "")
-
-# Subreddits relevant to turf cleaning / home services
-DEFAULT_SUBREDDITS = [
-    "lawncare",
-    "ArtificialTurf",
-    "dogs",
-    "SanDiego",
-    "homeimprovement",
-]
+from scripts.seo_engine.brave_client import search_brave
 
 # Search terms to find relevant posts
 DEFAULT_SEARCH_TERMS = [
@@ -36,84 +24,98 @@ DEFAULT_SEARCH_TERMS = [
 ]
 
 
-def _get_reddit_token():
-    """Get OAuth2 bearer token from Reddit."""
-    if not REDDIT_CLIENT_ID or not REDDIT_CLIENT_SECRET:
-        print("  [reddit] Missing REDDIT_CLIENT_ID or REDDIT_CLIENT_SECRET in .env")
-        return None
+def _extract_subreddit(url: str) -> str:
+    """Extract subreddit name from a Reddit URL."""
+    try:
+        path = urlparse(url).path
+        parts = [p for p in path.split("/") if p]
+        if len(parts) >= 2 and parts[0] == "r":
+            return parts[1]
+    except Exception:
+        pass
+    return ""
 
-    auth = requests.auth.HTTPBasicAuth(REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET)
-    data = {"grant_type": "client_credentials"}
-    headers = {"User-Agent": "SEOEngine/1.0"}
 
-    resp = requests.post(
-        "https://www.reddit.com/api/v1/access_token",
-        auth=auth, data=data, headers=headers, timeout=10,
-    )
-    if resp.status_code != 200:
-        print(f"  [reddit] Auth failed: {resp.status_code}")
-        return None
+def pull_reddit_questions_brave(client_config, limit=20) -> list:
+    """Pull relevant Reddit questions using Brave Search.
 
-    return resp.json().get("access_token")
+    Searches site:reddit.com for niche terms and client-specific keywords.
+    All queries go through brave_client.py for budget gating.
+
+    Args:
+        client_config: Dict with _supabase_id, target_keywords, niche/slug.
+        limit: Max results to return.
+
+    Returns:
+        List of dicts: {title, url, snippet, subreddit, search_term}
+    """
+    client_id = client_config.get("_supabase_id", "")
+    if not client_id:
+        print("  [reddit] No _supabase_id in client_config, skipping")
+        return []
+
+    target_kws = client_config.get("target_keywords", [])
+    results = []
+    seen_urls = set()
+
+    # Generic niche queries from DEFAULT_SEARCH_TERMS
+    for term in DEFAULT_SEARCH_TERMS:
+        query = f"{term} site:reddit.com"
+        try:
+            resp = search_brave(query, client_id=client_id, count=10)
+            if resp.get("blocked"):
+                print(f"  [reddit] Budget blocked: {resp.get('reason')}")
+                break  # Stop all queries if budget exhausted
+            _collect_results(resp, term, results, seen_urls)
+        except Exception as e:
+            print(f"  [reddit] Error searching '{term}': {e}")
+            continue
+
+    # Client-specific keyword queries (top 3 keywords)
+    for kw in target_kws[:3]:
+        query = f'"{kw}" site:reddit.com question'
+        try:
+            resp = search_brave(query, client_id=client_id, count=10)
+            if resp.get("blocked"):
+                print(f"  [reddit] Budget blocked: {resp.get('reason')}")
+                break
+            _collect_results(resp, kw, results, seen_urls)
+        except Exception as e:
+            print(f"  [reddit] Error searching keyword '{kw}': {e}")
+            continue
+
+    print(f"  [reddit] Found {len(results)} Reddit questions via Brave")
+    return results[:limit]
+
+
+def _collect_results(resp: dict, search_term: str, results: list, seen_urls: set):
+    """Parse Brave response and collect Reddit results."""
+    web_results = resp.get("web", {}).get("results", [])
+    for item in web_results:
+        url = item.get("url", "")
+        if "reddit.com" not in url:
+            continue
+        if url in seen_urls:
+            continue
+        seen_urls.add(url)
+        results.append({
+            "title": item.get("title", ""),
+            "url": url,
+            "snippet": item.get("description", ""),
+            "subreddit": _extract_subreddit(url),
+            "search_term": search_term,
+        })
 
 
 def pull_reddit_questions(subreddits=None, search_terms=None, limit=20):
-    """Pull relevant questions from Reddit.
+    """DEPRECATED: Use pull_reddit_questions_brave() instead.
 
-    Returns list of dicts with: title, subreddit, score, url, selftext_preview.
+    Kept for backward compatibility. Returns empty list.
     """
-    token = _get_reddit_token()
-    if not token:
-        return []
-
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "User-Agent": "SEOEngine/1.0",
-    }
-
-    subreddits = subreddits or DEFAULT_SUBREDDITS
-    search_terms = search_terms or DEFAULT_SEARCH_TERMS
-    results = []
-    seen_ids = set()
-
-    # Search across subreddits
-    for sub in subreddits:
-        for term in search_terms:
-            try:
-                resp = requests.get(
-                    f"https://oauth.reddit.com/r/{sub}/search",
-                    headers=headers,
-                    params={
-                        "q": term,
-                        "restrict_sr": "true",
-                        "sort": "relevance",
-                        "t": "month",  # Last month only
-                        "limit": 5,
-                    },
-                    timeout=10,
-                )
-                if resp.status_code != 200:
-                    continue
-
-                posts = resp.json().get("data", {}).get("children", [])
-                for post in posts:
-                    d = post.get("data", {})
-                    post_id = d.get("id")
-                    if post_id in seen_ids:
-                        continue
-                    seen_ids.add(post_id)
-
-                    results.append({
-                        "title": d.get("title", ""),
-                        "subreddit": d.get("subreddit", sub),
-                        "score": d.get("score", 0),
-                        "url": f"https://reddit.com{d.get('permalink', '')}",
-                        "selftext_preview": (d.get("selftext", "") or "")[:200],
-                    })
-            except Exception as e:
-                print(f"  [reddit] Error searching r/{sub} for '{term}': {e}")
-                continue
-
-    # Sort by score descending, take top N
-    results.sort(key=lambda x: x["score"], reverse=True)
-    return results[:limit]
+    warnings.warn(
+        "pull_reddit_questions() is deprecated. Use pull_reddit_questions_brave(client_config) instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    print("  [reddit] WARNING: pull_reddit_questions() is deprecated. Use pull_reddit_questions_brave().")
+    return []
