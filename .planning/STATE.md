@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Directory Submission & Tracking
-status: unknown
-last_updated: "2026-03-11T15:38:28.329Z"
+status: in-progress
+last_updated: "2026-03-11T16:09:39Z"
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 11
-  completed_plans: 9
+  completed_plans: 10
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Each client gains 20-30 new backlinks from niche directories GHL/Yext misses, tracked and verified automatically.
-**Current focus:** Phase 8 - Data Foundation + Discovery
+**Current focus:** Phase 9 - Submission Engine
 
 ## Current Position
 
-Phase: 8 of 12 (Data Foundation + Discovery) -- COMPLETE
-Plan: 3 of 3 in current phase (all complete)
-Status: Phase 8 complete, ready for Phase 9
-Last activity: 2026-03-11 -- Completed 08-02 (directory UI + service-trade matching)
+Phase: 9 of 12 (Submission Engine) -- IN PROGRESS
+Plan: 1 of 2 in current phase (09-01 complete)
+Status: 09-01 complete, ready for 09-02
+Last activity: 2026-03-11 -- Completed 09-01 (submission engine core)
 
-Progress: [####################] 100% (v1.0 + v1.1 complete, v1.2: phase 8 complete, 3/3 plans)
+Progress: [####################] 100% (v1.0 + v1.1 complete, v1.2: phase 9 in progress, 1/2 plans)
 
 ## Performance Metrics
 
@@ -41,6 +41,9 @@ Progress: [####################] 100% (v1.0 + v1.1 complete, v1.2: phase 8 compl
 
 Full decision log in PROJECT.md Key Decisions table.
 Recent (v1.2):
+- 09-01: CLIENT_TRADE_MAP duplicated in Python from page.tsx (no DB trade column)
+- 09-01: Post-POST errors mark submitted (not failed) to prevent duplicate submissions
+- 09-01: Runtime CAPTCHA detection via JS evaluation catches CAPTCHAs missed by static audit
 - 08-02: Trade tags refined to 5 categories (pressure_washing, turf, landscaping, home_services, seo_agency)
 - 08-02: Agency directories (Clutch, DesignRush) tagged seo_agency -- only Echo Local sees them
 - 08-02: CLIENT_TRADE_MAP in page.tsx rather than DB column -- simple, no migration
@@ -74,5 +77,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-11
-Stopped at: Completed 08-02-PLAN.md (Phase 8 fully complete: 08-01, 08-02, 08-03 all done)
+Stopped at: Completed 09-01-PLAN.md (submission engine core with rate limiter, state machine, NAP audit)
 Resume file: None

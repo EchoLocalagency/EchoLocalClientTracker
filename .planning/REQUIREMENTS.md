@@ -15,11 +15,11 @@
 
 ### Submission Engine
 
-- [ ] **SUB-01**: Playwright auto-submits client profiles to Tier 3 no-CAPTCHA directories with human-like typing delays and playwright-stealth anti-detection
-- [ ] **SUB-02**: Submission rate limiter enforces max 5 submissions per client per day and 8 per client per week as hard caps
-- [ ] **SUB-03**: Submission state machine tracks form_loaded / form_filled / post_sent stages so failures after POST never trigger re-submission
-- [ ] **SUB-04**: NAP consistency audit runs before each submission to verify form data matches canonical client profile exactly
-- [ ] **SUB-05**: Failed submissions store screenshot and error details for debugging, marked as failed (not retried automatically)
+- [x] **SUB-01**: Playwright auto-submits client profiles to Tier 3 no-CAPTCHA directories with human-like typing delays and playwright-stealth anti-detection
+- [x] **SUB-02**: Submission rate limiter enforces max 5 submissions per client per day and 8 per client per week as hard caps
+- [x] **SUB-03**: Submission state machine tracks form_loaded / form_filled / post_sent stages so failures after POST never trigger re-submission
+- [x] **SUB-04**: NAP consistency audit runs before each submission to verify form data matches canonical client profile exactly
+- [x] **SUB-05**: Failed submissions store screenshot and error details for debugging, marked as failed (not retried automatically)
 
 ### Verification Loop
 
@@ -81,11 +81,11 @@ All v1.1 requirements shipped. See milestones archive for details.
 | DATA-03 | Phase 8 | Complete |
 | DATA-04 | Phase 8 | Complete |
 | DATA-05 | Phase 8 | Complete |
-| SUB-01 | Phase 9 | Pending |
-| SUB-02 | Phase 9 | Pending |
-| SUB-03 | Phase 9 | Pending |
-| SUB-04 | Phase 9 | Pending |
-| SUB-05 | Phase 9 | Pending |
+| SUB-01 | Phase 9 | Complete |
+| SUB-02 | Phase 9 | Complete |
+| SUB-03 | Phase 9 | Complete |
+| SUB-04 | Phase 9 | Complete |
+| SUB-05 | Phase 9 | Complete |
 | VER-01 | Phase 10 | Pending |
 | VER-02 | Phase 10 | Pending |
 | VER-03 | Phase 10 | Pending |
