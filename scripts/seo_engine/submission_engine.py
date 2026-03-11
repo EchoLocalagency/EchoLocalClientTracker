@@ -16,6 +16,7 @@ Usage:
 
 import argparse
 import asyncio
+import importlib
 import os
 import random
 import sys
@@ -411,6 +412,27 @@ async def _submit_to_directory(page, profile: dict, directory: dict,
         return "failed"
 
 
+# --- Override Detection ---
+def _has_override(directory_domain: str) -> bool:
+    """Check if a per-directory form config override exists."""
+    module_name = directory_domain.replace(".", "_").replace("-", "_")
+    try:
+        importlib.import_module(f"scripts.seo_engine.form_configs.overrides.{module_name}")
+        return True
+    except ModuleNotFoundError:
+        return False
+
+
+def _check_requires_account(directory_domain: str) -> bool:
+    """Check if a directory override marks it as requiring account creation."""
+    module_name = directory_domain.replace(".", "_").replace("-", "_")
+    try:
+        mod = importlib.import_module(f"scripts.seo_engine.form_configs.overrides.{module_name}")
+        return getattr(mod, "REQUIRES_ACCOUNT", False)
+    except ModuleNotFoundError:
+        return False
+
+
 # --- Client Trade Matching ---
 def _client_matches_directory(client_trades: list, directory_trades: list) -> bool:
     """
@@ -469,69 +491,135 @@ async def run_submission_engine(client_slug: str, dry_run: bool = False,
         print(f"[RATE LIMIT] {e}")
         return
 
-    # --- Query eligible directories ---
-    dir_resp = (
+    # --- Query ALL Tier 3 directories (for dry-run report) ---
+    all_t3_resp = (
         sb.table("directories")
         .select("*")
         .eq("tier", 3)
-        .eq("captcha_status", "no_captcha")
         .eq("enabled", True)
         .execute()
     )
+    all_t3_dirs = all_t3_resp.data or []
 
-    # Filter by client trade
+    # Filter eligible (no_captcha + trade match)
     eligible_dirs = [
-        d for d in (dir_resp.data or [])
-        if _client_matches_directory(client_trades, d.get("trades", []))
+        d for d in all_t3_dirs
+        if d.get("captcha_status") == "no_captcha"
+        and _client_matches_directory(client_trades, d.get("trades", []))
     ]
 
-    if not eligible_dirs:
-        print("No eligible Tier 3 no-CAPTCHA directories found for this client's trade.")
-        return
-
-    # --- Get existing submissions to skip ---
+    # --- Get existing submissions ---
     existing_resp = (
         sb.table("submissions")
         .select("directory_id, status")
         .eq("client_id", client_id)
         .execute()
     )
+    submission_status_map = {
+        row["directory_id"]: row["status"]
+        for row in (existing_resp.data or [])
+    }
     skip_statuses = {"submitted", "approved", "verified", "skipped", "existing_needs_review"}
     already_done = {
-        row["directory_id"]
-        for row in (existing_resp.data or [])
-        if row["status"] in skip_statuses
+        dir_id for dir_id, status in submission_status_map.items()
+        if status in skip_statuses
     }
-
-    # Filter out already-done directories
-    pending_dirs = [d for d in eligible_dirs if d["id"] not in already_done]
-
-    # Also check for failed submissions that should not be retried
     failed_ids = {
-        row["directory_id"]
-        for row in (existing_resp.data or [])
-        if row["status"] == "failed"
+        dir_id for dir_id, status in submission_status_map.items()
+        if status == "failed"
     }
-    pending_dirs = [d for d in pending_dirs if d["id"] not in failed_ids]
 
-    print(f"Eligible directories: {len(eligible_dirs)} total, {len(pending_dirs)} pending")
-
-    if not pending_dirs:
-        print("All eligible directories already have submissions. Nothing to do.")
-        return
+    # Filter out already-done and failed directories
+    pending_dirs = [
+        d for d in eligible_dirs
+        if d["id"] not in already_done and d["id"] not in failed_ids
+    ]
 
     # --- Dry run mode ---
     if dry_run:
-        print("\n-- DRY RUN: Would submit to these directories --")
+        print(f"\n{'='*70}")
+        print(f"  DRY RUN REPORT: Submission Engine")
+        print(f"{'='*70}")
+
+        # Show ALL Tier 3 directories with full status
+        trade_matched = [
+            d for d in all_t3_dirs
+            if _client_matches_directory(client_trades, d.get("trades", []))
+        ]
+        print(f"\nAll Tier 3 directories (trade-matched): {len(trade_matched)}/{len(all_t3_dirs)}")
+        print(f"{'─'*70}")
+        print(f"  {'#':<3} {'Name':<30} {'Domain':<25} {'CAPTCHA':<15} {'Status':<12} {'Config'}")
+        print(f"  {'─'*3} {'─'*30} {'─'*25} {'─'*15} {'─'*12} {'─'*10}")
+
+        for i, d in enumerate(trade_matched, 1):
+            sub_status = submission_status_map.get(d["id"], "none")
+            captcha = d.get("captcha_status", "unknown")
+            config_source = "override" if _has_override(d["domain"]) else "base"
+            requires_account = _check_requires_account(d["domain"])
+            if requires_account:
+                config_source += " (acct req)"
+            print(f"  {i:<3} {d['name']:<30} {d['domain']:<25} {captcha:<15} {sub_status:<12} {config_source}")
+
+        # Eligible summary
+        print(f"\n{'─'*70}")
+        print(f"Eligible (no_captcha + trade match): {len(eligible_dirs)}")
+        print(f"Already done: {len(already_done)}")
+        print(f"Failed (not retried): {len(failed_ids)}")
+        print(f"Pending submissions: {len(pending_dirs)}")
+
+        # Rate limit budget
         remaining_daily = DAILY_CAP - today_count
         remaining_weekly = WEEKLY_CAP - week_count
         budget = min(run_limit, remaining_daily, remaining_weekly)
-        for i, d in enumerate(pending_dirs[:budget]):
-            print(f"  {i+1}. {d['name']} ({d['domain']}) -- DA: {d.get('da_score', 'N/A')}")
-        if len(pending_dirs) > budget:
-            print(f"  ... and {len(pending_dirs) - budget} more (capped by rate limits/run limit)")
-        print(f"\nBudget: {budget} submissions (run_limit={run_limit}, "
+        print(f"\nRate limits: {today_count}/{DAILY_CAP} today, {week_count}/{WEEKLY_CAP} this week")
+        print(f"Budget this run: {budget} submissions (run_limit={run_limit}, "
               f"daily_remaining={remaining_daily}, weekly_remaining={remaining_weekly})")
+
+        if pending_dirs:
+            print(f"\nWould submit to:")
+            for i, d in enumerate(pending_dirs[:budget], 1):
+                config_source = "override" if _has_override(d["domain"]) else "base"
+                print(f"  {i}. {d['name']} ({d['domain']}) -- DA: {d.get('da_score', 'N/A')}, config: {config_source}")
+            if len(pending_dirs) > budget:
+                print(f"  ... and {len(pending_dirs) - budget} more (capped by rate limits/run limit)")
+        else:
+            if not eligible_dirs:
+                print("\nNo directories classified as no_captcha yet.")
+                print("Run: python3 -m scripts.seo_engine.captcha_audit --update")
+            else:
+                print("\nAll eligible directories already have submissions.")
+
+        # Directories needing overrides
+        override_dirs = [d for d in trade_matched if _has_override(d["domain"])]
+        account_dirs = [d for d in trade_matched if _check_requires_account(d["domain"])]
+        if override_dirs:
+            print(f"\nDirectories with form config overrides ({len(override_dirs)}):")
+            for d in override_dirs:
+                print(f"  - {d['name']} ({d['domain']})")
+        if account_dirs:
+            print(f"\nDirectories requiring account creation ({len(account_dirs)}):")
+            for d in account_dirs:
+                print(f"  - {d['name']} ({d['domain']}) -- skipped by engine")
+
+        print(f"\n{'='*70}")
+        return
+
+    # Filter out directories requiring account creation from live submissions
+    pending_dirs = [
+        d for d in pending_dirs
+        if not _check_requires_account(d["domain"])
+    ]
+
+    print(f"Eligible directories: {len(eligible_dirs)} total, {len(pending_dirs)} pending (auto-submittable)")
+
+    # Check we have eligible dirs for live mode
+    if not eligible_dirs:
+        print("No eligible Tier 3 no-CAPTCHA directories found for this client's trade.")
+        print("Run: python3 -m scripts.seo_engine.captcha_audit --update")
+        return
+
+    if not pending_dirs:
+        print("All eligible directories already have submissions (or require account creation). Nothing to do.")
         return
 
     # --- Check Playwright browser binary ---
