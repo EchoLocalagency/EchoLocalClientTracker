@@ -57,3 +57,7 @@ deno.lock
 scripts/campaign_tag_log.json
 reports/last_*_prompt.txt
 reports/last_*_response.txt
+
+# submission engine screenshots
+screenshots/*.png
+screenshots/**/*.png
