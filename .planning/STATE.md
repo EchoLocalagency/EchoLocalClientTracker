@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Directory Submission & Tracking
-status: in-progress
-last_updated: "2026-03-11T16:13:00Z"
+status: unknown
+last_updated: "2026-03-11T16:37:10.738Z"
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 5
-  total_plans: 11
+  total_plans: 13
   completed_plans: 11
 ---
 
