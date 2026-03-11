@@ -7,8 +7,8 @@ last_updated: "2026-03-10T00:00:00Z"
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 3
+  completed_plans: 1
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 ## Current Position
 
 Phase: 8 of 12 (Data Foundation + Discovery)
-Plan: 0 of ? in current phase
-Status: Ready to plan
-Last activity: 2026-03-10 -- v1.2 roadmap created (5 phases, 20 requirements mapped)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-03-11 -- Completed 08-01 (data foundation tables + seed data)
 
-Progress: [##############░░░░░░] 70% (v1.0 + v1.1 complete, v1.2 starting)
+Progress: [##############░░░░░░] 72% (v1.0 + v1.1 complete, v1.2: 1/3 plans in phase 8)
 
 ## Performance Metrics
 
@@ -41,6 +41,10 @@ Progress: [##############░░░░░░] 70% (v1.0 + v1.1 complete, v1.2 sta
 
 Full decision log in PROJECT.md Key Decisions table.
 Recent (v1.2):
+- 08-01: Hybrid tier system (Tier 1 manual-only DA 50+, Tier 2 semi-auto DA 30-50, Tier 3 auto-eligible DA 10-30)
+- 08-01: 55 directories split 15/20/20 across tiers with trade tags for home services
+- 08-01: same_as_urls from clients.json auto-create existing_needs_review submissions
+- 08-01: Supabase Management API used for migrations (no psql/CLI needed)
 - 5 phases (8-12) derived from 20 requirements across 5 categories
 - Brain Integration kept as separate Phase 11 despite only 2 requirements -- distinct Python layer
 - DASH-03 (Tier 1/2 recommendations) grouped with Dashboard phase -- display-only, no automation risk
@@ -62,6 +66,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10
-Stopped at: v1.2 roadmap created, ready to plan Phase 8
+Last session: 2026-03-11
+Stopped at: Completed 08-01-PLAN.md
 Resume file: None

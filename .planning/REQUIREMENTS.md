@@ -7,9 +7,9 @@
 
 ### Data Foundation
 
-- [ ] **DATA-01**: Client profiles stored in Supabase with canonical NAP, services, descriptions, certifications, and hours -- one source of truth for all form fills
-- [ ] **DATA-02**: Directory master list seeded in Supabase from research doc with tier, trade, submission method, CAPTCHA status, DA score, and URL for all 55 directories
-- [ ] **DATA-03**: Submission tracking table with UNIQUE(client_id, directory_id) constraint and status workflow: pending / submitted / approved / rejected / verified / skipped
+- [x] **DATA-01**: Client profiles stored in Supabase with canonical NAP, services, descriptions, certifications, and hours -- one source of truth for all form fills
+- [x] **DATA-02**: Directory master list seeded in Supabase from research doc with tier, trade, submission method, CAPTCHA status, DA score, and URL for all 55 directories
+- [x] **DATA-03**: Submission tracking table with UNIQUE(client_id, directory_id) constraint and status workflow: pending / submitted / approved / rejected / verified / skipped
 - [ ] **DATA-04**: Pre-existing listing discovery searches each target directory for client business name + phone before any submission to avoid duplicates
 - [ ] **DATA-05**: CAPTCHA audit categorizes every directory form URL as no_captcha / simple_captcha / advanced_captcha to determine automation eligibility
 
@@ -76,9 +76,9 @@ All v1.1 requirements shipped. See milestones archive for details.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | Phase 8 | Pending |
-| DATA-02 | Phase 8 | Pending |
-| DATA-03 | Phase 8 | Pending |
+| DATA-01 | Phase 8 | Complete |
+| DATA-02 | Phase 8 | Complete |
+| DATA-03 | Phase 8 | Complete |
 | DATA-04 | Phase 8 | Pending |
 | DATA-05 | Phase 8 | Pending |
 | SUB-01 | Phase 9 | Pending |
