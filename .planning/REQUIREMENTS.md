@@ -76,32 +76,32 @@ All v1.1 requirements shipped. See milestones archive for details.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | - | Pending |
-| DATA-02 | - | Pending |
-| DATA-03 | - | Pending |
-| DATA-04 | - | Pending |
-| DATA-05 | - | Pending |
-| SUB-01 | - | Pending |
-| SUB-02 | - | Pending |
-| SUB-03 | - | Pending |
-| SUB-04 | - | Pending |
-| SUB-05 | - | Pending |
-| VER-01 | - | Pending |
-| VER-02 | - | Pending |
-| VER-03 | - | Pending |
-| VER-04 | - | Pending |
-| BRAIN-01 | - | Pending |
-| BRAIN-02 | - | Pending |
-| DASH-01 | - | Pending |
-| DASH-02 | - | Pending |
-| DASH-03 | - | Pending |
-| DASH-04 | - | Pending |
+| DATA-01 | Phase 8 | Pending |
+| DATA-02 | Phase 8 | Pending |
+| DATA-03 | Phase 8 | Pending |
+| DATA-04 | Phase 8 | Pending |
+| DATA-05 | Phase 8 | Pending |
+| SUB-01 | Phase 9 | Pending |
+| SUB-02 | Phase 9 | Pending |
+| SUB-03 | Phase 9 | Pending |
+| SUB-04 | Phase 9 | Pending |
+| SUB-05 | Phase 9 | Pending |
+| VER-01 | Phase 10 | Pending |
+| VER-02 | Phase 10 | Pending |
+| VER-03 | Phase 10 | Pending |
+| VER-04 | Phase 10 | Pending |
+| BRAIN-01 | Phase 11 | Pending |
+| BRAIN-02 | Phase 11 | Pending |
+| DASH-01 | Phase 12 | Pending |
+| DASH-02 | Phase 12 | Pending |
+| DASH-03 | Phase 12 | Pending |
+| DASH-04 | Phase 12 | Pending |
 
 **Coverage:**
 - v1.2 requirements: 20 total
-- Mapped to phases: 0
-- Unmapped: 20
+- Mapped to phases: 20
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-10*
-*Last updated: 2026-03-10 after initial definition*
+*Last updated: 2026-03-10 after roadmap creation*

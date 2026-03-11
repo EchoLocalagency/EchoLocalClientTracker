@@ -2,12 +2,13 @@
 
 ## Overview
 
-Add Generative Engine Optimization to the existing SEO engine. v1.0 built the data foundation (SerpAPI, GEO scoring, brain integration, entity building). v1.1 extends with mention tracking via Brave Search, surfaces all GEO data in the dashboard, and cleans up v1.0 tech debt.
+Add Generative Engine Optimization to the existing SEO engine. v1.0 built the data foundation (SerpAPI, GEO scoring, brain integration, entity building). v1.1 extends with mention tracking via Brave Search, surfaces all GEO data in the dashboard, and cleans up v1.0 tech debt. v1.2 adds automated directory submission and tracking -- submitting clients to 30+ niche directories GHL/Yext misses, verifying listings, and surfacing coverage in the dashboard.
 
 ## Milestones
 
 - v1.0 **GEO Module** -- Phases 1-4 (shipped 2026-03-10)
-- v1.1 **Mention Tracking + GEO Dashboard** -- Phases 5-7 (in progress)
+- v1.1 **Mention Tracking + GEO Dashboard** -- Phases 5-7 (shipped 2026-03-11)
+- v1.2 **Directory Submission & Tracking** -- Phases 8-12 (in progress)
 
 ## Phases
 
@@ -23,63 +24,83 @@ See: milestones/v1.0-ROADMAP.md for full details
 
 </details>
 
-### v1.1 Mention Tracking + GEO Dashboard
+<details>
+<summary>v1.1 Mention Tracking + GEO Dashboard (Phases 5-7) -- SHIPPED 2026-03-11</summary>
 
-- [ ] **Phase 5: Brave Infrastructure + Mention Tracking + Tech Debt** - Brave client, Reddit mining, cross-platform mentions, competitor AIO monitoring, and v1.0 debt cleanup
-- [x] **Phase 6: GEO Dashboard (Existing Data)** - GEO scores, citation status, budget gauge, and snippet tracker using data already in Supabase (completed 2026-03-11)
-- [x] **Phase 7: Trends + Source Diversity** - Citation trend charts and source diversity scoring/visualization using accumulated Phase 5 data (completed 2026-03-11)
+- [x] **Phase 5: Brave Infrastructure + Mention Tracking + Tech Debt** - Brave client, Reddit mining, cross-platform mentions, competitor AIO monitoring, and v1.0 debt cleanup
+- [x] **Phase 6: GEO Dashboard (Existing Data)** - GEO scores, citation status, budget gauge, and snippet tracker using data already in Supabase
+- [x] **Phase 7: Trends + Source Diversity** - Citation trend charts and source diversity scoring/visualization using accumulated Phase 5 data
+
+</details>
+
+### v1.2 Directory Submission & Tracking
+
+- [ ] **Phase 8: Data Foundation + Discovery** - Supabase tables, client profiles, directory master list, CAPTCHA audit, and pre-existing listing detection
+- [ ] **Phase 9: Submission Engine** - Playwright auto-submission for Tier 3 directories with rate limiting, state machine, NAP audit, and failure capture
+- [ ] **Phase 10: Verification Loop** - Brave Search site: verification at 7/14/21 day intervals with escalation to Brian
+- [ ] **Phase 11: Brain Integration** - Directory coverage summary in brain prompt and submission logging to seo_actions
+- [ ] **Phase 12: Directory Dashboard** - Directories tab with status grid, tier progress bars, Tier 1/2 recommendations, and backlink value score
 
 ## Phase Details
 
-### Phase 5: Brave Infrastructure + Mention Tracking + Tech Debt
-**Goal**: The engine collects mention data from across the web and all v1.0 tech debt is resolved, so data accumulates while dashboard work proceeds in parallel
-**Depends on**: Phase 4
-**Requirements**: INFRA-01, INFRA-02, MENT-01, MENT-02, MENT-04, DEBT-01, DEBT-02, DEBT-03
+### Phase 8: Data Foundation + Discovery
+**Goal**: All directory and client data lives in Supabase with dedup protection and CAPTCHA categorization locked in before any automation runs
+**Depends on**: Phase 7 (v1.1 complete)
+**Requirements**: DATA-01, DATA-02, DATA-03, DATA-04, DATA-05
 **Success Criteria** (what must be TRUE):
-  1. Brave Search client makes API calls with budget gating and rate limiting, and usage is tracked in Supabase with monthly caps (mirroring serpapi_client.py pattern)
-  2. Running the SEO engine on research days returns relevant Reddit questions for each client's niche via Brave `site:reddit.com` queries
-  3. Cross-platform mention tracking finds client name mentions across directories, forums, and review sites, stored in Supabase
-  4. Competitor AI Overview citations are parsed from existing SERP data for target keywords with zero additional API calls
-  5. content_validator.py uses 40-60 word range, inject_organization_on_all_pages() is wired into runtime, and same_as_urls are populated for all active clients
-**Plans:** 2 plans
+  1. Each active client has a canonical profile in Supabase with NAP, services, descriptions, certifications, and hours -- and that profile is the single source of truth for all downstream form fills
+  2. All 55 directories from the research master list are seeded in Supabase with tier, trade, submission method, DA score, and URL queryable by any combination of those fields
+  3. The submission tracking table enforces UNIQUE(client_id, directory_id) so duplicate submissions are impossible at the database level
+  4. Running discovery for any client returns which target directories already have a listing for that business, preventing the system from creating conflicting duplicate profiles
+  5. Every directory form URL is categorized as no_captcha, simple_captcha, or advanced_captcha so the submission engine knows which directories it can automate
+**Plans**: TBD
 
-Plans:
-- [ ] 05-01-PLAN.md -- Brave client + Supabase table + tech debt fixes + same_as_urls
-- [ ] 05-02-PLAN.md -- Reddit mining + mention tracking + competitor AIO parsing
-
-### Phase 6: GEO Dashboard (Existing Data)
-**Goal**: Brian and clients can see GEO scores, citation status, API budget, and snippet ownership in the dashboard without writing SQL
-**Depends on**: Phase 4 (reads v1.0 Supabase tables; no dependency on Phase 5)
-**Requirements**: DASH-01, DASH-02, DASH-05, DASH-06
+### Phase 9: Submission Engine
+**Goal**: The system auto-submits client profiles to Tier 3 no-CAPTCHA directories with human-like behavior, rate limiting, and full failure traceability
+**Depends on**: Phase 8
+**Requirements**: SUB-01, SUB-02, SUB-03, SUB-04, SUB-05
 **Success Criteria** (what must be TRUE):
-  1. Each client page shows its GEO score (0-5), which factors are missing, and score trend over time in a dashboard GEO tab
-  2. Each tracked keyword shows AI Overview citation status (cited / not cited / no AI Overview) in the dashboard
-  3. SerpAPI budget gauge shows searches used vs remaining this month, updating after each engine run
-  4. Featured Snippet ownership is displayed per keyword showing whether the client or a competitor holds it
-**Plans:** 2/2 plans complete
+  1. Running the submission engine for a client fills and submits forms on Tier 3 no-CAPTCHA directories using Playwright with human-like typing delays and anti-detection, and the submission row updates to submitted status
+  2. No client ever exceeds 5 submissions per day or 8 per week regardless of how many directories remain pending -- the rate limiter enforces this as a hard cap
+  3. A submission that fails after POST was sent is marked submitted (not retried), and a submission that fails before POST stores a screenshot and error details for debugging
+  4. Before each submission, the system verifies the form data matches the canonical client profile exactly -- any NAP mismatch blocks the submission
+**Plans**: TBD
 
-Plans:
-- [ ] 06-01-PLAN.md -- Data layer + GEO tab scaffold (types, data fetching, score display + factor breakdown)
-- [ ] 06-02-PLAN.md -- Citation status table, budget gauge, snippet ownership, trend sparklines
-
-### Phase 7: Trends + Source Diversity
-**Goal**: Brian can prove GEO ROI over time with citation trend charts and see which platforms mention each client
-**Depends on**: Phase 5 (mention data accumulated), Phase 6 (dashboard foundation and GEO tab exist)
-**Requirements**: MENT-03, DASH-03, DASH-04
+### Phase 10: Verification Loop
+**Goal**: The system confirms which directory listings went live and escalates stale submissions so nothing falls through the cracks
+**Depends on**: Phase 9
+**Requirements**: VER-01, VER-02, VER-03, VER-04
 **Success Criteria** (what must be TRUE):
-  1. AI Overview citation trends are charted as weekly snapshots, showing citation gains/losses over time per keyword
-  2. Each client has a source diversity score reflecting how many platform types (directories, forums, review sites, social) mention the business
-  3. Source diversity visualization in the dashboard shows which specific platforms mention the client and which platform types are missing
-**Plans:** 2/2 plans complete
+  1. After 7 days, each submitted directory listing is checked via Brave Search site: query for the client's presence on that directory domain
+  2. Verified listings update to verified status with the live URL stored in the submission record
+  3. Submissions still unverified after 14 days trigger an alert to Brian identifying the directory and client
+  4. Submissions still unverified after 21 days are marked needs_review for manual investigation, clearly separated from active pending submissions
+**Plans**: TBD
 
-Plans:
-- [ ] 07-01-PLAN.md -- Citation trend chart (weekly AIO citation snapshots, Recharts AreaChart, 90-day window)
-- [ ] 07-02-PLAN.md -- Source diversity scoring + visualization (platform category grid, gap identification)
+### Phase 11: Brain Integration
+**Goal**: The brain sees current directory coverage per client and all submissions appear in the action log so the brain never duplicates or conflicts with automation work
+**Depends on**: Phase 9 (needs submission data to report on)
+**Requirements**: BRAIN-01, BRAIN-02
+**Success Criteria** (what must be TRUE):
+  1. The brain prompt for each client includes a directory_summary section showing X/Y submitted and X/Y verified counts, so the brain knows current coverage without querying separately
+  2. Every directory submission appears in the seo_actions table with action_type='directory_submission', visible in the same action log the brain already reads
+**Plans**: TBD
+
+### Phase 12: Directory Dashboard
+**Goal**: Brian and clients can see directory submission status, tier progress, actionable Tier 1/2 recommendations, and backlink portfolio value in the dashboard without writing SQL
+**Depends on**: Phase 10 (needs verified submissions for meaningful display), Phase 11
+**Requirements**: DASH-01, DASH-02, DASH-03, DASH-04
+**Success Criteria** (what must be TRUE):
+  1. A Directories tab in the dashboard shows a per-client grid of every target directory with color-coded status badges (verified=green, submitted=yellow, pending=grey, rejected=red, skipped=muted)
+  2. Tier progress bars show X/Y submitted and X/Y verified per tier for each client, giving an at-a-glance view of coverage depth
+  3. Tier 1/2 directories appear as an actionable recommendation checklist per client, clearly marked as requiring client input rather than automation
+  4. Each client has a backlink value score calculated as the DA-weighted sum of verified directory listings, showing the SEO value of the directory portfolio
+**Plans**: TBD
 
 ## Progress
 
 **Execution Order:**
-Phases 5 and 6 can run in parallel (different layers: Python backend vs Next.js frontend). Phase 7 requires both.
+Phases 8-12 execute sequentially. Phase 11 can start after Phase 9 (does not need Phase 10). Phase 12 needs Phase 10 data for meaningful testing.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -87,6 +108,11 @@ Phases 5 and 6 can run in parallel (different layers: Python backend vs Next.js 
 | 2. GEO Scoring + AI Overview Detection | v1.0 | 2/2 | Complete | 2026-03-10 |
 | 3. Brain Integration + Content Upgrades | v1.0 | 2/2 | Complete | 2026-03-10 |
 | 4. Entity + Authority Building | v1.0 | 2/2 | Complete | 2026-03-10 |
-| 5. Brave Infra + Mention Tracking + Tech Debt | v1.1 | 0/2 | Planning complete | - |
-| 6. GEO Dashboard (Existing Data) | 2/2 | Complete   | 2026-03-11 | - |
-| 7. Trends + Source Diversity | 2/2 | Complete   | 2026-03-11 | - |
+| 5. Brave Infra + Mention Tracking + Tech Debt | v1.1 | 2/2 | Complete | 2026-03-11 |
+| 6. GEO Dashboard (Existing Data) | v1.1 | 2/2 | Complete | 2026-03-11 |
+| 7. Trends + Source Diversity | v1.1 | 2/2 | Complete | 2026-03-11 |
+| 8. Data Foundation + Discovery | v1.2 | 0/? | Not started | - |
+| 9. Submission Engine | v1.2 | 0/? | Not started | - |
+| 10. Verification Loop | v1.2 | 0/? | Not started | - |
+| 11. Brain Integration | v1.2 | 0/? | Not started | - |
+| 12. Directory Dashboard | v1.2 | 0/? | Not started | - |
