@@ -78,17 +78,19 @@ SerpAPI budget: 200 searches/client/month, 950 global cap. $25/mo Starter Plan.
 | Organization schema separate from LocalBusiness | Google reads both independently | Good -- clean separation |
 | difflib for PAA matching | Stdlib, 0.6 threshold, no external dependency | Good -- lightweight and accurate enough |
 
-## Current Milestone: v1.1 Mention Tracking + GEO Dashboard
+## Current Milestone: v1.2 Directory Submission & Tracking System
 
-**Goal:** Surface all GEO data in the dashboard and track where clients are mentioned online, so Brian and clients can see citation-readiness and AI visibility at a glance.
+**Goal:** Automatically submit clients to 30+ niche directories that GHL/Yext doesn't cover, track submission status, auto-retry pending submissions, verify listings via Google site: search, and surface everything in the dashboard -- so each client gains 20-30 new backlinks in month one.
 
 **Target features:**
-- Reddit question mining via Brave Search
-- Cross-platform mention tracking and source diversity scoring
-- Competitor AI Overview monitoring
-- GEO scores, citation status, and trends visible in Next.js dashboard
-- SerpAPI budget usage and Featured Snippet ownership in dashboard
-- Tech debt cleanup (word count mismatch, orphaned function, empty sameAs URLs)
+- Directory master list in Supabase (tiered: manufacturer, trade association, home service, government)
+- Client profile data in Supabase for form fills (NAP, services, descriptions, certifications)
+- Playwright-based auto-submission for Tier 3 form-fill directories
+- Submission tracking with status workflow (pending/submitted/approved/rejected/verified)
+- Auto-retry after 7 days, alert Brian after 14 days still pending
+- Google site: search verification to confirm listings went live
+- Dashboard tab showing submission status, backlink count, and per-client directory coverage
+- Tier 1/2 directories surfaced as recommendations requiring client input
 
 ---
-*Last updated: 2026-03-10 after v1.1 milestone start*
+*Last updated: 2026-03-10 after v1.2 milestone start*
