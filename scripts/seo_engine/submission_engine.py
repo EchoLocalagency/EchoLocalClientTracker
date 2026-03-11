@@ -282,7 +282,8 @@ async def _check_runtime_captcha(page) -> bool:
 
 # --- Single Directory Submission ---
 async def _submit_to_directory(page, profile: dict, directory: dict,
-                                submission_id: str, sb, form_config: dict) -> str:
+                                submission_id: str, sb, form_config: dict,
+                                client_id: str = None) -> str:
     """
     Submit client profile to one directory.
 
@@ -365,6 +366,28 @@ async def _submit_to_directory(page, profile: dict, directory: dict,
             "notes": "Auto-submitted by submission_engine",
             "metadata": existing_meta,
         }).eq("id", submission_id).execute()
+
+        # Log to seo_actions for brain visibility
+        if client_id:
+            try:
+                from .outcome_logger import log_action
+                log_action(
+                    client_id=client_id,
+                    action_type="directory_submission",
+                    description=f"Submitted to {directory.get('name', dir_domain)}",
+                    target_keywords=[],
+                    content_summary=f"Auto-submitted profile to {dir_domain}",
+                    metadata={
+                        "directory_domain": dir_domain,
+                        "directory_name": directory.get("name", ""),
+                        "submission_id": submission_id,
+                        "da_score": directory.get("da_score"),
+                        "tier": directory.get("tier"),
+                    },
+                    baseline_metrics={},
+                )
+            except Exception as e:
+                print(f"  [WARN] Failed to log directory submission to seo_actions: {e}")
 
         print(f"  Submitted successfully to {dir_domain}")
         return "submitted"
@@ -691,7 +714,8 @@ async def run_submission_engine(client_slug: str, dry_run: bool = False,
             try:
                 form_config = get_form_config(dir_domain)
                 result = await _submit_to_directory(
-                    page, profile, directory, submission_id, sb, form_config
+                    page, profile, directory, submission_id, sb, form_config,
+                    client_id=client_id
                 )
 
                 if result == "submitted":
