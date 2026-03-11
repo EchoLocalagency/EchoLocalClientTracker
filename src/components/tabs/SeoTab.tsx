@@ -64,53 +64,78 @@ function PositionSparkline({ data }: { data: number[] }) {
 export default function SeoTab({ reports, queries, latestReport, prevQueries, clientId, clientName }: SeoTabProps) {
   const [expandedQuery, setExpandedQuery] = useState<string | null>(null);
   const [allHistory, setAllHistory] = useState<Record<string, { date: string; position: number }[]>>({});
+  const [topKeywords, setTopKeywords] = useState<{ query: string; bestPosition: number; latestPosition: number; impressions: number; clicks: number }[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
 
-  // Filter out branded queries and sort by best position (lowest = highest ranking)
   const brandWords = (clientName || '').toLowerCase().split(/\s+/);
   const brandPrefix = brandWords.slice(0, 2).join(' ');
   const isBranded = (q: string) => {
     return brandPrefix.length > 0 && q.toLowerCase().includes(brandPrefix);
   };
-  const sortedQueries = [...queries]
-    .filter((q) => !isBranded(q.query))
-    .sort((a, b) => a.position - b.position)
-    .slice(0, 10);
 
-  // Batch-fetch position history for all displayed keywords
+  // Fetch top 15 keywords by best-ever position across ALL reports, with full history
   useEffect(() => {
-    if (!clientId || sortedQueries.length === 0) {
+    if (!clientId) {
+      setTopKeywords([]);
       setAllHistory({});
       return;
     }
 
-    const queryNames = sortedQueries.map((q) => q.query);
     setHistoryLoading(true);
 
     supabase
       .from('gsc_queries')
-      .select('query, run_date, position')
+      .select('query, run_date, position, impressions, clicks')
       .eq('client_id', clientId)
-      .in('query', queryNames)
       .order('run_date', { ascending: true })
       .then(({ data, error }) => {
         if (error || !data) {
+          setTopKeywords([]);
           setAllHistory({});
-        } else {
-          const grouped: Record<string, { date: string; position: number }[]> = {};
-          for (const d of data) {
-            if (!grouped[d.query]) grouped[d.query] = [];
-            grouped[d.query].push({
-              date: new Date(d.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-              position: d.position,
-            });
-          }
-          setAllHistory(grouped);
+          setHistoryLoading(false);
+          return;
         }
+
+        // Group all data by query
+        const byQuery: Record<string, { dates: { date: string; position: number }[]; bestPosition: number; latestPosition: number; totalImpressions: number; totalClicks: number }> = {};
+        for (const row of data) {
+          if (isBranded(row.query)) continue;
+          if (!byQuery[row.query]) {
+            byQuery[row.query] = { dates: [], bestPosition: 100, latestPosition: 100, totalImpressions: 0, totalClicks: 0 };
+          }
+          const entry = byQuery[row.query];
+          entry.dates.push({
+            date: new Date(row.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            position: row.position,
+          });
+          if (row.position < entry.bestPosition) entry.bestPosition = row.position;
+          entry.latestPosition = row.position;
+          entry.totalImpressions += row.impressions;
+          entry.totalClicks += row.clicks;
+        }
+
+        // Sort by best position, take top 15
+        const sorted = Object.entries(byQuery)
+          .sort(([, a], [, b]) => a.bestPosition - b.bestPosition)
+          .slice(0, 15);
+
+        setTopKeywords(sorted.map(([query, d]) => ({
+          query,
+          bestPosition: d.bestPosition,
+          latestPosition: d.latestPosition,
+          impressions: d.totalImpressions,
+          clicks: d.totalClicks,
+        })));
+
+        const history: Record<string, { date: string; position: number }[]> = {};
+        for (const [query, d] of sorted) {
+          history[query] = d.dates;
+        }
+        setAllHistory(history);
         setHistoryLoading(false);
       });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clientId, queries.length]);
+  }, [clientId]);
 
   if (!latestReport) {
     return <div style={{ color: 'var(--text-secondary)', padding: 40, textAlign: 'center' }}>No data yet.</div>;
@@ -241,39 +266,35 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
 
       {/* Top keywords table with inline sparklines and expandable charts */}
       <div style={chartStyle}>
-        <div style={sectionLabel}>Top Keyword Rankings</div>
+        <div style={sectionLabel}>Top 15 Keyword Rankings (All Time)</div>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
               <th style={{ textAlign: 'left', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Query</th>
               <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Position</th>
-              {prevQueries && prevQueries.length > 0 && (
-                <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Movement</th>
-              )}
+              <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Movement</th>
               <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Trend</th>
               <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Impr.</th>
               <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Clicks</th>
             </tr>
           </thead>
           <tbody>
-            {sortedQueries.map((q) => {
-              const prev = prevQueryMap.get(q.query);
-              const posMovement = prev ? prev.position - q.position : null;
+            {topKeywords.map((q) => {
               const history = allHistory[q.query] || [];
               const sparkData = history.map((h) => h.position);
               const isExpanded = expandedQuery === q.query;
+              // Movement: compare best to latest (positive = improved from latest perspective)
+              const posMovement = history.length >= 2 ? history[history.length - 2].position - q.latestPosition : null;
 
               return (
-                <tr key={q.id} style={{ verticalAlign: 'top' }}>
+                <tr key={q.query} style={{ verticalAlign: 'top' }}>
                   <td colSpan={6} style={{ padding: 0 }}>
                     {/* Main row */}
                     <div
                       onClick={() => setExpandedQuery(isExpanded ? null : q.query)}
                       style={{
                         display: 'grid',
-                        gridTemplateColumns: prevQueries && prevQueries.length > 0
-                          ? '1fr 70px 80px 90px 60px 60px'
-                          : '1fr 70px 90px 60px 60px',
+                        gridTemplateColumns: '1fr 70px 80px 90px 60px 60px',
                         alignItems: 'center',
                         cursor: 'pointer',
                         padding: '10px 12px',
@@ -291,25 +312,23 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
                       <div style={{ textAlign: 'right' }}>
                         <span style={{
                           fontFamily: 'var(--font-mono)',
-                          color: q.position <= 10 ? 'var(--success)' : q.position <= 20 ? 'var(--accent)' : 'var(--text-secondary)',
-                          fontWeight: q.position <= 10 ? 600 : 400,
+                          color: q.latestPosition <= 10 ? 'var(--success)' : q.latestPosition <= 20 ? 'var(--accent)' : 'var(--text-secondary)',
+                          fontWeight: q.latestPosition <= 10 ? 600 : 400,
                         }}>
-                          {q.position.toFixed(1)}
+                          {q.latestPosition.toFixed(1)}
                         </span>
                       </div>
-                      {prevQueries && prevQueries.length > 0 && (
-                        <div style={{ textAlign: 'right', fontFamily: 'var(--font-mono)', fontSize: 12 }}>
-                          {posMovement != null ? (
-                            <span style={{
-                              color: posMovement > 0 ? 'var(--success)' : posMovement < 0 ? 'var(--danger)' : 'var(--text-secondary)',
-                            }}>
-                              {posMovement > 0 ? `+${posMovement.toFixed(1)}` : posMovement.toFixed(1)}
-                            </span>
-                          ) : (
-                            <span style={{ color: 'var(--text-secondary)' }}>new</span>
-                          )}
-                        </div>
-                      )}
+                      <div style={{ textAlign: 'right', fontFamily: 'var(--font-mono)', fontSize: 12 }}>
+                        {posMovement != null ? (
+                          <span style={{
+                            color: posMovement > 0 ? 'var(--success)' : posMovement < 0 ? 'var(--danger)' : 'var(--text-secondary)',
+                          }}>
+                            {posMovement > 0 ? `+${posMovement.toFixed(1)}` : posMovement.toFixed(1)}
+                          </span>
+                        ) : (
+                          <span style={{ color: 'var(--text-secondary)' }}>--</span>
+                        )}
+                      </div>
                       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                         {historyLoading ? (
                           <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>...</span>
