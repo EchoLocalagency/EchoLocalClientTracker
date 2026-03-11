@@ -10,6 +10,8 @@ import ClientManager from '@/components/seo-engine/ClientManager';
 import ActionFeedGreen from '@/components/seo-engine/ActionFeedGreen';
 import BrainDecisionsGreen from '@/components/seo-engine/BrainDecisionsGreen';
 import KeywordDashboard from '@/components/seo-engine/KeywordDashboard';
+import ClientProfileForm from '@/components/directories/ClientProfileForm';
+import DirectoryManager from '@/components/directories/DirectoryManager';
 
 export default function SeoEnginePage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -172,6 +174,12 @@ export default function SeoEnginePage() {
         )}
         {activeTab === 'keywords' && (
           <KeywordDashboard actions={seoActions} />
+        )}
+        {activeTab === 'directories' && activeClient && (
+          <div>
+            <ClientProfileForm clientId={activeClient.id} />
+            <DirectoryManager />
+          </div>
         )}
       </div>
     </SeoEngineLayout>

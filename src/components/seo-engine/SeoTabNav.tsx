@@ -12,6 +12,7 @@ const tabs: SeoTab[] = [
   { id: 'actions', label: 'Action Feed' },
   { id: 'brain', label: 'Brain Decisions' },
   { id: 'keywords', label: 'Keywords' },
+  { id: 'directories', label: 'Directories' },
 ];
 
 interface SeoTabNavProps {
