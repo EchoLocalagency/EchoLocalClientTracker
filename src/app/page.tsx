@@ -13,7 +13,6 @@ import SeoTab from '@/components/tabs/SeoTab';
 import ConversionsTab from '@/components/tabs/ConversionsTab';
 import GbpTab from '@/components/tabs/GbpTab';
 import SeoEngineTab from '@/components/tabs/SeoEngineTab';
-import AgentsTab from '@/components/tabs/AgentsTab';
 import GeoTab from '@/components/tabs/GeoTab';
 
 export default function Dashboard() {
@@ -511,10 +510,7 @@ export default function Dashboard() {
               {activeTab === 'seo-engine' && isAdmin && (
                 <SeoEngineTab actions={seoActions} decisions={brainDecisions} />
               )}
-              {activeTab === 'agents' && isAdmin && (
-                <AgentsTab />
-              )}
-              {activeTab === 'geo' && (
+              {activeTab === 'geo' && isAdmin && (
                 <GeoTab
                   geoScores={geoScores}
                   serpFeatures={serpFeatures}

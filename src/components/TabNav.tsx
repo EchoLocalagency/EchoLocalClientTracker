@@ -15,7 +15,6 @@ const tabs: Tab[] = [
   { id: 'gbp', label: 'GBP' },
   { id: 'geo', label: 'GEO' },
   { id: 'seo-engine', label: 'SEO Engine' },
-  { id: 'agents', label: 'Agents' },
 ];
 
 interface TabNavProps {
@@ -25,7 +24,7 @@ interface TabNavProps {
 }
 
 export default function TabNav({ activeTab, onTabChange, isAdmin = false }: TabNavProps) {
-  const visibleTabs = isAdmin ? tabs : tabs.filter(t => t.id !== 'seo-engine' && t.id !== 'agents');
+  const visibleTabs = isAdmin ? tabs : tabs.filter(t => t.id !== 'seo-engine' && t.id !== 'geo');
 
   return (
     <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--border)', marginBottom: 24 }}>
