@@ -95,7 +95,7 @@ Plans:
   2. Every directory submission appears in the seo_actions table with action_type='directory_submission', visible in the same action log the brain already reads
 **Plans:** 1/1 plans complete
 Plans:
-- [ ] 11-01-PLAN.md -- Add get_directory_summary() to outcome_logger, wire into brain prompt, log submissions to seo_actions
+- [x] 11-01-PLAN.md -- Add get_directory_summary() to outcome_logger, wire into brain prompt, log submissions to seo_actions
 
 ### Phase 12: Directory Dashboard
 **Goal**: Brian and clients can see directory submission status, tier progress, actionable Tier 1/2 recommendations, and backlink portfolio value in the dashboard without writing SQL
@@ -106,7 +106,9 @@ Plans:
   2. Tier progress bars show X/Y submitted and X/Y verified per tier for each client, giving an at-a-glance view of coverage depth
   3. Tier 1/2 directories appear as an actionable recommendation checklist per client, clearly marked as requiring client input rather than automation
   4. Each client has a backlink value score calculated as the DA-weighted sum of verified directory listings, showing the SEO value of the directory portfolio
-**Plans**: TBD
+**Plans:** 1 plans
+Plans:
+- [ ] 12-01-PLAN.md -- DirectoriesTab with status grid, tier progress bars, Tier 1/2 recommendations, and backlink value score
 
 ## Progress
 
@@ -125,5 +127,5 @@ Phases 8-12 execute sequentially. Phase 11 can start after Phase 9 (does not nee
 | 8. Data Foundation + Discovery | v1.2 | 3/3 | Complete | 2026-03-11 |
 | 9. Submission Engine | v1.2 | 2/2 | Complete | 2026-03-11 |
 | 10. Verification Loop | v1.2 | 1/1 | Complete | 2026-03-11 |
-| 11. Brain Integration | 1/1 | Complete    | 2026-03-11 | - |
-| 12. Directory Dashboard | v1.2 | 0/? | Not started | - |
+| 11. Brain Integration | v1.2 | 1/1 | Complete | 2026-03-11 |
+| 12. Directory Dashboard | v1.2 | 0/1 | Not started | - |
