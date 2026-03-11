@@ -68,7 +68,10 @@ Plans:
   2. No client ever exceeds 5 submissions per day or 8 per week regardless of how many directories remain pending -- the rate limiter enforces this as a hard cap
   3. A submission that fails after POST was sent is marked submitted (not retried), and a submission that fails before POST stores a screenshot and error details for debugging
   4. Before each submission, the system verifies the form data matches the canonical client profile exactly -- any NAP mismatch blocks the submission
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 09-01-PLAN.md -- Build submission engine with Playwright stealth, rate limiter, state machine, NAP audit, form configs, and screenshot capture
+- [ ] 09-02-PLAN.md -- Dry-run testing against eligible directories, per-directory overrides, Brian approval checkpoint
 
 ### Phase 10: Verification Loop
 **Goal**: The system confirms which directory listings went live and escalates stale submissions so nothing falls through the cracks
@@ -116,7 +119,7 @@ Phases 8-12 execute sequentially. Phase 11 can start after Phase 9 (does not nee
 | 6. GEO Dashboard (Existing Data) | v1.1 | 2/2 | Complete | 2026-03-11 |
 | 7. Trends + Source Diversity | v1.1 | 2/2 | Complete | 2026-03-11 |
 | 8. Data Foundation + Discovery | v1.2 | 3/3 | Complete | 2026-03-11 |
-| 9. Submission Engine | v1.2 | 0/? | Not started | - |
+| 9. Submission Engine | v1.2 | 0/2 | Not started | - |
 | 10. Verification Loop | v1.2 | 0/? | Not started | - |
 | 11. Brain Integration | v1.2 | 0/? | Not started | - |
 | 12. Directory Dashboard | v1.2 | 0/? | Not started | - |
