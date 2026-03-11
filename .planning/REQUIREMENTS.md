@@ -12,10 +12,10 @@
 
 ### Mention Tracking
 
-- [ ] **MENT-01**: Reddit question mining via Brave Search `site:reddit.com` returns relevant local service questions per client niche
-- [ ] **MENT-02**: Cross-platform mention tracking finds client mentions across directories, forums, and review sites
+- [x] **MENT-01**: Reddit question mining via Brave Search `site:reddit.com` returns relevant local service questions per client niche
+- [x] **MENT-02**: Cross-platform mention tracking finds client mentions across directories, forums, and review sites
 - [ ] **MENT-03**: Each client has a source diversity score showing how many platform types mention the business
-- [ ] **MENT-04**: Competitor AI Overview citations tracked for target keywords (reuses existing SERP data, zero additional API calls)
+- [x] **MENT-04**: Competitor AI Overview citations tracked for target keywords (reuses existing SERP data, zero additional API calls)
 
 ### GEO Dashboard
 
@@ -61,10 +61,10 @@
 |-------------|-------|--------|
 | INFRA-01 | Phase 5 | Complete |
 | INFRA-02 | Phase 5 | Complete |
-| MENT-01 | Phase 5 | Pending |
-| MENT-02 | Phase 5 | Pending |
+| MENT-01 | Phase 5 | Complete |
+| MENT-02 | Phase 5 | Complete |
 | MENT-03 | Phase 7 | Pending |
-| MENT-04 | Phase 5 | Pending |
+| MENT-04 | Phase 5 | Complete |
 | DASH-01 | Phase 6 | Pending |
 | DASH-02 | Phase 6 | Pending |
 | DASH-03 | Phase 7 | Pending |
