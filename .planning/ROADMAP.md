@@ -53,7 +53,11 @@ See: milestones/v1.0-ROADMAP.md for full details
   3. The submission tracking table enforces UNIQUE(client_id, directory_id) so duplicate submissions are impossible at the database level
   4. Running discovery for any client returns which target directories already have a listing for that business, preventing the system from creating conflicting duplicate profiles
   5. Every directory form URL is categorized as no_captcha, simple_captcha, or advanced_captcha so the submission engine knows which directories it can automate
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 08-01-PLAN.md -- Schema migration, TypeScript interfaces, seed scripts for client profiles and 55 directories
+- [ ] 08-02-PLAN.md -- Client profile editor form and directory management UI with CAPTCHA badges
+- [ ] 08-03-PLAN.md -- Pre-existing listing discovery script and CAPTCHA audit script
 
 ### Phase 9: Submission Engine
 **Goal**: The system auto-submits client profiles to Tier 3 no-CAPTCHA directories with human-like behavior, rate limiting, and full failure traceability
@@ -111,7 +115,7 @@ Phases 8-12 execute sequentially. Phase 11 can start after Phase 9 (does not nee
 | 5. Brave Infra + Mention Tracking + Tech Debt | v1.1 | 2/2 | Complete | 2026-03-11 |
 | 6. GEO Dashboard (Existing Data) | v1.1 | 2/2 | Complete | 2026-03-11 |
 | 7. Trends + Source Diversity | v1.1 | 2/2 | Complete | 2026-03-11 |
-| 8. Data Foundation + Discovery | v1.2 | 0/? | Not started | - |
+| 8. Data Foundation + Discovery | v1.2 | 0/3 | Planning complete | - |
 | 9. Submission Engine | v1.2 | 0/? | Not started | - |
 | 10. Verification Loop | v1.2 | 0/? | Not started | - |
 | 11. Brain Integration | v1.2 | 0/? | Not started | - |
