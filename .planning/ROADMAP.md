@@ -35,7 +35,7 @@ See: milestones/v1.0-ROADMAP.md for full details
 
 ### v1.2 Directory Submission & Tracking
 
-- [ ] **Phase 8: Data Foundation + Discovery** - Supabase tables, client profiles, directory master list, CAPTCHA audit, and pre-existing listing detection
+- [x] **Phase 8: Data Foundation + Discovery** - Supabase tables, client profiles, directory master list, CAPTCHA audit, and pre-existing listing detection
 - [ ] **Phase 9: Submission Engine** - Playwright auto-submission for Tier 3 directories with rate limiting, state machine, NAP audit, and failure capture
 - [ ] **Phase 10: Verification Loop** - Brave Search site: verification at 7/14/21 day intervals with escalation to Brian
 - [ ] **Phase 11: Brain Integration** - Directory coverage summary in brain prompt and submission logging to seo_actions
@@ -55,9 +55,9 @@ See: milestones/v1.0-ROADMAP.md for full details
   5. Every directory form URL is categorized as no_captcha, simple_captcha, or advanced_captcha so the submission engine knows which directories it can automate
 **Plans:** 3 plans
 Plans:
-- [ ] 08-01-PLAN.md -- Schema migration, TypeScript interfaces, seed scripts for client profiles and 55 directories
-- [ ] 08-02-PLAN.md -- Client profile editor form and directory management UI with CAPTCHA badges
-- [ ] 08-03-PLAN.md -- Pre-existing listing discovery script and CAPTCHA audit script
+- [x] 08-01-PLAN.md -- Schema migration, TypeScript interfaces, seed scripts for client profiles and 55 directories
+- [x] 08-02-PLAN.md -- Client profile editor form and directory management UI with CAPTCHA badges
+- [x] 08-03-PLAN.md -- Pre-existing listing discovery script and CAPTCHA audit script
 
 ### Phase 9: Submission Engine
 **Goal**: The system auto-submits client profiles to Tier 3 no-CAPTCHA directories with human-like behavior, rate limiting, and full failure traceability
@@ -115,7 +115,7 @@ Phases 8-12 execute sequentially. Phase 11 can start after Phase 9 (does not nee
 | 5. Brave Infra + Mention Tracking + Tech Debt | v1.1 | 2/2 | Complete | 2026-03-11 |
 | 6. GEO Dashboard (Existing Data) | v1.1 | 2/2 | Complete | 2026-03-11 |
 | 7. Trends + Source Diversity | v1.1 | 2/2 | Complete | 2026-03-11 |
-| 8. Data Foundation + Discovery | v1.2 | 0/3 | Planning complete | - |
+| 8. Data Foundation + Discovery | v1.2 | 3/3 | Complete | 2026-03-11 |
 | 9. Submission Engine | v1.2 | 0/? | Not started | - |
 | 10. Verification Loop | v1.2 | 0/? | Not started | - |
 | 11. Brain Integration | v1.2 | 0/? | Not started | - |

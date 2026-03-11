@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Directory Submission & Tracking System
 status: in-progress
-last_updated: "2026-03-11T04:20:10Z"
+last_updated: "2026-03-11T15:31:16Z"
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
 ---
 
 # Project State
@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 
 ## Current Position
 
-Phase: 8 of 12 (Data Foundation + Discovery)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-03-11 -- Completed 08-03 (discovery + CAPTCHA audit scripts)
+Phase: 8 of 12 (Data Foundation + Discovery) -- COMPLETE
+Plan: 3 of 3 in current phase (all complete)
+Status: Phase 8 complete, ready for Phase 9
+Last activity: 2026-03-11 -- Completed 08-02 (directory UI + service-trade matching)
 
-Progress: [###############░░░░░] 77% (v1.0 + v1.1 complete, v1.2: 2/3 plans in phase 8)
+Progress: [####################] 100% (v1.0 + v1.1 complete, v1.2: phase 8 complete, 3/3 plans)
 
 ## Performance Metrics
 
@@ -41,6 +41,10 @@ Progress: [###############░░░░░] 77% (v1.0 + v1.1 complete, v1.2: 2/3 
 
 Full decision log in PROJECT.md Key Decisions table.
 Recent (v1.2):
+- 08-02: Trade tags refined to 5 categories (pressure_washing, turf, landscaping, home_services, seo_agency)
+- 08-02: Agency directories (Clutch, DesignRush) tagged seo_agency -- only Echo Local sees them
+- 08-02: CLIENT_TRADE_MAP in page.tsx rather than DB column -- simple, no migration
+- 08-02: Irrelevant directories disabled rather than deleted (preserves submission records)
 - 08-03: Discovery protects existing non-pending submissions from overwrite during upsert
 - 08-03: CAPTCHA detection uses static HTML only -- JS-rendered CAPTCHAs flagged for manual review
 - 08-03: reCAPTCHA v2 = simple_captcha; v3/hCaptcha/Turnstile = advanced_captcha
@@ -70,5 +74,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-11
-Stopped at: Completed 08-03-PLAN.md
+Stopped at: Completed 08-02-PLAN.md (Phase 8 fully complete: 08-01, 08-02, 08-03 all done)
 Resume file: None
