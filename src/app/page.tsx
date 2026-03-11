@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Client, Report, GscQuery, GbpKeyword, SeoAction, SeoBrainDecision, GeoScore, SerpFeature, WeeklyTrendPoint, TabId, TimeRange } from '@/lib/types';
+import { Client, Report, GscQuery, GbpKeyword, SeoAction, SeoBrainDecision, GeoScore, SerpFeature, Mention, WeeklyTrendPoint, TabId, TimeRange } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
 import { useFilteredReports } from '@/hooks/useFilteredReports';
@@ -34,6 +34,7 @@ export default function Dashboard() {
   const [serpApiUsageCount, setSerpApiUsageCount] = useState<number>(0);
   const [geoScoreTrends, setGeoScoreTrends] = useState<Record<string, Array<{ score: number; scored_at: string }>>>({});
   const [citationTrends, setCitationTrends] = useState<WeeklyTrendPoint[]>([]);
+  const [mentions, setMentions] = useState<Mention[]>([]);
   const [loading, setLoading] = useState(true);
 
   const filteredReports = useFilteredReports(reports, timeRange);
@@ -229,6 +230,7 @@ export default function Dashboard() {
       setSerpApiUsageCount(0);
       setGeoScoreTrends({});
       setCitationTrends([]);
+      setMentions([]);
       return;
     }
 
@@ -238,6 +240,7 @@ export default function Dashboard() {
       setSerpApiUsageCount(0);
       setGeoScoreTrends({});
       setCitationTrends([]);
+      setMentions([]);
       return;
     }
 
@@ -365,11 +368,26 @@ export default function Dashboard() {
       setCitationTrends(trends);
     }
 
+    async function loadMentions() {
+      const { data: mentionsData, error } = await supabase
+        .from('mentions')
+        .select('platform, source_domain, mention_type, title, source_url')
+        .eq('client_id', activeClient!.id);
+
+      if (error) {
+        console.error('Mentions fetch error:', error);
+        setMentions([]);
+      } else {
+        setMentions(mentionsData || []);
+      }
+    }
+
     loadGeoScores();
     loadSerpFeatures();
     loadSerpApiUsage();
     loadGeoScoreTrends();
     loadCitationTrends();
+    loadMentions();
   }, [activeClient]);
 
   const hasFormTracking = reports.some(r => r.ga4_form_submits != null && r.ga4_form_submits > 0);
@@ -505,6 +523,7 @@ export default function Dashboard() {
                   seoEngineEnabled={activeClient?.seo_engine_enabled ?? false}
                   geoScoreTrends={geoScoreTrends}
                   citationTrends={citationTrends}
+                  mentions={mentions}
                 />
               )}
             </>
