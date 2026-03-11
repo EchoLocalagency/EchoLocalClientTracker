@@ -116,7 +116,35 @@ export interface SeoBrainDecision {
   created_at: string;
 }
 
-export type TabId = 'overview' | 'seo' | 'conversions' | 'gbp' | 'seo-engine';
+export type TabId = 'overview' | 'seo' | 'conversions' | 'gbp' | 'seo-engine' | 'agents' | 'geo';
 export type SeoEngineSubTab = 'action-feed' | 'brain-decisions' | 'keyword-tracker' | 'outcome-patterns';
 export type SeoEngineTabId = 'clients' | 'actions' | 'brain' | 'keywords';
 export type TimeRange = '4w' | '3m' | '6m' | 'all';
+
+export interface GeoScore {
+  page_path: string;
+  page_url: string;
+  score: number;
+  factors: {
+    answer_block: 0 | 1;
+    stats_density: 0 | 1;
+    schema_present: 0 | 1;
+    heading_structure: 0 | 1;
+    freshness_signal: 0 | 1;
+  };
+  scored_at: string;
+}
+
+export interface SerpFeature {
+  keyword: string;
+  has_ai_overview: boolean;
+  client_cited_in_ai_overview: boolean;
+  has_featured_snippet: boolean;
+  featured_snippet_holder: string;
+  client_has_snippet: boolean;
+  collected_at: string;
+}
+
+export interface SerpApiUsage {
+  count: number;
+}
