@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Mention Tracking + GEO Dashboard
 status: in-progress
-last_updated: "2026-03-11T02:27:00Z"
+last_updated: "2026-03-11T02:37:00Z"
 progress:
   total_phases: 1
   completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 6
+  completed_plans: 6
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** The brain knows which pages are citation-ready and which aren't, and prioritizes making uncitable content citable.
-**Current focus:** v1.1 Mention Tracking + GEO Dashboard -- Phase 6 complete (all plans)
+**Current focus:** v1.1 Mention Tracking + GEO Dashboard -- Phase 7 complete (all plans)
 
 ## Current Position
 
-Phase: 6 of 7 (GEO Dashboard)
+Phase: 7 of 7 (Trends + Source Diversity)
 Plan: 2 of 2 (COMPLETE)
-Status: Phase 6 complete
-Last activity: 2026-03-11 -- Completed 06-02 (citation table, snippets, budget gauge, sparklines)
+Status: Phase 7 complete
+Last activity: 2026-03-11 -- Completed 07-02 (source diversity scoring and visualization)
 
-Progress: [######░░░░] 60%
+Progress: [##########] 100%
 
 ## Performance Metrics
 
@@ -54,6 +54,8 @@ Recent:
 - serpapi_usage budget query is global (no client_id filter) matching Python behavior
 - Reused HealthScoreCard SVG arc pattern for budget gauge (visual consistency)
 - Trend data fetched separately from deduped scores for full sparkline history
+- Set-based dedup per week bucket for unique keyword counts in citation trends
+- Separate serp_features query for trends (all rows, 90-day) vs status table (latest-per-keyword)
 
 ### Pending Todos
 
@@ -67,5 +69,5 @@ Recent:
 ## Session Continuity
 
 Last session: 2026-03-11
-Stopped at: Completed 06-02-PLAN.md (citation table, snippets, budget gauge, sparklines)
+Stopped at: Completed 07-01-PLAN.md (weekly AIO citation trend charts)
 Resume file: None

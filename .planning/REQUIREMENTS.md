@@ -21,7 +21,7 @@
 
 - [x] **DASH-01**: GEO scores visible per page in Next.js dashboard with missing factors and score trend
 - [x] **DASH-02**: AI Overview citation status per keyword (cited / not cited / no AI Overview)
-- [ ] **DASH-03**: AI Overview citation trends charted as weekly snapshots over time
+- [x] **DASH-03**: AI Overview citation trends charted as weekly snapshots over time
 - [ ] **DASH-04**: Source diversity visualization showing which platforms mention the client
 - [x] **DASH-05**: SerpAPI budget usage indicator (searches used vs remaining this month)
 - [x] **DASH-06**: Featured Snippet ownership displayed per keyword (client vs competitor)
@@ -67,7 +67,7 @@
 | MENT-04 | Phase 5 | Complete |
 | DASH-01 | Phase 6 | Complete |
 | DASH-02 | Phase 6 | Complete |
-| DASH-03 | Phase 7 | Pending |
+| DASH-03 | Phase 7 | Complete |
 | DASH-04 | Phase 7 | Pending |
 | DASH-05 | Phase 6 | Complete |
 | DASH-06 | Phase 6 | Complete |

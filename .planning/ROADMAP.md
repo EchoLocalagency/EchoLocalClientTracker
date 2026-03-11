@@ -27,7 +27,7 @@ See: milestones/v1.0-ROADMAP.md for full details
 
 - [ ] **Phase 5: Brave Infrastructure + Mention Tracking + Tech Debt** - Brave client, Reddit mining, cross-platform mentions, competitor AIO monitoring, and v1.0 debt cleanup
 - [x] **Phase 6: GEO Dashboard (Existing Data)** - GEO scores, citation status, budget gauge, and snippet tracker using data already in Supabase (completed 2026-03-11)
-- [ ] **Phase 7: Trends + Source Diversity** - Citation trend charts and source diversity scoring/visualization using accumulated Phase 5 data
+- [x] **Phase 7: Trends + Source Diversity** - Citation trend charts and source diversity scoring/visualization using accumulated Phase 5 data (completed 2026-03-11)
 
 ## Phase Details
 
@@ -70,7 +70,7 @@ Plans:
   1. AI Overview citation trends are charted as weekly snapshots, showing citation gains/losses over time per keyword
   2. Each client has a source diversity score reflecting how many platform types (directories, forums, review sites, social) mention the business
   3. Source diversity visualization in the dashboard shows which specific platforms mention the client and which platform types are missing
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 07-01-PLAN.md -- Citation trend chart (weekly AIO citation snapshots, Recharts AreaChart, 90-day window)
@@ -89,4 +89,4 @@ Phases 5 and 6 can run in parallel (different layers: Python backend vs Next.js 
 | 4. Entity + Authority Building | v1.0 | 2/2 | Complete | 2026-03-10 |
 | 5. Brave Infra + Mention Tracking + Tech Debt | v1.1 | 0/2 | Planning complete | - |
 | 6. GEO Dashboard (Existing Data) | 2/2 | Complete   | 2026-03-11 | - |
-| 7. Trends + Source Diversity | v1.1 | 0/2 | Planning complete | - |
+| 7. Trends + Source Diversity | 2/2 | Complete   | 2026-03-11 | - |
