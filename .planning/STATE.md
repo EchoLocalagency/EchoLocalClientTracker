@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Directory Submission & Tracking System
 status: in-progress
-last_updated: "2026-03-10T00:00:00Z"
+last_updated: "2026-03-11T04:20:10Z"
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 ## Current Position
 
 Phase: 8 of 12 (Data Foundation + Discovery)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-03-11 -- Completed 08-01 (data foundation tables + seed data)
+Last activity: 2026-03-11 -- Completed 08-03 (discovery + CAPTCHA audit scripts)
 
-Progress: [##############░░░░░░] 72% (v1.0 + v1.1 complete, v1.2: 1/3 plans in phase 8)
+Progress: [###############░░░░░] 77% (v1.0 + v1.1 complete, v1.2: 2/3 plans in phase 8)
 
 ## Performance Metrics
 
@@ -41,6 +41,9 @@ Progress: [##############░░░░░░] 72% (v1.0 + v1.1 complete, v1.2: 1/
 
 Full decision log in PROJECT.md Key Decisions table.
 Recent (v1.2):
+- 08-03: Discovery protects existing non-pending submissions from overwrite during upsert
+- 08-03: CAPTCHA detection uses static HTML only -- JS-rendered CAPTCHAs flagged for manual review
+- 08-03: reCAPTCHA v2 = simple_captcha; v3/hCaptcha/Turnstile = advanced_captcha
 - 08-01: Hybrid tier system (Tier 1 manual-only DA 50+, Tier 2 semi-auto DA 30-50, Tier 3 auto-eligible DA 10-30)
 - 08-01: 55 directories split 15/20/20 across tiers with trade tags for home services
 - 08-01: same_as_urls from clients.json auto-create existing_needs_review submissions
@@ -60,12 +63,12 @@ None yet.
 
 ### Blockers/Concerns
 
-- CAPTCHA audit of all 55 directory form URLs must happen during Phase 8 (manual inspection, 2-3 hours)
+- CAPTCHA audit script built -- Brian should run `python3 -m scripts.seo_engine.captcha_audit --update` and manually review no_captcha results
 - Form mapping success rate estimated at ~70% -- remaining 30% need per-directory config overrides during Phase 9
 - Instantly API key returned 401 on 2026-03-08 (unrelated to v1.2)
 
 ## Session Continuity
 
 Last session: 2026-03-11
-Stopped at: Completed 08-01-PLAN.md
+Stopped at: Completed 08-03-PLAN.md
 Resume file: None
