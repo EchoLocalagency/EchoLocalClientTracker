@@ -97,31 +97,32 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
         }
 
         // Group all data by query
-        const byQuery: Record<string, { dates: { date: string; position: number }[]; bestPosition: number; latestPosition: number; totalImpressions: number; totalClicks: number }> = {};
+        const byQuery: Record<string, { dates: { date: string; position: number }[]; latestPosition: number; latestDate: string; totalImpressions: number; totalClicks: number }> = {};
         for (const row of data) {
           if (isBranded(row.query)) continue;
           if (!byQuery[row.query]) {
-            byQuery[row.query] = { dates: [], bestPosition: 100, latestPosition: 100, totalImpressions: 0, totalClicks: 0 };
+            byQuery[row.query] = { dates: [], latestPosition: 100, latestDate: '', totalImpressions: 0, totalClicks: 0 };
           }
           const entry = byQuery[row.query];
           entry.dates.push({
             date: new Date(row.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
             position: row.position,
           });
-          if (row.position < entry.bestPosition) entry.bestPosition = row.position;
+          // Data is ordered by run_date asc, so last row = latest
           entry.latestPosition = row.position;
+          entry.latestDate = row.run_date;
           entry.totalImpressions += row.impressions;
           entry.totalClicks += row.clicks;
         }
 
-        // Sort by best position, take top 15
+        // Sort by current (latest) position, take top 15
         const sorted = Object.entries(byQuery)
-          .sort(([, a], [, b]) => a.bestPosition - b.bestPosition)
+          .sort(([, a], [, b]) => a.latestPosition - b.latestPosition)
           .slice(0, 15);
 
         setTopKeywords(sorted.map(([query, d]) => ({
           query,
-          bestPosition: d.bestPosition,
+          bestPosition: d.latestPosition,
           latestPosition: d.latestPosition,
           impressions: d.totalImpressions,
           clicks: d.totalClicks,
@@ -266,7 +267,7 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
 
       {/* Top keywords table with inline sparklines and expandable charts */}
       <div style={chartStyle}>
-        <div style={sectionLabel}>Top 15 Keyword Rankings (All Time)</div>
+        <div style={sectionLabel}>Top 15 Keywords by Current Rank</div>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
