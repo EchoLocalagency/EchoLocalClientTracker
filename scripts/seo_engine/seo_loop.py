@@ -145,6 +145,17 @@ def run_client(client, dry_run=True):
         else:
             print(f"  No research cache available")
 
+    # ── Step 2b: Keyword rank tracking (research days only) ──
+    if today.weekday() in (2, 5):  # Wednesday + Saturday
+        print(f"\n  [2b/7] Checking tracked keyword ranks...")
+        try:
+            from .keyword_tracker import check_all_tracked_keywords
+            kw_results = check_all_tracked_keywords(client, client_id)
+            if kw_results:
+                print(f"  Tracked {len(kw_results)} keyword positions")
+        except Exception as e:
+            print(f"  Keyword tracking failed (non-fatal): {e}")
+
     # Fast research (trends + news) runs every cycle for newsjacking
     try:
         fast_data = run_fast_research(client)

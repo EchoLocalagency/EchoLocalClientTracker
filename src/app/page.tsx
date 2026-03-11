@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Client, Report, GscQuery, GbpKeyword, SeoAction, SeoBrainDecision, GeoScore, SerpFeature, Mention, WeeklyTrendPoint, TabId, TimeRange } from '@/lib/types';
+import { Client, Report, GscQuery, GbpKeyword, SeoAction, SeoBrainDecision, GeoScore, SerpFeature, Mention, WeeklyTrendPoint, TabId, TimeRange, TrackedKeyword, KeywordSnapshot } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
 import { useFilteredReports } from '@/hooks/useFilteredReports';
@@ -34,6 +34,8 @@ export default function Dashboard() {
   const [geoScoreTrends, setGeoScoreTrends] = useState<Record<string, Array<{ score: number; scored_at: string }>>>({});
   const [citationTrends, setCitationTrends] = useState<WeeklyTrendPoint[]>([]);
   const [mentions, setMentions] = useState<Mention[]>([]);
+  const [trackedKeywords, setTrackedKeywords] = useState<TrackedKeyword[]>([]);
+  const [keywordSnapshots, setKeywordSnapshots] = useState<KeywordSnapshot[]>([]);
   const [loading, setLoading] = useState(true);
 
   const filteredReports = useFilteredReports(reports, timeRange);
@@ -195,9 +197,45 @@ export default function Dashboard() {
       }
     }
 
+    async function loadTrackedKeywords() {
+      const { data, error } = await supabase
+        .from('tracked_keywords')
+        .select('*')
+        .eq('client_id', activeClient!.id)
+        .eq('is_active', true);
+
+      if (error) {
+        console.error('Tracked keywords fetch error:', error);
+        setTrackedKeywords([]);
+      } else {
+        setTrackedKeywords(data || []);
+      }
+    }
+
+    async function loadKeywordSnapshots() {
+      const ninetyDaysAgo = new Date();
+      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+      const { data, error } = await supabase
+        .from('keyword_snapshots')
+        .select('*')
+        .eq('client_id', activeClient!.id)
+        .gte('checked_at', ninetyDaysAgo.toISOString().slice(0, 10))
+        .order('checked_at', { ascending: true });
+
+      if (error) {
+        console.error('Keyword snapshots fetch error:', error);
+        setKeywordSnapshots([]);
+      } else {
+        setKeywordSnapshots(data || []);
+      }
+    }
+
     loadQueries();
     loadPrevQueries();
     loadGbpKeywords();
+    loadTrackedKeywords();
+    loadKeywordSnapshots();
   }, [activeClient, latestReport, reports.length]);
 
   // Load SEO Engine data (admin only)
@@ -522,7 +560,7 @@ export default function Dashboard() {
                 <OverviewTab reports={filteredReports} latestReport={latestReport} allReports={reports} queries={queries} />
               )}
               {activeTab === 'seo' && (
-                <SeoTab reports={filteredReports} queries={queries} latestReport={latestReport} prevQueries={prevQueries} clientId={activeClient?.id} clientName={activeClient?.name} />
+                <SeoTab reports={filteredReports} queries={queries} latestReport={latestReport} prevQueries={prevQueries} clientId={activeClient?.id} clientName={activeClient?.name} trackedKeywords={trackedKeywords} keywordSnapshots={keywordSnapshots} />
               )}
               {activeTab === 'conversions' && (
                 <ConversionsTab reports={filteredReports} latestReport={latestReport} hasFormTracking={hasFormTracking} />

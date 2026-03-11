@@ -116,6 +116,34 @@ export interface SeoBrainDecision {
   created_at: string;
 }
 
+export interface TrackedKeyword {
+  id: string;
+  client_id: string;
+  keyword: string;
+  source: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface KeywordSnapshot {
+  id: string;
+  client_id: string;
+  keyword: string;
+  checked_at: string;
+  source: string;
+  position: number | null;
+  impressions: number;
+  clicks: number;
+  serp_position: number | null;
+  in_map_pack: boolean;
+  map_pack_position: number | null;
+  has_featured_snippet: boolean;
+  has_ai_overview: boolean;
+  client_cited_in_aio: boolean;
+  serp_url: string | null;
+  created_at: string;
+}
+
 export type TabId = 'overview' | 'seo' | 'conversions' | 'gbp' | 'seo-engine' | 'geo';
 export type SeoEngineSubTab = 'action-feed' | 'brain-decisions' | 'keyword-tracker' | 'outcome-patterns';
 export type SeoEngineTabId = 'clients' | 'actions' | 'brain' | 'keywords' | 'directories';

@@ -775,6 +775,38 @@ def push_to_supabase(report):
             sb.table("gsc_queries").insert(query_rows).execute()
             print(f"  Supabase: {len(query_rows)} queries inserted")
 
+            # Upsert matching tracked keywords into keyword_snapshots (daily GSC snapshots)
+            try:
+                tk_resp = (
+                    sb.table("tracked_keywords")
+                    .select("keyword")
+                    .eq("client_id", client_id)
+                    .eq("is_active", True)
+                    .execute()
+                )
+                tracked_set = {r["keyword"].lower() for r in (tk_resp.data or [])}
+                if tracked_set:
+                    snapshot_rows = []
+                    for q in gsc["top_queries"]:
+                        if q["query"].lower() in tracked_set:
+                            snapshot_rows.append({
+                                "client_id": client_id,
+                                "keyword": q["query"],
+                                "checked_at": report["date"],
+                                "source": "gsc",
+                                "position": q["position"],
+                                "impressions": q["impressions"],
+                                "clicks": q["clicks"],
+                            })
+                    if snapshot_rows:
+                        sb.table("keyword_snapshots").upsert(
+                            snapshot_rows,
+                            on_conflict="client_id,keyword,checked_at,source",
+                        ).execute()
+                        print(f"  Supabase: {len(snapshot_rows)} keyword snapshots upserted (GSC)")
+            except Exception as e:
+                print(f"  Keyword snapshot upsert failed (non-fatal): {e}")
+
         # Only replace GBP keywords if we have new data (avoids wiping on API failure)
         gbp_keywords = report.get("gbp_keywords", [])
         if gbp_keywords:
