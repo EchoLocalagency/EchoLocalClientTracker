@@ -1,205 +1,167 @@
-# Feature Research: v1.1 Mention Tracking + GEO Dashboard
+# Feature Landscape: v1.2 Directory Submission & Tracking System
 
-**Domain:** GEO mention tracking and dashboard visualization for local SEO engine
+**Domain:** Automated local SEO citation building and directory submission tracking
 **Researched:** 2026-03-10
 **Confidence:** MEDIUM-HIGH
 
 ## Context
 
-v1.0 shipped with all backend GEO infrastructure: SerpAPI client, AI Overview detection, citation matching, GEO scorer (5-factor binary checklist), brain integration, content upgrades, entity building. All data flows into Supabase (`geo_scores`, `serp_features`, `serpapi_usage` tables).
+v1.0 shipped the SEO engine with GEO scoring, AI Overview tracking, and brain-driven content optimization. v1.1 added mention tracking and the GEO dashboard. v1.2 targets the next major backlink acquisition lever: submitting clients to 30+ niche directories that GHL/Yext does NOT cover, tracking those submissions, verifying listings, and surfacing coverage in the dashboard.
 
-v1.1 focuses on two gaps:
-1. **Mention Tracking** -- where does the client appear online? Reddit questions, brand mentions, source diversity.
-2. **GEO Dashboard** -- making the collected GEO data visible in the Next.js dashboard instead of only existing in brain prompts and Supabase.
+The directory master list (`.planning/research/find-a-pro-directory-master-list.md`) identifies 4 tiers of directories: manufacturer dealer locators (Tier 1), trade associations (Tier 2), home service directories (Tier 3), and government/utility directories (Tier 4). Each tier has different automation potential, cost structures, and link value.
 
-## Feature Landscape
+Commercial citation building tools (BrightLocal, Whitespark, Citation Builder Pro) charge $20-$999 per submission round and focus on the ~150 directories that Yext/GHL already covers. The niche directories in our master list are NOT covered by any commercial tool -- that is the core differentiator.
 
-### Table Stakes (Users Expect These)
+## Table Stakes
 
-Features Brian and clients assume exist once "GEO" is mentioned in the dashboard. Missing these = the dashboard feels incomplete and v1.0 data stays invisible.
+Features the system is useless without. Missing any of these = might as well keep using a spreadsheet.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| GEO scores visible per page (DASH-01) | v1.0 computes scores daily but they only show in brain prompts. Brian has no way to see them without SQL queries. | LOW | Read-only query against `geo_scores` table (page_path, score/5, factors, scored_at). Render as Recharts bar chart, color-coded by score. Data already exists and is populated daily. |
-| AI Overview citation status per keyword (DASH-02) | The core GEO metric. Without seeing which keywords trigger AI Overviews and whether the client is cited, v1.0's value is invisible. | LOW | Query `serp_features` table (has_ai_overview, client_cited_in_ai_overview, keyword). Render as sortable table with green/red status indicators. No new data collection needed. |
-| SerpAPI budget usage indicator (DASH-05) | Brian manually runs `check_budget()` in Python. At $25/mo with 4 clients scaling to potentially more, silent budget exhaustion would kill the engine. | LOW | Query `serpapi_usage` count for current month + call `check_account_balance()`. Simple progress bar: X/950 global, X/200 per client. No new infrastructure. |
-| Featured Snippet ownership tracker (DASH-06) | `serp_features` already tracks `has_featured_snippet`, `featured_snippet_holder`, `client_has_snippet`. Not surfacing this wastes data the engine already collects. | LOW | Filterable table: keyword, snippet holder domain, client owns Y/N. Show only keywords where snippets exist. Pure frontend read. |
-| Reddit question mining via Brave Search (MENT-01) | Existing `reddit.py` uses Reddit API auth. Per PROJECT.md, "Reddit API auth blocked, Brave site:reddit.com search works fine." Current module is dead code. Brave path is the decided approach. | MEDIUM | Replace `reddit.py` internals with Brave Search queries (`site:reddit.com "artificial turf cleaning" OR "turf odor"`). Parse results for question-format titles. Store in new `reddit_questions` Supabase table. Brave API pattern already proven in `brand_mentions.py`. |
+| Client profile data store | Every submission requires NAP + descriptions + services + certifications. Without a structured profile, every submission is manual copy-paste. | LOW | Supabase table: `client_profiles` with business_name, address, city, state, zip, phone, email, website, description_short, description_long, services JSONB, certifications JSONB, year_established, license_number, service_areas JSONB. One row per client. Populated once, used for every submission. |
+| Directory master list in Supabase | The master list exists in markdown but needs to be queryable -- which directories exist, what tier, what fields they need, what the submission URL is, which clients are already submitted. | LOW | Table: `directories` with name, url, submission_url, tier (1-4), category, cost, da_score, requires_client_input boolean, form_fields JSONB, notes. Seed from the existing markdown research. ~50 rows. |
+| Submission tracking with status workflow | The core purpose. Without status tracking (pending/submitted/approved/rejected/verified), there is no system -- just a todo list. | MEDIUM | Table: `directory_submissions` with client_id, directory_id, status enum, submitted_at, approved_at, verified_at, live_url, notes, retry_count. Status enum: not_started, pending_client_input, submitted, pending_approval, approved, rejected, verified, delisted. |
+| Per-client directory coverage view | Brian needs to see at a glance: "Mr. Green is on 18/35 directories, Integrity Pro is on 5/35." Without this, tracking is invisible. | LOW | Dashboard query: count submissions by status per client. Simple table + progress bar. Reads from `directory_submissions`. |
+| Tier 1/2 recommendation surfacing | Tier 1 (manufacturer) and Tier 2 (trade association) directories require client action -- applications, membership fees, certifications. The system must surface these as actionable recommendations, not attempt to auto-submit. | LOW | Filter `directories` where requires_client_input = true. Display as checklist per client with notes on what the client needs to provide. Mark as "recommended" not "auto-submit." |
 
-### Differentiators (Competitive Advantage)
+## Differentiators
 
-Features that make this internal tool genuinely useful beyond what commercial GEO tools ($200-500/mo) provide. The value is integration with the brain + zero marginal API cost for dashboard features.
+Features that make this meaningfully better than a spreadsheet or manual BrightLocal workflow.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| AI Overview citation trends chart (DASH-03) | Shows movement over time: "2 weeks ago 0 citations, now 3." This is the ROI proof for GEO work. Commercial tools charge $200+/mo for this. Our data is free -- already in `serp_features` with timestamps. | MEDIUM | Query `serp_features` grouped by week. Recharts LineChart: two lines (total keywords with AIO, keywords where client is cited). Needs 2-4 weeks of historical data. v1.0 has been collecting since late February -- data should be sufficient now. |
-| Cross-platform mention tracking (MENT-02) | Track where the client's brand appears beyond their own site: Reddit, Yelp, directories, forums, news. AI models build an "authority graph" from these mentions. Commercial tools charge $100+/mo. | MEDIUM | Extend `brand_mentions.py` pattern (already uses Brave Search + domain extraction + deduplication) to search for each client's brand name. Store in new `brand_mentions` table (platform, url, domain, title, found_at). Run weekly with research. |
-| Source diversity scoring (MENT-03) | AI Overviews cite 13+ sources on average. If a client only appears on their own domain, AI won't cite them. A "source diversity score" measuring distinct platform presence gives the brain a new optimization signal. Reddit alone accounts for 3 of every 100 AI citations. | MEDIUM | Count distinct platform categories mentioning client (from MENT-02 data). Score: 0-2 platforms = poor (0-3), 3-5 = moderate (4-6), 6+ = strong (7-10). Store in `source_diversity_scores` table. Brain uses this to prioritize outreach signals. |
-| Source diversity visualization (DASH-04) | Visual breakdown of where the client appears online: pie chart showing Reddit, Yelp, directories, news, forums. Makes the abstract diversity score tangible and client-presentable. | LOW | Depends on MENT-02 data. Recharts PieChart grouping mentions by platform category. Only meaningful after mention tracking has run 2+ cycles. |
-| Competitor AI Overview monitoring (MENT-04) | For each tracked keyword, show which competitors ARE cited in AI Overviews. "For 'turf cleaning Poway', HomeAdvisor and TurfCleanSD are cited but you aren't." Directly actionable intelligence at zero API cost. | MEDIUM | `serp_features.ai_overview_references` already stores the full list of cited URLs per keyword (JSONB). Parse these to extract competitor domains, count frequency, rank by citation share. No new API calls -- just data transformation. Dashboard table view. |
+| Playwright auto-submission for Tier 3 directories | The single biggest time saver. Tier 3 directories (15-25 per client) are simple form fills with NAP data. Manual submission takes 5-10 min each (75-250 min per client). Playwright can submit all of them in one automated run. BrightLocal charges $2-5 per submission for this same work. | HIGH | Playwright scripts per directory. Each directory has unique form structure, so each needs a custom script (or at minimum a per-directory config). Estimate 2-4 hours to write scripts for 15-20 directories. Must handle: form field mapping, file uploads (logo), CAPTCHA detection (skip and flag for manual), confirmation page detection, error handling. Run as a Python script triggered manually or via the brain. |
+| Google site: search verification | After 2-4 weeks, automatically check if submitted listings actually went live by running `site:directory.com "Business Name"`. Catches rejections and removes the need for manual checking. Zero API cost using SerpAPI or Brave. | MEDIUM | New verification module. For each submission in "submitted" or "pending_approval" status older than 14 days, run a Google site: search. If business name found on the directory domain, mark as "verified" and store the live_url. If not found after 28 days, flag for manual review. Run weekly on research days. |
+| Auto-retry with escalation | Submissions that sit in "pending" for 7+ days get auto-retried. After 14 days still pending, alert Brian. Prevents submissions from silently falling through cracks -- which is the #1 failure mode of manual directory submission. | MEDIUM | Cron logic in seo_loop.py research cycle. Query submissions where status = "submitted" AND submitted_at > 7 days ago. Re-submit via Playwright. After second attempt, if still pending at 14 days, create an alert (dashboard notification or Supabase row Brian checks). |
+| NAP consistency audit | Before submitting anywhere, verify the client's NAP is consistent across existing listings. Inconsistent NAP = wasted submissions (directories may reject or Google may not credit the backlink). BrightLocal charges $39+/mo for this as a separate feature. | MEDIUM | Use Brave Search or SerpAPI to search for business name + phone across known directory domains. Compare found NAP against client_profiles table. Flag mismatches. Run once during onboarding, re-run monthly. Store results in `nap_audit_results` table. |
+| Backlink value tracking | Not all directory links are equal. Track DA score per directory and compute a "backlink portfolio score" showing the total and weighted link value a client has acquired. Proves ROI beyond just "you're on 25 directories." | LOW | DA scores already in the `directories` table (from master list research). Sum DA for verified submissions. Show as dashboard metric: "Total backlink value: X DA points across Y directories." Simple arithmetic on existing data. |
+| Duplicate listing detection | Before submitting to a new directory, check if the client is already listed (possibly with old/wrong info). Prevents creating duplicate listings that hurt local SEO. | MEDIUM | For each directory in the master list, search for client's phone number or business name on the directory domain. If found, mark as "already_listed" with the existing URL. Offer to update rather than create new. Requires per-directory search logic. |
+| Submission confirmation email processing | Many Tier 3 directories send confirmation emails that must be clicked to complete the listing. Without handling these, submissions stay in limbo. | HIGH | Would require access to a submission email inbox, parsing confirmation emails, and clicking verification links. Can use Google OAuth (already configured) with a dedicated submissions@ alias, or use Gmail API to search for confirmation patterns. Complex but high-value -- many manual citation builders cite this as their biggest time sink. |
 
-### Anti-Features (Commonly Requested, Often Problematic)
+## Anti-Features
 
-| Feature | Why Requested | Why Problematic | Alternative |
-|---------|---------------|-----------------|-------------|
-| Real-time AI Overview monitoring | "Know the moment we get cited" | Would burn 950 SerpAPI searches/mo in hours. At 20 keywords checked 3x/day = budget gone in 16 days. Explicitly out of scope in PROJECT.md. | Weekly SERP checks (Wed + Sat research runs). Trends chart shows movement without real-time cost. |
-| ChatGPT/Perplexity citation tracking | Commercial tools track 10+ AI platforms | No public API for ChatGPT citations. Perplexity API unreliable (PROJECT.md: out of scope). Would require $200+/mo third-party tool. | Focus on Google AI Overviews (88% search market share). SerpAPI gives structured data for this. Other platforms lack reliable APIs. |
-| Reddit/Quora answer posting automation | "Auto-reply to relevant threads" | ToS violation. Ban risk. Explicitly out of scope in PROJECT.md. Destroys trust if discovered. | Surface Reddit questions to the brain as content inspiration. Brain suggests blog topics or FAQ entries. Brian answers manually if desired. |
-| Sentiment analysis of mentions | Commercial tools score positive/neutral/negative | Requires LLM call per mention (cost scales with volume). For 2-4 local service clients, mention volume is ~5-15/month -- Brian can read them. Complexity not justified. | Track mention existence and platform. Let Brian read context manually. Add sentiment only if mention volume exceeds 50/month per client. |
-| Multi-platform AI visibility aggregate score | Tools like Profound/Peec score visibility across all LLMs | Requires API access to each platform ($200-500/mo combined). These tools target enterprise SaaS with $10K+/mo budgets. Overkill for 4 local service clients. | Google AI Overview citation rate is the single metric that matters for local service SEO. Track that one thing well at $25/mo. |
-| YouTube transcript optimization | Some GEO guides recommend YouTube presence | No YouTube presence for current clients (PROJECT.md: out of scope). Building YouTube content is a business decision, not a dashboard feature. | Revisit only if a client starts YouTube. |
-| Full GEO scoring parity with Frase/Surfer | "Match their 100-point scoring system" | Their scores use proprietary NLP models and massive datasets. Replicating them is impossible and unnecessary. | v1.0's 5-factor binary checklist already works for relative page ranking. Good enough for the brain to prioritize. |
+Features to deliberately NOT build. Each represents a trap that would waste development time or create problems.
+
+| Anti-Feature | Why Avoid | What to Do Instead |
+|--------------|-----------|-------------------|
+| Auto-submission to Tier 1/2 directories | Manufacturer dealer locators require real business relationships, product certifications, and sometimes fees. Auto-filling an application form is not the same as becoming a legitimate dealer. Could damage client reputation or get flagged as spam. | Surface as recommendations with clear instructions. Provide the client profile data to make manual application easier. Track submission status once client submits. |
+| CAPTCHA solving service integration | Services like 2Captcha or Anti-Captcha cost money per solve, introduce a third-party dependency, and CAPTCHAs on directory forms usually indicate the directory actively fights automated submissions. Bypassing this is adversarial. | If Playwright encounters a CAPTCHA, skip that directory and flag it for manual submission. Most high-value Tier 3 directories do NOT have CAPTCHAs. |
+| Mass submission to low-DA directories (DA < 10) | Submitting to hundreds of low-quality directories is a pre-2015 SEO tactic. Google has repeatedly penalized this pattern. It looks spammy and provides negligible link value. | Focus on the curated 35-50 directories in the master list. Quality over quantity. The master list already filters for DA 10+. |
+| Real-time submission status dashboard | Submissions take days to weeks to process. Checking status in real-time provides zero additional value and creates false urgency. | Weekly batch verification via Google site: search. Dashboard shows last-known status, updated on research days. |
+| Automatic NAP updates on third-party directories | Updating existing listings on directories we don't control requires login credentials, which we don't have. Attempting to "claim" or "update" listings programmatically is ToS-violating on most platforms. | Flag NAP inconsistencies for manual correction. Provide the correct NAP data and the URL to the incorrect listing. Brian or client fixes manually. |
+| Yext/GHL directory overlap | The master list explicitly excludes directories Yext/GHL covers (Google, Facebook, Yelp, Apple Maps, etc.). Building submission automation for directories that are already managed by existing tools wastes effort and risks creating conflicts. | Trust GHL Listings for the 150+ directories it covers. This system handles only the gaps. |
+| Full Playwright browser farm / parallel submission | Running 10+ browser instances in parallel to "speed up" submissions adds infrastructure complexity (headless browser management, proxy rotation, memory usage) for minimal gain. Submitting 15-25 directories sequentially takes under an hour. | Sequential submission with delays between directories (30-60 second waits). Looks more human, uses less resources, easier to debug. |
 
 ## Feature Dependencies
 
 ```
-[MENT-01: Reddit Mining via Brave]
-    (independent -- no deps, reuses existing Brave API pattern from brand_mentions.py)
+[Client Profile Store]
+    └──required by──> [Playwright Auto-Submission]
+    └──required by──> [NAP Consistency Audit]
+    └──required by──> [Duplicate Listing Detection]
+    └──required by──> [Tier 1/2 Recommendation Surfacing]
 
-[MENT-02: Cross-platform Mentions]
-    └──requires──> Brave Search API (already configured, pattern in brand_mentions.py)
-    └──feeds──> [MENT-03: Source Diversity Scoring]
-                    └──feeds──> [DASH-04: Source Diversity Viz]
+[Directory Master List in Supabase]
+    └──required by──> [Submission Tracking]
+    └──required by──> [Per-Client Coverage View]
+    └──required by──> [Playwright Auto-Submission]
+    └──required by──> [Backlink Value Tracking]
 
-[MENT-04: Competitor AIO Monitoring]
-    └──requires──> serp_features.ai_overview_references (already collected in v1.0)
-    (independent of MENT-01/02/03)
+[Submission Tracking]
+    └──required by──> [Auto-Retry with Escalation]
+    └──required by──> [Google site: Verification]
+    └──required by──> [Per-Client Coverage View]
+    └──required by──> [Backlink Value Tracking]
 
-[DASH-01: GEO Scores Display]
-    └──requires──> geo_scores table (already populated daily by v1.0 geo_scorer.py)
+[Playwright Auto-Submission]
+    └──requires──> [Client Profile Store]
+    └──requires──> [Directory Master List in Supabase]
+    └──requires──> [Submission Tracking] (to record results)
+    └──enhanced by──> [Duplicate Listing Detection] (check before submit)
+    └──enhanced by──> [Confirmation Email Processing] (complete the loop)
 
-[DASH-02: AIO Citation Status]
-    └──requires──> serp_features table (already populated by v1.0 serp_scraper.py)
+[Google site: Verification]
+    └──requires──> [Submission Tracking] (submissions to verify)
+    └──uses──> Brave Search or SerpAPI (already available)
 
-[DASH-03: Citation Trends Chart]
-    └──requires──> serp_features historical data (2-4 weeks needed, available since late Feb)
-    └──enhances──> [DASH-02]
+[NAP Consistency Audit]
+    └──requires──> [Client Profile Store] (source of truth NAP)
+    └──independent of submission workflow -- run during onboarding
 
-[DASH-05: Budget Indicator]
-    └──requires──> serpapi_usage table (already populated by v1.0 serpapi_client.py)
-
-[DASH-06: Snippet Tracker]
-    └──requires──> serp_features table (already populated by v1.0)
+[Backlink Value Tracking]
+    └──requires──> [Directory Master List] (DA scores)
+    └──requires──> [Submission Tracking] (verified submissions)
 ```
 
-### Dependency Notes
+### Critical Path
 
-- **DASH-01/02/05/06 have zero backend dependencies:** All read from existing Supabase tables populated by v1.0. Pure frontend work. Can be built in parallel or any order.
-- **MENT-03 requires MENT-02:** Can't score source diversity without mention data to count platforms. Build MENT-02 first, let it run 1-2 weeks, then add scoring.
-- **DASH-04 requires MENT-03:** Can't visualize source diversity without the scoring data.
-- **DASH-03 needs historical data:** The trends chart requires 2-4 weeks of `serp_features` rows. v1.0 has been collecting since late February 2026, so sufficient data likely exists.
-- **MENT-01 is fully independent:** Reddit mining via Brave has no dependencies on other new features. Can be built anytime.
-- **MENT-04 is fully independent:** Competitor monitoring parses existing `ai_overview_references` JSONB data. No new API calls needed.
+The critical path for v1.2 is:
+1. Client Profile Store + Directory Master List (data layer, no dependencies)
+2. Submission Tracking (status workflow on top of data layer)
+3. Playwright Auto-Submission (requires 1 + 2)
+4. Google site: Verification (requires 2, runs independently after submissions)
 
-## MVP Definition
+Everything else is parallel or deferred.
 
-### Phase 1: Dashboard (v1.1a) -- Make Existing Data Visible
+## MVP Recommendation
 
-Pure frontend. No new APIs, no new Python code. All data already in Supabase.
+### Phase 1: Data Foundation (2-3 days)
 
-- [ ] DASH-01: GEO scores per page display -- Brian sees what the brain sees
-- [ ] DASH-02: AI Overview citation status per keyword -- core GEO metric visible
-- [ ] DASH-05: SerpAPI budget usage progress bar -- prevents silent budget exhaustion
-- [ ] DASH-06: Featured Snippet ownership table -- surfaces already-collected data
+Prioritize -- nothing else works without this:
+1. **Client Profile Store** -- Supabase table + populate for all 4 clients (Mr. Green, Integrity Pro, AZ Turf, SoCal Turfs)
+2. **Directory Master List in Supabase** -- Seed from markdown research file (~50 directories)
+3. **Submission Tracking table** -- Status workflow enum + timestamps
 
-### Phase 2: Mention Tracking Backend (v1.1b) -- New Data Collection
+### Phase 2: Automation Core (3-5 days)
 
-New Python modules extending existing patterns. Creates the data for Phase 3.
+The value differentiator:
+4. **Playwright auto-submission scripts** -- Start with 5-8 highest-DA Tier 3 directories, expand to full list
+5. **Per-client directory coverage dashboard tab** -- Simple table showing submission status per directory per client
 
-- [ ] MENT-01: Reddit question mining via Brave Search -- replaces dead `reddit.py` Reddit API code
-- [ ] MENT-02: Cross-platform mention tracking -- extends `brand_mentions.py` to per-client tracking
-- [ ] MENT-04: Competitor AIO monitoring -- parse existing `ai_overview_references` data
+### Phase 3: Verification Loop (2-3 days)
 
-### Phase 3: Scoring + Visualization (v1.1c) -- After Data Accumulates
+Close the feedback loop:
+6. **Google site: verification** -- Weekly batch check if listings went live
+7. **Auto-retry with escalation** -- Re-submit after 7 days, alert Brian after 14
 
-Depends on Phase 2 data running for 1-2 weeks.
+### Phase 4: Polish (1-2 days)
 
-- [ ] MENT-03: Source diversity scoring -- needs MENT-02 mention data accumulated
-- [ ] DASH-03: Citation trends chart -- needs serp_features history (likely already sufficient)
-- [ ] DASH-04: Source diversity visualization -- needs MENT-03 scores
+Nice-to-haves that prove ROI:
+8. **Backlink value tracking** -- Weighted DA score per client
+9. **NAP consistency audit** -- Pre-submission quality check
+10. **Duplicate listing detection** -- Before submitting, check if already listed
 
-### Future (v1.2+)
+### Defer
 
-- [ ] Sentiment analysis of mentions -- only if mention volume exceeds 50/month per client
-- [ ] ChatGPT/Perplexity tracking -- only when reliable APIs exist or client demand justifies cost
-- [ ] Multi-platform AI visibility aggregate score -- enterprise feature, not needed at current scale
+- **Confirmation email processing**: HIGH complexity, investigate feasibility in v1.3 after seeing how many directories actually require email confirmation
+- **Sentiment/review tracking on directories**: Different problem domain, not needed for backlink acquisition
 
-## Feature Prioritization Matrix
+## Competitive Landscape
 
-| Feature | User Value | Implementation Cost | Priority |
-|---------|------------|---------------------|----------|
-| DASH-01: GEO Scores Display | HIGH | LOW | P1 |
-| DASH-02: AIO Citation Status | HIGH | LOW | P1 |
-| DASH-05: Budget Indicator | HIGH | LOW | P1 |
-| DASH-06: Snippet Tracker | MEDIUM | LOW | P1 |
-| MENT-01: Reddit Mining (Brave) | HIGH | MEDIUM | P1 |
-| MENT-02: Cross-platform Mentions | HIGH | MEDIUM | P1 |
-| MENT-04: Competitor AIO Monitoring | HIGH | MEDIUM | P1 |
-| DASH-03: Citation Trends Chart | HIGH | MEDIUM | P2 |
-| MENT-03: Source Diversity Score | MEDIUM | MEDIUM | P2 |
-| DASH-04: Source Diversity Viz | MEDIUM | LOW | P2 |
+| Capability | BrightLocal ($39+/mo) | Whitespark ($20-999/submission) | Apify Citation Builder ($2.60/50 dirs) | This Build (v1.2) |
+|------------|----------------------|-------------------------------|----------------------------------------|-------------------|
+| Directories covered | 150+ (same ones Yext covers) | 300+ (mostly Yext overlap) | 50+ (general directories) | 35-50 niche directories GHL/Yext misses |
+| Automation level | Managed service (humans submit) | Managed service (humans submit) | Full automation (Apify actor) | Playwright auto-submit + manual Tier 1/2 |
+| Tracking | Citation Tracker (audit existing) | Citation Finder (discover opportunities) | Output report only | Full status workflow with auto-retry |
+| Verification | NAP consistency check | NAP audit | None | Google site: search verification |
+| Niche directories | Generic lists, not trade-specific | Better niche coverage | Generic lists | Curated per-trade: turf manufacturers, landscape associations, home service directories |
+| Cost per client | $39+/mo ongoing | $100-500 per submission round | ~$3 per batch | $0 marginal cost (self-hosted Playwright) |
+| Integration with SEO engine | None (separate tool) | None (separate tool) | Apify integration possible | Native -- same Supabase, same dashboard, brain-aware |
 
-**Priority key:**
-- P1: Must have for v1.1 -- dashboard reads + mention tracking backend
-- P2: Add after P1 data has accumulated 1-2 weeks
-
-## Competitor Feature Analysis
-
-| Feature | Commercial GEO Tools ($200-500/mo) | This Build ($25/mo SerpAPI + free Brave) | Tradeoff |
-|---------|-----------------------------------|-----------------------------------------|----------|
-| AI Overview citation tracking | Multi-platform (ChatGPT, Gemini, Perplexity, Google) | Google AI Overviews only via SerpAPI | Google = 88% of search. Others lack reliable APIs. Sufficient for local service businesses. |
-| Brand mention monitoring | Real-time, 10+ platforms, sentiment scoring | Weekly Brave Search, major platforms, no sentiment | Volume too low (5-15 mentions/mo per client) to justify real-time. Weekly is fine. |
-| Competitor analysis | Full competitor domains, share of voice scoring | Parse existing `ai_overview_references` for competitor URLs | Data already collected. Zero extra API cost. Just parse and display. |
-| Source diversity | Automated scoring across web presence | Brave Search-based platform counting | Same core metric, different data source. Brave API is free-tier viable. |
-| Dashboard | Polished multi-tenant SaaS with role-based access | Internal Next.js dashboard (existing tab system) | Only Brian + clients use it. Functional beats pretty. |
-| Reddit intelligence | Dedicated monitoring with sentiment + engagement metrics | Brave Search `site:reddit.com` queries | Brave indexes Reddit well. Sufficient for question discovery. |
-| Trends/history | Real-time continuous monitoring | Weekly snapshots on research days (Wed + Sat) | Budget-conscious. Trends still visible over weeks/months. |
-
-## Key Implementation Notes
-
-**Existing infrastructure to leverage:**
-- `brand_mentions.py` already has the Brave Search API pattern (headers, rate limiting, domain extraction, link verification)
-- `geo_data.py` already formats GEO scores and SERP features for the brain -- dashboard queries can mirror these exact functions
-- `SeoTabNav.tsx` tab system is extensible -- add "GEO" tab ID alongside existing `clients | actions | brain | keywords`
-- `serp_features.ai_overview_references` JSONB column already stores competitor citation URLs -- MENT-04 is a parse, not a fetch
-- Recharts is already installed and used in the dashboard
-- `SeoEngineTabId` type in `types.ts` needs a new union member
-
-**New Supabase tables needed:**
-- `reddit_questions` -- client_id, title, url, subreddit, search_term, found_at (for MENT-01)
-- `client_mentions` -- client_id, platform, url, domain, title, context, found_at (for MENT-02, extends current brand_mentions.py which tracks Echo Local mentions to also track client brand mentions)
-- `source_diversity_scores` -- client_id, score (0-10), platform_counts JSONB, scored_at (for MENT-03)
-
-**No new external APIs required.** Everything uses existing SerpAPI (data already collected) and Brave Search API (already in `.env`, proven in `brand_mentions.py`).
-
-**Dashboard architecture:**
-- New "GEO" tab in SeoTabNav with sub-sections (scores, citations, budget, snippets, trends, diversity)
-- Or split into two tabs: "GEO Scores" + "Mentions" to keep each focused
-- All components are client-side Supabase reads -- no API routes needed
-- Follow existing pattern: `useEffect` on activeClient change, query Supabase, render with Recharts
-
-## Tech Debt to Address in This Milestone
-
-Per PROJECT.md, three items should be cleaned up alongside new features:
-
-| Debt Item | Impact | Recommended Fix |
-|-----------|--------|-----------------|
-| `content_validator.py` capsule word count (50-150) vs brain rule (40-60) | Brain and validator disagree on valid capsule length, causing false positives/negatives | Align to 40-80 words (brain's lower bound, wider upper bound for flexibility) |
-| `inject_organization_on_all_pages()` defined but never called | Dead code in schema_injector, confusing | Wire into seo_loop.py research cycle or delete if Organization schema is handled elsewhere |
-| `same_as_urls` empty in clients.json | Organization schema has empty sameAs array, weakens entity signals for AI citation | Populate with actual GBP, Yelp, BBB, social URLs for each client |
+The key insight: commercial tools optimize for the directories Yext already covers. Our master list targets the directories nobody automates -- manufacturer dealer locators, trade associations, and niche home service directories. This is the gap.
 
 ## Sources
 
-- [Search Engine Land: Mastering GEO in 2026](https://searchengineland.com/mastering-generative-engine-optimization-in-2026-full-guide-469142) -- GEO best practices, mention tracking patterns (MEDIUM confidence)
-- [ReplyAgent: Reddit GEO Guide](https://www.replyagent.ai/blog/reddit-geo-generative-engine-optimization-guide) -- Reddit's role in AI citations, 450% growth in Reddit citations (MEDIUM confidence)
-- [Averi: How to Track AI Citations](https://www.averi.ai/how-to/how-to-track-ai-citations-and-measure-geo-success-the-2026-metrics-guide) -- Citation tracking metrics framework (MEDIUM confidence)
-- [Otterly: State of AI Search 2025](https://otterly.ai/blog/ai-search-study-2025/) -- AI citation statistics, source diversity data (MEDIUM confidence)
-- [UseOmnia: AI Search Monitoring Tools 2026](https://www.useomnia.com/blog/ai-search-monitoring-tools) -- Commercial tool comparison, pricing (MEDIUM confidence)
-- [AnswerSignals: Track Competitor Citations](https://answersignals.org/llm-visibility/track-competitor-citations-ai-search-responses-2026-guide) -- Competitor monitoring patterns (MEDIUM confidence)
-- [SE Ranking: AI Visibility Tools 2026](https://visible.seranking.com/blog/best-ai-visibility-tools/) -- Tool landscape survey (MEDIUM confidence)
-- [Search Engine Journal: Enterprise SEO and AI Trends 2026](https://www.searchenginejournal.com/key-enterprise-seo-and-ai-trends/532337/) -- Source diversity importance (MEDIUM confidence)
-- Existing codebase: `brand_mentions.py`, `reddit.py`, `geo_scorer.py`, `geo_data.py`, `serpapi_client.py`, `serp_scraper.py`, `SeoTabNav.tsx`, Supabase schemas (HIGH confidence)
+- [BrightLocal Citation Tracker](https://www.brightlocal.com/local-seo-tools/auditing/citation-tracker/) -- Citation tracking features, NAP consistency checking, competitor analysis (MEDIUM confidence)
+- [Whitespark Listings Service](https://whitespark.ca/listings-service/) -- Citation building service packages, pricing, manual submission workflow (MEDIUM confidence)
+- [Apify Citation Builder Actor](https://apify.com/alizarin_refrigerator-owner/citation-builder) -- Automated NAP submission to 50+ directories, $2.60/batch pricing (MEDIUM confidence)
+- [Apify: Form Automation with Playwright](https://blog.apify.com/playwright-how-to-automate-forms/) -- Playwright form submission patterns, error handling, CAPTCHA detection (MEDIUM confidence)
+- [Better Stack: Playwright Best Practices](https://betterstack.com/community/guides/testing/playwright-best-practices/) -- Locator strategies, wait handling, flaky test prevention (MEDIUM confidence)
+- [FirstSiteGuide: Best Citation Management Tools 2026](https://firstsiteguide.com/best-local-citation-management-services/) -- Tool comparison, feature landscape (LOW confidence)
+- [AutoSaaSLaunch: Automated Directory Submission Tools 2025](https://autosaaslaunch.com/blog/best-automated-directory-submission-tools-2025) -- Automation tool features, CAPTCHA handling approaches (LOW confidence)
+- Existing codebase: `seo_loop.py`, `brand_mentions.py`, Supabase schema, Next.js dashboard, `clients.json` (HIGH confidence)
+- Directory master list: `.planning/research/find-a-pro-directory-master-list.md` -- 50+ curated directories across 4 tiers (HIGH confidence)
 
 ---
-*Feature research for: v1.1 Mention Tracking + GEO Dashboard*
+*Feature research for: v1.2 Directory Submission & Tracking System*
 *Researched: 2026-03-10*

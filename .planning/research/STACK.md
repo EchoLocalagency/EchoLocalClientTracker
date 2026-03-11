@@ -1,6 +1,6 @@
 # Technology Stack
 
-**Project:** EchoLocal ClientTracker v1.1 -- Mention Tracking + GEO Dashboard
+**Project:** EchoLocal ClientTracker v1.2 -- Directory Submission & Tracking
 **Researched:** 2026-03-10
 **Confidence:** HIGH
 
@@ -10,204 +10,236 @@
 |------------|---------|---------|
 | Next.js | 16.1.6 | Dashboard frontend |
 | React | 19.2.3 | UI framework |
-| Recharts | 3.7.0 | Charts (already installed) |
+| Recharts | 3.7.0 | Charts |
 | Supabase JS | 2.97.0 | Browser client for dashboard |
 | Tailwind CSS | 4.x | Styling |
-| Python 3 | 3.x | SEO engine backend |
-| supabase-py | installed | Python Supabase client |
-| SerpAPI (`google-search-results`) | 2.4.2 | SERP data, AI Overview detection (budget-gated) |
-| `requests` | installed | HTTP calls |
+| Python 3 | 3.9.6 | SEO engine backend |
+| supabase-py | 2.28.0 | Python Supabase client |
+| SerpAPI (`google-search-results`) | installed | SERP data, budget-gated |
+| Brave Search API | via raw `requests` | Mention tracking, directory audit |
+| `requests` | 2.31.0 | HTTP calls |
+| `httpx` | 0.28.1 | HTTP calls (already installed) |
+| `beautifulsoup4` | 4.14.3 | HTML parsing |
 | `python-dotenv` | installed | Env var loading |
 
 ## New Stack Additions
 
-### Python Backend: Zero New Dependencies
-
-#### Brave Search API Client (via raw `requests`)
+### 1. Playwright for Python (CORE NEW DEPENDENCY)
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| `requests` (already installed) | existing | Brave Search API calls for Reddit mining and cross-platform mentions | The Brave Search API is a single REST endpoint (`GET https://api.search.brave.com/res/v1/web/search`). The existing codebase already uses raw `requests` for SerpAPI account checks and other HTTP calls. No wrapper library needed. |
+| `playwright` | 1.58.0 | Browser automation for directory form submission | Only viable option for reliable cross-site form filling. Handles JS-rendered forms, file uploads, dropdowns, CAPTCHAs requiring human viewport. Superior to Selenium in speed, reliability, and API ergonomics. Already Python 3.9+ compatible. |
 
-**API details:**
-- **Endpoint:** `GET https://api.search.brave.com/res/v1/web/search`
-- **Auth:** `X-Subscription-Token: <BRAVE_API_KEY>` header
-- **Site operator:** Fully supported. `q=turf+cleaning+site:reddit.com` returns Reddit-only results.
-- **Other operators:** `"exact match"`, `-exclusion`, `intitle:`, `inbody:` all work. Logical `AND`, `OR`, `NOT` (uppercase) supported.
-- **Known limitation:** Multiple `site:` operators with `OR` only returns results from the first domain. Use separate queries per platform instead.
-- **Response format:** JSON with `web.results[]` containing `title`, `url`, `description`, `profile` per result.
-- **Confidence:** HIGH (verified against official API docs and operator documentation)
+**Verified details (PyPI, 2026-01-30 release):**
+- Requires Python >=3.9 (matches our 3.9.6)
+- Supports Chromium, Firefox, WebKit
+- Async and sync APIs available -- use sync (`sync_playwright`) to match existing codebase pattern
+- Headless by default, headful mode for debugging/CAPTCHA intervention
+- Built-in auto-waiting eliminates flaky `time.sleep()` hacks
 
-**Pricing (as of Feb 2026):**
-- $5 per 1,000 requests
-- $5/month free credit (~1,000 searches/month)
-- No free tier anymore -- credit card required
-- Budget estimate: 4 clients x 6 queries x 4 runs/month = 96 queries/month. Comfortably within the $5 free credit.
+**Installation:**
+```bash
+pip install playwright==1.58.0
+playwright install chromium  # Only Chromium needed. ~200MB download. Firefox/WebKit unnecessary.
+```
 
-**New env var:** `BRAVE_API_KEY`
+**Why Chromium only:** Directory forms are standard web forms. No cross-browser testing needed. Chromium is the fastest Playwright engine and the most battle-tested for automation.
 
-#### Reddit Mining Approach
+### 2. playwright-stealth (ANTI-DETECTION)
 
-The existing `scripts/seo_engine/research/reddit.py` uses Reddit OAuth API with `REDDIT_CLIENT_ID` and `REDDIT_CLIENT_SECRET`. This module should be **replaced** with Brave Search `site:reddit.com` queries because:
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| `playwright-stealth` | 2.0.2 | Mask automation fingerprints | Some directories (Houzz, Porch) use bot detection. Without stealth patches, `navigator.webdriver=true` gets flagged immediately. Lightweight -- just patches browser properties at launch. |
 
-1. PROJECT.md constraint: "No Reddit API -- Reddit data via Brave Search site:reddit.com only"
-2. Eliminates two env vars (`REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`)
-3. Brave returns title, URL, description -- sufficient for mining questions
-4. One API, one budget tracking table, simpler operations
+**Verified details (PyPI, 2026-02-13 release):**
+- Requires Python >=3.9
+- Patches `navigator.webdriver`, `chrome.runtime`, WebGL fingerprint, and other telltale properties
+- Apply once at browser launch, transparent to all subsequent page operations
+- Known limitation: Will NOT bypass Cloudflare Turnstile or advanced CAPTCHAs. Those directories need manual flagging, not stealth hacking.
 
-#### What Each Feature Uses
+**Usage pattern:**
+```python
+from playwright.sync_api import sync_playwright
+from playwright_stealth import stealth_sync
 
-| Feature | Library/Tool | Rationale |
-|---------|-------------|-----------|
-| Reddit question mining (MENT-01) | `requests` to Brave Search API with `site:reddit.com` | Single HTTP call per query. Results include title + URL + snippet. |
-| Cross-platform mentions (MENT-02) | `requests` to Brave Search API with `"business name"` (no site: filter) | Same API, broader query. Count unique domains in results. |
-| Source diversity scoring (MENT-03) | Pure Python (`collections.Counter`, `urllib.parse`) | Extract domains from mention URLs, compute diversity ratio. All stdlib. |
-| Competitor AI Overview monitoring (MENT-04) | Existing `serpapi_client.py` | Already built -- `search_google()` + `fetch_ai_overview()`. Just run for competitor keywords. |
-| GEO dashboard charts (DASH-01 to DASH-06) | Existing Recharts 3.7.0 + Supabase browser client | All chart types needed are standard Recharts components. Data already in Supabase tables. |
+with sync_playwright() as p:
+    browser = p.chromium.launch(headless=True)
+    page = browser.new_page()
+    stealth_sync(page)  # One call, patches all fingerprints
+    page.goto("https://example-directory.com/submit")
+    page.fill("#business-name", "Mr. Green Turf Clean")
+    page.click("button[type=submit]")
+```
 
-### Next.js Dashboard: Zero New npm Packages
+### 3. SerpAPI for Listing Verification (EXISTING -- NEW USE)
 
-All dashboard visualizations use Recharts 3.7.0 (already installed):
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| SerpAPI (existing `serpapi_client.py`) | installed | Google `site:` search to verify directory listings went live | Already budget-gated, already integrated. A `site:directoryname.com "Business Name"` query costs 1 SerpAPI credit and definitively proves indexing. Cheaper and more reliable than Google URL Inspection API (requires per-site GSC verification). |
 
-| Dashboard Feature | Recharts Component | Implementation Notes |
-|-------------------|-------------------|----------------------|
-| GEO scores per page (DASH-01) | No chart -- stat cards | Score/5 with colored indicator. Match existing `StatCard.tsx` pattern. |
-| AI Overview citation status (DASH-02) | No chart -- table rows | Colored dots (cited/not cited) per keyword. Simple JSX. |
-| Citation trends over time (DASH-03) | `LineChart` or `AreaChart` | Two series: total keywords with AIO, keywords where client is cited. Standard Recharts. |
-| Source diversity visualization (DASH-04) | `PieChart` or horizontal `BarChart` | Domain distribution. Categorical data. |
-| SerpAPI budget gauge (DASH-05) | `RadialBarChart` | Half-circle gauge: `startAngle={180}` `endAngle={0}`. Well-documented pattern -- see shadcn/ui radial chart examples. |
-| Featured Snippet tracker (DASH-06) | No chart -- table with status | Keyword + current holder + owned/not-owned indicator. |
+**Verification query pattern:**
+```python
+# Uses existing serpapi_client.search_google()
+result = search_google(
+    query='site:houzz.com "Mr. Green Turf Clean"',
+    client_id="mr-green-turf-clean",
+    location="Oceanside, California",
+    search_type="directory_verify"
+)
+# If organic_results has entries -> listing is indexed
+```
 
-**Do NOT install:** `react-gauge-chart`, `react-circular-progressbar`, or any gauge-specific library. Recharts handles gauges natively with `RadialBarChart`.
+**Budget impact:** ~30 directories per client x 4 clients = 120 verification queries/month. At current 950 global cap with ~400 used for SEO, leaves 550 -- plenty of headroom. Run verification once per week, not daily.
 
-### Supabase: New Tables (no new client libraries)
+### 4. Brave Search for Pre-Submission Audit (EXISTING -- ENHANCED USE)
+
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| Brave Search API (existing `brave_client.py`) | via raw `requests` | Check if client is already listed before submitting | Existing `directory_audit.py` already does this with Brave. Extend the pattern to the full 30+ directory master list. Cheaper than SerpAPI for bulk "does this listing exist?" checks. |
+
+**Enhancement:** The current `directory_audit.py` hardcodes 15 directories for Echo Local (the agency). Refactor to accept any client + any directory list. Same API, same budget, broader scope.
+
+### 5. No New Dashboard Libraries
+
+| Dashboard Feature | Implementation | Why No New Deps |
+|-------------------|---------------|-----------------|
+| Directory submission status table | Standard JSX table with status badges | Tailwind `bg-green-500/10 text-green-400` for approved, `bg-yellow-500/10` for pending, etc. No table library needed for ~30 rows. |
+| Per-client directory coverage progress | Recharts `BarChart` (horizontal) | Show X of Y directories submitted per tier. Standard Recharts. |
+| Backlink count from directories | Stat card (existing pattern) | Single number with trend. Matches `StatCard.tsx`. |
+| Submission timeline | Recharts `AreaChart` or simple list | Submissions over time. Existing chart pattern. |
+
+## Supabase: New Tables
 
 Python writes, Next.js reads. Both use existing Supabase clients.
 
 | New Table | Purpose | Key Columns |
 |-----------|---------|-------------|
-| `brave_search_usage` | Budget tracking (mirrors `serpapi_usage` pattern) | `id, client_id, query, search_type, searched_at` |
-| `mentions` | Cross-platform mention records | `id, client_id, platform, url, title, snippet, found_at, query_used` |
-| `mention_sources` | Source diversity aggregation per scoring run | `id, client_id, domain, mention_count, scored_at` |
-| `competitor_ai_overviews` | Competitor AIO monitoring snapshots | `id, client_id, competitor_name, keyword, has_ai_overview, competitor_cited, checked_at` |
+| `directories` | Master list of all directories with metadata | `id, name, url, tier (1-4), category, form_url, submission_method (form/email/manual), da_range, cost, notes, active` |
+| `client_profiles` | Client NAP + business details for form filling | `id, client_id, business_name, phone, email, address, city, state, zip, website, services[], description_short, description_long, certifications[], logo_url, owner_name` |
+| `directory_submissions` | Submission tracking with status workflow | `id, client_id, directory_id, status (pending/submitted/approved/rejected/verified/failed), submitted_at, verified_at, listing_url, retry_count, last_retry_at, error_notes, screenshot_path` |
+| `directory_verifications` | Google site: search verification results | `id, submission_id, client_id, directory_id, query_used, found (bool), result_url, checked_at, serpapi_credits_used` |
 
-**Existing tables already cover GEO dashboard needs (no changes):**
-- `geo_scores` -- `page_path, page_url, score, factors, scored_at, client_id`
-- `serp_features` -- `keyword, has_ai_overview, client_cited_in_ai_overview, has_featured_snippet, featured_snippet_holder, client_has_snippet, collected_at, client_id`
-- `serpapi_usage` -- `client_id, query, search_type, searched_at`
-
-### Dashboard Data Fetching Pattern
-
-The existing `seo-engine/page.tsx` queries Supabase directly from the browser client -- no API routes. All new GEO dashboard components follow the same pattern:
-
-```typescript
-// Existing pattern from seo-engine/page.tsx:
-const { data, error } = await supabase
-  .from('geo_scores')
-  .select('*')
-  .eq('client_id', activeClient.id)
-  .order('scored_at', { ascending: false })
-  .limit(50);
+**Status workflow:**
+```
+pending -> submitted -> approved -> verified
+                    -> rejected -> (retry) -> submitted
+                    -> failed (after max retries)
 ```
 
-No Next.js API routes needed. Supabase RLS handles auth. New components plug into the existing tab system via `SeoTabNav`.
+**Existing tables NOT changing:** `geo_scores`, `serp_features`, `serpapi_usage`, `brave_search_usage`, `mentions`, `mention_sources`
+
+## Integration Points with Existing Codebase
+
+### Python Side
+
+```
+scripts/seo_engine/backlinks/
+  directory_audit.py    (EXISTS -- refactor to accept any client + directory list)
+  directory_submitter.py (NEW -- Playwright form filler)
+  directory_verifier.py  (NEW -- SerpAPI site: verification)
+  directory_runner.py    (NEW -- orchestrates audit -> submit -> verify cycle)
+
+scripts/seo_engine/seo_loop.py
+  |-- Add directory_runner to weekly cycle (not daily -- submissions are weekly)
+```
+
+**Scheduling:** Extend existing launchd plist, do NOT add APScheduler or any scheduling library. The SEO engine already runs on launchd at noon daily. Add a day-of-week check for directory runs (e.g., Mondays only).
+
+### Dashboard Side
+
+```
+src/app/seo-engine/
+  |-- Existing tab system via SeoTabNav.tsx
+  |-- Add "Directories" tab
+  |-- Components:
+      DirectoryStatus.tsx    -- table of all submissions with status badges
+      DirectoryCoverage.tsx  -- per-tier progress bars
+      DirectoryTimeline.tsx  -- recent submission activity feed
+```
 
 ## Alternatives Considered
 
 | Category | Recommended | Alternative | Why Not |
 |----------|-------------|-------------|---------|
-| Brave Search Python client | Raw `requests` | `brave-search-python-client` 0.4.27 | Adds a dependency for one GET call. Project pattern is raw requests. The library hasn't seen major updates since its initial release cycle. |
-| Brave Search Python client | Raw `requests` | `brave-search` (kayvane1) | Last updated Apr 2024. Stale. Same argument -- unnecessary wrapper. |
-| Reddit data source | Brave Search `site:reddit.com` | Reddit OAuth API (existing `reddit.py`) | PROJECT.md constraint says no Reddit API. Brave approach is simpler. |
-| Budget gauge chart | Recharts `RadialBarChart` | `react-gauge-chart` npm package | Extra dependency when Recharts already handles this. Zero benefit. |
-| Dashboard state management | Direct Supabase queries in `useEffect` | SWR or React Query | Overkill for 1-2 internal users. Existing pattern works. Revisit if data freshness becomes an issue. |
-| Mention storage | Supabase tables | Local JSON files | Need historical trends, dashboard reads, cross-device access. Supabase is the existing pattern. |
+| Browser automation | Playwright | Selenium | Playwright is faster (no WebDriver protocol overhead), has better auto-wait, cleaner Python API, and native stealth plugin ecosystem. Selenium's Python bindings feel dated. |
+| Browser automation | Playwright | Puppeteer (via pyppeteer) | Puppeteer is Node.js native. The `pyppeteer` Python port is unmaintained (last release 2021). |
+| Browser automation | Playwright | requests + BeautifulSoup | Cannot handle JS-rendered forms, dropdowns, file uploads, or client-side validation. Most modern directory forms require a real browser. |
+| Anti-detection | playwright-stealth | No stealth patches | Directories like Houzz and BuildZoom use basic bot detection. Without stealth, submissions fail silently or get flagged. Low-effort insurance. |
+| Anti-detection | playwright-stealth | Selenium undetected-chromedriver | Selenium ecosystem. We chose Playwright. |
+| Listing verification | SerpAPI site: query | Google URL Inspection API | URL Inspection API requires GSC ownership verification per domain -- impossible for third-party directories. SerpAPI site: search works universally. |
+| Listing verification | SerpAPI site: query | Brave Search site: query | SerpAPI returns structured organic_results with exact URLs. Better for programmatic matching. Brave works but SerpAPI is more reliable for exact URL verification. |
+| Pre-submission audit | Brave Search | SerpAPI | Brave is cheaper for bulk "does listing exist?" checks. Reserve SerpAPI credits for post-submission verification. |
+| CAPTCHA handling | Flag for manual intervention | 2captcha / Anti-Captcha services | Paying to solve CAPTCHAs for free directory listings is wasteful. Most Tier 3 directories have no CAPTCHA or simple honeypot fields. Flag the exceptions. |
+| Scheduling | launchd (existing) | APScheduler / Celery | Existing engine runs on launchd. Adding a Python scheduler creates two competing scheduling systems. Keep it simple. |
+| Form field mapping | JSON config per directory | AI/LLM to auto-detect fields | Premature complexity. 30 directories is manageable with static JSON configs. LLM form detection is unreliable and adds latency + cost per submission. |
 
 ## What NOT to Add
 
 | Avoid | Why | Use Instead |
 |-------|-----|-------------|
-| `brave-search-python-client` or `brave-search` pip packages | Unnecessary abstraction. One REST endpoint. | Raw `requests` with `X-Subscription-Token` header |
-| `react-gauge-chart` or similar | Recharts 3.7.0 already does gauges via `RadialBarChart` | Recharts `RadialBarChart` with `startAngle/endAngle` |
-| `httpx` or `aiohttp` | SEO engine runs sequentially. Async adds complexity for zero benefit. | `requests` (already everywhere) |
-| Any Reddit API library (PRAW, etc.) | PROJECT.md says no Reddit API | Brave Search `site:reddit.com` |
-| Perplexity API | Unreliable for citation tracking, only one AI engine | SerpAPI for Google AI Overviews |
-| SWR / React Query / TanStack Query | 1-2 users, internal dashboard. `useEffect` + Supabase client is fine. | Direct Supabase browser queries |
+| Selenium / WebDriver | Slower, clunkier API, worse auto-waiting | Playwright 1.58.0 |
+| `pyppeteer` | Unmaintained since 2021 | Playwright |
+| 2captcha / Anti-Captcha | Paying for CAPTCHA solving on free directories is silly | Flag CAPTCHA directories for manual submission |
+| APScheduler / Celery | Already have launchd scheduling | Day-of-week check in existing seo_loop.py |
+| Google URL Inspection API | Requires GSC ownership per directory domain | SerpAPI `site:` query |
+| Puppeteer (Node.js) | Would split automation between Python and Node.js | Playwright Python keeps everything in one language |
+| Any form-detection AI/ML | 30 directories need static configs, not ML | JSON config files mapping form fields per directory |
+| `pandas` for tracking | Supabase handles all storage and querying | Direct Supabase table operations |
+| Screenshot comparison libs (Pillow, OpenCV) | Overkill for verifying submissions | Store Playwright screenshots as simple PNGs in Supabase Storage |
 
 ## Environment Variables
 
 ```bash
-# New (add to .env)
-BRAVE_API_KEY=your_brave_search_api_key
+# New (none needed -- Playwright uses no API keys)
+# All existing env vars remain unchanged.
 
-# Existing (no changes)
+# Already configured:
 SERPAPI_KEY=already_configured
+BRAVE_API_KEY=already_configured
 SUPABASE_URL=already_configured
 SUPABASE_KEY=already_configured
 NEXT_PUBLIC_SUPABASE_URL=already_configured
 NEXT_PUBLIC_SUPABASE_ANON_KEY=already_configured
 ```
 
-**Can remove after migration:**
-- `REDDIT_CLIENT_ID` -- replaced by Brave Search
-- `REDDIT_CLIENT_SECRET` -- replaced by Brave Search
+**Total new env vars: 0**
 
 ## Installation
 
 ```bash
-# Python: Nothing to install
-python -c "import requests; print('requests available')"
+# Python: Two new packages
+pip install playwright==1.58.0 playwright-stealth==2.0.2
+
+# Install Chromium browser binary (~200MB one-time download)
+playwright install chromium
 
 # Next.js: Nothing to install
-npm ls recharts  # Should show 3.7.0
+# npm packages unchanged
 ```
 
-**Total new pip packages: 0**
+**Total new pip packages: 2** (`playwright`, `playwright-stealth`)
 **Total new npm packages: 0**
-**Total new env vars: 1** (`BRAVE_API_KEY`)
+**Total new env vars: 0**
 
-## Integration Architecture
+## Disk/Resource Impact
 
-```
-brave_search_client.py (NEW)
-  |-- Mirrors serpapi_client.py pattern exactly
-  |-- Budget gating via brave_search_usage Supabase table
-  |-- search_brave(query, client_id) -> dict
-  |-- check_brave_budget(client_id) -> dict
-
-mention_tracker.py (NEW)
-  |-- Reddit mining: brave_search_client.search_brave("query site:reddit.com", client_id)
-  |-- Cross-platform: brave_search_client.search_brave('"business name"', client_id)
-  |-- Source diversity: count unique domains from mentions, store in mention_sources
-  |-- Called from seo_loop.py (extends existing daily cycle)
-
-competitor_monitor.py (NEW)
-  |-- Uses existing serpapi_client.search_google() for competitor keywords
-  |-- Uses existing serpapi_client.fetch_ai_overview() for competitor AIO checks
-  |-- Stores results in competitor_ai_overviews table
-  |-- Called from seo_loop.py
-
-Dashboard components (NEW, in src/components/seo-engine/):
-  |-- GeoScoreCards.tsx -- reads geo_scores table
-  |-- CitationTrends.tsx -- reads serp_features table, LineChart
-  |-- SourceDiversity.tsx -- reads mention_sources table, PieChart
-  |-- BudgetGauge.tsx -- reads serpapi_usage table, RadialBarChart
-  |-- SnippetTracker.tsx -- reads serp_features table, table component
-  |-- MentionFeed.tsx -- reads mentions table, list component
-  |-- New tab "GEO" added to SeoTabNav.tsx
-```
+- Chromium binary: ~200MB in `~/Library/Caches/ms-playwright/`
+- Each submission screenshot: ~200KB PNG, stored in Supabase Storage
+- Memory during submission: ~300MB per Chromium instance (one at a time, not concurrent)
+- Submission runtime: ~30 seconds per directory (navigate + fill + submit + screenshot)
+- Full run for 1 client (30 directories): ~15 minutes
 
 ## Sources
 
-- [Brave Search API](https://brave.com/search/api/) -- endpoints, auth, capabilities (HIGH confidence)
-- [Brave Search Operators](https://search.brave.com/help/operators) -- site: operator confirmed working (HIGH confidence)
-- [Brave API Pricing Changes Feb 2026](https://www.implicator.ai/brave-drops-free-search-api-tier-puts-all-developers-on-metered-billing/) -- $5/1k, $5 credit (HIGH confidence)
-- [brave-search-python-client on PyPI](https://pypi.org/project/brave-search-python-client/) -- v0.4.27, evaluated and rejected (HIGH confidence)
-- [Recharts RadialBarChart API](https://recharts.github.io/en-US/api/RadialBarChart/) -- gauge pattern documented (HIGH confidence)
-- [shadcn/ui Radial Charts](https://ui.shadcn.com/charts/radial) -- copy-paste Recharts radial examples matching dark aesthetic (MEDIUM confidence)
-- [Recharts Gauge Gist](https://gist.github.com/emiloberg/ee549049ea0f6b83e25f1a1110947086) -- half-circle gauge implementation (MEDIUM confidence)
-- Existing codebase: `serpapi_client.py`, `geo_data.py`, `reddit.py`, `seo-engine/page.tsx` -- established patterns (HIGH confidence)
+- [Playwright Python on PyPI](https://pypi.org/project/playwright/) -- v1.58.0, Jan 30 2026 (HIGH confidence)
+- [Playwright Python Installation Docs](https://playwright.dev/python/docs/intro) -- Python >=3.9, browser install (HIGH confidence)
+- [playwright-stealth on PyPI](https://pypi.org/project/playwright-stealth/) -- v2.0.2, Feb 13 2026 (HIGH confidence)
+- [SerpAPI Google Search API](https://serpapi.com/search-api) -- site: operator support (HIGH confidence)
+- [Brave Search API](https://brave.com/search/api/) -- existing integration (HIGH confidence)
+- [Playwright Form Actions Docs](https://playwright.dev/python/docs/input) -- fill(), click(), select_option() (HIGH confidence)
+- [Avoiding Bot Detection with Playwright Stealth](https://brightdata.com/blog/how-tos/avoid-bot-detection-with-playwright-stealth) -- stealth techniques overview (MEDIUM confidence)
+- Existing codebase: `directory_audit.py`, `serpapi_client.py`, `brave_client.py`, `seo_loop.py` -- established patterns (HIGH confidence)
 
 ---
-*v1.1 stack research -- Mention Tracking + GEO Dashboard*
-*Replaces v1.0 stack research from 2026-03-10*
+*v1.2 stack research -- Directory Submission & Tracking*
+*Supersedes v1.1 stack research (Mention Tracking + GEO Dashboard) from 2026-03-10*

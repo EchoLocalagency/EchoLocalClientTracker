@@ -1,248 +1,278 @@
-# Domain Pitfalls: v1.1 Mention Tracking + GEO Dashboard
+# Pitfalls Research: v1.2 Directory Submission Automation
 
-**Domain:** Adding mention tracking and GEO dashboard to existing SEO engine
+**Domain:** Automated directory submission and tracking for local SEO
 **Researched:** 2026-03-10
-**Confidence:** MEDIUM-HIGH (existing codebase well-understood; Brave API and dashboard patterns verified via docs)
+**Confidence:** MEDIUM-HIGH (Playwright patterns well-documented; directory-specific behaviors require per-site validation)
 
 ## Critical Pitfalls
 
-Mistakes that cause budget blowouts, break the existing daily loop, or require rewrites.
+### Pitfall 1: Auto-Retry Logic Creates Duplicate Listings
 
-### Pitfall 1: Brave Search Budget Surprise -- Free Tier is Dead
+**What goes wrong:** A Playwright submission appears to fail (timeout, navigation error, slow redirect) but actually went through server-side. The retry system re-submits, creating a duplicate listing on the same directory. Some directories (EzLocal, eBusiness Pages, ShowMeLocal) have no dedup and will happily create two identical profiles. Google sees two NAP citations from the same source with different URLs, diluting trust signals rather than building them.
 
-**What goes wrong:** You build the Reddit question mining module assuming Brave Search has a free tier (2,000 queries/month). As of early 2026, Brave eliminated the free tier for new users. New signups get $5/month in credits (~1,000 queries), then real charges kick in. Your card is now an active billing instrument.
+**Why it happens:** Form submissions are not idempotent. Clicking "Submit" is a one-way operation with no transaction ID. Playwright's `page.click()` can succeed (the POST fires) but still throw a timeout if the confirmation page takes too long to load. The developer assumes the submission failed and queues a retry. This is the single most dangerous pattern in directory automation -- the retry creates real SEO damage that is harder to fix than not submitting at all.
 
-**Why it happens:** The existing `brand_mentions.py` already uses `BRAVE_API_KEY` with zero budget tracking -- no Supabase logging, no monthly cap, no gate. Adding Reddit mining via `site:reddit.com` queries multiplies Brave usage significantly. Rough math: 5 subreddits x 6 search terms x 4 clients = 120 queries per research run, twice a week = ~960/month just for Reddit mining. Add the existing brand mention queries (4 queries per client x 4 clients x 8 runs/month = ~128/month), and you hit ~1,088 queries/month -- exceeding the ~1,000 credit buffer before charges kick in.
+**How to avoid:**
+- Never auto-retry a submission that reached the POST phase. Track submission state as a 3-stage pipeline: `form_loaded -> form_filled -> post_sent`. Only retry if the failure happened before `post_sent`.
+- After any ambiguous failure (timeout after click, navigation error), mark as `submitted_unverified` -- NOT as `failed`. Queue for manual verification (Google `site:directory.com "business name"`) rather than re-submission.
+- Store a screenshot of the last page state before the error. This is your evidence for whether the POST actually fired.
+- Set `page.set_default_timeout(60000)` for submission pages -- directory sites are slow. A 30-second timeout on a form POST is too aggressive.
 
-**Consequences:** Unexpected monthly charges that grow silently as clients onboard. No visibility into spend until the bill arrives.
+**Warning signs:** Multiple entries for the same client on one directory. Dashboard shows 2+ "approved" rows for a single directory/client pair.
 
-**Prevention:**
-- Build a `brave_client.py` budget tracker mirroring the `serpapi_client.py` pattern: log every call to a `brave_usage` Supabase table with client_id, query, and timestamp. Gate every call behind a `check_brave_budget()` function.
-- Set a hard monthly cap (500 queries/month initially, adjustable).
-- Batch Reddit queries aggressively: use OR operators (`"turf cleaning" OR "artificial grass smell" site:reddit.com`) to reduce from 30 queries per client to 5-8.
-- Cache Brave results for 7 days minimum. Reddit questions from last week are still valuable.
-
-**Detection:** Check Brave API dashboard weekly. If charges exceed $5/month, the gate is leaking or missing.
-
-**Phase:** Must be Phase 1 -- before any new Brave API calls.
+**Phase to address:** Phase 1 (submission engine core). The state machine design must prevent duplicate POSTs from day one. Retrofitting idempotency into a running system means cleaning up existing duplicates first.
 
 ---
 
-### Pitfall 2: Breaking the Daily Loop with New Module Failures
+### Pitfall 2: NAP Inconsistency Across Submissions Harms Local SEO
 
-**What goes wrong:** A new mention tracking module throws an unhandled exception, crashes `seo_loop.py`, and the entire daily loop stops. No GEO scoring, no brain call, no actions. Brian does not notice for days since the loop runs via launchd with no alerting.
+**What goes wrong:** Directory forms ask for business info in slightly different formats. One site wants "Suite 200", another wants "Ste. 200", a third has separate suite field. One wants "(760) 555-1234", another wants "7605551234". The automation fills forms from a single source but each directory normalizes differently, OR the source data itself has inconsistencies. Google sees 30 citations with 8 different address formats and treats it as uncertainty, not authority.
 
-**Why it happens:** The existing seo_loop.py is meticulous about try/except wrapping -- every step has `(non-fatal)` error handling. But when adding new steps (mention fetch, source diversity calc, competitor AI Overview monitoring), developers often add them outside the established pattern, or make them dependencies where failure cascades into `call_brain()`.
+**Why it happens:** NAP consistency is THE foundational principle of local SEO citations. Even minor discrepancies ("St." vs "Street", "LLC" vs no LLC, dashes in phone vs no dashes) confuse search engines. When automating at scale across 30+ sites with different form structures, the inconsistency compounds. Additionally, some directories auto-format your input (stripping punctuation, abbreviating state names) which you cannot control.
 
-**Consequences:** Silent daily loop failure. If it crashes at step 2 (research), steps 3-7 never run. The brain never thinks, no actions happen. The client's SEO goes stale for days.
+**How to avoid:**
+- Create a canonical NAP record per client in Supabase with ONE format: full street name (no abbreviations), 10-digit phone with no formatting, full state name. This is the single source of truth.
+- Build format adapters per directory if needed (some forms reject non-formatted phone numbers), but always derive from the canonical record.
+- After submission, scrape the live listing to verify what the directory actually published. Compare against canonical. Flag mismatches for manual correction.
+- Include business name EXACTLY as it appears on GBP. Not a variation, not shortened, not with extra keywords stuffed in.
+- Pre-populate `client_profiles` table in Supabase with: business_name, address_line_1, address_line_2, city, state, zip, phone, email, website, description_short (50 words), description_long (150 words), services list, service_areas list.
 
-**Prevention:**
-- Follow the exact same pattern as existing research modules: every new module call gets `try/except Exception as e` with `(non-fatal)` logging and an empty-list/dict fallback.
-- Never make mention data a required parameter for `call_brain()`. Default to empty list if mention tracking fails.
-- Add new steps as substeps (e.g., `[2b/7]` or `[2c/7]`) rather than modifying existing numbered steps.
-- Add a check in `health_check.py`: if no action logged in 48+ hours, alert.
+**Warning signs:** Google Search Console shows inconsistent business info warnings. GBP dashboard shows "suggested edits" to address or phone.
 
-**Detection:** Check `reports/<slug>/research_cache.json` for `last_updated` date. If stale by 3+ days, the loop is broken.
-
-**Phase:** Every phase. This is a discipline issue enforced on every PR.
-
----
-
-### Pitfall 3: Supabase Time-Series Query Performance Cliff
-
-**What goes wrong:** The GEO dashboard loads slowly or times out when querying `geo_scores` and `serp_features` for trend charts. Charts show spinners or partial data. Gets worse as data accumulates.
-
-**Why it happens:** Supabase is Postgres -- row-oriented, not optimized for analytics. Documented performance cliff at ~500K rows for aggregation queries (DATE_TRUNC + AVG/SUM + GROUP BY). Current data volume estimate: `geo_scores` grows at ~80 rows/day (4 clients x 20 pages), reaching ~29K rows/year. `serp_features` grows at ~136 rows/month (17 keywords x 4 clients x 2 runs/week). Manageable for now, but the real issue is unoptimized queries without proper aggregation. Even 10K rows with a bad GROUP BY on unindexed columns will feel slow.
-
-More critically: analytical queries running against the same Supabase instance as the daily loop's transactional writes create I/O contention.
-
-**Consequences:** Dashboard feels broken. Brian shows the dashboard to clients as a sales tool -- slow charts kill the demo.
-
-**Prevention:**
-- Pre-aggregate data server-side. Create a summary table (e.g., `geo_score_weekly`) that the daily loop populates after scoring. Dashboard queries hit the summary table, not raw data.
-- Add composite indexes: `(client_id, scored_at)` already exists on `geo_scores`. Verify `(client_id, keyword, collected_at)` is efficient on `serp_features`.
-- Default dashboard date range to 90 days. Never allow unbounded "all time" queries without aggregation.
-- Do aggregation in Next.js API routes or Supabase Edge Functions, not in the browser with raw row data.
-
-**Detection:** Run `EXPLAIN ANALYZE` on every dashboard query during development. If any shows `Seq Scan` on tables with 5K+ rows, add an index.
-
-**Phase:** Phase 2 (dashboard). Design the data access layer before building any chart components.
+**Phase to address:** Phase 1 (data model). The client profile schema must be locked before any submissions happen. Every field that directories ask for should be pre-defined.
 
 ---
 
-### Pitfall 4: Recharts Choking on Unaggregated Time-Series Data
+### Pitfall 3: CAPTCHA Walls Block 40-60% of Target Directories
 
-**What goes wrong:** Citation trends and GEO score trends charts render slowly or freeze the browser when fed raw daily data points across multiple keywords and pages.
+**What goes wrong:** You build the Playwright submission engine, test it on 5 easy directories, ship it, then discover that half the Tier 3 directories (Houzz, Porch, BuildZoom, MerchantCircle, eLocal) use reCAPTCHA v2/v3, hCaptcha, or Cloudflare Turnstile. The bot gets blocked or flagged silently. Submissions appear to go through but are silently dropped by the anti-bot system. You think you submitted to 25 directories but only 12 actually received the data.
 
-**Why it happens:** Recharts is SVG-based. Each data point becomes a DOM element. A trend chart showing 17 keywords x 90 days = 1,530 SVG elements per chart. Multiple charts on one page compounds this. React re-renders make it worse when filters change.
+**Why it happens:** In 2026, CAPTCHA and anti-bot systems are standard on any form that accepts public submissions. Playwright is trivially detectable by default -- `navigator.webdriver` flag, headless user-agent, missing plugins, consistent timing patterns. Even with `playwright-stealth` (v2.0.2 for Python), behavioral analysis and infrastructure-level signals (cloud IP ranges, ASN reputation) still trigger detection. The detection operates at layers Playwright cannot control.
 
-**Consequences:** Dashboard unusable on lower-end devices. Client demos on phone or older laptop show janky, laggy charts.
+**How to avoid:**
+- Audit every directory on the master list BEFORE building the engine. Visit each form, check for CAPTCHA presence, and categorize: `no_captcha`, `recaptcha_v2`, `recaptcha_v3`, `hcaptcha`, `cloudflare`, `custom`. Store this in the directory master table.
+- For `no_captcha` directories: Playwright automation is viable. This is your Tier 3 automation target.
+- For CAPTCHA-protected directories: Do NOT try to bypass. Instead, use a hybrid approach -- Playwright fills the form fields, pauses for human CAPTCHA solving (Brian clicks through), then Playwright continues. Or batch these for manual submission.
+- Use `playwright-stealth` (pip install playwright-stealth) for ALL automation, even on no-CAPTCHA sites, to reduce detection risk. It patches `navigator.webdriver`, user-agent, and plugin enumeration.
+- Run with `headless=False` (headed mode) for submissions. Headed Chrome has a different fingerprint than headless and triggers fewer bot detections.
+- Add human-like delays: random 1-3 second pauses between field fills, mouse movement to the next field before clicking.
 
-**Prevention:**
-- Downsample for display: weekly averages for trends beyond 30 days, daily only for last 30.
-- Wrap chart components in `React.memo` to prevent unnecessary re-renders.
-- Keep `dataKey` functions stable with `useCallback` -- Recharts recalculates all points when `dataKey` reference changes.
-- Limit visible series: show top 5 keywords by default. Do not render 17+ `<Line>` components simultaneously.
-- For the "AI Overview citation trends" chart, aggregate to boolean counts per week (e.g., "3 of 17 keywords cited this week") rather than plotting each keyword individually.
-- Upgrade to Recharts v2.10+ for tick measurement optimizations.
-- Mark all chart components with `'use client'` and use dynamic imports with `ssr: false` -- Recharts/D3 need DOM access.
+**Warning signs:** Submission success rate below 80%. Directories show "pending" forever. Google `site:` verification finds no listing weeks after "successful" submission.
 
-**Detection:** Test with 90 days of simulated data before shipping. If chart render time exceeds 500ms (React DevTools Profiler), optimize.
+**Phase to address:** Phase 1 (directory audit). Categorize every directory by CAPTCHA type before writing any Playwright code. This determines which directories are automatable.
 
-**Phase:** Phase 2 (dashboard). Design chart data shapes before implementing components.
+---
+
+### Pitfall 4: Form Structure Changes Break Automation Silently
+
+**What goes wrong:** Directory sites redesign their forms. A field ID changes from `#business-name` to `#company-name`. A required field is added. The form moves to a multi-step wizard. Playwright fills the old selectors, hits submit, and either errors out or submits incomplete data. Worse: the form accepts partial data silently, creating a broken listing with missing phone or address.
+
+**Why it happens:** These are third-party sites you do not control. Unlike APIs (which version and deprecate formally), web forms change without notice. Small directories change forms more often than you would expect -- they are often WordPress sites with plugin updates that alter form markup.
+
+**How to avoid:**
+- Build a form health checker that runs weekly: load each directory's submission URL, verify expected fields exist (`page.locator('#field').count() > 0`), check for new required fields. Log to Supabase `directory_health` table.
+- Use resilient selectors: prefer `label` text content, `name` attributes, and `placeholder` text over fragile IDs and CSS classes. `page.get_by_label("Business Name")` survives redesigns better than `page.locator("#biz-name-field")`.
+- After each submission, verify the confirmation page contains expected text ("Thank you", "submission received", etc.). If the confirmation check fails, mark as `submitted_unverified`.
+- Store form field mappings in a config table (not hardcoded). When a form breaks, update the mapping -- do not deploy new code.
+- Accept that ~10% of directory automations will break per quarter. Budget time for maintenance.
+
+**Warning signs:** Submission success rate drops for a specific directory. Health checker reports missing fields. Screenshots show unexpected page states.
+
+**Phase to address:** Phase 1 (submission engine) for resilient selectors. Phase 3 (monitoring) for the health checker.
 
 ---
 
 ## Moderate Pitfalls
 
-### Pitfall 5: Brave "site:reddit.com" Returns Incomplete Results vs Google
+### Pitfall 5: Google `site:` Verification is Unreliable for New Listings
 
-**What goes wrong:** Brave's independent index does not crawl Reddit as thoroughly as Google. The `site:reddit.com` operator on Brave returns fewer and sometimes different results than Google. Niche subreddits like r/ArtificialTurf may have poor coverage.
+**What goes wrong:** You use `site:directory.com "Business Name"` via SerpAPI to verify whether a listing went live. Google says "no results" so you mark it as failed/not-yet-live. In reality, the listing exists but Google has not indexed that specific page yet. You queue unnecessary re-submissions (risking duplicates from Pitfall 1) or show inaccurate status in the dashboard.
 
-**Why it happens:** Brave maintains its own 40-billion-page index, independently crawled. Reddit's content volume is enormous. Brave's coverage of recent posts in low-traffic subreddits lags.
+**Why it happens:** Google's `site:` operator is explicitly documented as unreliable for verification. From Google's own docs: "the site: operator may not list all indexed URLs" and "the index isn't updated in real time, so newly published or updated content might not appear right away." For small directory pages on lower-DA sites, indexing can take 2-8 weeks. Some directory pages are behind JavaScript rendering that Google may not crawl promptly.
 
-**Prevention:**
-- Do not treat Brave Reddit results as exhaustive. They are a sample.
-- Test coverage of your specific subreddits (r/lawncare, r/ArtificialTurf, r/SanDiego, r/homeimprovement) with manual queries before building the full module. If coverage is poor for niche subs, use broader terms rather than subreddit-specific searches.
-- Supplement with Reddit's undocumented `.json` endpoint (append `.json` to any Reddit URL) for known-valuable subreddits. But rate limit hard -- Reddit returns 429 after ~70-80 requests.
-- Cache all results for 7+ days. Reddit questions do not expire in a week.
+**How to avoid:**
+- Use `site:` as a positive signal only: if it finds the listing, it is confirmed live. If it does NOT find it, that means nothing -- do NOT mark as failed.
+- Set verification windows: first check at 14 days, second at 28 days, third at 42 days. Only mark as `verification_failed` after 42 days with no result.
+- Supplement `site:` with direct URL checks. After submission, store the expected listing URL pattern (e.g., `directory.com/business/business-name-city`). Periodically fetch that URL directly with `requests` to check for 200 response.
+- Do not burn SerpAPI credits on verification. Use Brave Search for `site:` queries instead (cheaper, and verification does not need Google-quality ranking).
+- Show verification status honestly in dashboard: "Submitted", "Live (verified)", "Live (unverified -- pending Google indexing)".
 
-**Phase:** Phase 1. Validate Brave's Reddit coverage in a spike before committing to the full module.
+**Warning signs:** High percentage of listings stuck in "pending verification" after 4+ weeks. Manual spot-checks show live listings that the system thinks are missing.
 
----
-
-### Pitfall 6: Source Diversity Score Without Baseline is Meaningless
-
-**What goes wrong:** You build a source diversity score that reports "client mentioned on 3 platforms" but have no baseline, no competitor comparison, and no definition of what "good" looks like. Brian cannot tell clients whether 3 is good or bad. The metric sits in the dashboard providing zero actionable insight.
-
-**Why it happens:** Source diversity scoring is a novel metric with no industry standard for home service businesses. Unlike rankings (position 1-3 is clearly good), source diversity has no natural benchmark.
-
-**Prevention:**
-- Score relative to competitors, not in isolation. "You are on 3 platforms; top competitor is on 7" is actionable.
-- Start with a fixed platform checklist rather than discovery-based scoring: GBP, Yelp, BBB, Facebook, Angi, HomeAdvisor, Nextdoor, Reddit. Score as presence/absence.
-- Track progress over time -- the trend matters more than absolute numbers. "3 platforms last month, now 5" is compelling for client reports.
-- Do not conflate "mentions" with "citations." A Yelp listing is a presence signal. An AI Overview citation is a citation signal. Different things.
-
-**Phase:** Phase 1. Define the scoring rubric with concrete benchmarks before writing code.
+**Phase to address:** Phase 2 (verification). Design the verification state machine to treat absence of evidence as inconclusive, not as evidence of absence.
 
 ---
 
-### Pitfall 7: Competitor AI Overview Monitoring Burns SerpAPI Budget
+### Pitfall 6: Rate Limiting and IP Bans from Batch Submissions
 
-**What goes wrong:** Monitoring competitors' AI Overview status for each keyword requires additional SerpAPI searches that eat into the already-tight 200/client/month budget.
+**What goes wrong:** You submit to 15 directories in rapid succession. Several directories share the same platform or anti-bot provider (Cloudflare). Your IP gets flagged. Subsequent submissions fail silently or trigger CAPTCHAs. Worse: if running from a cloud server, the IP range may already be flagged as a known automation source.
 
-**Why it happens:** PROJECT.md already warns "Real-time AI visibility dashboard would burn SerpAPI budget in days." Even non-real-time competitor monitoring can be expensive. Current SERP scraping (8 keywords/client, twice weekly) uses ~64 credits/month per client. Adding 5 competitor keywords adds ~40 credits/month. That pushes toward the 200/client limit, leaving less headroom as you scale to 5 clients.
+**Why it happens:** Directory sites rate-limit by IP. Submitting to multiple directories from the same IP in minutes looks like bot behavior. Some lower-DA directories share hosting infrastructure, meaning hitting 3 different directories could trigger rate limiting on a shared WAF. Running from a home IP (Brian's mac via launchd) is actually BETTER than cloud for this -- residential IPs have higher trust scores.
 
-**Consequences:** SerpAPI budget exhausted mid-month. Existing keyword tracking breaks alongside new features.
+**How to avoid:**
+- Maximum 5 submissions per hour. Space them with random delays of 8-15 minutes between directories.
+- Run from Brian's local machine, not a cloud server. Residential IP > datacenter IP for form submissions.
+- Never submit to more than one directory on the same domain/platform simultaneously.
+- If a submission returns a non-200 response, back off for 30 minutes before trying the next directory.
+- Track submission timing in Supabase: `last_submission_at` per IP. The scheduler should enforce cooldowns.
+- Process submissions as a background queue (one per cron tick) rather than a batch loop.
 
-**Prevention:**
-- Do NOT search competitor keywords separately. Extract competitor data from existing SERP results. When you search "turf cleaning poway," organic results already show competitors. `serp_features` already stores `featured_snippet_holder` and `ai_overview_references` -- competitors are already in this data.
-- Parse `ai_overview_references` for competitor URLs. This is zero additional API cost.
-- If you must track competitor brand names, do it monthly (5 keywords x 1 search = 5 credits), not weekly (40 credits).
-- Add "SerpAPI budget: 87/200 used this month" indicator to the dashboard so Brian sees the pressure.
+**Warning signs:** Multiple consecutive submission failures. HTTP 429 responses. CAPTCHA appearing on sites that did not have it during audit.
 
-**Phase:** Phase 1. Design competitor monitoring to reuse existing data before adding any new API calls.
-
----
-
-### Pitfall 8: Brave Search Rate Limiting Crashes Research Runs
-
-**What goes wrong:** The research runner makes multiple Brave calls back-to-back (brand mentions + Reddit mining) and hits 429 (Too Many Requests). The free/basic tier limits to 1 request per second.
-
-**Why it happens:** The existing `brand_mentions.py` has `time.sleep(0.4)` between queries -- not enough for the 1/second limit. With Reddit mining added, you could have 4 brand mention queries + 8 Reddit queries = 12 Brave calls needing proper spacing.
-
-**Prevention:**
-- Build a shared `brave_client.py` module (like `serpapi_client.py`) with: built-in rate limiting (1.1s sleep between calls minimum), budget tracking, retry logic with exponential backoff on 429.
-- Check `X-RateLimit-Remaining` header before each request. If 0, sleep until window resets.
-- Refactor `brand_mentions.py` to use the shared client. Do not have two modules making independent Brave calls.
-- Consider upgrading to paid Brave tier ($5/month, 20 req/sec) if research run reliability is critical.
-
-**Phase:** Phase 1. Build the shared Brave client before the Reddit mining module.
+**Phase to address:** Phase 1 (submission engine). The queue/scheduler must enforce rate limits from the first submission.
 
 ---
 
-### Pitfall 9: Empty same_as_urls Breaks Source Diversity Baseline
+### Pitfall 7: Email/Phone Verification Blocks Automated Flow
 
-**What goes wrong:** Source diversity scorer checks `clients.json` for `same_as_urls` to establish existing presence. All four clients have empty objects (`"gbp": "", "yelp": "", ...`). The scorer starts from zero, missing existing profiles the clients already have.
+**What goes wrong:** Several directories (Houzz, Porch, TurFresh, Yardbook) require email verification to activate a listing. Some (Houzz Pro) require phone verification. The Playwright script submits the form successfully but the listing never goes live because nobody clicked the verification email or answered the phone call. You have 25 "submitted" entries in the dashboard but only 10 are actually active.
 
-**Why it happens:** This is known tech debt from v1.0, documented in PROJECT.md. Nobody populated the URLs because nothing consumed them until now.
+**Why it happens:** Many directories separate "submission" from "activation." The form is just step one. Email verification links expire (typically 24-72 hours). Phone verification requires a human to answer. If you use a shared agency email, verification emails get buried. If you use client emails, clients ignore them.
 
-**Prevention:**
-- Populate `same_as_urls` for all active clients before building the source diversity scorer. This is 30 minutes of manual work (Google each client + platform).
-- Or: make the scorer auto-discover profiles via Brave Search (`"Mr Green Turf Clean" site:yelp.com`) and populate the config programmatically. But this costs Brave queries.
+**How to avoid:**
+- Categorize each directory in the master list: `verification_none`, `verification_email`, `verification_phone`, `verification_manual_review`. Store in the `directories` table.
+- For `verification_email` directories: use a dedicated email per client (e.g., listings@clientdomain.com) or a single agency email (directory-submissions@echolocalagency.com). Monitor this inbox programmatically -- use Google API to poll for verification emails containing known subject lines ("Verify your listing", "Confirm your email", "Complete your registration"). Auto-click verification links via Playwright.
+- For `verification_phone` directories: these MUST use the client's real business phone. Flag these in the dashboard as "Awaiting client phone verification" and notify Brian.
+- Track the full lifecycle: `submitted -> verification_sent -> verification_complete -> live`. Do not count a directory as "done" at the `submitted` stage.
 
-**Phase:** Pre-work before Phase 1. Part of tech debt cleanup.
+**Warning signs:** Large gap between "submitted" count and "verified" count. Verification emails sitting unread in inbox.
 
----
-
-### Pitfall 10: Mention Deduplication Across Research Runs
-
-**What goes wrong:** If the mention tracking module inserts mentions into Supabase without deduplication, you get duplicate rows every research run (Wed + Sat). Dashboard shows inflated mention counts.
-
-**Why it happens:** The research runner caches to JSON and re-runs from scratch each research day. Without upsert logic, the same Reddit question or brand mention gets inserted twice.
-
-**Prevention:**
-- Use Supabase upsert with a unique constraint (e.g., `client_id, platform, mention_url`).
-- Or follow the existing cache pattern: store in JSON cache, diff against what is already in Supabase, insert only new mentions.
-
-**Phase:** Phase 1. Bake deduplication into the schema design from day one.
+**Phase to address:** Phase 1 (data model) for categorization. Phase 2 (verification) for email monitoring automation.
 
 ---
 
-### Pitfall 11: SerpAPI page_token Expiry Silently Drops AI Overview Data
+### Pitfall 8: Pre-Existing Listings Cause Conflicts
 
-**What goes wrong:** The existing `fetch_ai_overview()` documents that page_tokens expire in ~60 seconds. If mention tracking or source diversity calculations are inserted into the research runner between the initial SERP search and the AI Overview follow-up, the token expires. The follow-up silently fails.
+**What goes wrong:** You submit a client to BuildZoom, but BuildZoom already auto-generated a profile from public contractor license data (this is documented behavior -- BuildZoom scrapes license boards). Now there are two listings: the auto-generated one with possibly stale info and the one you just submitted. Same problem on Houzz, Porch, and other platforms that scrape public records. The directory may reject your submission as a duplicate, or worse, create a conflicting second profile.
 
-**Why it happens:** Adding new processing steps to `research_runner.py` without understanding the tight coupling between `scrape_serp()` and `fetch_ai_overview()`.
+**Why it happens:** Several high-value directories (BuildZoom, Houzz, Porch) automatically create business profiles from public data (contractor licenses, BBB records, utility databases). The client already has a phantom profile they do not know about.
 
-**Prevention:**
-- Keep the search-then-AI-Overview pair atomic. Never insert new processing between them.
-- If refactoring the research runner, ensure this pair runs as a single unit per keyword.
-- Existing code in `serp_scraper.py` already handles this correctly -- just do not break it.
+**How to avoid:**
+- Before ANY submission, search for the client on every target directory. Check by business name AND by phone number AND by address. Store existing profile URLs in `directory_submissions` table with status `pre_existing`.
+- For directories with pre-existing profiles: the task is CLAIM and UPDATE, not create. This is a different Playwright flow (login/claim flow vs submission flow).
+- BuildZoom specifically: profiles can only be removed under special circumstances (business closure). The correct action is to claim the existing profile and update it with accurate info.
+- Add a "discovery" phase before submission: for each client, run `site:directory.com "business phone"` across all target directories to find existing profiles.
 
-**Phase:** Any phase that modifies `research_runner.py` or `serp_scraper.py`.
+**Warning signs:** Directory rejects submission with "business already listed" error. Google shows two different directory URLs for the same client on the same platform.
 
----
-
-### Pitfall 12: Dashboard SSR/CSR Mismatch for Charts
-
-**What goes wrong:** Recharts (and D3.js internals) requires DOM access. If chart components are accidentally server-rendered in Next.js App Router, they throw hydration errors or render blank.
-
-**Prevention:**
-- Mark all chart components with `'use client'` directive.
-- Use dynamic imports with `{ ssr: false }` for chart-heavy sections.
-- Test the production build (`npm run build && npm start`), not just dev mode, before deploying.
-
-**Phase:** Phase 2 (dashboard). First chart component should verify SSR/CSR handling works.
+**Phase to address:** Phase 1 (discovery). Pre-submission audit must run before the first form fill for each client.
 
 ---
 
-## Phase-Specific Warnings
+### Pitfall 9: Submitting Too Many Directories Too Fast Triggers Spam Signals
 
-| Phase Topic | Likely Pitfall | Mitigation |
-|-------------|---------------|------------|
-| Reddit mining via Brave | Budget surprise (#1) + rate limiting (#8) | Build shared `brave_client.py` with budget gate and rate limiting first |
-| Reddit mining via Brave | Incomplete results vs Google (#5) | Validate Brave's Reddit coverage in spike; batch queries with OR operators |
-| Cross-platform mention tracking | No budget gate on Brave (#1) | Mirror `serpapi_usage` pattern for Brave before any calls |
-| Cross-platform mention tracking | Deduplication across runs (#10) | Unique constraint in Supabase schema from day one |
-| Source diversity scoring | Meaningless without baseline (#6) | Score relative to competitors; use fixed platform checklist |
-| Source diversity scoring | Empty same_as_urls (#9) | Populate client configs before building scorer |
-| Competitor AI Overview monitoring | Burns SerpAPI budget (#7) | Reuse existing `ai_overview_references` data -- zero new API calls |
-| GEO dashboard charts | Recharts SVG perf (#4) + SSR issues (#12) | Downsample to weekly; `use client` + dynamic imports |
-| Dashboard data loading | Supabase aggregation perf (#3) | Pre-aggregate with summary tables; default 90-day range |
-| Integration with daily loop | New module crashes loop (#2) | Try/except wrapping on every new call; empty defaults for brain params |
-| Budget tracking across APIs | Two APIs, separate caps, no unified view | Dashboard widget showing both SerpAPI and Brave usage side by side |
-| Research runner modifications | page_token expiry (#11) | Never insert code between search and AI Overview fetch |
+**What goes wrong:** You submit a client to 25 directories in week one. Google sees 25 new citations appear simultaneously for a business that previously had 5. This unnatural velocity pattern triggers Google's link spam detection, temporarily suppressing the business in local search results rather than boosting them.
+
+**Why it happens:** Google's local algorithm tracks citation velocity. Natural citation growth for a small business is 2-5 new citations per month. 25 in a week is a clear automation signal. Even though each individual directory is legitimate, the aggregate pattern is suspicious.
+
+**How to avoid:**
+- Stagger submissions: maximum 5-8 new directories per week per client. Spread over 3-4 weeks for full coverage.
+- Start with the highest-DA directories first (Houzz, BuildZoom, Blue Book) and work down. High-quality citations early establish a natural pattern.
+- Mix directory submissions with other citation-building activities (GBP posts, social profiles) so the pattern looks organic.
+- Track submission dates in Supabase and enforce velocity caps in the scheduler: `WHERE client_id = X AND submitted_at > NOW() - INTERVAL '7 days'` must return fewer than 8 rows before allowing new submissions.
+
+**Warning signs:** Client's local pack ranking drops 1-2 weeks after batch submission. GSC shows impression decline.
+
+**Phase to address:** Phase 1 (scheduler). Velocity caps must be enforced by the submission queue from day one.
+
+---
+
+### Pitfall 10: Description/Service Mismatch Across Directories
+
+**What goes wrong:** Each directory allows different description lengths and has different content policies. You submit a 150-word description to a directory that truncates at 100 words, cutting off mid-sentence. Or you include "artificial turf cleaning" in a directory that only allows "landscaping" as a category, making the listing look spammy or miscategorized.
+
+**Why it happens:** Automation encourages one-size-fits-all content. But directories have wildly different character limits (50 chars to 1000 chars), category taxonomies (some have "turf" categories, most do not), and content policies (some reject keywords in business names or descriptions).
+
+**How to avoid:**
+- Store 3 description variants per client: short (50 words), medium (100 words), long (200 words). Map each directory to the appropriate variant in the `directories` config.
+- Research each directory's category taxonomy during audit. Store the best-fit category per directory per trade. "Landscaping" is a safe fallback for turf-related businesses.
+- After submission, verify the published description matches what was submitted. Some directories auto-edit descriptions (removing URLs, phone numbers, or "marketing language").
+
+**Warning signs:** Published listings show truncated descriptions. Category on directory does not match the client's actual services.
+
+**Phase to address:** Phase 1 (data model). Description variants and category mappings go in the schema alongside NAP data.
+
+---
+
+## Technical Debt Patterns
+
+| Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
+|----------|-------------------|----------------|-----------------|
+| Hardcoded selectors per directory | Fast to build initial 5 directories | Breaks on every form redesign, maintenance nightmare at 30+ | Never -- use config-driven field mappings from the start |
+| Single description for all directories | Less data to manage per client | Truncated or rejected submissions, poor listing quality | Only for MVP proof-of-concept with 3 directories |
+| Skip pre-existing listing check | Submit faster, fewer steps | Duplicate profiles, conflicting NAP, harder to clean up | Never -- discovery phase is cheap and prevents real damage |
+| Run submissions from cloud CI | Consistent environment, no dependency on Brian's machine | Datacenter IPs flagged, higher CAPTCHA rates, lower success | Never for form submissions -- residential IP required |
+| Auto-retry all failures | Higher apparent success rate | Duplicate listings that harm SEO | Never -- only retry pre-POST failures |
+
+## Integration Gotchas
+
+| Integration | Common Mistake | Correct Approach |
+|-------------|----------------|------------------|
+| Playwright + directory forms | Using `page.fill()` which sets value instantly (bot-like) | Use `page.type()` with `delay=50-150ms` to simulate keystroke timing |
+| Playwright + form submission | Clicking submit then immediately checking for confirmation | Use `page.wait_for_url()` or `page.wait_for_selector()` on the confirmation page element with 60s timeout |
+| SerpAPI for `site:` verification | Burning main keyword budget on verification queries | Use Brave Search for `site:` checks -- cheaper and accuracy does not matter for presence checks |
+| Supabase submission tracking | Storing status as a string enum without timestamps | Store each status transition with a timestamp: `submitted_at`, `verified_at`, `approved_at`. You need the timeline, not just current state |
+| Google API for verification emails | Polling every minute for new emails | Poll every 15 minutes during business hours. Verification emails are not time-critical to the minute |
+| launchd scheduling | Running all submissions in one batch at noon | Spread across the day: 5 submissions between 9am-5pm with random gaps |
+
+## Performance Traps
+
+| Trap | Symptoms | Prevention | When It Breaks |
+|------|----------|------------|----------------|
+| Loading full Chromium for each submission | 2-3 second startup per directory, 60+ seconds for a batch of 20 | Reuse a single browser context across submissions in a session. Create new pages, not new browsers | Immediately noticeable but not a blocker. Becomes painful at 30+ submissions |
+| Storing screenshots for every submission | Disk usage grows 500KB-2MB per screenshot, 30 dirs x 4 clients = 120 screenshots/month | Store screenshots only for `submitted_unverified` and `failed` states. Delete after 30 days. Use WebP format | After ~6 months (720+ screenshots, ~1GB) |
+| Querying all submissions for dashboard render | Slow page load as submission count grows (4 clients x 30 dirs = 120 rows initially, growing) | 120 rows is fine. But filter by client_id with index. Do not load all clients' submissions for one client's view | Not a real issue at current scale (4-5 clients). Would matter at 50+ clients |
+
+## "Looks Done But Isn't" Checklist
+
+- [ ] **Submission success:** Form was filled and submitted -- but was the confirmation page actually reached? Check for redirect to confirmation URL or presence of "thank you" text.
+- [ ] **Listing live:** Google `site:` found the listing -- but does the listing contain correct NAP? Fetch the actual page and verify name/address/phone.
+- [ ] **Email verification:** Verification email was received -- but was the link actually clicked? Check that the listing status changed to "active" on the directory.
+- [ ] **Backlink value:** Listing is live -- but is the link `nofollow`? Many directories default to nofollow for new/free listings. Check the actual `rel` attribute.
+- [ ] **Directory health:** Form loads correctly today -- but does it still match your selectors? Run the health checker, not just the form loader.
+- [ ] **Description published:** Description was submitted -- but was it published as-is? Some directories auto-edit, truncate, or wrap content in their own formatting.
+- [ ] **Category accurate:** Category was selected during submission -- but did the directory map it to something else? Check the published category matches intent.
+
+## Recovery Strategies
+
+| Pitfall | Recovery Cost | Recovery Steps |
+|---------|---------------|----------------|
+| Duplicate listings (#1) | MEDIUM | Manually find duplicates via Google search. Contact directory to remove the duplicate. Some directories have no removal process -- you may need to update the duplicate to match the primary listing exactly |
+| NAP inconsistency (#2) | HIGH | Audit all live listings. Update each one manually or via claim/edit flows. Takes 1-2 hours per client for 30 directories. Must be done before inconsistency compounds |
+| Spam velocity signal (#9) | LOW-MEDIUM | Stop new submissions for 2-3 weeks. Let existing citations age naturally. Resume at 3-5/week. Rankings typically recover in 2-4 weeks |
+| Pre-existing conflicting listing (#8) | MEDIUM | Claim the existing profile. Update with correct info. If a second profile exists, contact support to merge or delete |
+| Form structure change (#4) | LOW | Update field mapping in config. Re-test. Re-submit for affected directories only |
+
+## Pitfall-to-Phase Mapping
+
+| Pitfall | Prevention Phase | Verification |
+|---------|------------------|--------------|
+| Duplicate submissions (#1) | Phase 1: Submission engine | Zero duplicate directory/client pairs in Supabase after 1 month of operation |
+| NAP inconsistency (#2) | Phase 1: Data model | All client profiles validated before first submission. Published listings match canonical NAP |
+| CAPTCHA blocking (#3) | Phase 1: Directory audit | Every directory categorized by CAPTCHA type. Automation only attempted on verified no-CAPTCHA sites |
+| Form breakage (#4) | Phase 1 + Phase 3 | Resilient selectors from day one. Weekly health checker catches breakage within 7 days |
+| `site:` unreliability (#5) | Phase 2: Verification | Verification uses multiple methods. No listing marked "failed" based solely on `site:` absence |
+| Rate limiting (#6) | Phase 1: Scheduler | Max 5 submissions/hour enforced. Zero HTTP 429 responses in logs |
+| Email/phone verification (#7) | Phase 1 + Phase 2 | Every directory categorized by verification type. Email auto-click within 24 hours. Phone flagged to Brian |
+| Pre-existing listings (#8) | Phase 1: Discovery | Pre-submission search completed for every client. Existing profiles claimed, not duplicated |
+| Spam velocity (#9) | Phase 1: Scheduler | Max 8 submissions/week/client enforced. No ranking drops correlated with submission timing |
+| Description mismatch (#10) | Phase 1: Data model | 3 description lengths per client. Per-directory length mapping in config |
 
 ## Sources
 
-- [Brave Search API Plans](https://api-dashboard.search.brave.com/app/plans) -- current pricing, tier structure (HIGH confidence)
-- [Brave Drops Free API Tier](https://www.implicator.ai/brave-drops-free-search-api-tier-puts-all-developers-on-metered-billing/) -- free tier elimination confirmed (HIGH confidence)
-- [Brave API Rate Limiting Docs](https://api-dashboard.search.brave.com/documentation/guides/rate-limiting) -- 1/sec limit on free tier, sliding window (HIGH confidence)
-- [Recharts Performance Guide](https://recharts.github.io/en-US/guide/performance/) -- SVG rendering, memoization (HIGH confidence)
-- [Improving Recharts Performance](https://belchior.hashnode.dev/improving-recharts-performance-clp5w295y000b0ajq8hu6cnmm) -- dataKey stability, React.memo patterns (MEDIUM confidence)
-- [Supabase Performance Tuning](https://supabase.com/docs/guides/platform/performance) -- Postgres analytics limitations (HIGH confidence)
-- [Can I Use Supabase for Analytics?](https://www.tinybird.co/blog/can-i-use-supabase-for-user-facing-analytics) -- 500K row performance cliff (MEDIUM confidence)
-- [SerpAPI vs Brave Search API](https://serpapi.com/blog/serpapi-vs-brave-search-api/) -- multi-API strategy (MEDIUM confidence)
-- [Reddit Scraping Post-API](https://medium.com/@arjuns0206/you-dont-need-the-reddit-api-to-acquire-its-data-here-s-how-41ef8f15e1db) -- .json endpoint workaround (LOW confidence, may break)
-- Codebase analysis: `seo_loop.py`, `serpapi_client.py`, `brand_mentions.py`, `reddit.py`, `research_runner.py`, `geo_scorer.py`, `geo_data.py`, `clients.json`, Supabase migration files -- direct code review (HIGH confidence)
+- [Google site: operator documentation](https://developers.google.com/search/docs/monitor-debug/search-operators/all-search-site) -- official limitations: "may not list all indexed URLs" (HIGH confidence)
+- [Google site: operator known issues](https://developers.google.com/search/blog/2006/05/issues-with-site-operator-query) -- results are estimates only (HIGH confidence)
+- [Playwright CAPTCHA bypass analysis (BrowserStack)](https://www.browserstack.com/guide/playwright-captcha) -- detection operates at behavioral/environmental layers Playwright cannot control (MEDIUM confidence)
+- [playwright-stealth PyPI](https://pypi.org/project/playwright-stealth/) -- v2.0.2, Python 3.9+, actively maintained (HIGH confidence)
+- [Playwright Extra stealth techniques (ZenRows)](https://www.zenrows.com/blog/playwright-stealth) -- patches navigator.webdriver, user-agent, plugins (MEDIUM confidence)
+- [Rate limiting in web scraping (Apify Academy)](https://docs.apify.com/academy/anti-scraping/techniques/rate-limiting) -- per-IP limits, escalation to bans (MEDIUM confidence)
+- [Directory submission best practices 2025 (VA Web SEO)](https://www.vawebseo.com/seo-directory-submission-software-in-2025-pros-and-cons/) -- quality over quantity, NAP consistency (MEDIUM confidence)
+- [Automating directory submissions (Jasmine Directory)](https://www.jasminedirectory.com/blog/automating-directory-submissions/) -- data preparation failures, API vs form success rates (MEDIUM confidence)
+- [BuildZoom auto-generated profiles (BBB complaints)](https://www.bbb.org/us/ca/san-francisco/profile/digital-advertising/buildzoom-inc-1116-461634/complaints) -- profiles created from public license data without consent (MEDIUM confidence)
+- [Playwright retry APIs](https://timdeschryver.dev/blog/the-different-retry-apis-from-playwright) -- non-idempotent operations should not be retried (MEDIUM confidence)
+- [Preventing double form submissions (OpenReplay)](https://blog.openreplay.com/prevent-double-form-submissions/) -- server-side idempotency required for correctness (MEDIUM confidence)
+- Codebase analysis: PROJECT.md, directory master list, existing SEO engine patterns (HIGH confidence)
+
+---
+*Pitfalls research for: v1.2 Directory Submission Automation*
+*Researched: 2026-03-10*
