@@ -70,11 +70,11 @@ Plans:
   1. AI Overview citation trends are charted as weekly snapshots, showing citation gains/losses over time per keyword
   2. Each client has a source diversity score reflecting how many platform types (directories, forums, review sites, social) mention the business
   3. Source diversity visualization in the dashboard shows which specific platforms mention the client and which platform types are missing
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 07-01: TBD
-- [ ] 07-02: TBD
+- [ ] 07-01-PLAN.md -- Citation trend chart (weekly AIO citation snapshots, Recharts AreaChart, 90-day window)
+- [ ] 07-02-PLAN.md -- Source diversity scoring + visualization (platform category grid, gap identification)
 
 ## Progress
 
@@ -88,5 +88,5 @@ Phases 5 and 6 can run in parallel (different layers: Python backend vs Next.js 
 | 3. Brain Integration + Content Upgrades | v1.0 | 2/2 | Complete | 2026-03-10 |
 | 4. Entity + Authority Building | v1.0 | 2/2 | Complete | 2026-03-10 |
 | 5. Brave Infra + Mention Tracking + Tech Debt | v1.1 | 0/2 | Planning complete | - |
-| 6. GEO Dashboard (Existing Data) | 1/2 | In Progress|  | - |
-| 7. Trends + Source Diversity | v1.1 | 0/TBD | Not started | - |
+| 6. GEO Dashboard (Existing Data) | v1.1 | 1/2 | In progress | - |
+| 7. Trends + Source Diversity | v1.1 | 0/2 | Planning complete | - |
