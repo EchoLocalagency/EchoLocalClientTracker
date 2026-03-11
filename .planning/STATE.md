@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Directory Submission & Tracking
-status: unknown
-last_updated: "2026-03-11T20:01:40.182Z"
+status: in-progress
+last_updated: "2026-03-11T21:30:45.000Z"
 progress:
   total_phases: 8
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 14
-  completed_plans: 12
+  completed_plans: 13
 ---
 
 # Project State
@@ -18,22 +18,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Each client gains 20-30 new backlinks from niche directories GHL/Yext misses, tracked and verified automatically.
-**Current focus:** Phase 10 - Verification Loop
+**Current focus:** Phase 12 - Dashboard Directory
 
 ## Current Position
 
-Phase: 10 of 12 (Verification Loop) -- COMPLETE
+Phase: 11 of 12 (Brain Integration) -- COMPLETE
 Plan: 1 of 1 in current phase (all complete)
-Status: Phase 10 complete, ready for Phase 11
-Last activity: 2026-03-11 -- Completed 10-01 (verification loop with Brave Search)
+Status: Phase 11 complete, ready for Phase 12
+Last activity: 2026-03-11 -- Completed 11-01 (brain integration for directory submissions)
 
-Progress: [####################] 100% (v1.0 + v1.1 complete, v1.2: phase 10 complete, 1/1 plans)
+Progress: [####################] 100% (v1.0 + v1.1 complete, v1.2: phase 11 complete, 1/1 plans)
 
 ## Performance Metrics
 
 **Velocity (from v1.0 + v1.1):**
 - Average duration: 3.1min per plan
-- Total plans completed: 17 (v1.0: 8, v1.1: 6, v1.2: 3 so far)
+- Total plans completed: 18 (v1.0: 8, v1.1: 6, v1.2: 4 so far)
 
 ## Accumulated Context
 
@@ -41,6 +41,9 @@ Progress: [####################] 100% (v1.0 + v1.1 complete, v1.2: phase 10 comp
 
 Full decision log in PROJECT.md Key Decisions table.
 Recent (v1.2):
+- 11-01: Used .in_() for submitted count to include submitted/approved/verified statuses
+- 11-01: Only log clean submissions to seo_actions (not post-submit-error or skipped/failed)
+- 11-01: Brain prompt explicitly tells brain NOT to propose directory_submission actions
 - 10-01: Named constants for threshold days (7/14/21) instead of inline magic numbers
 - 10-01: 21-day escalation processed before 14-day alerts to prevent double-processing
 - 10-01: All-clients mode queries distinct client_ids from submissions table
@@ -82,5 +85,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-11
-Stopped at: Completed 10-01-PLAN.md (verification loop with Brave Search -- Phase 10 complete)
+Stopped at: Completed 11-01-PLAN.md (brain integration for directory submissions -- Phase 11 complete)
 Resume file: None

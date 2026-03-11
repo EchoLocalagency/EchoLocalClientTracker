@@ -30,8 +30,8 @@
 
 ### Brain Integration
 
-- [ ] **BRAIN-01**: Brain prompt includes directory_summary section showing current coverage per client (X/Y submitted, X/Y verified)
-- [ ] **BRAIN-02**: Directory submissions logged to seo_actions table with action_type='directory_submission' for full brain visibility
+- [x] **BRAIN-01**: Brain prompt includes directory_summary section showing current coverage per client (X/Y submitted, X/Y verified)
+- [x] **BRAIN-02**: Directory submissions logged to seo_actions table with action_type='directory_submission' for full brain visibility
 
 ### Dashboard
 
@@ -90,8 +90,8 @@ All v1.1 requirements shipped. See milestones archive for details.
 | VER-02 | Phase 10 | Complete |
 | VER-03 | Phase 10 | Complete |
 | VER-04 | Phase 10 | Complete |
-| BRAIN-01 | Phase 11 | Pending |
-| BRAIN-02 | Phase 11 | Pending |
+| BRAIN-01 | Phase 11 | Complete |
+| BRAIN-02 | Phase 11 | Complete |
 | DASH-01 | Phase 12 | Pending |
 | DASH-02 | Phase 12 | Pending |
 | DASH-03 | Phase 12 | Pending |
