@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Mention Tracking + GEO Dashboard
-status: roadmap_complete
-last_updated: "2026-03-10T23:45:00Z"
+status: executing
+last_updated: "2026-03-11T01:32:47Z"
 progress:
   total_phases: 3
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 4
+  completed_plans: 1
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** The brain knows which pages are citation-ready and which aren't, and prioritizes making uncitable content citable.
-**Current focus:** v1.1 Mention Tracking + GEO Dashboard -- Phase 5 ready to plan
+**Current focus:** v1.1 Mention Tracking + GEO Dashboard -- Phase 5 Plan 01 complete
 
 ## Current Position
 
 Phase: 5 of 7 (Brave Infra + Mention Tracking + Tech Debt)
-Plan: --
-Status: Ready to plan
-Last activity: 2026-03-10 -- Roadmap created for v1.1 (Phases 5-7)
+Plan: 2 of 2
+Status: Executing
+Last activity: 2026-03-11 -- Completed 05-01 (Brave infra + tech debt)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [##░░░░░░░░] 25%
 
 ## Performance Metrics
 
@@ -44,12 +44,13 @@ Recent:
 - Phase 5 bundles tech debt with infra/mentions (small fixes, no separate phase needed)
 - Phases 5+6 can run in parallel (Python backend vs Next.js frontend)
 - Phase 7 deferred until Phase 5 data accumulates 1-2 weeks
+- GLOBAL_MONTHLY_LIMIT for Brave set to 800 (conservative under $5/1k pricing)
+- GBP sameAs URLs use google.com/maps?cid= format from existing location IDs
+- brand_mentions.py uses hardcoded Echo Local UUID for Brave budget tracking
 
 ### Pending Todos
 
-- Populate same_as_urls in clients.json (DEBT-03, Phase 5)
-- Fix content_validator.py capsule word count (DEBT-01, Phase 5)
-- Wire inject_organization_on_all_pages() (DEBT-02, Phase 5)
+- All v1.0 tech debt resolved (DEBT-01, DEBT-02, DEBT-03 completed in 05-01)
 
 ### Blockers/Concerns
 
@@ -58,6 +59,6 @@ Recent:
 
 ## Session Continuity
 
-Last session: 2026-03-10
-Stopped at: Roadmap created for v1.1
+Last session: 2026-03-11
+Stopped at: Completed 05-01-PLAN.md
 Resume file: None

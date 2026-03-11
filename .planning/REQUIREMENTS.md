@@ -7,8 +7,8 @@
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: Brave Search client with budget gating, rate limiting, and usage tracking (mirrors serpapi_client.py pattern)
-- [ ] **INFRA-02**: Brave Search usage stored in Supabase with monthly caps
+- [x] **INFRA-01**: Brave Search client with budget gating, rate limiting, and usage tracking (mirrors serpapi_client.py pattern)
+- [x] **INFRA-02**: Brave Search usage stored in Supabase with monthly caps
 
 ### Mention Tracking
 
@@ -28,9 +28,9 @@
 
 ### Tech Debt
 
-- [ ] **DEBT-01**: Fix content_validator.py capsule word count range (50-150 -> 40-60)
-- [ ] **DEBT-02**: Wire inject_organization_on_all_pages() into runtime or remove
-- [ ] **DEBT-03**: Populate same_as_urls in clients.json for all active clients
+- [x] **DEBT-01**: Fix content_validator.py capsule word count range (50-150 -> 40-60)
+- [x] **DEBT-02**: Wire inject_organization_on_all_pages() into runtime or remove
+- [x] **DEBT-03**: Populate same_as_urls in clients.json for all active clients
 
 ## Future Requirements
 
@@ -59,8 +59,8 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 5 | Pending |
-| INFRA-02 | Phase 5 | Pending |
+| INFRA-01 | Phase 5 | Complete |
+| INFRA-02 | Phase 5 | Complete |
 | MENT-01 | Phase 5 | Pending |
 | MENT-02 | Phase 5 | Pending |
 | MENT-03 | Phase 7 | Pending |
@@ -71,9 +71,9 @@
 | DASH-04 | Phase 7 | Pending |
 | DASH-05 | Phase 6 | Pending |
 | DASH-06 | Phase 6 | Pending |
-| DEBT-01 | Phase 5 | Pending |
-| DEBT-02 | Phase 5 | Pending |
-| DEBT-03 | Phase 5 | Pending |
+| DEBT-01 | Phase 5 | Complete |
+| DEBT-02 | Phase 5 | Complete |
+| DEBT-03 | Phase 5 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 15 total
