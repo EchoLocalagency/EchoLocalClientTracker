@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Mention Tracking + GEO Dashboard
 status: in-progress
-last_updated: "2026-03-11T02:22:00Z"
+last_updated: "2026-03-11T02:27:00Z"
 progress:
   total_phases: 1
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  total_plans: 4
+  completed_plans: 4
 ---
 
 # Project State
@@ -18,14 +18,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** The brain knows which pages are citation-ready and which aren't, and prioritizes making uncitable content citable.
-**Current focus:** v1.1 Mention Tracking + GEO Dashboard -- Phase 6 Plan 01 complete
+**Current focus:** v1.1 Mention Tracking + GEO Dashboard -- Phase 6 complete (all plans)
 
 ## Current Position
 
 Phase: 6 of 7 (GEO Dashboard)
-Plan: 1 of 1 (COMPLETE)
+Plan: 2 of 2 (COMPLETE)
 Status: Phase 6 complete
-Last activity: 2026-03-11 -- Completed 06-01 (GEO data layer + tab scaffold)
+Last activity: 2026-03-11 -- Completed 06-02 (citation table, snippets, budget gauge, sparklines)
 
 Progress: [######░░░░] 60%
 
@@ -52,6 +52,8 @@ Recent:
 - Competitor AIO citations parsed from existing serp_features data (zero API cost)
 - GEO tab visible to all users (not admin-gated) per DASH-01 requirement
 - serpapi_usage budget query is global (no client_id filter) matching Python behavior
+- Reused HealthScoreCard SVG arc pattern for budget gauge (visual consistency)
+- Trend data fetched separately from deduped scores for full sparkline history
 
 ### Pending Todos
 
@@ -65,5 +67,5 @@ Recent:
 ## Session Continuity
 
 Last session: 2026-03-11
-Stopped at: Completed 06-01-PLAN.md (GEO data layer + tab scaffold)
+Stopped at: Completed 06-02-PLAN.md (citation table, snippets, budget gauge, sparklines)
 Resume file: None

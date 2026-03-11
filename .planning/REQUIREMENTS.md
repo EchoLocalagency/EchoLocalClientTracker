@@ -20,11 +20,11 @@
 ### GEO Dashboard
 
 - [x] **DASH-01**: GEO scores visible per page in Next.js dashboard with missing factors and score trend
-- [ ] **DASH-02**: AI Overview citation status per keyword (cited / not cited / no AI Overview)
+- [x] **DASH-02**: AI Overview citation status per keyword (cited / not cited / no AI Overview)
 - [ ] **DASH-03**: AI Overview citation trends charted as weekly snapshots over time
 - [ ] **DASH-04**: Source diversity visualization showing which platforms mention the client
-- [ ] **DASH-05**: SerpAPI budget usage indicator (searches used vs remaining this month)
-- [ ] **DASH-06**: Featured Snippet ownership displayed per keyword (client vs competitor)
+- [x] **DASH-05**: SerpAPI budget usage indicator (searches used vs remaining this month)
+- [x] **DASH-06**: Featured Snippet ownership displayed per keyword (client vs competitor)
 
 ### Tech Debt
 
@@ -66,11 +66,11 @@
 | MENT-03 | Phase 7 | Pending |
 | MENT-04 | Phase 5 | Complete |
 | DASH-01 | Phase 6 | Complete |
-| DASH-02 | Phase 6 | Pending |
+| DASH-02 | Phase 6 | Complete |
 | DASH-03 | Phase 7 | Pending |
 | DASH-04 | Phase 7 | Pending |
-| DASH-05 | Phase 6 | Pending |
-| DASH-06 | Phase 6 | Pending |
+| DASH-05 | Phase 6 | Complete |
+| DASH-06 | Phase 6 | Complete |
 | DEBT-01 | Phase 5 | Complete |
 | DEBT-02 | Phase 5 | Complete |
 | DEBT-03 | Phase 5 | Complete |
