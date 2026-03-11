@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Client, Report, GscQuery, GbpKeyword, SeoAction, SeoBrainDecision, TabId, TimeRange } from '@/lib/types';
+import { Client, Report, GscQuery, GbpKeyword, SeoAction, SeoBrainDecision, GeoScore, SerpFeature, TabId, TimeRange } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
 import { useFilteredReports } from '@/hooks/useFilteredReports';
@@ -13,6 +13,8 @@ import SeoTab from '@/components/tabs/SeoTab';
 import ConversionsTab from '@/components/tabs/ConversionsTab';
 import GbpTab from '@/components/tabs/GbpTab';
 import SeoEngineTab from '@/components/tabs/SeoEngineTab';
+import AgentsTab from '@/components/tabs/AgentsTab';
+import GeoTab from '@/components/tabs/GeoTab';
 
 export default function Dashboard() {
   const { profile, loading: authLoading, isAdmin } = useAuth();
@@ -27,6 +29,9 @@ export default function Dashboard() {
   const [seoActions, setSeoActions] = useState<SeoAction[]>([]);
   const [brainDecisions, setBrainDecisions] = useState<SeoBrainDecision[]>([]);
   const [timeRange, setTimeRange] = useState<TimeRange>('3m');
+  const [geoScores, setGeoScores] = useState<GeoScore[]>([]);
+  const [serpFeatures, setSerpFeatures] = useState<SerpFeature[]>([]);
+  const [serpApiUsageCount, setSerpApiUsageCount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
   const filteredReports = useFilteredReports(reports, timeRange);
@@ -214,6 +219,89 @@ export default function Dashboard() {
     loadBrainDecisions();
   }, [activeClient, isAdmin]);
 
+  // Load GEO data (visible to all users)
+  useEffect(() => {
+    if (!activeClient) {
+      setGeoScores([]);
+      setSerpFeatures([]);
+      setSerpApiUsageCount(0);
+      return;
+    }
+
+    if (!activeClient.seo_engine_enabled) {
+      setGeoScores([]);
+      setSerpFeatures([]);
+      setSerpApiUsageCount(0);
+      return;
+    }
+
+    async function loadGeoScores() {
+      const { data, error } = await supabase
+        .from('geo_scores')
+        .select('page_path, page_url, score, factors, scored_at')
+        .eq('client_id', activeClient!.id)
+        .order('scored_at', { ascending: false })
+        .limit(50);
+
+      if (error) {
+        console.error('GEO scores fetch error:', error);
+        setGeoScores([]);
+      } else {
+        const seen = new Set<string>();
+        const latest = (data || []).filter(row => {
+          if (seen.has(row.page_path)) return false;
+          seen.add(row.page_path);
+          return true;
+        });
+        setGeoScores(latest);
+      }
+    }
+
+    async function loadSerpFeatures() {
+      const { data, error } = await supabase
+        .from('serp_features')
+        .select('keyword, has_ai_overview, client_cited_in_ai_overview, has_featured_snippet, featured_snippet_holder, client_has_snippet, collected_at')
+        .eq('client_id', activeClient!.id)
+        .order('collected_at', { ascending: false })
+        .limit(50);
+
+      if (error) {
+        console.error('SERP features fetch error:', error);
+        setSerpFeatures([]);
+      } else {
+        const seen = new Set<string>();
+        const latest = (data || []).filter(row => {
+          if (seen.has(row.keyword)) return false;
+          seen.add(row.keyword);
+          return true;
+        });
+        setSerpFeatures(latest);
+      }
+    }
+
+    async function loadSerpApiUsage() {
+      const monthStart = new Date();
+      monthStart.setDate(1);
+      monthStart.setHours(0, 0, 0, 0);
+
+      const { count, error } = await supabase
+        .from('serpapi_usage')
+        .select('id', { count: 'exact', head: true })
+        .gte('searched_at', monthStart.toISOString());
+
+      if (error) {
+        console.error('SerpAPI usage fetch error:', error);
+        setSerpApiUsageCount(0);
+      } else {
+        setSerpApiUsageCount(count || 0);
+      }
+    }
+
+    loadGeoScores();
+    loadSerpFeatures();
+    loadSerpApiUsage();
+  }, [activeClient]);
+
   const hasFormTracking = reports.some(r => r.ga4_form_submits != null && r.ga4_form_submits > 0);
   const sidebarWidth = isAdmin ? (sidebarCollapsed ? 68 : 260) : 0;
 
@@ -334,6 +422,18 @@ export default function Dashboard() {
               )}
               {activeTab === 'seo-engine' && isAdmin && (
                 <SeoEngineTab actions={seoActions} decisions={brainDecisions} />
+              )}
+              {activeTab === 'agents' && isAdmin && (
+                <AgentsTab />
+              )}
+              {activeTab === 'geo' && (
+                <GeoTab
+                  geoScores={geoScores}
+                  serpFeatures={serpFeatures}
+                  serpApiUsageCount={serpApiUsageCount}
+                  isAdmin={isAdmin}
+                  seoEngineEnabled={activeClient?.seo_engine_enabled ?? false}
+                />
               )}
             </>
           )}
