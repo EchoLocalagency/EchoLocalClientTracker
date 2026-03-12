@@ -162,14 +162,14 @@ def pull_gsc(creds, site_url, start, end):
     clicks = int(agg_row.get("clicks", 0))
     position = round(agg_row.get("position", 0), 1)
 
-    # Top queries (up to 25)
+    # All queries (up to 5000)
     query_resp = service.searchanalytics().query(
         siteUrl=site_url,
         body={
             "startDate": str(start),
             "endDate": str(end),
             "dimensions": ["query"],
-            "rowLimit": 25,
+            "rowLimit": 5000,
             "orderBy": [{"fieldName": "impressions", "sortOrder": "DESCENDING"}],
         }
     ).execute()
@@ -757,9 +757,8 @@ def push_to_supabase(report):
         report_id = resp.data[0]["id"]
         print(f"  Supabase: report upserted (id: {report_id})")
 
-        # Only replace queries if we have new data (avoids wiping on API failure)
+        # Upsert queries (preserves historical data, updates on re-run)
         if gsc["top_queries"]:
-            sb.table("gsc_queries").delete().eq("report_id", report_id).execute()
             query_rows = [
                 {
                     "report_id": report_id,
@@ -772,8 +771,11 @@ def push_to_supabase(report):
                 }
                 for q in gsc["top_queries"]
             ]
-            sb.table("gsc_queries").insert(query_rows).execute()
-            print(f"  Supabase: {len(query_rows)} queries inserted")
+            sb.table("gsc_queries").upsert(
+                query_rows,
+                on_conflict="client_id,run_date,query"
+            ).execute()
+            print(f"  Supabase: {len(query_rows)} queries upserted")
 
             # Upsert matching tracked keywords into keyword_snapshots (daily GSC snapshots)
             try:

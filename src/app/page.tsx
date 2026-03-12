@@ -38,6 +38,7 @@ export default function Dashboard() {
   const [trackedKeywords, setTrackedKeywords] = useState<TrackedKeyword[]>([]);
   const [keywordSnapshots, setKeywordSnapshots] = useState<KeywordSnapshot[]>([]);
   const [directorySubmissions, setDirectorySubmissions] = useState<SubmissionWithDirectory[]>([]);
+  const [gscHistory, setGscHistory] = useState<GscQuery[]>([]);
   const [loading, setLoading] = useState(true);
 
   const filteredReports = useFilteredReports(reports, timeRange);
@@ -233,11 +234,27 @@ export default function Dashboard() {
       }
     }
 
+    async function loadGscHistory() {
+      const { data, error } = await supabase
+        .from('gsc_queries')
+        .select('id, report_id, client_id, run_date, query, impressions, clicks, position')
+        .eq('client_id', activeClient!.id)
+        .order('run_date', { ascending: true });
+
+      if (error) {
+        console.error('GSC history fetch error:', error);
+        setGscHistory([]);
+      } else {
+        setGscHistory(data || []);
+      }
+    }
+
     loadQueries();
     loadPrevQueries();
     loadGbpKeywords();
     loadTrackedKeywords();
     loadKeywordSnapshots();
+    loadGscHistory();
   }, [activeClient, latestReport, reports.length]);
 
   // Load SEO Engine data (admin only)
@@ -590,7 +607,7 @@ export default function Dashboard() {
                 <OverviewTab reports={filteredReports} latestReport={latestReport} allReports={reports} queries={queries} />
               )}
               {activeTab === 'seo' && (
-                <SeoTab reports={filteredReports} queries={queries} latestReport={latestReport} prevQueries={prevQueries} clientId={activeClient?.id} clientName={activeClient?.name} />
+                <SeoTab reports={filteredReports} queries={queries} latestReport={latestReport} prevQueries={prevQueries} clientId={activeClient?.id} clientName={activeClient?.name} gscHistory={gscHistory} />
               )}
               {activeTab === 'conversions' && (
                 <ConversionsTab reports={filteredReports} latestReport={latestReport} hasFormTracking={hasFormTracking} />

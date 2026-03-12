@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Report, GscQuery } from '@/lib/types';
-import { supabase } from '@/lib/supabase';
 import { rollingSum14 } from '@/lib/utils';
 import {
   ResponsiveContainer,
@@ -23,6 +22,7 @@ interface SeoTabProps {
   prevQueries?: GscQuery[];
   clientId?: string;
   clientName?: string;
+  gscHistory?: GscQuery[];
 }
 
 // Inline sparkline for position history (inverted: lower position = higher on chart)
@@ -59,13 +59,8 @@ function PositionSparkline({ data }: { data: number[] }) {
   );
 }
 
-export default function SeoTab({ reports, queries, latestReport, prevQueries, clientId, clientName }: SeoTabProps) {
+export default function SeoTab({ reports, queries, latestReport, prevQueries, clientId, clientName, gscHistory }: SeoTabProps) {
   const [expandedQuery, setExpandedQuery] = useState<string | null>(null);
-
-  // ── Top 15 Unbranded Keywords by Current Rank (from GSC history) ──
-  const [topKeywords, setTopKeywords] = useState<{ query: string; latestPosition: number; impressions: number; clicks: number }[]>([]);
-  const [allHistory, setAllHistory] = useState<Record<string, { date: string; position: number }[]>>({});
-  const [historyLoading, setHistoryLoading] = useState(false);
 
   const brandWords = (clientName || '').toLowerCase().split(/\s+/);
   const brandPrefix = brandWords.slice(0, 2).join(' ');
@@ -73,65 +68,48 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
     return brandPrefix.length > 0 && q.toLowerCase().includes(brandPrefix);
   };
 
-  // Fetch top 15 keywords by current rank across ALL gsc_queries history
-  useEffect(() => {
-    if (!clientId) {
-      setTopKeywords([]);
-      setAllHistory({});
-      return;
+  // ── Derive top 15 keywords + history from gscHistory prop ──
+  const historyData = gscHistory || [];
+  const historyLoading = false;
+
+  const byQuery: Record<string, { dates: { date: string; rawDate: string; position: number }[]; latestPosition: number; totalImpressions: number; totalClicks: number }> = {};
+  for (const row of historyData) {
+    if (isBranded(row.query)) continue;
+    if (!byQuery[row.query]) {
+      byQuery[row.query] = { dates: [], latestPosition: 100, totalImpressions: 0, totalClicks: 0 };
     }
+    const entry = byQuery[row.query];
+    entry.dates.push({
+      date: new Date(row.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      rawDate: row.run_date,
+      position: row.position,
+    });
+    entry.latestPosition = row.position;
+    entry.totalImpressions += row.impressions;
+    entry.totalClicks += row.clicks;
+  }
 
-    setHistoryLoading(true);
+  const sorted = Object.entries(byQuery)
+    .sort(([, a], [, b]) => a.latestPosition - b.latestPosition)
+    .slice(0, 15);
 
-    supabase
-      .from('gsc_queries')
-      .select('query, run_date, position, impressions, clicks')
-      .eq('client_id', clientId)
-      .order('run_date', { ascending: true })
-      .then(({ data, error }) => {
-        if (error || !data) {
-          setTopKeywords([]);
-          setAllHistory({});
-          setHistoryLoading(false);
-          return;
-        }
+  const topKeywords = sorted.map(([query, d]) => ({
+    query,
+    latestPosition: d.latestPosition,
+    impressions: d.totalImpressions,
+    clicks: d.totalClicks,
+  }));
 
-        const byQuery: Record<string, { dates: { date: string; position: number }[]; latestPosition: number; totalImpressions: number; totalClicks: number }> = {};
-        for (const row of data) {
-          if (isBranded(row.query)) continue;
-          if (!byQuery[row.query]) {
-            byQuery[row.query] = { dates: [], latestPosition: 100, totalImpressions: 0, totalClicks: 0 };
-          }
-          const entry = byQuery[row.query];
-          entry.dates.push({
-            date: new Date(row.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-            position: row.position,
-          });
-          entry.latestPosition = row.position;
-          entry.totalImpressions += row.impressions;
-          entry.totalClicks += row.clicks;
-        }
+  const allHistory: Record<string, { date: string; rawDate: string; position: number }[]> = {};
+  for (const [query, d] of sorted) {
+    allHistory[query] = d.dates;
+  }
 
-        const sorted = Object.entries(byQuery)
-          .sort(([, a], [, b]) => a.latestPosition - b.latestPosition)
-          .slice(0, 15);
-
-        setTopKeywords(sorted.map(([query, d]) => ({
-          query,
-          latestPosition: d.latestPosition,
-          impressions: d.totalImpressions,
-          clicks: d.totalClicks,
-        })));
-
-        const history: Record<string, { date: string; position: number }[]> = {};
-        for (const [query, d] of sorted) {
-          history[query] = d.dates;
-        }
-        setAllHistory(history);
-        setHistoryLoading(false);
-      });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clientId]);
+  // Determine earliest date across all history for the date range indicator
+  const earliestDate = historyData.length > 0 ? historyData[0].run_date : null;
+  const earliestLabel = earliestDate
+    ? new Date(earliestDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    : null;
 
   if (!latestReport) {
     return <div style={{ color: 'var(--text-secondary)', padding: 40, textAlign: 'center' }}>No data yet.</div>;
@@ -235,7 +213,14 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
 
       {/* Top 15 Keywords by Current Rank (from GSC history) */}
       <div style={chartStyle}>
-        <div style={sectionLabel}>Top 15 Keywords by Current Rank</div>
+        <div style={sectionLabel}>
+          Top 15 Keywords by Current Rank
+          {earliestLabel && (
+            <span style={{ fontWeight: 400, fontSize: 11, color: 'var(--text-secondary)', marginLeft: 8 }}>
+              since {earliestLabel}
+            </span>
+          )}
+        </div>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
@@ -307,31 +292,73 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
                       <div style={{ textAlign: 'right', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>{q.clicks.toLocaleString()}</div>
                     </div>
 
-                    {isExpanded && (
-                      <div style={{
-                        padding: '12px 12px 16px 30px',
-                        borderBottom: '1px solid var(--border)',
-                        background: 'rgba(232, 255, 0, 0.04)',
-                      }}>
-                        {history.length < 2 ? (
-                          <div style={{ color: 'var(--text-secondary)', fontSize: 12, padding: '8px 0' }}>
-                            Not enough history yet.
-                          </div>
-                        ) : (
-                          <div style={{ height: 160 }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                              <LineChart data={history} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                                <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'var(--text-secondary)' }} />
-                                <YAxis reversed tick={{ fontSize: 10, fill: 'var(--text-secondary)' }} domain={['dataMin - 2', 'dataMax + 2']} width={30} />
-                                <Tooltip content={<ChartTooltip />} />
-                                <Line type="monotone" dataKey="position" stroke="#E8FF00" strokeWidth={2} dot={false} name="Position" isAnimationActive={false} activeDot={{ r: 4, stroke: '#E8FF00', strokeWidth: 2, fill: 'var(--bg-surface)' }} />
-                              </LineChart>
-                            </ResponsiveContainer>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                    {isExpanded && (() => {
+                      // Determine if data spans more than 30 days for weekly tick logic
+                      const spanDays = history.length >= 2
+                        ? Math.round((new Date(history[history.length - 1].rawDate + 'T00:00:00').getTime() - new Date(history[0].rawDate + 'T00:00:00').getTime()) / (1000 * 60 * 60 * 24))
+                        : 0;
+                      const useWeeklyTicks = spanDays > 30;
+                      // Build weekly tick indices: pick one data point per ~7 days
+                      let tickIndices: number[] | undefined;
+                      if (useWeeklyTicks && history.length > 7) {
+                        tickIndices = [];
+                        let lastTickDate = -Infinity;
+                        for (let i = 0; i < history.length; i++) {
+                          const d = new Date(history[i].rawDate + 'T00:00:00').getTime();
+                          if (d - lastTickDate >= 6 * 24 * 60 * 60 * 1000) {
+                            tickIndices.push(i);
+                            lastTickDate = d;
+                          }
+                        }
+                      }
+                      const tickFormatter = useWeeklyTicks
+                        ? (_val: string, idx: number) => {
+                            if (tickIndices && !tickIndices.includes(idx)) return '';
+                            return _val;
+                          }
+                        : undefined;
+
+                      return (
+                        <div style={{
+                          padding: '12px 12px 16px 30px',
+                          borderBottom: '1px solid var(--border)',
+                          background: 'rgba(232, 255, 0, 0.04)',
+                        }}>
+                          {history.length < 2 ? (
+                            <div style={{ color: 'var(--text-secondary)', fontSize: 12, padding: '8px 0' }}>
+                              Not enough history yet.
+                            </div>
+                          ) : (
+                            <div style={{ height: 160 }}>
+                              <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={history} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                                  <XAxis
+                                    dataKey="date"
+                                    tick={{ fontSize: 10, fill: 'var(--text-secondary)' }}
+                                    tickFormatter={tickFormatter}
+                                    interval={0}
+                                  />
+                                  <YAxis reversed tick={{ fontSize: 10, fill: 'var(--text-secondary)' }} domain={['dataMin - 2', 'dataMax + 2']} width={30} />
+                                  <Tooltip content={<ChartTooltip />} />
+                                  <Line
+                                    type="monotone"
+                                    dataKey="position"
+                                    stroke="#E8FF00"
+                                    strokeWidth={2}
+                                    dot={false}
+                                    connectNulls
+                                    name="Position"
+                                    isAnimationActive={false}
+                                    activeDot={{ r: 4, stroke: '#E8FF00', strokeWidth: 2, fill: 'var(--bg-surface)' }}
+                                  />
+                                </LineChart>
+                              </ResponsiveContainer>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </td>
                 </tr>
               );

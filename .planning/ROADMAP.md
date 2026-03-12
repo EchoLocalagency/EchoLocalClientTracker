@@ -110,10 +110,29 @@ Plans:
 Plans:
 - [x] 12-01-PLAN.md -- DirectoriesTab with status grid, tier progress bars, Tier 1/2 recommendations, and backlink value score
 
+### v1.3 GSC Keyword History
+
+- [ ] **Phase 13: Full GSC Keyword History** - Store ALL GSC queries daily (not top 25), backfill from existing data, update dashboard sparklines/graphs to show full history
+
+### Phase 13: Full GSC Keyword History
+**Goal**: Every GSC query ever seen is stored daily with full position/impression/click history, and the dashboard keyword graphs show the complete trajectory from day one
+**Depends on**: None (standalone, uses existing infrastructure)
+**Requirements**: KWH-01, KWH-02, KWH-03, KWH-04
+**Success Criteria** (what must be TRUE):
+  1. run_reports.py pulls ALL GSC queries (not top 25) and upserts them daily to gsc_queries without deleting previous data
+  2. Existing gsc_queries data is preserved and backfilled where possible
+  3. The SeoTab keyword table and sparklines pull from the full history, showing data from the earliest available date
+  4. Expanded keyword position graphs show the complete trajectory, not just the last few days
+**Plans:** 2 plans
+Plans:
+- [ ] 13-01-PLAN.md -- Backend: modify pull_gsc to fetch all queries, change push_to_supabase to upsert instead of delete+insert, add unique constraint, backfill
+- [ ] 13-02-PLAN.md -- Frontend: update SeoTab queries to use full gsc_queries history for sparklines and expanded charts
+
 ## Progress
 
 **Execution Order:**
 Phases 8-12 execute sequentially. Phase 11 can start after Phase 9 (does not need Phase 10). Phase 12 needs Phase 10 data for meaningful testing.
+Phase 13 is standalone.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -129,3 +148,4 @@ Phases 8-12 execute sequentially. Phase 11 can start after Phase 9 (does not nee
 | 10. Verification Loop | v1.2 | 1/1 | Complete | 2026-03-11 |
 | 11. Brain Integration | v1.2 | 1/1 | Complete | 2026-03-11 |
 | 12. Directory Dashboard | v1.2 | Complete    | 2026-03-12 | 2026-03-11 |
+| 13. Full GSC Keyword History | v1.3 | 0/2 | In Progress | - |
