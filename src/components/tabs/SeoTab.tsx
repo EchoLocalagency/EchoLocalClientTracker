@@ -68,15 +68,20 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
     return brandPrefix.length > 0 && q.toLowerCase().includes(brandPrefix);
   };
 
-  // ── Derive top 15 keywords + history from gscHistory prop ──
+  // ── Derive top 15 keywords by best rank over last 7 days, with full history ──
   const historyData = gscHistory || [];
   const historyLoading = false;
 
-  const byQuery: Record<string, { dates: { date: string; rawDate: string; position: number }[]; latestPosition: number; totalImpressions: number; totalClicks: number }> = {};
+  // Find the cutoff date for 7-day ranking window
+  const now = new Date();
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const cutoff = sevenDaysAgo.toISOString().slice(0, 10);
+
+  const byQuery: Record<string, { dates: { date: string; rawDate: string; position: number }[]; bestPosition7d: number; totalImpressions: number; totalClicks: number }> = {};
   for (const row of historyData) {
     if (isBranded(row.query)) continue;
     if (!byQuery[row.query]) {
-      byQuery[row.query] = { dates: [], latestPosition: 100, totalImpressions: 0, totalClicks: 0 };
+      byQuery[row.query] = { dates: [], bestPosition7d: 100, totalImpressions: 0, totalClicks: 0 };
     }
     const entry = byQuery[row.query];
     entry.dates.push({
@@ -84,18 +89,23 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
       rawDate: row.run_date,
       position: row.position,
     });
-    entry.latestPosition = row.position;
+    // Track best (lowest) position within the last 7 days
+    if (row.run_date >= cutoff) {
+      entry.bestPosition7d = Math.min(entry.bestPosition7d, row.position);
+    }
     entry.totalImpressions += row.impressions;
     entry.totalClicks += row.clicks;
   }
 
+  // Only include keywords that appeared in the last 7 days
   const sorted = Object.entries(byQuery)
-    .sort(([, a], [, b]) => a.latestPosition - b.latestPosition)
+    .filter(([, d]) => d.bestPosition7d < 100)
+    .sort(([, a], [, b]) => a.bestPosition7d - b.bestPosition7d)
     .slice(0, 15);
 
   const topKeywords = sorted.map(([query, d]) => ({
     query,
-    latestPosition: d.latestPosition,
+    bestPosition7d: d.bestPosition7d,
     impressions: d.totalImpressions,
     clicks: d.totalClicks,
   }));
@@ -214,7 +224,7 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
       {/* Top 15 Keywords by Current Rank (from GSC history) */}
       <div style={chartStyle}>
         <div style={sectionLabel}>
-          Top 15 Keywords by Current Rank
+          Top 15 Keywords by Best Rank (7d)
           {earliestLabel && (
             <span style={{ fontWeight: 400, fontSize: 11, color: 'var(--text-secondary)', marginLeft: 8 }}>
               since {earliestLabel}
@@ -225,8 +235,8 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
               <th style={{ textAlign: 'left', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Query</th>
-              <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Position</th>
-              <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Movement</th>
+              <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Best (7d)</th>
+              <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Latest</th>
               <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Trend</th>
               <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Impr.</th>
               <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: 12 }}>Clicks</th>
@@ -237,7 +247,7 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
               const history = allHistory[q.query] || [];
               const sparkData = history.map((h) => h.position);
               const isExpanded = expandedQuery === q.query;
-              const posMovement = history.length >= 2 ? history[history.length - 2].position - q.latestPosition : null;
+              const latestPos = history.length > 0 ? history[history.length - 1].position : null;
 
               return (
                 <tr key={q.query} style={{ verticalAlign: 'top' }}>
@@ -264,18 +274,18 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
                       <div style={{ textAlign: 'right' }}>
                         <span style={{
                           fontFamily: 'var(--font-mono)',
-                          color: q.latestPosition <= 10 ? 'var(--success)' : q.latestPosition <= 20 ? 'var(--accent)' : 'var(--text-secondary)',
-                          fontWeight: q.latestPosition <= 10 ? 600 : 400,
+                          color: q.bestPosition7d <= 10 ? 'var(--success)' : q.bestPosition7d <= 20 ? 'var(--accent)' : 'var(--text-secondary)',
+                          fontWeight: q.bestPosition7d <= 10 ? 600 : 400,
                         }}>
-                          {q.latestPosition.toFixed(1)}
+                          {q.bestPosition7d.toFixed(1)}
                         </span>
                       </div>
                       <div style={{ textAlign: 'right', fontFamily: 'var(--font-mono)', fontSize: 12 }}>
-                        {posMovement != null ? (
+                        {latestPos != null ? (
                           <span style={{
-                            color: posMovement > 0 ? 'var(--success)' : posMovement < 0 ? 'var(--danger)' : 'var(--text-secondary)',
+                            color: latestPos <= 10 ? 'var(--success)' : latestPos <= 20 ? 'var(--accent)' : 'var(--text-secondary)',
                           }}>
-                            {posMovement > 0 ? `+${posMovement.toFixed(1)}` : posMovement.toFixed(1)}
+                            {latestPos.toFixed(1)}
                           </span>
                         ) : (
                           <span style={{ color: 'var(--text-secondary)' }}>--</span>
