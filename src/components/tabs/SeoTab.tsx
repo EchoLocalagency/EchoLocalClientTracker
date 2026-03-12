@@ -141,10 +141,33 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
     total: rollingSum14(sessionsRaw, i),
   }));
 
-  const positionData = reports.map((r) => ({
-    date: new Date(r.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    position: r.gsc_avg_position ?? 0,
-  }));
+  // Compute avg position of top 15 keywords per date from gsc_queries history
+  const positionData = (() => {
+    if (!historyData.length) {
+      return reports.map((r) => ({
+        date: new Date(r.run_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        position: r.gsc_avg_position ?? 0,
+      }));
+    }
+    // Group all non-branded queries by date
+    const byDate: Record<string, number[]> = {};
+    for (const row of historyData) {
+      if (isBranded(row.query)) continue;
+      if (!byDate[row.run_date]) byDate[row.run_date] = [];
+      byDate[row.run_date].push(row.position);
+    }
+    // For each date, take the top 15 (lowest position) and average them
+    return Object.entries(byDate)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([d, positions]) => {
+        const top15 = positions.sort((a, b) => a - b).slice(0, 15);
+        const avg = top15.reduce((s, v) => s + v, 0) / top15.length;
+        return {
+          date: new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          position: Math.round(avg * 10) / 10,
+        };
+      });
+  })();
 
   const chartStyle = {
     background: 'var(--bg-surface)',
@@ -206,8 +229,8 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
 
       {/* Avg position trend */}
       <div style={chartStyle}>
-        <div style={sectionLabel}>Average Keyword Position</div>
-        <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: -10, marginBottom: 12 }}>Lower is better</div>
+        <div style={sectionLabel}>Average Position (Top 15 Keywords)</div>
+        <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: -10, marginBottom: 12 }}>Lower is better -- excludes branded queries</div>
         <div style={{ height: 180 }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={positionData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
