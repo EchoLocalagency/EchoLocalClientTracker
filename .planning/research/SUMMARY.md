@@ -1,198 +1,234 @@
 # Project Research Summary
 
-**Project:** EchoLocal ClientTracker v1.2 -- Directory Submission & Tracking
-**Domain:** Automated local SEO citation building, form submission, and verification
-**Researched:** 2026-03-10
-**Confidence:** HIGH (stack + architecture based on direct codebase review; pitfalls MEDIUM-HIGH)
+**Project:** EchoLocal ClientTracker v1.4 -- Client Pipeline Tracker
+**Domain:** Admin-only CRM pipeline tracker embedded in existing Next.js + Supabase dashboard
+**Researched:** 2026-03-12
+**Confidence:** HIGH (architecture from direct codebase review; stack MEDIUM on drag-and-drop library only)
 
 ## Executive Summary
 
-v1.2 targets the single biggest unaddressed gap in Echo Local's SEO stack: submitting clients to 30-50 niche directories that GHL/Yext does not cover, then tracking and verifying those submissions. Commercial tools (BrightLocal, Whitespark) focus on the same ~150 directories Yext already handles. The curated master list of manufacturer dealer locators, trade associations, and niche home service directories is the core differentiator -- nobody automates these, and that means a manual 75-250 min/client time cost that can be eliminated. The $0 marginal cost after build versus BrightLocal's $39+/month per client makes this a compounding ROI story.
+This is a purely additive feature milestone: a lightweight CRM pipeline tracker bolted onto an existing Next.js + Supabase admin dashboard. The product is an internal tool for a single operator tracking 5-15 clients through a fixed six-stage lifecycle (Lead -> Demo -> Proposal -> Onboarding -> Active -> Churned). Research is unanimous that the right approach here is deliberate under-engineering. Established CRM tools like HubSpot and Pipedrive default to kanban drag-and-drop, unlimited custom stages, email sync, and AI scoring -- none of which serves a solo operator at this scale. The winning approach is a table view, hardcoded stages, manual communication logging, and predefined per-stage checklists. The entire feature should be buildable in a focused sprint with only two new npm packages.
 
-The recommended approach is Playwright-based Python automation layered into the existing seo_loop.py engine as Step 4b, with a 5-submissions-per-day and 8-per-week cap enforced by the scheduler. Three Supabase tables (directories, directory_submissions, client_profiles) become the data backbone, read by both the Python engine and the Next.js dashboard. A new "Directories" tab in SeoTabNav surfaces coverage progress per client. Verification runs via Brave Search site: queries (not SerpAPI, to preserve keyword budget). The entire system adds only 2 new pip packages (playwright, playwright-stealth) and zero new env vars.
+The recommended architecture follows the established pattern in this codebase: a standalone admin page at `/pipeline` (identical to how `/seo-engine` and `/sales-engine` are built), three new Supabase tables, seven new components, and minor additions to `Sidebar.tsx` and `types.ts`. Nothing about the existing dashboard is changed. The data model is the most consequential decision in this build -- getting the schema right (separate `pipeline_leads` table, stage history log, typed comms table, RLS policies applied immediately) makes every phase that follows clean and fast.
 
-The dominant risks are SEO self-harm: duplicate listings from botched retries, NAP inconsistency across submissions, and citation velocity that looks unnatural to Google. All three are preventable through schema decisions made before the first line of automation code. The data model and submission state machine must be locked in Phase 1 -- retrofitting idempotency and canonical NAP after submissions are running means cleaning up real SEO damage. The pitfalls research is unambiguous: skip the discovery and dedup phase and you will spend more time on cleanup than the automation saved.
+The single highest-risk area is the data model design, not the UI. Research identified seven critical pitfalls, six of which are data model decisions that must be correct in Phase 1 or the recovery cost is high. The pitfall list is explicit: do not bolt pipeline fields onto the existing `clients` table, do not skip the stage history log, do not store checklist state as JSONB, do not omit RLS. If Phase 1 gets these right, Phases 2-6 are largely mechanical UI work with no novel unknowns.
 
 ## Key Findings
 
 ### Recommended Stack
 
-The existing stack (Next.js, Python 3, Supabase, Recharts, Tailwind, SerpAPI, Brave Search) needs only two additions. Playwright 1.58.0 is the only viable option for JS-rendered directory forms -- requests + BeautifulSoup cannot handle dynamic forms, file uploads, or client-side validation. playwright-stealth 2.0.2 patches browser fingerprints to avoid bot detection on directories that use basic bot checks. Both are actively maintained, Python 3.9+ compatible, and match the existing codebase pattern.
+The existing stack (Next.js, React 19, Supabase JS, Tailwind CSS, Recharts, TypeScript) handles everything except drag-and-drop and date calculations. Only two new packages are needed. The drag-and-drop library question required the most research effort -- every major React DnD library has React 19 friction. `@atlaskit/pragmatic-drag-and-drop` is the only option with a vanillaJS core (no React peer dependency) and confirmed React 19 compatibility as of March 2025. No new UI component libraries are justified; Tailwind utilities and existing card patterns are sufficient throughout. A dropdown-based stage selector is explicitly designed as the fallback if DnD causes issues.
 
-See [STACK.md](.planning/research/STACK.md) for full details.
+See [STACK.md](.planning/research/STACK.md) for full library comparison, React 19 compatibility notes, and installation commands.
 
 **Core technologies:**
-- Playwright 1.58.0: headless browser automation for Tier 3 form submission -- only viable option for JS-rendered forms
-- playwright-stealth 2.0.2: anti-detection patches (navigator.webdriver, user-agent, plugins) -- low-effort insurance against bot flagging
-- SerpAPI (existing): reused for post-submission Google site: verification where result precision matters
-- Brave Search (existing): reused for bulk pre-submission audits and weekly verification -- cheaper than SerpAPI for presence checks
-- Supabase (existing): 3 new tables; Python writes, Next.js reads via existing clients
-- launchd (existing): scheduling via day-of-week check in seo_loop.py -- no new scheduler added
+- `@atlaskit/pragmatic-drag-and-drop`: kanban drag-and-drop -- only React 19-safe option; vanillaJS core isolates any issues to a single `'use client'` component
+- `date-fns` 4.1.0: date calculations for "days in stage" display -- tree-shakes to under 5KB for the 4 functions needed; no React dependency
+- Supabase JS (existing): all data operations -- direct client calls match every existing pattern in the codebase; no ORM added
+- Recharts (existing): pipeline funnel and analytics charts -- already installed and working
+- Tailwind CSS (existing): all UI layout and card styles -- no new component library justified for an admin-only CRUD interface
 
-**Installation footprint:** 2 pip packages, 0 npm packages, 0 new env vars, ~200MB Chromium binary one-time download.
+**Critical version note:** `@dnd-kit/core` and `@hello-pangea/dnd` both have unresolved React 19 issues. Do not substitute.
 
 ### Expected Features
 
-See [FEATURES.md](.planning/research/FEATURES.md) for competitive landscape and full dependency graph.
+Research calibrated the feature set to the actual use case: one operator, 5-15 clients, internal tool. The feature list is intentionally lean.
+
+See [FEATURES.md](.planning/research/FEATURES.md) for the full prioritization matrix, dependency graph, and competitor comparison.
 
 **Must have (table stakes):**
-- Client profile data store (Supabase `client_profiles`) -- canonical NAP + descriptions + services for every form fill
-- Directory master list in Supabase (`directories`) -- ~55 directories seeded from research doc, queryable by tier and trade
-- Submission tracking with status workflow (`directory_submissions`) -- pending / submitted / approved / rejected / verified / skipped
-- Per-client directory coverage view -- "Mr. Green is on 18/35 directories" visible at a glance in dashboard
-- Tier 1/2 recommendation surfacing -- manufacturer/trade association directories need client action, not automation; surface as checklist
+- Pipeline client records with contact info, trade, source, notes -- the system is useless without this
+- Stage assignment + `stage_entered_at` timestamp -- foundation for all analytics
+- Stage history log (append-only `pipeline_stage_history`) -- required for accurate conversion rates that account for churned leads
+- Pipeline table view with stage count summary -- the primary interface at this scale
+- Move-to-stage action (dropdown, records transition to history) -- core interaction
+- Per-stage predefined checklists with check/uncheck -- replaces the mental "what to do next" load
+- Communication log (typed: call/email/text/meeting with `occurred_at`) -- queryable activity record, not a text blob
+- Overdue follow-up highlighting -- surfaces the #1 failure mode for solo operators
+- Days in current stage counter -- surfaces stalled leads
+- Admin-only sidebar navigation entry
 
-**Should have (differentiators):**
-- Playwright auto-submission for Tier 3 directories -- eliminates 75-250 min/client manual effort per submission round
-- Google site: verification (via Brave Search) -- confirms listings went live without manual spot-checking
-- Auto-retry with escalation -- catches silent failures; alerts Brian after 14 days unverified
-- NAP consistency audit -- pre-submission quality check (BrightLocal charges $39+/month for this separately)
-- Duplicate listing detection -- search before submitting to avoid creating conflicting profiles
-- Backlink value tracking -- DA-weighted portfolio score per client to prove ROI
+**Should have (add once real data exists post-launch):**
+- Pipeline conversion funnel chart via Recharts -- meaningful after 10+ stage transitions
+- Avg time per stage stats -- meaningful after 5+ clients per stage
+- Source/channel attribution breakdown -- meaningful after 10+ clients logged
+- SEO client linkage (link from pipeline record to existing SEO dashboard) -- quick win, low effort
 
-**Defer to v1.3:**
-- Confirmation email processing -- HIGH complexity (Gmail API + Playwright link-clicking); scope after seeing which directories actually require it
-- Sentiment/review tracking on directories -- different problem domain, not needed for backlink acquisition
+**Defer to v2+:**
+- Email/SMS auto-logging via Gmail API or GHL webhooks
+- AI-assisted next action suggestions (requires 50+ historical transitions to be non-trivial)
+- Revenue/MRR tracking fields
+- Multi-user pipeline access
 
-**Anti-features (do not build):**
-- Auto-submit to Tier 1/2 directories (reputation risk -- requires real business relationships)
-- CAPTCHA solving services (adversarial, wasteful on free directory listings)
-- Parallel browser farm (infrastructure complexity for under 1-hour sequential runtime)
-- Mass submission to DA < 10 directories (pre-2015 spam pattern)
+**Anti-features (do not build for v1.4):**
+- Kanban drag-and-drop is optional -- a dropdown stage selector is faster to use at 5-15 clients and costs 10x less to build
+- Custom per-client checklist items -- creates unbounded data model; the notes field handles client-specific reminders
+- Reminder push notifications -- dashboard follow-up highlighting achieves 80% of the value without notification infrastructure
+- Custom pipeline stages -- hard-code the 6 stages as a text column; changing stages requires a migration, which is appropriate
 
 ### Architecture Approach
 
-The system fits into the existing architecture as Step 4b in seo_loop.py, running between photo sync and the brain call. Three new Python modules (directory_manager.py as orchestrator, directory_submitter.py for Playwright form fills, directory_verifier.py for Brave Search checks) slot into scripts/seo_engine/backlinks/ alongside the refactored directory_audit.py. The dashboard adds one tab (Directories) and three components (DirectoryDashboard, DirectoryStatusGrid, DirectoryProgressBar) following the established GeoDashboard pattern. Directory submissions are deterministic -- no brain decision-making needed, which keeps brain call costs down. The brain receives a directory_summary prompt section so it knows current coverage and avoids wasting action budget on work the automation handles.
+The pipeline tracker is a standalone admin page at `/pipeline`, matching the established pattern of `/seo-engine` and `/sales-engine`. It is not a tab in the existing client-scoped dashboard. The page loads all pipeline leads on mount, passes them as props to three view components (Board, Table, Analytics), and fetches checklist and comms data lazily only when a lead's detail drawer opens. Analytics are computed client-side from the already-loaded leads array -- no extra DB queries needed at this scale (50-100 leads max). Three new Supabase tables handle all data; two existing files (Sidebar, types.ts) get minor additive changes; nothing else in the existing codebase is modified.
 
-See [ARCHITECTURE.md](.planning/research/ARCHITECTURE.md) for SQL schemas, data flow diagrams, component interface specs, and build order.
+See [ARCHITECTURE.md](.planning/research/ARCHITECTURE.md) for exact SQL schemas, data flow diagrams, component interface specs, anti-patterns to avoid, and the six-phase build order.
 
 **Major components:**
-1. `directories` table (Supabase) -- master list, seeded once, queryable by tier/trade/submission_method
-2. `client_profiles` table (Supabase) -- mutable business data separate from git-tracked clients.json
-3. `directory_submissions` table (Supabase) -- one row per client-directory pair (UNIQUE constraint), full lifecycle
-4. `directory_manager.py` -- orchestrator: loads profiles, filters directories, enforces 5/day cap, coordinates submitter + verifier
-5. `directory_submitter.py` -- Playwright form filler with heuristic field matching + per-directory config overrides in DB
-6. `directory_verifier.py` -- Brave Search site: verification with 7/14/21-day escalation logic
-7. `DirectoryDashboard.tsx` + `DirectoryStatusGrid.tsx` + `DirectoryProgressBar.tsx` -- dashboard tab showing coverage per client
-8. Modified `seo_loop.py` (Step 4b) + `brain.py` (directory context in prompt)
+1. `pipeline/page.tsx` -- auth guard, loads all leads on mount, tab switcher (Board/Table/Analytics); identical pattern to `seo-engine/page.tsx`
+2. `PipelineBoard.tsx` + `PipelineTable.tsx` -- two views of the same leads array; board groups by stage, table sorts and filters
+3. `LeadDrawer.tsx` -- slide-in overlay with editable lead fields, `StageChecklist.tsx`, and `CommunicationLog.tsx`; checklist and comms fetched lazily on drawer open
+4. `PipelineAnalytics.tsx` -- stage funnel, avg days per stage, conversion rates; computed client-side from leads prop; built last when real data exists
+
+**New Supabase tables:**
+- `pipeline_leads` -- central record per prospect, nullable `client_id` FK to existing `clients` table (set when lead becomes an active onboarded client)
+- `pipeline_checklist_items` -- per-lead checklist rows, seeded at stage transition from TypeScript `STAGE_CHECKLIST_DEFAULTS` constant
+- `pipeline_comms` -- typed communication log with `comm_type`, `direction`, and `occurred_at` columns
 
 ### Critical Pitfalls
 
-See [PITFALLS.md](.planning/research/PITFALLS.md) for prevention strategies, recovery costs, and phase-to-pitfall mapping.
+See [PITFALLS.md](.planning/research/PITFALLS.md) for full prevention strategies, recovery costs, "looks done but isn't" checklist, and phase-to-pitfall mapping.
 
-1. **Duplicate listings from auto-retry** -- Never retry after POST fires. Track 3-stage state: form_loaded -> form_filled -> post_sent. Any failure after post_sent marks as `submitted_unverified` (queued for manual verification), not re-submission. This is the highest-damage pitfall; retrofitting costs more than preventing.
+1. **Bolting pipeline fields onto the existing `clients` table** -- `clients` is an SEO config record (GA4 IDs, GSC URLs, GHL tokens), not a CRM contact. Adding pipeline fields here creates a god table and risks breaking Python SEO scripts. Create a separate `pipeline_leads` table with nullable `client_id` FK. This decision cannot be undone cheaply.
 
-2. **NAP inconsistency across submissions** -- Lock canonical NAP in `client_profiles` before any submissions. One format, one source of truth. Business name must match GBP exactly. Format adapters per directory derive from canonical, never override it.
+2. **No stage transition history** -- Storing only `current_stage` and `stage_entered_at` makes conversion rate and avg-time-per-stage analytics impossible. A `pipeline_stage_history` append-only table (5 rows per lead moving through 6 stages) costs near-zero to build and is the only way to correctly compute conversion rates that account for churned leads.
 
-3. **Spam velocity triggers Google's local spam detection** -- Max 8 new directory submissions per client per week. Start with highest-DA directories. The scheduler must enforce this as a hard cap from day one. 25 citations appearing simultaneously for a low-citation business is a clear automation signal.
+3. **RLS not applied to pipeline tables** -- New Supabase tables have RLS disabled by default. Pipeline data contains prospect names, phone numbers, deal notes, and contact info. A non-admin client user can query `supabase.from('pipeline_leads').select('*')` from the browser console and read everything unless RLS is explicitly enabled with an admin-only policy. Apply RLS in the same migration that creates the tables.
 
-4. **Pre-existing listings cause conflicts** -- BuildZoom, Houzz, and Porch auto-generate profiles from contractor license data. Run discovery search (business name + phone + address) on every target directory before submitting. Existing profiles need a claim/update flow, not a new submission.
+4. **Checklists stored as JSONB on the lead record** -- The fast path (store checked state as a JSON blob) makes completion state unqueryable. Per-lead per-item rows in `pipeline_checklist_items` allow querying which items are blocking leads and adding required items retroactively.
 
-5. **CAPTCHA blocks 40-60% of target directories** -- Audit every directory for CAPTCHA type before writing any Playwright code. Only automate `no_captcha` directories. Use playwright-stealth + headed mode + human-like typing delays (`page.type()` with 50-150ms delay, not `page.fill()`).
+5. **Communication log as free-form text notes** -- A `notes text` column becomes unqueryable. The typed `pipeline_comms` table with `comm_type`, `direction`, and `occurred_at` columns provides the filtering and timeline needed. The `occurred_at` field is critical -- communications logged retroactively must show when the interaction happened, not when Brian typed the note.
+
+6. **Analytics using current stage counts** -- `COUNT(current_stage)` overstates conversion rates and misses churned leads. Conversion funnel queries must read from `pipeline_stage_history`. Do not build analytics until history has 4-6 weeks of data; show a "not enough data yet" placeholder instead of misleading empty charts.
+
+7. **Pipeline added as a tab inside the client-scoped dashboard** -- The existing `page.tsx` is filtered by `activeClient`. Pipeline is a global admin view across all leads. Adding it as a tab requires ugly conditional logic or shows only one client's pipeline (useless). Follow the established `/seo-engine` standalone page pattern.
 
 ## Implications for Roadmap
 
-The critical insight from combined research: all pitfalls with HIGH recovery cost (duplicates, NAP inconsistency, velocity spam, pre-existing conflicts) must be addressed in Phase 1 before any automation runs. The architecture research confirms the same ordering independently. Do not build the Playwright engine before the data model and discovery phase are solid.
+The combined research strongly suggests a six-phase build order. The ordering is driven by hard data model dependencies (no component can compile without tables), the pitfall map (six of seven critical pitfalls are Phase 1 decisions), and the principle that Brian should be able to add real leads and move them through stages before the UI is fully polished. Real usage data is required for Phase 6 analytics to be meaningful.
 
-### Phase 1: Data Foundation + Discovery
-**Rationale:** Everything depends on this. The submission engine cannot run without client profiles. The UNIQUE(client_id, directory_id) constraint prevents duplicates from day one. Discovery must identify pre-existing listings before any form fill or the system creates conflicting profiles.
-**Delivers:** 3 Supabase tables created, indexed, and seeded. `client_profiles` populated for all active clients (Mr. Green, Integrity Pro, AZ Turf, SoCal Turfs). CAPTCHA categorization and pre-existing listing discovery run for each client across all 55 target directories. Canonical NAP locked per client.
-**Addresses:** Client profile store, directory master list, submission tracking (all table stakes from FEATURES.md)
-**Avoids:** Duplicate listings (#1), NAP inconsistency (#2), pre-existing conflicts (#8) -- all HIGH recovery cost
+### Phase 1: Database Foundation
 
-### Phase 2: Submission Engine (Tier 3 Automation)
-**Rationale:** With data layer solid and discovery complete, Playwright automation is safe to build. Start with 5 highest-DA, no-CAPTCHA Tier 3 directories in dry-run mode to validate the engine before expanding.
-**Delivers:** `directory_manager.py` + `directory_submitter.py` wired into `seo_loop.py` as Step 4b. 5/day and 8/week rate caps enforced. Human-like typing delays and playwright-stealth applied to all submissions. Screenshots stored for `submitted_unverified` and `failed` states.
-**Uses:** Playwright 1.58.0, playwright-stealth 2.0.2, heuristic field matching with per-directory config overrides in `directories` table
-**Implements:** directory_manager + directory_submitter architecture components
-**Avoids:** Spam velocity (#9), rate limiting/IP bans (#6), CAPTCHA blocking (#3), form structure breakage (#4)
+**Rationale:** Every other phase depends on correct tables and types. Six of seven critical pitfalls are data model decisions -- getting this right is worth more than rushing to visible UI. The table boundary decision (separate `pipeline_leads` vs. bolting onto `clients`) and RLS application cannot be undone cheaply once data exists.
 
-### Phase 3: Verification Loop
-**Rationale:** Submissions are in-flight; verification closes the feedback loop. The state machine must treat `site:` absence as inconclusive (not failure) or false negatives trigger re-submissions that create duplicates.
-**Delivers:** `directory_verifier.py` with 7/14/21-day escalation. Brian alerted at 14 days. Status updates to `needs_review` at 21 days. Verification uses Brave Search (not SerpAPI) to preserve keyword tracking budget. Multiple verification methods (site: search + direct URL fetch) to compensate for Google indexing lag.
-**Implements:** directory_verifier architecture component
-**Avoids:** site: unreliability (#5), SerpAPI budget depletion
+**Delivers:** Three new Supabase tables (`pipeline_leads`, `pipeline_checklist_items`, `pipeline_comms`) with indexes and RLS policies applied; TypeScript interfaces added to `types.ts`; `STAGE_CHECKLIST_DEFAULTS` TypeScript constant defined; migration file committed and run against Supabase.
 
-### Phase 4: Brain Integration
-**Rationale:** Brain should see directory progress so it does not waste action budget on submissions the automation already handles. Log submissions to `seo_actions` table for full brain visibility.
-**Delivers:** `directory_summary` context section in `brain.py` prompt. Submissions logged to existing `seo_actions` table with `action_type='directory_submission'`. Brain-aware of current coverage per client.
+**Addresses:** All P1 features that require a data model (client records, stage timestamps, checklists, comms log)
 
-### Phase 5: Dashboard
-**Rationale:** Build after Phase 2-3 produce real data. Testing UI against empty states reveals nothing; testing against real submission and verification rows reveals layout and filtering needs. All components follow established GeoDashboard pattern -- no new libraries.
-**Delivers:** Directories tab in SeoTabNav. `DirectoryStatusGrid` (per-directory status table with color-coded badges: verified=green, submitted=yellow, pending=grey, rejected=red). `DirectoryProgressBar` (tier coverage bars: X/Y submitted, X/Y verified). TypeScript types for Directory, DirectorySubmission, ClientProfile.
-**Implements:** Dashboard layer in full
+**Avoids:** Pitfalls 1 (clients table collision), 2 (no history -- add `pipeline_stage_history` here), 3 (JSONB checklists), 4 (text blob comms), 5 (missing RLS)
 
-### Phase 6: Tier 1/2 Recommendations + Audit Refactor
-**Rationale:** Display-only features with no automation risk. Lowest urgency relative to automation and verification. Refactoring `directory_audit.py` to query the `directories` table eliminates hardcoded list and gives the dashboard a single source of truth.
-**Delivers:** Tier 1/2 directories surfaced as actionable checklist per client in dashboard (requires_client_input=true filter). `directory_audit.py` reads from Supabase instead of hardcoded Python list.
+**Research flag:** No additional research needed. Schema is fully specified in ARCHITECTURE.md with exact SQL. RLS policy pattern is in PITFALLS.md. Follow precisely.
+
+### Phase 2: Page Shell + Sidebar Navigation
+
+**Rationale:** Routing and auth guard must exist before any component can be rendered at the route. The sidebar link gives immediate visible progress -- Brian can navigate to `/pipeline` after this phase even though it shows only empty states. The standalone page pattern must be established here, before any pipeline components are built.
+
+**Delivers:** `src/app/pipeline/page.tsx` with `useAuth()` guard (redirect if not admin), leads load on mount, Board/Table/Analytics tab switcher with empty state placeholders; "Pipeline" link added to Sidebar Engine links section in purple.
+
+**Avoids:** Pitfall 7 (pipeline as a client-scoped tab -- the standalone page pattern is established in this phase, not as an afterthought)
+
+**Research flag:** No additional research needed. Pattern is identical to `seo-engine/page.tsx` -- directly replicable in 30 minutes.
+
+### Phase 3: Board View + Stage Transitions
+
+**Rationale:** The board is the primary user-facing view. Building it before the table or analytics means Brian can start adding real leads and moving them through stages -- which generates the `pipeline_stage_history` data that all Phase 6 analytics depend on. Every stage transition must write to both `pipeline_leads` (current state) and `pipeline_stage_history` (audit log) in the same operation.
+
+**Delivers:** `LeadCard.tsx`, `PipelineBoard.tsx` with six stage columns, "New Lead" inline form, move-to-stage dropdown action (UPDATE lead + INSERT history row + INSERT new stage checklist items), days-in-stage display via `date-fns`.
+
+**Uses:** `@atlaskit/pragmatic-drag-and-drop` (isolated to `'use client'` component); `date-fns` `formatDistanceToNow` and `differenceInDays`
+
+**Avoids:** Pitfall 2 verification -- stage advance action writes to `pipeline_stage_history` atomically with the `pipeline_leads` update
+
+**Research flag:** Drag-and-drop is the only technically uncertain area. Install `@atlaskit/pragmatic-drag-and-drop` at Phase 3 start and run `npm run build`. If TypeScript or JSX errors appear, use the dropdown-only fallback -- it is fully designed in STACK.md and requires no library. Decide at implementation time; do not pre-assume either path.
+
+### Phase 4: Lead Drawer (Details + Checklist + Comms)
+
+**Rationale:** The drawer is the depth layer on top of the board. It enables the full daily workflow: edit lead fields, check off stage tasks, log calls and emails. This is where most time in the app is spent after initial lead entry. Completing the board + drawer workflow before the table view means Brian has a fully functional tool after Phase 4.
+
+**Delivers:** `LeadDrawer.tsx` with editable lead fields; `StageChecklist.tsx` with per-stage checkbox completions stored as queryable `pipeline_checklist_items` rows; `CommunicationLog.tsx` with chronological timeline sorted by `occurred_at` and quick-add form (type selector, direction toggle, `occurred_at` datetime defaulting to now, summary field).
+
+**Avoids:** Pitfall 4 -- typed comm form with explicit `occurred_at` field, not a textarea with `created_at` as the interaction time
+
+**Research flag:** No additional research needed. Data model and component structure fully specified in ARCHITECTURE.md.
+
+### Phase 5: Table View
+
+**Rationale:** The table view is a UX convenience, not new functionality. It reuses the leads array already loaded by `pipeline/page.tsx` in Phase 2 with no new data fetching. It is lower priority than the board + drawer workflow and can be skipped in the initial sprint if timeline is tight.
+
+**Delivers:** `PipelineTable.tsx` with sortable columns (name, stage, trade, source, days in stage, last comm date), stage filter dropdown, overdue follow-up row highlighting in red.
+
+**Research flag:** Standard Tailwind + React state implementation. No research needed.
+
+### Phase 6: Analytics
+
+**Rationale:** Analytics are built last because they require real data to be meaningful. Building analytics before leads exist produces empty charts that look broken. The "not enough data" placeholder is the correct default -- show it until 30+ days of stage history exist. Conversion rates must query `pipeline_stage_history`, not current stage counts.
+
+**Delivers:** `PipelineAnalytics.tsx` with stage count bar chart (Recharts `BarChart`), conversion funnel (Lead -> Demo -> Proposal -> Onboarding -> Active with % between each), avg days per stage stat cards, source attribution breakdown; all computed client-side from the already-loaded leads prop.
+
+**Avoids:** Pitfall 6 -- conversion rate logic reads from `pipeline_stage_history` rows, not `COUNT(current_stage)`; placeholder displayed until sufficient history exists
+
+**Research flag:** No additional research needed. Recharts `BarChart` is established in the codebase. Analytics computation logic is specified in ARCHITECTURE.md with the exact query approach.
 
 ### Phase Ordering Rationale
 
-- Phase 1 before all others: UNIQUE constraint and canonical NAP must exist before any POST fires. This is not a soft preference -- submitting before dedup protection is in place creates SEO damage with MEDIUM-HIGH recovery cost (manual cleanup per directory, per client).
-- Phase 2 before Phase 3: verifier depends on submissions existing in `submitted` status to check.
-- Phase 3 before Phase 4: brain should receive real directory data, not empty summaries.
-- Phase 5 after Phase 2: dashboard needs actual submission rows to validate layout; empty-state-only testing is inadequate.
-- Phase 6 last: Tier 1/2 recommendations are display-only with no automation dependencies. Audit refactor is housekeeping that does not block any other feature.
-- Phases 5 and 6 can run in parallel with Phase 4 if development capacity allows -- they touch separate layers (Next.js vs Python).
+- Phase 1 first: tables and TypeScript types must exist before any component can compile. RLS must be applied before any non-admin user can potentially access the Supabase client.
+- Phase 2 before Phase 3: the page route must exist before components can render at it; the standalone page pattern must be established before any pipeline component is built.
+- Phase 3 before Phase 4: the board generates real stage history data; the drawer is a detail layer that sits on top. Brian can use the pipeline (add leads, advance stages) after Phase 3 -- before Phase 4 is polished.
+- Phase 4 before Phase 5: completing the core workflow before adding the table view convenience. If only one could ship, Phase 4 delivers more value.
+- Phase 6 last: analytics are only honest once `pipeline_stage_history` has weeks of real data. Placeholder is the correct output until then.
 
 ### Research Flags
 
-Phases likely needing deeper research during planning:
-- **Phase 2 (Submission Engine):** CAPTCHA audit of all 55 form URLs must happen during Phase 1 discovery (visit each URL, categorize detection type). This determines which directories enter the automation queue. Cannot be skipped or estimated -- requires live site inspection. Budget 2-3 hours of manual form inspection.
-- **Phase 3 (Verification):** Email verification handling (Pitfall #7) is partially deferred but the categorization (verification_none / verification_email / verification_phone) must be added to the `directories` table schema in Phase 1. The data model gap needs to be resolved before Phase 3 ships.
+Phases needing deeper research during planning:
+- **Phase 3 (drag-and-drop):** `@atlaskit/pragmatic-drag-and-drop` React 19 compatibility is confirmed for the core package but the optional React packages are not directly tested by maintainers against React 19. Test at implementation time; fallback path (dropdown-only stage selector) is fully designed and requires zero library. This is the only technical uncertainty in the entire build.
 
-Phases with standard patterns (skip research-phase):
-- **Phase 1 (Database):** Supabase migrations and seeding follow established project patterns. SQL schemas fully specified in ARCHITECTURE.md ready to run.
-- **Phase 4 (Brain Integration):** Existing `brain.py` prompt extension pattern is documented. Straightforward addition matching v1.1 mention tracking integration.
-- **Phase 5 (Dashboard):** GeoDashboard component is the template. No new libraries. Standard Supabase-direct query pattern.
-- **Phase 6 (Tier 1/2 + Audit Refactor):** Display-only filtering of existing data. Standard Supabase query pattern.
+Phases with standard patterns (skip research):
+- **Phase 1:** Schema fully specified in ARCHITECTURE.md with exact SQL. RLS policy from PITFALLS.md. No unknowns.
+- **Phase 2:** Identical to `seo-engine/page.tsx` pattern -- directly replicable.
+- **Phase 4:** Data model specified, component structure specified, no novel patterns.
+- **Phase 5:** Standard Tailwind + React state table. No research needed.
+- **Phase 6:** Recharts `BarChart` is already in the codebase. Analytics computation fully specified in ARCHITECTURE.md.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Playwright and playwright-stealth verified on PyPI with exact versions (1.58.0, 2.0.2). All other additions reuse existing integrations. Zero new env vars. Python 3.9.6 compatibility confirmed. |
-| Features | MEDIUM-HIGH | Table stakes and differentiators well-defined with clear dependency graph. Competitive landscape confirmed. Confirmation email processing correctly deferred -- feasibility unclear until submissions are live and we see which directories actually require it. |
-| Architecture | HIGH | Based on direct codebase review of seo_loop.py, directory_audit.py, brain.py, GeoDashboard, clients.json. SQL schemas fully specified. Component boundaries match existing patterns exactly. Scalability analysis included. |
-| Pitfalls | MEDIUM-HIGH | Critical pitfalls (duplicates, NAP inconsistency, velocity spam) well-documented with recovery costs from multiple sources. Directory-specific CAPTCHA behavior requires per-site validation during Phase 1 discovery -- cannot be determined without live site inspection. |
+| Stack | MEDIUM | Existing stack is HIGH confidence. Drag-and-drop library is MEDIUM -- core package React 19-safe confirmed, optional React packages "should work" per maintainers but not directly tested. Fallback option fully designed. date-fns is HIGH confidence. |
+| Features | HIGH | Based on direct codebase review + PROJECT.md milestone spec + validated against CRM design literature from multiple sources. Single-operator use case is well-understood. Feature scope is appropriately constrained to the actual scale. |
+| Architecture | HIGH | Based on direct review of `seo-engine/page.tsx`, `Sidebar.tsx`, `types.ts`, `auth-context.tsx`, and existing migration files. All patterns are established in the codebase -- this is replication and extension, not invention. |
+| Pitfalls | HIGH | Based on direct codebase analysis (identified existing `clients` table structure, existing RLS gap), Supabase official RLS docs, and CRM database design literature. Seven critical pitfalls are concrete and actionable with specified recovery costs. |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **CAPTCHA categorization per directory:** Must be done manually during Phase 1 audit (visit each form URL, classify detection type). Cannot be automated or researched in advance. Determines which of the 55 directories enter the Playwright automation queue vs. the manual submission queue.
-- **Email verification scope:** How many target directories require email verification is unknown until submissions happen. Add `verification_type` enum to `directories` table schema in Phase 1 so Phase 3 can handle the full lifecycle correctly.
-- **Form mapping success rate:** Heuristic field matching is estimated to handle ~70% of Tier 3 forms. The 30% requiring per-directory config overrides will surface during Phase 2 dry-run testing. Budget iteration time for config authoring; this is expected maintenance, not a failure mode.
-- **SerpAPI budget headroom:** Architecture estimates ~120 verification queries/month on top of ~400 existing SEO usage, within the 950/month cap. Confirm actual headroom after Phase 2 is live for 30 days and adjust verification strategy if needed.
+- **Drag-and-drop React 19 compatibility:** Verify at Phase 3 start by installing `@atlaskit/pragmatic-drag-and-drop` and running `npm run build`. If TypeScript or JSX errors appear, switch to dropdown-only stage advance before writing any DnD-dependent code. Do not block Phase 3 planning on this -- the fallback is fully designed.
+
+- **RLS verification method:** SQL editor in Supabase bypasses RLS (runs as postgres superuser). RLS must be tested via the Supabase JS client authenticated as a non-admin user in browser devtools. This is not an unknown -- it is a specific test step that must be executed after Phase 1, not assumed to work.
+
+- **`client_profiles` table overlap:** The existing `client_profiles` table (directory submission context) may share entities with `pipeline_leads` for clients who are already active. Evaluate at Phase 1: either use a FK from `pipeline_leads` to `client_profiles` for active clients, or keep `pipeline_leads.client_id` as the only bridge to the `clients` table. Low-stakes decision at 5-15 clients; document whichever path is chosen.
+
+- **Analytics data readiness:** Phase 6 analytics are only meaningful after 4-6 weeks of pipeline use. The "not enough data" placeholder state is a UX decision that must be explicitly implemented, not skipped. Define the threshold (30 stage transitions? 30 days of history?) during Phase 6 planning.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- Existing codebase: `seo_loop.py`, `brain.py`, `directory_audit.py`, `serpapi_client.py`, `brave_client.py`, `clients.json`, Supabase migrations, `GeoDashboard.tsx` -- direct code review
-- Directory master list: `.planning/research/find-a-pro-directory-master-list.md` -- 55 directories across 4 tiers
-- Playwright Python on PyPI (v1.58.0, 2026-01-30) -- form interaction, browser launch, Python 3.9+ requirement
-- Playwright Python Installation Docs -- Chromium install, headless/headful modes
-- playwright-stealth on PyPI (v2.0.2, 2026-02-13) -- stealth patches, Python 3.9+ requirement
-- Google site: operator official docs -- "may not list all indexed URLs" documented limitation
-- PROJECT.md v1.2 milestone spec
+- Direct codebase review: `src/app/seo-engine/page.tsx`, `src/components/Sidebar.tsx`, `src/lib/types.ts`, `src/lib/auth-context.tsx`, `supabase/migrations/add_directory_system_tables.sql` -- established patterns
+- `.planning/PROJECT.md` v1.4 milestone spec -- feature scope and stage definitions
+- Supabase RLS documentation -- RLS disabled by default on new tables; SQL editor bypasses RLS
+- Supabase RLS performance guide -- index requirements for policy columns (user_profiles.user_id)
+- Atlassian Design: pragmatic-drag-and-drop core package -- vanillaJS, no React peer dependency confirmed
 
 ### Secondary (MEDIUM confidence)
-- BrightLocal Citation Tracker -- citation tracking features, NAP consistency, $39+/mo pricing
-- Whitespark Listings Service -- citation building packages, manual submission workflow
-- Apify Citation Builder Actor -- automated NAP submission, $2.60/batch comparison point
-- Playwright CAPTCHA bypass analysis (BrowserStack) -- detection layers Playwright cannot control
-- playwright-stealth techniques (ZenRows) -- patches navigator.webdriver, user-agent, plugins
-- Rate limiting in web scraping (Apify Academy) -- per-IP limits, escalation to bans
-- Directory submission best practices 2025 (VA Web SEO) -- quality over quantity, NAP consistency
-- Playwright retry APIs (Tim Deschryver) -- non-idempotent operations should not be retried
-- Preventing double form submissions (OpenReplay) -- server-side idempotency required
-- BuildZoom auto-generated profiles (BBB complaints) -- profiles auto-created from contractor license data
+- pragmatic-drag-and-drop GitHub issue #181 -- React 19 support status, maintainer notes
+- dnd-kit GitHub issue #1511 -- unresolved TypeScript JSX errors with React 19 (reason for exclusion)
+- @hello-pangea/dnd GitHub discussion #810 -- explicit React 19 peer dep exclusion (reason for exclusion)
+- date-fns npm v4.1.0 -- ESM tree-shaking, TypeScript types confirmed
+- CRM pipeline design literature (Cirrus Insight, Outreach.io, CaptivateIQ, OnePage CRM, Scratchpad) -- stage patterns, analytics metrics, communication log UX, common failure modes
+- January 2025 Supabase RLS exposure report -- 83% of exposed databases involved RLS misconfiguration
 
 ### Tertiary (LOW confidence)
-- FirstSiteGuide: Best Citation Management Tools 2026 -- tool comparison (needs validation against current pricing)
-- AutoSaaSLaunch: Automated Directory Submission Tools 2025 -- CAPTCHA handling approaches (broad survey, low specificity)
+- puckeditor.com drag-and-drop library comparison 2026 -- ecosystem overview, used for corroboration only
 
 ---
-*Research completed: 2026-03-10*
-*Supersedes v1.1 research summary (Mention Tracking + GEO Dashboard)*
+*Research completed: 2026-03-12*
+*Supersedes v1.2 research summary (Directory Submission)*
 *Ready for roadmap: yes*

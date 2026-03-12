@@ -1,8 +1,8 @@
 # Technology Stack
 
-**Project:** EchoLocal ClientTracker v1.2 -- Directory Submission & Tracking
-**Researched:** 2026-03-10
-**Confidence:** HIGH
+**Project:** EchoLocal ClientTracker v1.4 -- Client Pipeline Tracker
+**Researched:** 2026-03-12
+**Confidence:** MEDIUM (drag-and-drop library has React 19 complications; see notes)
 
 ## Existing Stack (validated, NOT changing)
 
@@ -10,236 +10,189 @@
 |------------|---------|---------|
 | Next.js | 16.1.6 | Dashboard frontend |
 | React | 19.2.3 | UI framework |
-| Recharts | 3.7.0 | Charts |
-| Supabase JS | 2.97.0 | Browser client for dashboard |
+| Supabase JS | 2.97.0 | Browser client, Postgres, Auth |
 | Tailwind CSS | 4.x | Styling |
-| Python 3 | 3.9.6 | SEO engine backend |
-| supabase-py | 2.28.0 | Python Supabase client |
-| SerpAPI (`google-search-results`) | installed | SERP data, budget-gated |
-| Brave Search API | via raw `requests` | Mention tracking, directory audit |
-| `requests` | 2.31.0 | HTTP calls |
-| `httpx` | 0.28.1 | HTTP calls (already installed) |
-| `beautifulsoup4` | 4.14.3 | HTML parsing |
-| `python-dotenv` | installed | Env var loading |
+| Recharts | 3.7.0 | Charts (pipeline analytics) |
+| TypeScript | 5.x | Type safety |
 
 ## New Stack Additions
 
-### 1. Playwright for Python (CORE NEW DEPENDENCY)
+### 1. Drag-and-Drop: @atlaskit/pragmatic-drag-and-drop (CORE NEW DEP)
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| `playwright` | 1.58.0 | Browser automation for directory form submission | Only viable option for reliable cross-site form filling. Handles JS-rendered forms, file uploads, dropdowns, CAPTCHAs requiring human viewport. Superior to Selenium in speed, reliability, and API ergonomics. Already Python 3.9+ compatible. |
+| `@atlaskit/pragmatic-drag-and-drop` | latest | Kanban column drag-and-drop | Framework-agnostic vanillaJS core -- zero React peer dependency, React 19 safe. Built by Atlassian to power Jira and Trello. Actively maintained with React 19 support added March 2025. |
 
-**Verified details (PyPI, 2026-01-30 release):**
-- Requires Python >=3.9 (matches our 3.9.6)
-- Supports Chromium, Firefox, WebKit
-- Async and sync APIs available -- use sync (`sync_playwright`) to match existing codebase pattern
-- Headless by default, headful mode for debugging/CAPTCHA intervention
-- Built-in auto-waiting eliminates flaky `time.sleep()` hacks
+**React 19 situation (verified via GitHub issues):**
+
+Every major drag-and-drop library has React 19 friction:
+
+- `@dnd-kit/core` 6.3.1 -- Last published ~1 year ago. TypeScript errors with React 19 ("cannot be used as JSX component"). Community workaround: `--legacy-peer-deps`. Unresolved as of Oct 2025.
+- `@hello-pangea/dnd` -- Peer dep explicitly excludes React 19 (`^16.8.5 || ^17.0.0 || ^18.0.0`). Not officially supported.
+- `@atlaskit/pragmatic-drag-and-drop` -- Core package has NO React peer dependency (vanillaJS). Optional React packages (`react-accessibility`, `react-drop-indicator`) were updated to allow `react@^19.0.0` in March 2025. Best available option for React 19.
+
+**What to install:**
+
+```bash
+npm install @atlaskit/pragmatic-drag-and-drop
+```
+
+The core package alone is sufficient for kanban drag-and-drop. The optional `react-drop-indicator` package adds visual drop indicators -- install only if you want the polished drop line:
+
+```bash
+# Optional: adds visual drop indicator between cards
+npm install @atlaskit/pragmatic-drag-and-drop-react-drop-indicator
+```
+
+**Why not skip drag-and-drop entirely:** The pipeline view is functional without it -- stage changes via a dropdown or click is viable. BUT the kanban column layout is the primary UX for pipeline stage management. Drag-and-drop is expected and easy to implement with the right lib.
+
+**Risk mitigation:** All drag-and-drop logic goes in a dedicated `'use client'` component. The kanban board never renders server-side. If the library causes a problem, it's isolated to one component and can be swapped without touching the data layer.
+
+### 2. Date Utilities: date-fns (LIGHTWEIGHT NEW DEP)
+
+| Library | Version | Purpose | Why |
+|---------|---------|---------|-----|
+| `date-fns` | 4.1.0 | "Days in current stage" calculation, stage entry timestamps, formatting comms log dates | Already the default in Next.js/React ecosystem. Full tree-shaking -- only the 3-4 functions we use get bundled. No wrapper objects, works directly with native Date. Supabase returns ISO strings; date-fns parses and diffs them without mutation. |
+
+**Functions needed:**
+
+- `formatDistanceToNow` -- "3 days in Demo stage"
+- `differenceInDays` -- numeric days for analytics
+- `format` -- log entry timestamps ("Mar 12")
+- `parseISO` -- Supabase ISO string to Date
 
 **Installation:**
+
 ```bash
-pip install playwright==1.58.0
-playwright install chromium  # Only Chromium needed. ~200MB download. Firefox/WebKit unnecessary.
+npm install date-fns
 ```
 
-**Why Chromium only:** Directory forms are standard web forms. No cross-browser testing needed. Chromium is the fastest Playwright engine and the most battle-tested for automation.
+**Why not dayjs:** dayjs is smaller (6KB vs 18KB gzip) but date-fns tree-shakes to under 5KB for our 4-function usage. No practical difference. date-fns has better TypeScript types and is more idiomatic in the Next.js ecosystem.
 
-### 2. playwright-stealth (ANTI-DETECTION)
+**Why not Temporal / native Date:** `Temporal` is not available in Next.js 16 without polyfills. Native `Date` has no `differenceInDays` -- you'd write it yourself. Not worth it.
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| `playwright-stealth` | 2.0.2 | Mask automation fingerprints | Some directories (Houzz, Porch) use bot detection. Without stealth patches, `navigator.webdriver=true` gets flagged immediately. Lightweight -- just patches browser properties at launch. |
+### 3. No New UI Component Library
 
-**Verified details (PyPI, 2026-02-13 release):**
-- Requires Python >=3.9
-- Patches `navigator.webdriver`, `chrome.runtime`, WebGL fingerprint, and other telltale properties
-- Apply once at browser launch, transparent to all subsequent page operations
-- Known limitation: Will NOT bypass Cloudflare Turnstile or advanced CAPTCHAs. Those directories need manual flagging, not stealth hacking.
+The pipeline UI builds entirely from Tailwind CSS utilities and existing patterns already in the codebase. No shadcn/ui, no headlessui, no radix-ui.
 
-**Usage pattern:**
-```python
-from playwright.sync_api import sync_playwright
-from playwright_stealth import stealth_sync
+| UI Element | Implementation | Why No New Dep |
+|------------|---------------|----------------|
+| Stage columns (kanban) | Tailwind `flex gap-4 overflow-x-auto` | Simple column layout |
+| Cards | `div` with existing card styling (`bg-[#0D1426] border border-[#1e2d4a] rounded-lg`) | Matches dashboard design system |
+| Stage badge (Lead / Demo / etc.) | `span` with color map per stage | Tailwind color classes, 6 stages |
+| Checklist items | `input[type=checkbox]` + label | Native HTML, no library needed |
+| Communication log entries | Timeline list with icon per type | Icon from inline SVG or emoji -- no icon lib |
+| Stage transition dropdown | Native `<select>` | Admin-only internal tool, no need for polished dropdown |
+| Analytics charts | Recharts (existing) | Already installed -- `BarChart` for stage counts, `LineChart` for conversion trends |
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    page = browser.new_page()
-    stealth_sync(page)  # One call, patches all fingerprints
-    page.goto("https://example-directory.com/submit")
-    page.fill("#business-name", "Mr. Green Turf Clean")
-    page.click("button[type=submit]")
+### 4. Supabase: New Tables (No Library Changes)
+
+Supabase JS client (already installed at `^2.97.0`) handles all queries. No ORM, no query builder library. Direct Supabase client calls match the existing codebase pattern throughout.
+
+**New tables:**
+
+| Table | Purpose | Key Columns |
+|-------|---------|-------------|
+| `pipeline_clients` | One row per prospect/client in pipeline | `id, name, contact_name, email, phone, trade, source_channel, current_stage, stage_entered_at, notes, created_at, updated_at` |
+| `pipeline_stage_history` | Audit log of every stage transition | `id, pipeline_client_id, from_stage, to_stage, transitioned_at, transitioned_by` |
+| `pipeline_checklist_items` | Per-stage predefined checklist definitions | `id, stage, item_text, sort_order` |
+| `pipeline_checklist_completions` | Which items are checked for each client | `id, pipeline_client_id, checklist_item_id, completed_at, completed_by` |
+| `pipeline_comms_log` | Communication history per client | `id, pipeline_client_id, comm_type (call/email/text/meeting), occurred_at, notes, logged_by` |
+
+**Supabase integration pattern (matches existing codebase):**
+
+```typescript
+// Matches existing pattern in src/lib/supabase.ts
+const { data, error } = await supabase
+  .from('pipeline_clients')
+  .select('*, pipeline_comms_log(*)')
+  .eq('current_stage', 'demo')
+  .order('stage_entered_at', { ascending: false })
 ```
 
-### 3. SerpAPI for Listing Verification (EXISTING -- NEW USE)
+Row Level Security: admin-only via existing `role = 'admin'` check. No new auth logic.
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| SerpAPI (existing `serpapi_client.py`) | installed | Google `site:` search to verify directory listings went live | Already budget-gated, already integrated. A `site:directoryname.com "Business Name"` query costs 1 SerpAPI credit and definitively proves indexing. Cheaper and more reliable than Google URL Inspection API (requires per-site GSC verification). |
+## Installation
 
-**Verification query pattern:**
-```python
-# Uses existing serpapi_client.search_google()
-result = search_google(
-    query='site:houzz.com "Mr. Green Turf Clean"',
-    client_id="mr-green-turf-clean",
-    location="Oceanside, California",
-    search_type="directory_verify"
-)
-# If organic_results has entries -> listing is indexed
+```bash
+# New npm packages (2 total)
+npm install @atlaskit/pragmatic-drag-and-drop date-fns
+
+# Optional: polished drag drop indicator visuals
+npm install @atlaskit/pragmatic-drag-and-drop-react-drop-indicator
 ```
 
-**Budget impact:** ~30 directories per client x 4 clients = 120 verification queries/month. At current 950 global cap with ~400 used for SEO, leaves 550 -- plenty of headroom. Run verification once per week, not daily.
-
-### 4. Brave Search for Pre-Submission Audit (EXISTING -- ENHANCED USE)
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| Brave Search API (existing `brave_client.py`) | via raw `requests` | Check if client is already listed before submitting | Existing `directory_audit.py` already does this with Brave. Extend the pattern to the full 30+ directory master list. Cheaper than SerpAPI for bulk "does this listing exist?" checks. |
-
-**Enhancement:** The current `directory_audit.py` hardcodes 15 directories for Echo Local (the agency). Refactor to accept any client + any directory list. Same API, same budget, broader scope.
-
-### 5. No New Dashboard Libraries
-
-| Dashboard Feature | Implementation | Why No New Deps |
-|-------------------|---------------|-----------------|
-| Directory submission status table | Standard JSX table with status badges | Tailwind `bg-green-500/10 text-green-400` for approved, `bg-yellow-500/10` for pending, etc. No table library needed for ~30 rows. |
-| Per-client directory coverage progress | Recharts `BarChart` (horizontal) | Show X of Y directories submitted per tier. Standard Recharts. |
-| Backlink count from directories | Stat card (existing pattern) | Single number with trend. Matches `StatCard.tsx`. |
-| Submission timeline | Recharts `AreaChart` or simple list | Submissions over time. Existing chart pattern. |
-
-## Supabase: New Tables
-
-Python writes, Next.js reads. Both use existing Supabase clients.
-
-| New Table | Purpose | Key Columns |
-|-----------|---------|-------------|
-| `directories` | Master list of all directories with metadata | `id, name, url, tier (1-4), category, form_url, submission_method (form/email/manual), da_range, cost, notes, active` |
-| `client_profiles` | Client NAP + business details for form filling | `id, client_id, business_name, phone, email, address, city, state, zip, website, services[], description_short, description_long, certifications[], logo_url, owner_name` |
-| `directory_submissions` | Submission tracking with status workflow | `id, client_id, directory_id, status (pending/submitted/approved/rejected/verified/failed), submitted_at, verified_at, listing_url, retry_count, last_retry_at, error_notes, screenshot_path` |
-| `directory_verifications` | Google site: search verification results | `id, submission_id, client_id, directory_id, query_used, found (bool), result_url, checked_at, serpapi_credits_used` |
-
-**Status workflow:**
-```
-pending -> submitted -> approved -> verified
-                    -> rejected -> (retry) -> submitted
-                    -> failed (after max retries)
-```
-
-**Existing tables NOT changing:** `geo_scores`, `serp_features`, `serpapi_usage`, `brave_search_usage`, `mentions`, `mention_sources`
-
-## Integration Points with Existing Codebase
-
-### Python Side
-
-```
-scripts/seo_engine/backlinks/
-  directory_audit.py    (EXISTS -- refactor to accept any client + directory list)
-  directory_submitter.py (NEW -- Playwright form filler)
-  directory_verifier.py  (NEW -- SerpAPI site: verification)
-  directory_runner.py    (NEW -- orchestrates audit -> submit -> verify cycle)
-
-scripts/seo_engine/seo_loop.py
-  |-- Add directory_runner to weekly cycle (not daily -- submissions are weekly)
-```
-
-**Scheduling:** Extend existing launchd plist, do NOT add APScheduler or any scheduling library. The SEO engine already runs on launchd at noon daily. Add a day-of-week check for directory runs (e.g., Mondays only).
-
-### Dashboard Side
-
-```
-src/app/seo-engine/
-  |-- Existing tab system via SeoTabNav.tsx
-  |-- Add "Directories" tab
-  |-- Components:
-      DirectoryStatus.tsx    -- table of all submissions with status badges
-      DirectoryCoverage.tsx  -- per-tier progress bars
-      DirectoryTimeline.tsx  -- recent submission activity feed
-```
+**Total new npm packages: 2 (plus 1 optional)**
+**Total new Python packages: 0**
+**Total new env vars: 0**
 
 ## Alternatives Considered
 
 | Category | Recommended | Alternative | Why Not |
 |----------|-------------|-------------|---------|
-| Browser automation | Playwright | Selenium | Playwright is faster (no WebDriver protocol overhead), has better auto-wait, cleaner Python API, and native stealth plugin ecosystem. Selenium's Python bindings feel dated. |
-| Browser automation | Playwright | Puppeteer (via pyppeteer) | Puppeteer is Node.js native. The `pyppeteer` Python port is unmaintained (last release 2021). |
-| Browser automation | Playwright | requests + BeautifulSoup | Cannot handle JS-rendered forms, dropdowns, file uploads, or client-side validation. Most modern directory forms require a real browser. |
-| Anti-detection | playwright-stealth | No stealth patches | Directories like Houzz and BuildZoom use basic bot detection. Without stealth, submissions fail silently or get flagged. Low-effort insurance. |
-| Anti-detection | playwright-stealth | Selenium undetected-chromedriver | Selenium ecosystem. We chose Playwright. |
-| Listing verification | SerpAPI site: query | Google URL Inspection API | URL Inspection API requires GSC ownership verification per domain -- impossible for third-party directories. SerpAPI site: search works universally. |
-| Listing verification | SerpAPI site: query | Brave Search site: query | SerpAPI returns structured organic_results with exact URLs. Better for programmatic matching. Brave works but SerpAPI is more reliable for exact URL verification. |
-| Pre-submission audit | Brave Search | SerpAPI | Brave is cheaper for bulk "does listing exist?" checks. Reserve SerpAPI credits for post-submission verification. |
-| CAPTCHA handling | Flag for manual intervention | 2captcha / Anti-Captcha services | Paying to solve CAPTCHAs for free directory listings is wasteful. Most Tier 3 directories have no CAPTCHA or simple honeypot fields. Flag the exceptions. |
-| Scheduling | launchd (existing) | APScheduler / Celery | Existing engine runs on launchd. Adding a Python scheduler creates two competing scheduling systems. Keep it simple. |
-| Form field mapping | JSON config per directory | AI/LLM to auto-detect fields | Premature complexity. 30 directories is manageable with static JSON configs. LLM form detection is unreliable and adds latency + cost per submission. |
+| Drag-and-drop | `@atlaskit/pragmatic-drag-and-drop` | `@dnd-kit/core` 6.3.1 | dnd-kit has unresolved TypeScript/JSX errors with React 19. Requires `--legacy-peer-deps`. Last published ~1 year ago, maintenance concerns. |
+| Drag-and-drop | `@atlaskit/pragmatic-drag-and-drop` | `@hello-pangea/dnd` | Explicit React 19 exclusion in peerDependencies. Would install with `--force`. Risk of subtle runtime bugs. |
+| Drag-and-drop | `@atlaskit/pragmatic-drag-and-drop` | No drag-and-drop (click-to-move) | Valid fallback if library causes problems. Stage select dropdown works fine. Defer to implementation phase decision. |
+| Date utils | `date-fns` | `dayjs` | Both work. date-fns is more idiomatic in this codebase's ecosystem (no existing dayjs usage), better TypeScript types. |
+| Date utils | `date-fns` | Native `Date` + custom math | Would write `differenceInDays` and `formatDistanceToNow` from scratch -- not worth it for a well-tested 18KB lib. |
+| UI components | Tailwind only | shadcn/ui | Significant installation overhead (copy-in components, radix-ui deps, clsx, cva). Not justified for a simple admin-only CRUD interface. |
+| Pipeline state | Supabase only | Local React state with sync | Supabase as single source of truth means no sync bugs. Pipeline data is low-write (a few stage changes per day). Direct client calls are sufficient. |
+| Pipeline state | Supabase only | Zustand / Jotai | No client-side state library needed. React `useState` + `useEffect` + Supabase calls matches the existing dashboard pattern. Adding a state manager introduces unnecessary complexity. |
 
 ## What NOT to Add
 
 | Avoid | Why | Use Instead |
 |-------|-----|-------------|
-| Selenium / WebDriver | Slower, clunkier API, worse auto-waiting | Playwright 1.58.0 |
-| `pyppeteer` | Unmaintained since 2021 | Playwright |
-| 2captcha / Anti-Captcha | Paying for CAPTCHA solving on free directories is silly | Flag CAPTCHA directories for manual submission |
-| APScheduler / Celery | Already have launchd scheduling | Day-of-week check in existing seo_loop.py |
-| Google URL Inspection API | Requires GSC ownership per directory domain | SerpAPI `site:` query |
-| Puppeteer (Node.js) | Would split automation between Python and Node.js | Playwright Python keeps everything in one language |
-| Any form-detection AI/ML | 30 directories need static configs, not ML | JSON config files mapping form fields per directory |
-| `pandas` for tracking | Supabase handles all storage and querying | Direct Supabase table operations |
-| Screenshot comparison libs (Pillow, OpenCV) | Overkill for verifying submissions | Store Playwright screenshots as simple PNGs in Supabase Storage |
+| `react-beautiful-dnd` | Deprecated, unmaintained by Atlassian | `@atlaskit/pragmatic-drag-and-drop` |
+| `@dnd-kit/react` (v0.3.x) | New experimental rewrite, unstable API, React 19 "use client" issues in active GitHub issues | `@atlaskit/pragmatic-drag-and-drop` core |
+| `react-kanban` / any kanban component library | Pre-built kanban libs are opinionated about data shape; fighting the abstraction costs more than building columns from scratch | Build columns directly with Tailwind |
+| `react-table` / `TanStack Table` | Pipeline view is a 6-column kanban + a list view, not a data grid | Direct map + Tailwind layout |
+| `react-hook-form` | Checklist completions and comm log entries are simple form POST patterns, 2-3 fields each | Native `<form>` + Supabase client |
+| Zustand / Jotai / Redux | Existing dashboard has zero state management libraries; all state is server-sourced via Supabase | `useState` + `useEffect` (existing pattern) |
+| `moment.js` | Deprecated, large bundle, not tree-shakable | `date-fns` 4.x |
+| Supabase Realtime subscriptions for pipeline | Pipeline is admin-only; no concurrent users racing to update the same cards. Realtime adds WebSocket complexity with no benefit. | Standard fetch-on-load with manual refresh |
 
-## Environment Variables
+## Version Compatibility
 
-```bash
-# New (none needed -- Playwright uses no API keys)
-# All existing env vars remain unchanged.
+| Package | React Version | Notes |
+|---------|--------------|-------|
+| `@atlaskit/pragmatic-drag-and-drop` | No React peer dep (vanillaJS) | Safe with React 19.2.3 |
+| `@atlaskit/pragmatic-drag-and-drop-react-drop-indicator` | `^19.0.0` now allowed (March 2025 update) | Should work; maintainers note "not tested against React 19 directly" |
+| `date-fns` 4.1.0 | No React dependency | Framework-agnostic, works anywhere |
+| `recharts` 3.7.0 | Already installed, already working | Use for analytics charts |
 
-# Already configured:
-SERPAPI_KEY=already_configured
-BRAVE_API_KEY=already_configured
-SUPABASE_URL=already_configured
-SUPABASE_KEY=already_configured
-NEXT_PUBLIC_SUPABASE_URL=already_configured
-NEXT_PUBLIC_SUPABASE_ANON_KEY=already_configured
+## Integration Points
+
+```
+src/app/pipeline/           (new route, admin-only)
+  page.tsx                  -- server component, auth check, initial data fetch
+  components/
+    PipelineBoard.tsx        -- 'use client', kanban columns, pragmatic-dnd
+    PipelineList.tsx         -- 'use client', table/list view alternative
+    StageColumn.tsx          -- 'use client', single column + droppable
+    ClientCard.tsx           -- 'use client', draggable card
+    ClientDetailPanel.tsx    -- slide-over panel: checklist + comms log
+    ChecklistSection.tsx     -- checklist items per stage
+    CommsLogSection.tsx      -- communication log + add entry form
+    PipelineAnalytics.tsx    -- Recharts charts, conversion rates
+
+src/lib/types.ts            -- extend with PipelineClient, CommLog, ChecklistItem types
+src/app/api/pipeline/       -- API routes for mutations (stage transitions, log entries)
 ```
 
-**Total new env vars: 0**
-
-## Installation
-
-```bash
-# Python: Two new packages
-pip install playwright==1.58.0 playwright-stealth==2.0.2
-
-# Install Chromium browser binary (~200MB one-time download)
-playwright install chromium
-
-# Next.js: Nothing to install
-# npm packages unchanged
-```
-
-**Total new pip packages: 2** (`playwright`, `playwright-stealth`)
-**Total new npm packages: 0**
-**Total new env vars: 0**
-
-## Disk/Resource Impact
-
-- Chromium binary: ~200MB in `~/Library/Caches/ms-playwright/`
-- Each submission screenshot: ~200KB PNG, stored in Supabase Storage
-- Memory during submission: ~300MB per Chromium instance (one at a time, not concurrent)
-- Submission runtime: ~30 seconds per directory (navigate + fill + submit + screenshot)
-- Full run for 1 client (30 directories): ~15 minutes
+Sidebar navigation entry added alongside existing "Sales Engine" / "SEO Engine" links. Admin role check matches existing `role === 'admin'` pattern.
 
 ## Sources
 
-- [Playwright Python on PyPI](https://pypi.org/project/playwright/) -- v1.58.0, Jan 30 2026 (HIGH confidence)
-- [Playwright Python Installation Docs](https://playwright.dev/python/docs/intro) -- Python >=3.9, browser install (HIGH confidence)
-- [playwright-stealth on PyPI](https://pypi.org/project/playwright-stealth/) -- v2.0.2, Feb 13 2026 (HIGH confidence)
-- [SerpAPI Google Search API](https://serpapi.com/search-api) -- site: operator support (HIGH confidence)
-- [Brave Search API](https://brave.com/search/api/) -- existing integration (HIGH confidence)
-- [Playwright Form Actions Docs](https://playwright.dev/python/docs/input) -- fill(), click(), select_option() (HIGH confidence)
-- [Avoiding Bot Detection with Playwright Stealth](https://brightdata.com/blog/how-tos/avoid-bot-detection-with-playwright-stealth) -- stealth techniques overview (MEDIUM confidence)
-- Existing codebase: `directory_audit.py`, `serpapi_client.py`, `brave_client.py`, `seo_loop.py` -- established patterns (HIGH confidence)
+- [pragmatic-drag-and-drop GitHub -- React 19 issue #181](https://github.com/atlassian/pragmatic-drag-and-drop/issues/181) -- React 19 support status (MEDIUM confidence, no direct testing by maintainers)
+- [Atlassian Design -- pragmatic-drag-and-drop core package](https://atlassian.design/components/pragmatic-drag-and-drop/core-package/) -- vanillaJS, no React peer dep (HIGH confidence)
+- [dnd-kit React 19 issue #1511](https://github.com/clauderic/dnd-kit/issues/1511) -- unresolved TypeScript JSX errors (HIGH confidence)
+- [@hello-pangea/dnd React 19 discussion #810](https://github.com/hello-pangea/dnd/discussions/810) -- explicit peer dep exclusion of React 19 (HIGH confidence)
+- [date-fns npm -- v4.1.0](https://www.npmjs.com/package/date-fns) -- latest version, ESM tree-shaking (HIGH confidence)
+- [puckeditor.com -- Top 5 drag-and-drop libraries 2026](https://puckeditor.com/blog/top-5-drag-and-drop-libraries-for-react) -- ecosystem overview (MEDIUM confidence)
+- Existing codebase: `src/lib/types.ts`, `src/lib/supabase.ts`, `package.json` -- established patterns (HIGH confidence)
 
 ---
-*v1.2 stack research -- Directory Submission & Tracking*
-*Supersedes v1.1 stack research (Mention Tracking + GEO Dashboard) from 2026-03-10*
+*v1.4 stack additions -- Client Pipeline Tracker*
+*Researched: 2026-03-12*
+*Supersedes: v1.2 stack research covers directory submission; this file covers pipeline tracker only*

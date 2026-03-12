@@ -1,196 +1,169 @@
-# Pitfalls Research: v1.2 Directory Submission Automation
+# Pitfalls Research: v1.4 Client Pipeline Tracker
 
-**Domain:** Automated directory submission and tracking for local SEO
-**Researched:** 2026-03-10
-**Confidence:** MEDIUM-HIGH (Playwright patterns well-documented; directory-specific behaviors require per-site validation)
+**Domain:** CRM pipeline / sales tracking added to existing Next.js + Supabase dashboard
+**Researched:** 2026-03-12
+**Confidence:** HIGH (patterns drawn from codebase analysis + verified Supabase/Next.js docs + CRM design literature)
+
+---
 
 ## Critical Pitfalls
 
-### Pitfall 1: Auto-Retry Logic Creates Duplicate Listings
+### Pitfall 1: Pipeline Tables Collide With the Existing `clients` Table Role
 
-**What goes wrong:** A Playwright submission appears to fail (timeout, navigation error, slow redirect) but actually went through server-side. The retry system re-submits, creating a duplicate listing on the same directory. Some directories (EzLocal, eBusiness Pages, ShowMeLocal) have no dedup and will happily create two identical profiles. Google sees two NAP citations from the same source with different URLs, diluting trust signals rather than building them.
+**What goes wrong:**
+The existing `clients` table is a technical config record -- it holds GA4 property IDs, GSC URLs, GHL tokens, website paths, and SEO flags. It is NOT a CRM contact record. When you add pipeline tracking, the temptation is to bolt `pipeline_stage`, `contact_name`, `contact_email`, `source_channel`, and similar fields directly onto `clients`. Within two months, `clients` becomes a 35-column god table with two completely different conceptual domains mixed in: operational SEO config and sales CRM data. Every Python script that queries `clients` for SEO engine config now pulls irrelevant CRM columns. Every CRM query joins against a table that was designed for a different purpose.
 
-**Why it happens:** Form submissions are not idempotent. Clicking "Submit" is a one-way operation with no transaction ID. Playwright's `page.click()` can succeed (the POST fires) but still throw a timeout if the confirmation page takes too long to load. The developer assumes the submission failed and queues a retry. This is the single most dangerous pattern in directory automation -- the retry creates real SEO damage that is harder to fix than not submitting at all.
+**Why it happens:**
+`clients` is already the central foreign key anchor for all other tables (reports, seo_actions, directory_submissions, etc.). Adding CRM fields there feels natural -- one record per client, everything in one place. But "one record per business" and "one record per client config" are different conceptual models that happen to share the same entity right now.
 
 **How to avoid:**
-- Never auto-retry a submission that reached the POST phase. Track submission state as a 3-stage pipeline: `form_loaded -> form_filled -> post_sent`. Only retry if the failure happened before `post_sent`.
-- After any ambiguous failure (timeout after click, navigation error), mark as `submitted_unverified` -- NOT as `failed`. Queue for manual verification (Google `site:directory.com "business name"`) rather than re-submission.
-- Store a screenshot of the last page state before the error. This is your evidence for whether the POST actually fired.
-- Set `page.set_default_timeout(60000)` for submission pages -- directory sites are slow. A 30-second timeout on a form POST is too aggressive.
+Create a separate `pipeline_leads` table for CRM tracking. Use `client_id` as a nullable foreign key (leads in early pipeline stages have no `clients` record yet -- they are prospects who have not onboarded). Leads become clients when they onboard. This separation also makes it trivial to track churned clients (they stay in `pipeline_leads` with stage = 'churned' but their `clients` config row can be disabled separately).
 
-**Warning signs:** Multiple entries for the same client on one directory. Dashboard shows 2+ "approved" rows for a single directory/client pair.
+The correct schema: `pipeline_leads(id, client_id nullable, business_name, contact_name, contact_email, contact_phone, trade, source_channel, current_stage, stage_entered_at, created_at)`.
 
-**Phase to address:** Phase 1 (submission engine core). The state machine design must prevent duplicate POSTs from day one. Retrofitting idempotency into a running system means cleaning up existing duplicates first.
+**Warning signs:**
+You find yourself writing `ALTER TABLE clients ADD COLUMN pipeline_stage` in a migration. The Python SEO loop starts throwing KeyError on unexpected columns. `clients.json` grows to include contact names and deal sources.
+
+**Phase to address:** Phase 1 (data model). The table boundary decision cannot be undone cheaply.
 
 ---
 
-### Pitfall 2: NAP Inconsistency Across Submissions Harms Local SEO
+### Pitfall 2: Stage Transitions Have No History -- Only Current State
 
-**What goes wrong:** Directory forms ask for business info in slightly different formats. One site wants "Suite 200", another wants "Ste. 200", a third has separate suite field. One wants "(760) 555-1234", another wants "7605551234". The automation fills forms from a single source but each directory normalizes differently, OR the source data itself has inconsistencies. Google sees 30 citations with 8 different address formats and treats it as uncertainty, not authority.
+**What goes wrong:**
+You store `current_stage text` and `stage_entered_at timestamptz` on the lead record. This tells you where a lead is now and when they arrived. It tells you nothing about where they came from, how long they spent in each prior stage, or whether they ever regressed (Demo -> back to Lead). After 3 months, you want to compute "average days from Demo to Proposal" -- this requires the transition history, which you never stored. You also cannot answer "how many leads regressed from Onboarding back to Demo" without history.
 
-**Why it happens:** NAP consistency is THE foundational principle of local SEO citations. Even minor discrepancies ("St." vs "Street", "LLC" vs no LLC, dashes in phone vs no dashes) confuse search engines. When automating at scale across 30+ sites with different form structures, the inconsistency compounds. Additionally, some directories auto-format your input (stripping punctuation, abbreviating state names) which you cannot control.
+**Why it happens:**
+Storing current stage is the obvious first-pass design. The history feels like over-engineering at MVP. But pipeline analytics -- conversion rates, avg time per stage, regression rates -- require transition logs, not just current snapshots. The existing `submissions` table in this codebase stores only `status` (current) without a history table, and this is the exact pattern that limits what you can analyze later.
 
 **How to avoid:**
-- Create a canonical NAP record per client in Supabase with ONE format: full street name (no abbreviations), 10-digit phone with no formatting, full state name. This is the single source of truth.
-- Build format adapters per directory if needed (some forms reject non-formatted phone numbers), but always derive from the canonical record.
-- After submission, scrape the live listing to verify what the directory actually published. Compare against canonical. Flag mismatches for manual correction.
-- Include business name EXACTLY as it appears on GBP. Not a variation, not shortened, not with extra keywords stuffed in.
-- Pre-populate `client_profiles` table in Supabase with: business_name, address_line_1, address_line_2, city, state, zip, phone, email, website, description_short (50 words), description_long (150 words), services list, service_areas list.
+Build a `pipeline_stage_history` table from day one: `(id, lead_id, from_stage, to_stage, transitioned_at, note)`. Every stage change writes a row here. The analytics queries read from history, not from the current stage column. This is append-only and tiny (a lead moving through 6 stages generates 5 rows). The cost is near-zero; the analytical payoff is high.
 
-**Warning signs:** Google Search Console shows inconsistent business info warnings. GBP dashboard shows "suggested edits" to address or phone.
+Keep `current_stage` and `stage_entered_at` on the lead record for UI rendering. Keep `pipeline_stage_history` for analytics. Do not try to derive history from `stage_entered_at` timestamps alone -- you lose regression information.
 
-**Phase to address:** Phase 1 (data model). The client profile schema must be locked before any submissions happen. Every field that directories ask for should be pre-defined.
+**Warning signs:**
+The analytics tab can only show current stage counts. "Average time in stage" queries return NULL or require reconstructing history from `updated_at` timestamps (which only store the last change). A lead mysteriously jumped from Lead to Active with no intermediate history.
+
+**Phase to address:** Phase 1 (data model). Phase 3 (analytics) depends on this history existing.
 
 ---
 
-### Pitfall 3: CAPTCHA Walls Block 40-60% of Target Directories
+### Pitfall 3: Checklists Hardcoded in the Frontend Instead of Database-Driven
 
-**What goes wrong:** You build the Playwright submission engine, test it on 5 easy directories, ship it, then discover that half the Tier 3 directories (Houzz, Porch, BuildZoom, MerchantCircle, eLocal) use reCAPTCHA v2/v3, hCaptcha, or Cloudflare Turnstile. The bot gets blocked or flagged silently. Submissions appear to go through but are silently dropped by the anti-bot system. You think you submitted to 25 directories but only 12 actually received the data.
+**What goes wrong:**
+You define the per-stage checklists as static arrays in React components: `const DEMO_CHECKLIST = ['Send calendar invite', 'Prepare case studies', ...]`. This works for the MVP but creates four problems: (1) updating a checklist item requires a code deploy; (2) you cannot track which specific item is checked per lead without a database table -- you end up storing the whole checked state as a JSONB blob on the lead record; (3) the checklist items cannot have completion timestamps (useful for spotting where leads stall within a stage); (4) you cannot add a new mandatory item retrospectively without writing migration code to backfill completion state on existing leads.
 
-**Why it happens:** In 2026, CAPTCHA and anti-bot systems are standard on any form that accepts public submissions. Playwright is trivially detectable by default -- `navigator.webdriver` flag, headless user-agent, missing plugins, consistent timing patterns. Even with `playwright-stealth` (v2.0.2 for Python), behavioral analysis and infrastructure-level signals (cloud IP ranges, ASN reputation) still trigger detection. The detection operates at layers Playwright cannot control.
+**Why it happens:**
+Static array in a component is the fastest path to a visible checklist UI. It feels premature to create a `checklist_items` table for what seems like simple to-do lists. But the moment you want to know "what percentage of leads completed the 'Send proposal' item before advancing to Active," you need per-item per-lead rows.
 
 **How to avoid:**
-- Audit every directory on the master list BEFORE building the engine. Visit each form, check for CAPTCHA presence, and categorize: `no_captcha`, `recaptcha_v2`, `recaptcha_v3`, `hcaptcha`, `cloudflare`, `custom`. Store this in the directory master table.
-- For `no_captcha` directories: Playwright automation is viable. This is your Tier 3 automation target.
-- For CAPTCHA-protected directories: Do NOT try to bypass. Instead, use a hybrid approach -- Playwright fills the form fields, pauses for human CAPTCHA solving (Brian clicks through), then Playwright continues. Or batch these for manual submission.
-- Use `playwright-stealth` (pip install playwright-stealth) for ALL automation, even on no-CAPTCHA sites, to reduce detection risk. It patches `navigator.webdriver`, user-agent, and plugin enumeration.
-- Run with `headless=False` (headed mode) for submissions. Headed Chrome has a different fingerprint than headless and triggers fewer bot detections.
-- Add human-like delays: random 1-3 second pauses between field fills, mouse movement to the next field before clicking.
+Two-table design: `checklist_templates(id, stage, label, sort_order, is_required)` for the master list, and `checklist_completions(id, lead_id, template_id, completed_at, completed_by)` for the per-lead state. Completion is tracked as presence of a row, not a boolean on the lead. Adding a new template item retrospectively does not break existing leads -- it just shows as incomplete.
 
-**Warning signs:** Submission success rate below 80%. Directories show "pending" forever. Google `site:` verification finds no listing weeks after "successful" submission.
+If the full two-table design feels like over-engineering for MVP, the minimum viable version is: `checklist_completions(id, lead_id, stage, item_label, completed_at)` -- no foreign key to a template table, just raw label strings. This is worse for schema integrity but still better than a JSONB blob, because you can query it.
 
-**Phase to address:** Phase 1 (directory audit). Categorize every directory by CAPTCHA type before writing any Playwright code. This determines which directories are automatable.
+**Warning signs:**
+Checklist state is stored as `jsonb` on the lead row. You cannot query "which leads have completed item X." Updating a checklist item label requires both a code change AND a data migration to rename old keys in the JSONB.
+
+**Phase to address:** Phase 1 (data model) for the completions table. Phase 2 (UI) for rendering it.
 
 ---
 
-### Pitfall 4: Form Structure Changes Break Automation Silently
+### Pitfall 4: Communication Log Is a Notes Blob, Not Queryable Activity Records
 
-**What goes wrong:** Directory sites redesign their forms. A field ID changes from `#business-name` to `#company-name`. A required field is added. The form moves to a multi-step wizard. Playwright fills the old selectors, hits submit, and either errors out or submits incomplete data. Worse: the form accepts partial data silently, creating a broken listing with missing phone or address.
+**What goes wrong:**
+You add a `notes text` column to `pipeline_leads`. Brian starts typing call summaries, email threads, and text conversations into it as free-form text. After 20 leads, the notes column looks like this: "Called 3/5, left VM. Emailed 3/7. Called again 3/9 spoke for 10 min, said he needs to think. Text 3/12 following up." This is unqueryable. You cannot filter "leads with no contact in 7 days." You cannot count "number of touchpoints before close." You cannot see a clean timeline of communications. You cannot distinguish a call from an email from a text.
 
-**Why it happens:** These are third-party sites you do not control. Unlike APIs (which version and deprecate formally), web forms change without notice. Small directories change forms more often than you would expect -- they are often WordPress sites with plugin updates that alter form markup.
+**Why it happens:**
+Free-form notes are the fastest thing to build. Every basic CRM tutorial starts with a notes field. The structured activity log feels like a bigger build. But the entire value of the communication log -- "who needs a follow-up?", "how many touchpoints until close?" -- requires structured records, not a text blob.
 
 **How to avoid:**
-- Build a form health checker that runs weekly: load each directory's submission URL, verify expected fields exist (`page.locator('#field').count() > 0`), check for new required fields. Log to Supabase `directory_health` table.
-- Use resilient selectors: prefer `label` text content, `name` attributes, and `placeholder` text over fragile IDs and CSS classes. `page.get_by_label("Business Name")` survives redesigns better than `page.locator("#biz-name-field")`.
-- After each submission, verify the confirmation page contains expected text ("Thank you", "submission received", etc.). If the confirmation check fails, mark as `submitted_unverified`.
-- Store form field mappings in a config table (not hardcoded). When a form breaks, update the mapping -- do not deploy new code.
-- Accept that ~10% of directory automations will break per quarter. Budget time for maintenance.
+Build `communication_log(id, lead_id, type enum('call','email','text','meeting','note'), direction enum('inbound','outbound'), occurred_at timestamptz, duration_seconds nullable, summary text, created_at)`. Keep a `notes text` field on `pipeline_leads` for brief unstructured context, but all timed interactions go in `communication_log`.
 
-**Warning signs:** Submission success rate drops for a specific directory. Health checker reports missing fields. Screenshots show unexpected page states.
+The UI for logging a touchpoint should be a quick-add form with: type selector, direction toggle, datetime (defaults to now), and a summary text field. Not a giant textarea. The log renders as a timeline sorted by `occurred_at`.
 
-**Phase to address:** Phase 1 (submission engine) for resilient selectors. Phase 3 (monitoring) for the health checker.
+**Warning signs:**
+Notes column contains timestamps and labels mixed in free-form text. You cannot query "leads with no outbound activity in the last 14 days." The comms section is just a textarea with an Edit button.
+
+**Phase to address:** Phase 1 (data model). Phase 2 (UI) for the timeline renderer and quick-add form.
 
 ---
 
-## Moderate Pitfalls
+### Pitfall 5: RLS Not Applied to Pipeline Tables -- Admin-Only Is Not Enforced at the Database Level
 
-### Pitfall 5: Google `site:` Verification is Unreliable for New Listings
+**What goes wrong:**
+The existing codebase uses `isAdmin` checks in React components to hide admin tabs. This is UI-level gating only -- it is not enforced at the database level via Supabase RLS. For the performance dashboard this is tolerable: a non-admin client user can only see their own client's data because all queries are filtered by `client_id`. But pipeline data contains contact names, deal sources, revenue context, and notes about prospects -- none of which should ever be visible to client-users at all. If RLS is not applied to pipeline tables, a savvy client could query the Supabase JS client directly from the browser console and read all lead data.
 
-**What goes wrong:** You use `site:directory.com "Business Name"` via SerpAPI to verify whether a listing went live. Google says "no results" so you mark it as failed/not-yet-live. In reality, the listing exists but Google has not indexed that specific page yet. You queue unnecessary re-submissions (risking duplicates from Pitfall 1) or show inaccurate status in the dashboard.
+In January 2025, 83% of exposed Supabase databases involved RLS misconfigurations. New tables have RLS disabled by default. The risk is real.
 
-**Why it happens:** Google's `site:` operator is explicitly documented as unreliable for verification. From Google's own docs: "the site: operator may not list all indexed URLs" and "the index isn't updated in real time, so newly published or updated content might not appear right away." For small directory pages on lower-DA sites, indexing can take 2-8 weeks. Some directory pages are behind JavaScript rendering that Google may not crawl promptly.
+**Why it happens:**
+The existing app's API routes use the service role key (which bypasses RLS), and the frontend browser client uses the anon key. RLS is not currently enforced on the existing tables for the main dashboard. Adding pipeline tables in the same pattern inherits this gap. The developer enables RLS only when it breaks something, not proactively.
 
 **How to avoid:**
-- Use `site:` as a positive signal only: if it finds the listing, it is confirmed live. If it does NOT find it, that means nothing -- do NOT mark as failed.
-- Set verification windows: first check at 14 days, second at 28 days, third at 42 days. Only mark as `verification_failed` after 42 days with no result.
-- Supplement `site:` with direct URL checks. After submission, store the expected listing URL pattern (e.g., `directory.com/business/business-name-city`). Periodically fetch that URL directly with `requests` to check for 200 response.
-- Do not burn SerpAPI credits on verification. Use Brave Search for `site:` queries instead (cheaper, and verification does not need Google-quality ranking).
-- Show verification status honestly in dashboard: "Submitted", "Live (verified)", "Live (unverified -- pending Google indexing)".
+Enable RLS on all pipeline tables immediately after creation. Write an admin-only policy:
+```sql
+CREATE POLICY "admin_only" ON pipeline_leads
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE user_profiles.user_id = auth.uid()
+      AND user_profiles.role = 'admin'
+    )
+  );
+```
+Test RLS through the Supabase JS client with a non-admin user session, NOT through the SQL editor (which runs as postgres superuser and bypasses all RLS). If a non-admin query returns empty results rather than an error, that is correct RLS behavior.
 
-**Warning signs:** High percentage of listings stuck in "pending verification" after 4+ weeks. Manual spot-checks show live listings that the system thinks are missing.
+Crucially: create an index on `user_profiles(user_id)` if one does not exist. An RLS policy checking `auth.uid()` against an unindexed column does a sequential scan on every row access.
 
-**Phase to address:** Phase 2 (verification). Design the verification state machine to treat absence of evidence as inconclusive, not as evidence of absence.
+**Warning signs:**
+New pipeline tables exist with no RLS policies. A browser console query to `supabase.from('pipeline_leads').select('*')` returns data when logged in as a non-admin. Test in devtools with a client user session.
+
+**Phase to address:** Phase 1 (data model). Apply RLS in the same migration that creates the tables.
 
 ---
 
-### Pitfall 6: Rate Limiting and IP Bans from Batch Submissions
+### Pitfall 6: Pipeline Analytics Use Current Stage Counts, Missing Churned/Skipped Leads
 
-**What goes wrong:** You submit to 15 directories in rapid succession. Several directories share the same platform or anti-bot provider (Cloudflare). Your IP gets flagged. Subsequent submissions fail silently or trigger CAPTCHAs. Worse: if running from a cloud server, the IP range may already be flagged as a known automation source.
+**What goes wrong:**
+The analytics section shows "Leads: 4, Demo: 3, Proposal: 2, Onboarding: 3, Active: 8." These are current stage counts -- a point-in-time snapshot. This overstates conversion rates. If 20 leads entered the Demo stage and 3 are currently there, you do not know if 17 converted to Proposal or 17 churned after Demo. Conversion rate = "moved to next stage / entered this stage" not "currently in next stage / currently in this stage." Current-count analytics look meaningful but measure the wrong thing.
 
-**Why it happens:** Directory sites rate-limit by IP. Submitting to multiple directories from the same IP in minutes looks like bot behavior. Some lower-DA directories share hosting infrastructure, meaning hitting 3 different directories could trigger rate limiting on a shared WAF. Running from a home IP (Brian's mac via launchd) is actually BETTER than cloud for this -- residential IPs have higher trust scores.
+This problem compounds with the "days in stage" metric. If `stage_entered_at` is updated on every stage change and you only store current state, "avg days in Demo" computes only from leads currently in Demo -- excluding all leads who already passed through it.
+
+**Why it happens:**
+COUNT(stage = 'demo') is the obvious first query. The distinction between "currently in" and "transitioned through" is not obvious until you try to calculate a conversion funnel. Without the `pipeline_stage_history` table (Pitfall 2), accurate analytics are impossible even if you know what to query.
 
 **How to avoid:**
-- Maximum 5 submissions per hour. Space them with random delays of 8-15 minutes between directories.
-- Run from Brian's local machine, not a cloud server. Residential IP > datacenter IP for form submissions.
-- Never submit to more than one directory on the same domain/platform simultaneously.
-- If a submission returns a non-200 response, back off for 30 minutes before trying the next directory.
-- Track submission timing in Supabase: `last_submission_at` per IP. The scheduler should enforce cooldowns.
-- Process submissions as a background queue (one per cron tick) rather than a batch loop.
+Analytics queries must read from `pipeline_stage_history`, not from the current stage column. The correct conversion rate query: `leads who have a history row with to_stage = 'proposal'` divided by `leads who have a history row with to_stage = 'demo'` (or from_stage = 'lead'). This correctly accounts for churned leads who never advanced.
 
-**Warning signs:** Multiple consecutive submission failures. HTTP 429 responses. CAPTCHA appearing on sites that did not have it during audit.
+"Avg days in stage" = average of `(next_transition.transitioned_at - this_transition.transitioned_at)` grouped by `to_stage`, calculated from history rows -- NOT from current `stage_entered_at`.
 
-**Phase to address:** Phase 1 (submission engine). The queue/scheduler must enforce rate limits from the first submission.
+Do not build the analytics tab until the history table exists and has at least 4-6 weeks of data. Charts showing "0 days avg in Demo" because no history exists yet are misleading. Show "Not enough data -- analytics require 30+ days of pipeline history" instead of an empty chart.
+
+**Warning signs:**
+Conversion rate queries use `COUNT(current_stage)` comparisons. "Avg days in stage" returns NULL because `stage_entered_at` was overwritten. Churned leads disappear from all analytics because they no longer appear in any active stage count.
+
+**Phase to address:** Phase 3 (analytics). But it depends on Phase 1 correctly implementing `pipeline_stage_history`.
 
 ---
 
-### Pitfall 7: Email/Phone Verification Blocks Automated Flow
+### Pitfall 7: The Pipeline Page Is a Client Dashboard Tab Instead of a Standalone Admin Page
 
-**What goes wrong:** Several directories (Houzz, Porch, TurFresh, Yardbook) require email verification to activate a listing. Some (Houzz Pro) require phone verification. The Playwright script submits the form successfully but the listing never goes live because nobody clicked the verification email or answered the phone call. You have 25 "submitted" entries in the dashboard but only 10 are actually active.
+**What goes wrong:**
+You add a "Pipeline" tab to the existing dashboard tab system (`TabId` union type). The problem: the existing dashboard is client-scoped -- the sidebar selects a client and every tab shows that client's data. Pipeline data is not client-scoped; it shows ALL leads across ALL clients in a single view. Wiring a pipeline view into the client-scoped tab system requires either (a) ugly conditional logic that bypasses client context when pipeline tab is active, or (b) showing only the selected client's pipeline data (useless -- you want the full funnel view).
 
-**Why it happens:** Many directories separate "submission" from "activation." The form is just step one. Email verification links expire (typically 24-72 hours). Phone verification requires a human to answer. If you use a shared agency email, verification emails get buried. If you use client emails, clients ignore them.
+The existing architecture already has the correct pattern for admin-wide tools: standalone pages at `/seo-engine`, `/sales-engine`, `/agents`. Pipeline belongs in this category.
 
-**How to avoid:**
-- Categorize each directory in the master list: `verification_none`, `verification_email`, `verification_phone`, `verification_manual_review`. Store in the `directories` table.
-- For `verification_email` directories: use a dedicated email per client (e.g., listings@clientdomain.com) or a single agency email (directory-submissions@echolocalagency.com). Monitor this inbox programmatically -- use Google API to poll for verification emails containing known subject lines ("Verify your listing", "Confirm your email", "Complete your registration"). Auto-click verification links via Playwright.
-- For `verification_phone` directories: these MUST use the client's real business phone. Flag these in the dashboard as "Awaiting client phone verification" and notify Brian.
-- Track the full lifecycle: `submitted -> verification_sent -> verification_complete -> live`. Do not count a directory as "done" at the `submitted` stage.
-
-**Warning signs:** Large gap between "submitted" count and "verified" count. Verification emails sitting unread in inbox.
-
-**Phase to address:** Phase 1 (data model) for categorization. Phase 2 (verification) for email monitoring automation.
-
----
-
-### Pitfall 8: Pre-Existing Listings Cause Conflicts
-
-**What goes wrong:** You submit a client to BuildZoom, but BuildZoom already auto-generated a profile from public contractor license data (this is documented behavior -- BuildZoom scrapes license boards). Now there are two listings: the auto-generated one with possibly stale info and the one you just submitted. Same problem on Houzz, Porch, and other platforms that scrape public records. The directory may reject your submission as a duplicate, or worse, create a conflicting second profile.
-
-**Why it happens:** Several high-value directories (BuildZoom, Houzz, Porch) automatically create business profiles from public data (contractor licenses, BBB records, utility databases). The client already has a phantom profile they do not know about.
+**Why it happens:**
+Tabs are easy to add (`TabId` union, new case in the conditional render, sidebar link). The developer sees the existing pattern and follows it without thinking about whether the data model is client-scoped.
 
 **How to avoid:**
-- Before ANY submission, search for the client on every target directory. Check by business name AND by phone number AND by address. Store existing profile URLs in `directory_submissions` table with status `pre_existing`.
-- For directories with pre-existing profiles: the task is CLAIM and UPDATE, not create. This is a different Playwright flow (login/claim flow vs submission flow).
-- BuildZoom specifically: profiles can only be removed under special circumstances (business closure). The correct action is to claim the existing profile and update it with accurate info.
-- Add a "discovery" phase before submission: for each client, run `site:directory.com "business phone"` across all target directories to find existing profiles.
+Create `/pipeline` as a standalone Next.js App Router page at `src/app/pipeline/page.tsx`. Add it to the sidebar navigation under admin-only links alongside `/seo-engine` and `/sales-engine`. Do NOT add it to the `TabId` type or the client-scoped tab switcher. The page fetches all leads globally (no client_id filter at the page level, though individual lead records can link to a client_id).
 
-**Warning signs:** Directory rejects submission with "business already listed" error. Google shows two different directory URLs for the same client on the same platform.
+The sidebar already has admin-only link logic. Pipeline is one more entry in that list.
 
-**Phase to address:** Phase 1 (discovery). Pre-submission audit must run before the first form fill for each client.
+**Warning signs:**
+You add `'pipeline'` to the `TabId` union type. The pipeline component receives `selectedClient` as a prop. Changing the sidebar client selection changes which leads are visible.
 
----
-
-### Pitfall 9: Submitting Too Many Directories Too Fast Triggers Spam Signals
-
-**What goes wrong:** You submit a client to 25 directories in week one. Google sees 25 new citations appear simultaneously for a business that previously had 5. This unnatural velocity pattern triggers Google's link spam detection, temporarily suppressing the business in local search results rather than boosting them.
-
-**Why it happens:** Google's local algorithm tracks citation velocity. Natural citation growth for a small business is 2-5 new citations per month. 25 in a week is a clear automation signal. Even though each individual directory is legitimate, the aggregate pattern is suspicious.
-
-**How to avoid:**
-- Stagger submissions: maximum 5-8 new directories per week per client. Spread over 3-4 weeks for full coverage.
-- Start with the highest-DA directories first (Houzz, BuildZoom, Blue Book) and work down. High-quality citations early establish a natural pattern.
-- Mix directory submissions with other citation-building activities (GBP posts, social profiles) so the pattern looks organic.
-- Track submission dates in Supabase and enforce velocity caps in the scheduler: `WHERE client_id = X AND submitted_at > NOW() - INTERVAL '7 days'` must return fewer than 8 rows before allowing new submissions.
-
-**Warning signs:** Client's local pack ranking drops 1-2 weeks after batch submission. GSC shows impression decline.
-
-**Phase to address:** Phase 1 (scheduler). Velocity caps must be enforced by the submission queue from day one.
-
----
-
-### Pitfall 10: Description/Service Mismatch Across Directories
-
-**What goes wrong:** Each directory allows different description lengths and has different content policies. You submit a 150-word description to a directory that truncates at 100 words, cutting off mid-sentence. Or you include "artificial turf cleaning" in a directory that only allows "landscaping" as a category, making the listing look spammy or miscategorized.
-
-**Why it happens:** Automation encourages one-size-fits-all content. But directories have wildly different character limits (50 chars to 1000 chars), category taxonomies (some have "turf" categories, most do not), and content policies (some reject keywords in business names or descriptions).
-
-**How to avoid:**
-- Store 3 description variants per client: short (50 words), medium (100 words), long (200 words). Map each directory to the appropriate variant in the `directories` config.
-- Research each directory's category taxonomy during audit. Store the best-fit category per directory per trade. "Landscaping" is a safe fallback for turf-related businesses.
-- After submission, verify the published description matches what was submitted. Some directories auto-edit descriptions (removing URLs, phone numbers, or "marketing language").
-
-**Warning signs:** Published listings show truncated descriptions. Category on directory does not match the client's actual services.
-
-**Phase to address:** Phase 1 (data model). Description variants and category mappings go in the schema alongside NAP data.
+**Phase to address:** Phase 2 (UI structure). Establish the standalone page pattern before building any pipeline components.
 
 ---
 
@@ -198,81 +171,114 @@
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| Hardcoded selectors per directory | Fast to build initial 5 directories | Breaks on every form redesign, maintenance nightmare at 30+ | Never -- use config-driven field mappings from the start |
-| Single description for all directories | Less data to manage per client | Truncated or rejected submissions, poor listing quality | Only for MVP proof-of-concept with 3 directories |
-| Skip pre-existing listing check | Submit faster, fewer steps | Duplicate profiles, conflicting NAP, harder to clean up | Never -- discovery phase is cheap and prevents real damage |
-| Run submissions from cloud CI | Consistent environment, no dependency on Brian's machine | Datacenter IPs flagged, higher CAPTCHA rates, lower success | Never for form submissions -- residential IP required |
-| Auto-retry all failures | Higher apparent success rate | Duplicate listings that harm SEO | Never -- only retry pre-POST failures |
+| Stage as string enum, no history table | Simple schema, fast to query current state | Cannot compute conversion rates, avg time in stage, or regression patterns | Never -- history table is 5 extra minutes of schema work |
+| JSONB blob for checklist completion state | No extra tables | Cannot query by item, cannot add required items retroactively, schema-less creep | Only for a 24-hour throwaway prototype |
+| Free-form notes instead of typed communication log | One textarea, no form design needed | Unqueryable, no timeline, no follow-up detection | Acceptable for MVP only if the structured log is planned for Phase 2 |
+| Hardcoded stage list in TypeScript | No migration needed to change stage names | Renaming a stage requires code deploy + data migration | Never -- store stage list in a config or as a Postgres enum |
+| Bolt pipeline fields onto existing `clients` table | One table, one query | Conceptual collision, Python scripts break, god table anti-pattern | Never |
+| Skip RLS on pipeline tables | Faster to develop | Client users can read prospect data through browser console | Never |
+| Analytics from current stage counts | Trivial to compute | Overstates conversion rates, misses churned leads | Only for a rough "where are we right now" snapshot with a clear label |
+
+---
 
 ## Integration Gotchas
 
 | Integration | Common Mistake | Correct Approach |
 |-------------|----------------|------------------|
-| Playwright + directory forms | Using `page.fill()` which sets value instantly (bot-like) | Use `page.type()` with `delay=50-150ms` to simulate keystroke timing |
-| Playwright + form submission | Clicking submit then immediately checking for confirmation | Use `page.wait_for_url()` or `page.wait_for_selector()` on the confirmation page element with 60s timeout |
-| SerpAPI for `site:` verification | Burning main keyword budget on verification queries | Use Brave Search for `site:` checks -- cheaper and accuracy does not matter for presence checks |
-| Supabase submission tracking | Storing status as a string enum without timestamps | Store each status transition with a timestamp: `submitted_at`, `verified_at`, `approved_at`. You need the timeline, not just current state |
-| Google API for verification emails | Polling every minute for new emails | Poll every 15 minutes during business hours. Verification emails are not time-critical to the minute |
-| launchd scheduling | Running all submissions in one batch at noon | Spread across the day: 5 submissions between 9am-5pm with random gaps |
+| Existing `clients` table | Adding pipeline fields directly to `clients` | Create `pipeline_leads` with nullable `client_id` FK; leads become clients at onboarding |
+| Supabase RLS + admin check | Relying on React `isAdmin` boolean to hide data | Write explicit RLS policies on every pipeline table; test with anon client session |
+| Next.js App Router + admin page | Adding pipeline as a tab in client-scoped dashboard | Standalone `/pipeline` page following existing `/seo-engine` pattern |
+| Supabase browser client + pipeline | Testing queries in SQL editor and assuming RLS works | SQL editor bypasses RLS; test with actual Supabase JS client authenticated as non-admin |
+| Stage transition mutations | Updating `current_stage` only | Write to both `pipeline_leads.current_stage` and `pipeline_stage_history` in the same operation |
+| Communication log timestamps | Using `created_at` as the interaction timestamp | Use `occurred_at` as the interaction time, `created_at` as the record creation time. Calls logged later should show the time of the call, not when Brian typed the note |
+
+---
 
 ## Performance Traps
 
 | Trap | Symptoms | Prevention | When It Breaks |
 |------|----------|------------|----------------|
-| Loading full Chromium for each submission | 2-3 second startup per directory, 60+ seconds for a batch of 20 | Reuse a single browser context across submissions in a session. Create new pages, not new browsers | Immediately noticeable but not a blocker. Becomes painful at 30+ submissions |
-| Storing screenshots for every submission | Disk usage grows 500KB-2MB per screenshot, 30 dirs x 4 clients = 120 screenshots/month | Store screenshots only for `submitted_unverified` and `failed` states. Delete after 30 days. Use WebP format | After ~6 months (720+ screenshots, ~1GB) |
-| Querying all submissions for dashboard render | Slow page load as submission count grows (4 clients x 30 dirs = 120 rows initially, growing) | 120 rows is fine. But filter by client_id with index. Do not load all clients' submissions for one client's view | Not a real issue at current scale (4-5 clients). Would matter at 50+ clients |
+| No index on `pipeline_leads.current_stage` | Slow stage count queries for analytics | Add index on `(current_stage)` at table creation time | Not noticeable at 20 leads; matters at 500+ |
+| RLS policy checks unindexed `user_profiles.user_id` | Every pipeline query does a sequential scan on user_profiles | Add `CREATE INDEX ON user_profiles(user_id)` | Noticeable at any scale if user_profiles has more than 50 rows |
+| Fetching full communication log on every pipeline page load | Slow initial render if a lead has 50+ log entries | Paginate or lazy-load the communication log; show last 5 entries by default with "load more" | Breaks at 30-50 entries per active lead |
+| `pipeline_stage_history` with no index on `lead_id` | Analytics queries scan entire history table | Add index on `(lead_id)` and `(to_stage, transitioned_at)` at table creation | Not noticeable at 100 leads; matters for analytics |
+| Loading all leads to compute pipeline analytics in JavaScript | N+1 computations in the browser, high memory for large datasets | Run aggregation in SQL (COUNT GROUP BY, AVG, etc.) -- Postgres does this in microseconds | Breaks at 50+ leads if done naively in React |
+
+---
+
+## Security Mistakes
+
+| Mistake | Risk | Prevention |
+|---------|------|------------|
+| RLS disabled on pipeline tables (Supabase default for new tables) | Any authenticated user (including client users) can read all prospect data, contact info, deal notes | Enable RLS + admin-only policy in the same migration that creates the tables |
+| Storing prospect email/phone in pipeline without considering data residency | Low risk for this use case but sets a precedent for insecure data handling | Fine for internal tool; document that pipeline tables contain PII so future devs treat them accordingly |
+| Pipeline API routes using service role key without additional auth checks | Route is callable by anyone with the Netlify URL if misconfigured | Any API route that reads/writes pipeline data should verify admin session before using service role key |
+| Logging sensitive deal context (price, client complaints) in communication log `summary` field | Low risk (admin-only access) but creates a discoverable record | Add a note in the schema comments that `summary` may contain sensitive context; keep RLS tight |
+
+---
+
+## UX Pitfalls
+
+| Pitfall | User Impact | Better Approach |
+|---------|-------------|-----------------|
+| Drag-and-drop stage transitions with no confirmation | Brian accidentally drags a lead to Churned, no undo | Stage changes are one-click confirmed actions (select new stage from dropdown), not drag-and-drop. Drag-and-drop is satisfying to prototype but error-prone on a laptop trackpad |
+| Pipeline page shows all data with no filtering | 20 leads visible at once becomes overwhelming; Active vs Churned are very different contexts | Default to showing only active leads (not Churned); add filter toggle for "show all including churned" |
+| Checklist items show as unchecked with no context on why they exist | Brian doesn't know which checklist items are blocking vs informational | Mark required items visually. Show which items are required before advancing to the next stage |
+| Communication log textarea with no timestamp | Brian adds a call note but the log shows `created_at` which may be hours after the actual call | Communication log entry form has an explicit `occurred_at` datetime field, defaulting to now() |
+| Analytics visible before there is enough data | Empty bar charts with all zeros give a false impression of a broken feature | Hide analytics until 30+ days of data exist. Show a "Pipeline is new -- analytics will appear after 30 days of data" placeholder |
+
+---
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Submission success:** Form was filled and submitted -- but was the confirmation page actually reached? Check for redirect to confirmation URL or presence of "thank you" text.
-- [ ] **Listing live:** Google `site:` found the listing -- but does the listing contain correct NAP? Fetch the actual page and verify name/address/phone.
-- [ ] **Email verification:** Verification email was received -- but was the link actually clicked? Check that the listing status changed to "active" on the directory.
-- [ ] **Backlink value:** Listing is live -- but is the link `nofollow`? Many directories default to nofollow for new/free listings. Check the actual `rel` attribute.
-- [ ] **Directory health:** Form loads correctly today -- but does it still match your selectors? Run the health checker, not just the form loader.
-- [ ] **Description published:** Description was submitted -- but was it published as-is? Some directories auto-edit, truncate, or wrap content in their own formatting.
-- [ ] **Category accurate:** Category was selected during submission -- but did the directory map it to something else? Check the published category matches intent.
+- [ ] **Stage transitions:** Stage change updates UI -- but did it write a row to `pipeline_stage_history`? Verify by querying history table after a transition.
+- [ ] **Checklist completions:** Checkboxes save state -- but is the completion stored as a queryable row in `checklist_completions` or as a JSONB blob? Verify you can run `SELECT * FROM checklist_completions WHERE lead_id = X`.
+- [ ] **Communication log timestamps:** Log entry saved -- but does `occurred_at` reflect the actual interaction time or just `now()`? Verify the form allows backdating.
+- [ ] **RLS enforcement:** Pipeline page shows data for admin -- but is it blocked for non-admin? Test by querying `supabase.from('pipeline_leads').select('*')` with a client user session in browser devtools.
+- [ ] **Analytics conversion rates:** Rates appear to compute -- but are they calculated from history rows (correct) or current stage counts (wrong)? Manually verify by checking a lead that churned after Demo is included in the denominator.
+- [ ] **Churned leads:** Churned leads don't appear in the main pipeline board -- but are they preserved in the database and visible in a "show churned" filter? Verify data is not deleted on churn.
+- [ ] **Admin navigation:** Pipeline page is accessible from the sidebar -- but is it gated to admin only? Verify that a client user session cannot navigate to `/pipeline` directly.
+- [ ] **Days in stage accuracy:** "Days in current stage" displays a number -- but is it calculated from the correct `stage_entered_at` timestamp? Verify by manually setting a lead to a stage 5 days ago and checking the display.
+
+---
 
 ## Recovery Strategies
 
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
-| Duplicate listings (#1) | MEDIUM | Manually find duplicates via Google search. Contact directory to remove the duplicate. Some directories have no removal process -- you may need to update the duplicate to match the primary listing exactly |
-| NAP inconsistency (#2) | HIGH | Audit all live listings. Update each one manually or via claim/edit flows. Takes 1-2 hours per client for 30 directories. Must be done before inconsistency compounds |
-| Spam velocity signal (#9) | LOW-MEDIUM | Stop new submissions for 2-3 weeks. Let existing citations age naturally. Resume at 3-5/week. Rankings typically recover in 2-4 weeks |
-| Pre-existing conflicting listing (#8) | MEDIUM | Claim the existing profile. Update with correct info. If a second profile exists, contact support to merge or delete |
-| Form structure change (#4) | LOW | Update field mapping in config. Re-test. Re-submit for affected directories only |
+| Pipeline fields bolted onto `clients` table | HIGH | Write migration to extract pipeline columns into a new `pipeline_leads` table; update all TypeScript types; update all queries; risk of breaking Python scripts that query `clients` |
+| No stage history table | MEDIUM | Create `pipeline_stage_history` retroactively; backfill using `current_stage` and `stage_entered_at` (partial data only -- cannot recover intermediate stages); accept analytics gaps for the initial period |
+| Checklists stored as JSONB blob | MEDIUM | Write migration to extract JSONB entries into `checklist_completions` rows; data is recoverable but schema migration is tedious and item labels may be inconsistent |
+| RLS not applied | LOW | Enable RLS and add policies via migration; zero data loss; requires testing to ensure no legitimate queries break |
+| Communication log as free-form notes | LOW-MEDIUM | Migrate to `communication_log` table; parse existing notes text into log entries where possible; historical notes that are unparseable become a single `note` type entry with the original text |
+
+---
 
 ## Pitfall-to-Phase Mapping
 
 | Pitfall | Prevention Phase | Verification |
 |---------|------------------|--------------|
-| Duplicate submissions (#1) | Phase 1: Submission engine | Zero duplicate directory/client pairs in Supabase after 1 month of operation |
-| NAP inconsistency (#2) | Phase 1: Data model | All client profiles validated before first submission. Published listings match canonical NAP |
-| CAPTCHA blocking (#3) | Phase 1: Directory audit | Every directory categorized by CAPTCHA type. Automation only attempted on verified no-CAPTCHA sites |
-| Form breakage (#4) | Phase 1 + Phase 3 | Resilient selectors from day one. Weekly health checker catches breakage within 7 days |
-| `site:` unreliability (#5) | Phase 2: Verification | Verification uses multiple methods. No listing marked "failed" based solely on `site:` absence |
-| Rate limiting (#6) | Phase 1: Scheduler | Max 5 submissions/hour enforced. Zero HTTP 429 responses in logs |
-| Email/phone verification (#7) | Phase 1 + Phase 2 | Every directory categorized by verification type. Email auto-click within 24 hours. Phone flagged to Brian |
-| Pre-existing listings (#8) | Phase 1: Discovery | Pre-submission search completed for every client. Existing profiles claimed, not duplicated |
-| Spam velocity (#9) | Phase 1: Scheduler | Max 8 submissions/week/client enforced. No ranking drops correlated with submission timing |
-| Description mismatch (#10) | Phase 1: Data model | 3 description lengths per client. Per-directory length mapping in config |
+| Pipeline/clients table collision (#1) | Phase 1: Data model | `pipeline_leads` is a separate table with nullable `client_id` FK; no pipeline columns on `clients` |
+| No stage transition history (#2) | Phase 1: Data model | `pipeline_stage_history` table exists; every stage change in the UI writes a row there; confirmed via Supabase table inspector |
+| Hardcoded checklists (#3) | Phase 1: Data model | `checklist_completions` table exists; UI reads/writes completion rows; no checklist state in JSONB on lead record |
+| Communication log as text blob (#4) | Phase 1: Data model | `communication_log` table exists with typed `type` and `occurred_at` columns; log entries are queryable by `type` and date range |
+| Missing RLS on pipeline tables (#5) | Phase 1: Data model | Non-admin Supabase JS client query returns zero rows (not an error) from pipeline tables; confirmed via devtools test |
+| Analytics from current stage counts (#6) | Phase 3: Analytics | Conversion rate queries join `pipeline_stage_history`; manually verify a churned lead is counted in stage denominators |
+| Pipeline as client-scoped tab (#7) | Phase 2: UI structure | `/pipeline` is a standalone page; `TabId` type does not include 'pipeline'; page does not receive `selectedClient` as prop |
+
+---
 
 ## Sources
 
-- [Google site: operator documentation](https://developers.google.com/search/docs/monitor-debug/search-operators/all-search-site) -- official limitations: "may not list all indexed URLs" (HIGH confidence)
-- [Google site: operator known issues](https://developers.google.com/search/blog/2006/05/issues-with-site-operator-query) -- results are estimates only (HIGH confidence)
-- [Playwright CAPTCHA bypass analysis (BrowserStack)](https://www.browserstack.com/guide/playwright-captcha) -- detection operates at behavioral/environmental layers Playwright cannot control (MEDIUM confidence)
-- [playwright-stealth PyPI](https://pypi.org/project/playwright-stealth/) -- v2.0.2, Python 3.9+, actively maintained (HIGH confidence)
-- [Playwright Extra stealth techniques (ZenRows)](https://www.zenrows.com/blog/playwright-stealth) -- patches navigator.webdriver, user-agent, plugins (MEDIUM confidence)
-- [Rate limiting in web scraping (Apify Academy)](https://docs.apify.com/academy/anti-scraping/techniques/rate-limiting) -- per-IP limits, escalation to bans (MEDIUM confidence)
-- [Directory submission best practices 2025 (VA Web SEO)](https://www.vawebseo.com/seo-directory-submission-software-in-2025-pros-and-cons/) -- quality over quantity, NAP consistency (MEDIUM confidence)
-- [Automating directory submissions (Jasmine Directory)](https://www.jasminedirectory.com/blog/automating-directory-submissions/) -- data preparation failures, API vs form success rates (MEDIUM confidence)
-- [BuildZoom auto-generated profiles (BBB complaints)](https://www.bbb.org/us/ca/san-francisco/profile/digital-advertising/buildzoom-inc-1116-461634/complaints) -- profiles created from public license data without consent (MEDIUM confidence)
-- [Playwright retry APIs](https://timdeschryver.dev/blog/the-different-retry-apis-from-playwright) -- non-idempotent operations should not be retried (MEDIUM confidence)
-- [Preventing double form submissions (OpenReplay)](https://blog.openreplay.com/prevent-double-form-submissions/) -- server-side idempotency required for correctness (MEDIUM confidence)
-- Codebase analysis: PROJECT.md, directory master list, existing SEO engine patterns (HIGH confidence)
+- Codebase analysis: `src/lib/types.ts`, `supabase/migrations/`, `.planning/codebase/ARCHITECTURE.md` -- existing table structure and patterns (HIGH confidence)
+- [Supabase RLS documentation](https://supabase.com/docs/guides/database/postgres/row-level-security) -- RLS disabled by default on new tables; testing through SQL editor bypasses RLS (HIGH confidence)
+- [Supabase RLS performance guide](https://supabase.com/docs/guides/troubleshooting/rls-performance-and-best-practices-Z5Jjwv) -- missing indexes on policy columns cause sequential scans (HIGH confidence)
+- [Supabase audit log post](https://supabase.com/blog/postgres-audit) -- append-only audit tables for state transition history (HIGH confidence)
+- [TanStack Query optimistic update race conditions](https://tkdodo.eu/blog/concurrent-optimistic-updates-in-react-query) -- concurrent mutations cause state conflicts without cancellation (MEDIUM confidence)
+- CRM database design pattern: `pipeline_stage_history` as append-only log vs mutable current state -- standard event sourcing principle, widely documented (HIGH confidence)
+- [GeeksforGeeks CRM relational design](https://www.geeksforgeeks.org/dbms/how-to-design-a-relational-database-for-customer-relationship-management-crm/) -- activity log as typed records, not free-form notes (MEDIUM confidence)
+- January 2025 Supabase RLS exposure report -- 83% of exposed Supabase databases involved RLS misconfiguration (MEDIUM confidence, cited across multiple security publications)
 
 ---
-*Pitfalls research for: v1.2 Directory Submission Automation*
-*Researched: 2026-03-10*
+*Pitfalls research for: v1.4 Client Pipeline Tracker (adding CRM pipeline to existing Next.js + Supabase dashboard)*
+*Researched: 2026-03-12*
