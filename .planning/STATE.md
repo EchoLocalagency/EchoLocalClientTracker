@@ -1,33 +1,31 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.2
-milestone_name: Directory Submission & Tracking
-status: unknown
-last_updated: "2026-03-12T00:02:39.404Z"
+milestone: v1.4
+milestone_name: Client Pipeline Tracker
+status: defining_requirements
+last_updated: "2026-03-12"
 progress:
-  total_phases: 10
-  completed_phases: 8
-  total_plans: 16
-  completed_plans: 14
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-10)
+See: .planning/PROJECT.md (updated 2026-03-12)
 
-**Core value:** Each client gains 20-30 new backlinks from niche directories GHL/Yext misses, tracked and verified automatically.
-**Current focus:** v1.2 COMPLETE
+**Core value:** Track every client from first contact to active/churned so nothing falls through the cracks as the client base grows.
+**Current focus:** v1.4 Pipeline Tracker -- defining requirements
 
 ## Current Position
 
-Phase: 12 of 12 (Directory Dashboard) -- COMPLETE
-Plan: 1 of 1 in current phase (all complete)
-Status: v1.2 Directory Submission & Tracking fully complete (all 5 phases, 8 plans, 20 requirements)
-Last activity: 2026-03-11 -- Completed 12-01 (Directories tab with status grid, tier progress, recommendations, backlink score)
-
-Progress: [####################] 100% (v1.0 + v1.1 + v1.2 complete)
+Phase: Not started (defining requirements)
+Plan: --
+Status: Defining requirements
+Last activity: 2026-03-12 -- Milestone v1.4 started
 
 ## Performance Metrics
 

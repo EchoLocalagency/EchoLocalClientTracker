@@ -78,19 +78,19 @@ SerpAPI budget: 200 searches/client/month, 950 global cap. $25/mo Starter Plan.
 | Organization schema separate from LocalBusiness | Google reads both independently | Good -- clean separation |
 | difflib for PAA matching | Stdlib, 0.6 threshold, no external dependency | Good -- lightweight and accurate enough |
 
-## Current Milestone: v1.2 Directory Submission & Tracking System
+## Current Milestone: v1.4 Client Pipeline Tracker
 
-**Goal:** Automatically submit clients to 30+ niche directories that GHL/Yext doesn't cover, track submission status, auto-retry pending submissions, verify listings via Google site: search, and surface everything in the dashboard -- so each client gains 20-30 new backlinks in month one.
+**Goal:** Admin-only pipeline view to track every client from first contact through active engagement or churn, with per-stage checklists, communication logs, and pipeline analytics -- so nothing falls through the cracks as the client base grows.
 
 **Target features:**
-- Directory master list in Supabase (tiered: manufacturer, trade association, home service, government)
-- Client profile data in Supabase for form fills (NAP, services, descriptions, certifications)
-- Playwright-based auto-submission for Tier 3 form-fill directories
-- Submission tracking with status workflow (pending/submitted/approved/rejected/verified)
-- Auto-retry after 7 days, alert Brian after 14 days still pending
-- Google site: search verification to confirm listings went live
-- Dashboard tab showing submission status, backlink count, and per-client directory coverage
-- Tier 1/2 directories surfaced as recommendations requiring client input
+- Pipeline stages: Lead -> Demo -> Proposal -> Onboarding -> Active -> Churned
+- Client profiles with contact info, trade, source/channel, and notes
+- Universal per-stage checklists (predefined items checked off as completed)
+- Pipeline dates: stage entry timestamps, days in current stage
+- Communication log: calls, emails, texts per client
+- Pipeline analytics: stage counts, conversion rates, avg time per stage
+- Top-level sidebar navigation (admin-only, separate from client dashboards)
+- Supabase-backed data model
 
 ---
-*Last updated: 2026-03-10 after v1.2 milestone start*
+*Last updated: 2026-03-12 after v1.4 milestone start*
