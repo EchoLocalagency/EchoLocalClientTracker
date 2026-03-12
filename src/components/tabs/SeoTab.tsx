@@ -100,7 +100,7 @@ export default function SeoTab({ reports, queries, latestReport, prevQueries, cl
   // Only include keywords that appeared in the last 7 days
   const sorted = Object.entries(byQuery)
     .filter(([, d]) => d.bestPosition7d < 100)
-    .sort(([, a], [, b]) => a.bestPosition7d - b.bestPosition7d)
+    .sort(([, a], [, b]) => a.bestPosition7d - b.bestPosition7d || b.totalImpressions - a.totalImpressions)
     .slice(0, 15);
 
   const topKeywords = sorted.map(([query, d]) => ({
