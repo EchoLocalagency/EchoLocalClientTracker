@@ -105,8 +105,8 @@ Plans:
   4. The drawer shows stage-specific checklist items that the admin can check/uncheck, with completion state persisted per-lead in pipeline_checklist_items
 **Plans**: 2 plans
 Plans:
-- [ ] 16-01-PLAN.md -- [to be planned]
-- [ ] 16-02-PLAN.md -- [to be planned]
+- [ ] 16-01-PLAN.md -- Drawer shell, inline-editable profile, stage timeline (DETAIL-01, DETAIL-02)
+- [ ] 16-02-PLAN.md -- Checklist toggle, comms log, wire drawer into pipeline page (DETAIL-03, DETAIL-04)
 
 ### Phase 17: Pipeline Analytics
 **Goal**: Admin sees pipeline health at a glance -- where leads come from, how fast they move through stages, where they stall, and which prospects need immediate follow-up
@@ -144,5 +144,5 @@ Phases 14-17 execute sequentially. Phase 17 can begin after Phase 15 (needs stag
 | 13. Full GSC Keyword History | v1.3 | 2/2 | Complete | 2026-03-12 |
 | 14. Database Foundation | v1.4 | 2/2 | Complete | 2026-03-13 |
 | 15. Page Shell + Pipeline Table | 2/2 | Complete    | 2026-03-13 | - |
-| 16. Lead Detail Drawer | v1.4 | 0/? | Not started | - |
+| 16. Lead Detail Drawer | v1.4 | 0/2 | Not started | - |
 | 17. Pipeline Analytics | v1.4 | 0/? | Not started | - |
