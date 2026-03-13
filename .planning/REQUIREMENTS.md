@@ -16,7 +16,7 @@
 
 ### Pipeline UI
 
-- [ ] **UI-01**: Pipeline page accessible via top-level sidebar link (admin-only)
+- [x] **UI-01**: Pipeline page accessible via top-level sidebar link (admin-only)
 - [ ] **UI-02**: Pipeline table view shows all leads with stage, days-in-stage, source, checklist progress, and last contact date
 - [ ] **UI-03**: Table is filterable by stage and sortable by any column
 - [ ] **UI-04**: Admin can move a lead to a different stage via dropdown, which creates a stage history entry
@@ -77,7 +77,7 @@
 | DATA-04 | Phase 14 | Complete |
 | DATA-05 | Phase 14 | Complete |
 | DATA-06 | Phase 14 | Complete |
-| UI-01 | Phase 15 | Pending |
+| UI-01 | Phase 15 | Complete |
 | UI-02 | Phase 15 | Pending |
 | UI-03 | Phase 15 | Pending |
 | UI-04 | Phase 15 | Pending |

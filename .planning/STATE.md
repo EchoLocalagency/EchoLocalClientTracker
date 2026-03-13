@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Client Pipeline Tracker
 status: unknown
-last_updated: "2026-03-13T04:43:14.248Z"
+last_updated: "2026-03-13T04:56:55.150Z"
 progress:
-  total_phases: 12
+  total_phases: 13
   completed_phases: 9
-  total_plans: 20
-  completed_plans: 16
+  total_plans: 22
+  completed_plans: 17
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-12)
 
 **Core value:** Track every client from first contact to active/churned so nothing falls through the cracks as the client base grows.
-**Current focus:** Phase 14 -- Database Foundation
+**Current focus:** Phase 15 -- Page Shell & Pipeline Table
 
 ## Current Position
 
-Phase: 14 of 17 (Database Foundation)
-Plan: 2 of 2
-Status: Complete
-Last activity: 2026-03-12 -- Completed 14-02 (sales engine auto lead creation + Supabase migration applied)
+Phase: 15 of 17 (Page Shell & Pipeline Table)
+Plan: 1 of 2
+Status: In Progress
+Last activity: 2026-03-13 -- Completed 15-01 (admin-only Pipeline sidebar link)
 
-Progress: [##░░░░░░░░] 20%
+Progress: [###░░░░░░░] 30%
 
 ## Performance Metrics
 
@@ -43,6 +43,7 @@ Progress: [##░░░░░░░░] 20%
 | 1-4 (v1.0) | 8 | ~25min | ~3.1min |
 | 5-7 (v1.1) | 6 | ~19min | ~3.1min |
 | 8-12 (v1.2) | 7 | ~22min | ~3.1min |
+| Phase 15-page-shell-pipeline-table P01 | 1min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -62,6 +63,8 @@ Recent:
 - store_analysis() extended to 4-arg signature so call object is available for pipeline lead creation without a second DB fetch
 - Duplicate detection checks phone (exact) first, then company_name (ilike) -- prevents duplicates without blocking re-contacts
 - SQL migration applied via Supabase MCP (no Supabase CLI configured in this project)
+- Pipeline link placed before Agents in sidebar, purple #A78BFA to distinguish from other engine links
+- isAdmin prop added to Sidebar component for conditional admin-only link rendering
 
 ### Pending Todos
 
@@ -73,6 +76,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12
-Stopped at: Completed 14-02-PLAN.md (sales engine auto lead creation + Supabase migration applied via MCP)
+Last session: 2026-03-13
+Stopped at: Completed 15-01-PLAN.md (admin-only Pipeline sidebar link)
 Resume file: None
