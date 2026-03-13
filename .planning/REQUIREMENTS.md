@@ -29,6 +29,12 @@
 - [ ] **DETAIL-03**: Admin can add communication log entries from the drawer
 - [ ] **DETAIL-04**: Checklist shows stage-specific items with check/uncheck in the drawer
 
+### Sales Engine Integration
+
+- [ ] **INT-01**: When a call is analyzed with outcome "meeting_booked" or "closed", a pipeline lead is auto-created in the Lead stage with contact info from the call
+- [ ] **INT-02**: Auto-created leads have source set to "sales_engine" and link back to the originating call_analysis record
+- [ ] **INT-03**: Duplicate detection prevents creating a second lead if one already exists for the same phone number or company name
+
 ### Analytics
 
 - [ ] **ANAL-01**: Conversion funnel showing lead counts progressing through each stage
@@ -38,6 +44,7 @@
 
 ## Previous Milestones (Complete)
 
+- v1.3: GSC Keyword History (Phase 13)
 - v1.2: Directory Submission & Tracking (20/20 requirements, Phases 8-12)
 - v1.1: Mention Tracking + GEO Dashboard (Phases 5-7)
 - v1.0: GEO Module (26/26 requirements, Phases 1-4)
@@ -64,31 +71,34 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | Pending | Pending |
-| DATA-02 | Pending | Pending |
-| DATA-03 | Pending | Pending |
-| DATA-04 | Pending | Pending |
-| DATA-05 | Pending | Pending |
-| DATA-06 | Pending | Pending |
-| UI-01 | Pending | Pending |
-| UI-02 | Pending | Pending |
-| UI-03 | Pending | Pending |
-| UI-04 | Pending | Pending |
-| UI-05 | Pending | Pending |
-| DETAIL-01 | Pending | Pending |
-| DETAIL-02 | Pending | Pending |
-| DETAIL-03 | Pending | Pending |
-| DETAIL-04 | Pending | Pending |
-| ANAL-01 | Pending | Pending |
-| ANAL-02 | Pending | Pending |
-| ANAL-03 | Pending | Pending |
-| ANAL-04 | Pending | Pending |
+| DATA-01 | Phase 14 | Pending |
+| DATA-02 | Phase 14 | Pending |
+| DATA-03 | Phase 14 | Pending |
+| DATA-04 | Phase 14 | Pending |
+| DATA-05 | Phase 14 | Pending |
+| DATA-06 | Phase 14 | Pending |
+| UI-01 | Phase 15 | Pending |
+| UI-02 | Phase 15 | Pending |
+| UI-03 | Phase 15 | Pending |
+| UI-04 | Phase 15 | Pending |
+| UI-05 | Phase 15 | Pending |
+| DETAIL-01 | Phase 16 | Pending |
+| DETAIL-02 | Phase 16 | Pending |
+| DETAIL-03 | Phase 16 | Pending |
+| DETAIL-04 | Phase 16 | Pending |
+| ANAL-01 | Phase 17 | Pending |
+| ANAL-02 | Phase 17 | Pending |
+| ANAL-03 | Phase 17 | Pending |
+| INT-01 | Phase 14 | Pending |
+| INT-02 | Phase 14 | Pending |
+| INT-03 | Phase 14 | Pending |
+| ANAL-04 | Phase 17 | Pending |
 
 **Coverage:**
-- v1.4 requirements: 19 total
-- Mapped to phases: 0
-- Unmapped: 19
+- v1.4 requirements: 22 total
+- Mapped to phases: 22
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-12*
-*Last updated: 2026-03-12 after initial definition*
+*Last updated: 2026-03-12 after roadmap creation*
