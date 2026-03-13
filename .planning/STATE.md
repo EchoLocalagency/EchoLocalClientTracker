@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Client Pipeline Tracker
-status: ready_to_plan
+status: in_progress
 last_updated: "2026-03-12"
 progress:
   total_phases: 4
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 8
+  completed_plans: 1
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-03-12)
 ## Current Position
 
 Phase: 14 of 17 (Database Foundation)
-Plan: --
-Status: Ready to plan
-Last activity: 2026-03-12 -- Roadmap created for v1.4 (Phases 14-17)
+Plan: 1 of 2
+Status: In progress
+Last activity: 2026-03-12 -- Completed 14-01 (SQL migration, TypeScript types, pipeline constants)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [#░░░░░░░░░] 10%
 
 ## Performance Metrics
 
@@ -57,6 +57,8 @@ Recent:
 - Analytics query stage history (not COUNT current_stage) -- research pitfall #6
 - Standalone /pipeline page (not a tab in client-scoped dashboard) -- research pitfall #7
 - No drag-and-drop for v1.4 -- dropdown stage selector is faster at 5-15 clients
+- UNIQUE(lead_id, stage, item_key) constraint prevents duplicate checklist items on upsert
+- stage_entered_at column must be updated alongside stage column on every stage change
 
 ### Pending Todos
 
@@ -69,5 +71,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-12
-Stopped at: Roadmap created for v1.4 Client Pipeline Tracker (Phases 14-17)
+Stopped at: Completed 14-01-PLAN.md (database foundation: SQL migration + TypeScript types + pipeline constants)
 Resume file: None

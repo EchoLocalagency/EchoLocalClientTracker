@@ -7,12 +7,12 @@
 
 ### Data Foundation
 
-- [ ] **DATA-01**: Admin can create a pipeline lead with contact name, email, phone, trade, source/channel, and notes
-- [ ] **DATA-02**: Every stage transition is logged with timestamp in an append-only history table
-- [ ] **DATA-03**: Each pipeline stage has predefined checklist items that appear for every lead entering that stage
-- [ ] **DATA-04**: Admin can check/uncheck checklist items per lead, with completion stored separately from templates
-- [ ] **DATA-05**: Admin can log communication entries (call, email, text) with notes and timestamp per lead
-- [ ] **DATA-06**: RLS policies restrict pipeline tables to admin users only
+- [x] **DATA-01**: Admin can create a pipeline lead with contact name, email, phone, trade, source/channel, and notes
+- [x] **DATA-02**: Every stage transition is logged with timestamp in an append-only history table
+- [x] **DATA-03**: Each pipeline stage has predefined checklist items that appear for every lead entering that stage
+- [x] **DATA-04**: Admin can check/uncheck checklist items per lead, with completion stored separately from templates
+- [x] **DATA-05**: Admin can log communication entries (call, email, text) with notes and timestamp per lead
+- [x] **DATA-06**: RLS policies restrict pipeline tables to admin users only
 
 ### Pipeline UI
 
@@ -71,12 +71,12 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | Phase 14 | Pending |
-| DATA-02 | Phase 14 | Pending |
-| DATA-03 | Phase 14 | Pending |
-| DATA-04 | Phase 14 | Pending |
-| DATA-05 | Phase 14 | Pending |
-| DATA-06 | Phase 14 | Pending |
+| DATA-01 | Phase 14 | Complete |
+| DATA-02 | Phase 14 | Complete |
+| DATA-03 | Phase 14 | Complete |
+| DATA-04 | Phase 14 | Complete |
+| DATA-05 | Phase 14 | Complete |
+| DATA-06 | Phase 14 | Complete |
 | UI-01 | Phase 15 | Pending |
 | UI-02 | Phase 15 | Pending |
 | UI-03 | Phase 15 | Pending |
