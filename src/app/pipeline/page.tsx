@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 import { PIPELINE_STAGES, STAGE_CHECKLIST_DEFAULTS } from '@/lib/pipeline-constants';
+import { LeadDrawer } from '@/components/pipeline/LeadDrawer';
 import type { PipelineLead, PipelineStage } from '@/lib/types';
 
 type SortField = 'contact_name' | 'stage' | 'trade' | 'source' | 'days_in_stage' | 'checklist' | 'last_contact' | 'created_at';
@@ -23,6 +24,11 @@ export default function PipelinePage() {
   const [sortField, setSortField] = useState<SortField>('created_at');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
+  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+
+  const handleLeadUpdated = useCallback((updated: PipelineLead) => {
+    setLeads(prev => prev.map(l => l.id === updated.id ? updated : l));
+  }, []);
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -309,8 +315,10 @@ export default function PipelinePage() {
                   key={lead.id}
                   onMouseEnter={() => setHoveredRow(lead.id)}
                   onMouseLeave={() => setHoveredRow(null)}
+                  onClick={() => setSelectedLeadId(lead.id)}
                   style={{
                     background: hoveredRow === lead.id ? 'rgba(255,255,255,0.02)' : 'transparent',
+                    cursor: 'pointer',
                   }}
                 >
                   <td style={tdStyle}>
@@ -321,7 +329,7 @@ export default function PipelinePage() {
                       </div>
                     )}
                   </td>
-                  <td style={tdStyle}>
+                  <td style={tdStyle} onClick={e => e.stopPropagation()}>
                     <select
                       value={lead.stage}
                       onChange={e => changeStage(lead.id, lead.stage, e.target.value as PipelineStage)}
@@ -359,6 +367,12 @@ export default function PipelinePage() {
           </table>
         </div>
       )}
+
+      <LeadDrawer
+        leadId={selectedLeadId}
+        onClose={() => setSelectedLeadId(null)}
+        onLeadUpdated={handleLeadUpdated}
+      />
     </div>
   );
 }
