@@ -1,12 +1,15 @@
 'use client';
 
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 import { PIPELINE_STAGES, STAGE_CHECKLIST_DEFAULTS } from '@/lib/pipeline-constants';
-import { LeadDrawer } from '@/components/pipeline/LeadDrawer';
+import { LeadProfile } from '@/components/pipeline/LeadProfile';
+import { StageTimeline } from '@/components/pipeline/StageTimeline';
+import { LeadChecklist } from '@/components/pipeline/LeadChecklist';
+import { CommsLog } from '@/components/pipeline/CommsLog';
 import PipelineAnalytics from '@/components/pipeline/PipelineAnalytics';
-import type { PipelineLead, PipelineStage, PipelineStageHistory } from '@/lib/types';
+import type { PipelineLead, PipelineStage, PipelineStageHistory, PipelineChecklistItem, PipelineComm } from '@/lib/types';
 
 type SortField = 'contact_name' | 'stage' | 'trade' | 'source' | 'days_in_stage' | 'checklist' | 'last_contact' | 'created_at';
 
@@ -34,11 +37,33 @@ export default function PipelinePage() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [stageHistory, setStageHistory] = useState<PipelineStageHistory[]>([]);
-  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const [expandedLeadId, setExpandedLeadId] = useState<string | null>(null);
+  const [expandedHistory, setExpandedHistory] = useState<PipelineStageHistory[]>([]);
+  const [expandedChecklist, setExpandedChecklist] = useState<PipelineChecklistItem[]>([]);
+  const [expandedComms, setExpandedComms] = useState<PipelineComm[]>([]);
+  const [expandedLoading, setExpandedLoading] = useState(false);
 
   const handleLeadUpdated = useCallback((updated: PipelineLead) => {
     setLeads(prev => prev.map(l => l.id === updated.id ? updated : l));
   }, []);
+
+  const toggleExpand = useCallback(async (leadId: string) => {
+    if (expandedLeadId === leadId) {
+      setExpandedLeadId(null);
+      return;
+    }
+    setExpandedLeadId(leadId);
+    setExpandedLoading(true);
+    const [historyRes, checklistRes, commsRes] = await Promise.all([
+      supabase.from('pipeline_stage_history').select('*').eq('lead_id', leadId).order('transitioned_at', { ascending: true }),
+      supabase.from('pipeline_checklist_items').select('*').eq('lead_id', leadId),
+      supabase.from('pipeline_comms').select('*').eq('lead_id', leadId).order('occurred_at', { ascending: false }),
+    ]);
+    setExpandedHistory((historyRes.data as PipelineStageHistory[]) || []);
+    setExpandedChecklist((checklistRes.data as PipelineChecklistItem[]) || []);
+    setExpandedComms((commsRes.data as PipelineComm[]) || []);
+    setExpandedLoading(false);
+  }, [expandedLeadId]);
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -325,105 +350,145 @@ export default function PipelinePage() {
               </tr>
             </thead>
             <tbody>
-              {sortedLeads.map(lead => (
-                <tr
-                  key={lead.id}
-                  onMouseEnter={() => setHoveredRow(lead.id)}
-                  onMouseLeave={() => setHoveredRow(null)}
-                  onClick={() => setSelectedLeadId(lead.id)}
-                  style={{
-                    background: hoveredRow === lead.id
-                      ? 'rgba(255,255,255,0.02)'
-                      : isOverdue(lead.id, lead.stage, lastContact)
-                        ? 'rgba(255, 61, 87, 0.04)'
-                        : 'transparent',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <td style={tdStyle}>
-                    <div style={{ color: 'var(--text-primary)' }}>{lead.contact_name}</div>
-                    {lead.company_name && (
-                      <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
-                        {lead.company_name}
-                      </div>
-                    )}
-                  </td>
-                  <td style={tdStyle} onClick={e => e.stopPropagation()}>
-                    <select
-                      value={lead.stage}
-                      onChange={e => changeStage(lead.id, lead.stage, e.target.value as PipelineStage)}
+              {sortedLeads.map(lead => {
+                const isExpanded = expandedLeadId === lead.id;
+                return (
+                  <React.Fragment key={lead.id}>
+                    <tr
+                      onMouseEnter={() => setHoveredRow(lead.id)}
+                      onMouseLeave={() => setHoveredRow(null)}
+                      onClick={() => toggleExpand(lead.id)}
                       style={{
-                        background: 'var(--bg-depth)',
-                        color: 'var(--text-primary)',
-                        border: '1px solid var(--border)',
-                        borderRadius: 6,
-                        padding: '4px 8px',
-                        fontSize: 12,
-                        fontFamily: 'var(--font-mono)',
+                        background: isExpanded
+                          ? 'rgba(0, 206, 209, 0.06)'
+                          : hoveredRow === lead.id
+                            ? 'rgba(255,255,255,0.02)'
+                            : isOverdue(lead.id, lead.stage, lastContact)
+                              ? 'rgba(255, 61, 87, 0.04)'
+                              : 'transparent',
+                        cursor: 'pointer',
                       }}
                     >
-                      {PIPELINE_STAGES.map(s => (
-                        <option key={s} value={s}>{s}</option>
-                      ))}
-                    </select>
-                  </td>
-                  <td style={{ ...tdStyle, color: 'var(--text-secondary)' }}>{lead.trade || '--'}</td>
-                  <td style={{ ...tdStyle, color: 'var(--text-secondary)' }}>{lead.source || '--'}</td>
-                  <td style={{ ...tdStyle, color: 'var(--text-primary)' }}>{daysInStage(lead)}</td>
-                  <td style={{ ...tdStyle, color: 'var(--text-secondary)' }}>
-                    {checklistProgress[lead.id]
-                      ? `${checklistProgress[lead.id].done}/${checklistProgress[lead.id].total}`
-                      : `0/${STAGE_CHECKLIST_DEFAULTS[lead.stage].length}`}
-                  </td>
-                  <td style={{ ...tdStyle, color: isOverdue(lead.id, lead.stage, lastContact) && !lastContact[lead.id] ? 'var(--danger)' : 'var(--text-secondary)' }}>
-                    {lastContact[lead.id] ? (
-                      <>
-                        {new Date(lastContact[lead.id]).toLocaleDateString()}
-                        {isOverdue(lead.id, lead.stage, lastContact) && (
+                      <td style={tdStyle}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <span style={{
+                            display: 'inline-block',
                             fontSize: 10,
+                            color: 'var(--text-secondary)',
+                            transition: 'transform 0.15s',
+                            transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                          }}>&#9654;</span>
+                          <div>
+                            <div style={{ color: 'var(--text-primary)' }}>{lead.contact_name}</div>
+                            {lead.company_name && (
+                              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
+                                {lead.company_name}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td style={tdStyle} onClick={e => e.stopPropagation()}>
+                        <select
+                          value={lead.stage}
+                          onChange={e => changeStage(lead.id, lead.stage, e.target.value as PipelineStage)}
+                          style={{
+                            background: 'var(--bg-depth)',
+                            color: 'var(--text-primary)',
+                            border: '1px solid var(--border)',
+                            borderRadius: 6,
+                            padding: '4px 8px',
+                            fontSize: 12,
                             fontFamily: 'var(--font-mono)',
-                            fontWeight: 600,
-                            color: 'var(--danger)',
-                            background: 'rgba(255, 61, 87, 0.12)',
-                            padding: '2px 6px',
-                            borderRadius: 4,
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em',
-                            marginLeft: 8,
-                          }}>OVERDUE</span>
-                        )}
-                      </>
-                    ) : isOverdue(lead.id, lead.stage, lastContact) ? (
-                      <>
-                        No contact
-                        <span style={{
-                          fontSize: 10,
-                          fontFamily: 'var(--font-mono)',
-                          fontWeight: 600,
-                          color: 'var(--danger)',
-                          background: 'rgba(255, 61, 87, 0.12)',
-                          padding: '2px 6px',
-                          borderRadius: 4,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
-                          marginLeft: 8,
-                        }}>OVERDUE</span>
-                      </>
-                    ) : '--'}
-                  </td>
-                </tr>
-              ))}
+                          }}
+                        >
+                          {PIPELINE_STAGES.map(s => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
+                      </td>
+                      <td style={{ ...tdStyle, color: 'var(--text-secondary)' }}>{lead.trade || '--'}</td>
+                      <td style={{ ...tdStyle, color: 'var(--text-secondary)' }}>{lead.source || '--'}</td>
+                      <td style={{ ...tdStyle, color: 'var(--text-primary)' }}>{daysInStage(lead)}</td>
+                      <td style={{ ...tdStyle, color: 'var(--text-secondary)' }}>
+                        {checklistProgress[lead.id]
+                          ? `${checklistProgress[lead.id].done}/${checklistProgress[lead.id].total}`
+                          : `0/${STAGE_CHECKLIST_DEFAULTS[lead.stage].length}`}
+                      </td>
+                      <td style={{ ...tdStyle, color: isOverdue(lead.id, lead.stage, lastContact) && !lastContact[lead.id] ? 'var(--danger)' : 'var(--text-secondary)' }}>
+                        {lastContact[lead.id] ? (
+                          <>
+                            {new Date(lastContact[lead.id]).toLocaleDateString()}
+                            {isOverdue(lead.id, lead.stage, lastContact) && (
+                              <span style={{
+                                fontSize: 10,
+                                fontFamily: 'var(--font-mono)',
+                                fontWeight: 600,
+                                color: 'var(--danger)',
+                                background: 'rgba(255, 61, 87, 0.12)',
+                                padding: '2px 6px',
+                                borderRadius: 4,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em',
+                                marginLeft: 8,
+                              }}>OVERDUE</span>
+                            )}
+                          </>
+                        ) : isOverdue(lead.id, lead.stage, lastContact) ? (
+                          <>
+                            No contact
+                            <span style={{
+                              fontSize: 10,
+                              fontFamily: 'var(--font-mono)',
+                              fontWeight: 600,
+                              color: 'var(--danger)',
+                              background: 'rgba(255, 61, 87, 0.12)',
+                              padding: '2px 6px',
+                              borderRadius: 4,
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.05em',
+                              marginLeft: 8,
+                            }}>OVERDUE</span>
+                          </>
+                        ) : '--'}
+                      </td>
+                    </tr>
+                    {isExpanded && (
+                      <tr>
+                        <td colSpan={7} style={{ padding: 0, borderBottom: '1px solid var(--border)' }}>
+                          <div style={{
+                            background: 'var(--bg-depth)',
+                            padding: '20px 24px',
+                            borderTop: '1px solid var(--border)',
+                          }}>
+                            {expandedLoading ? (
+                              <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-secondary)' }}>
+                                Loading...
+                              </div>
+                            ) : (
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                                  <LeadProfile lead={lead} onFieldSaved={handleLeadUpdated} />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                                  <StageTimeline history={expandedHistory} />
+                                  <LeadChecklist lead={lead} items={expandedChecklist} setItems={setExpandedChecklist} />
+                                  <CommsLog leadId={lead.id} comms={expandedComms} setComms={setExpandedComms} />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </tbody>
           </table>
         </div>
       )}
 
-      <LeadDrawer
-        leadId={selectedLeadId}
-        onClose={() => setSelectedLeadId(null)}
-        onLeadUpdated={handleLeadUpdated}
-      />
     </div>
   );
 }
