@@ -71,7 +71,57 @@ def get_todays_analyses(sb):
     return resp.data or []
 
 
-def store_analysis(sb, call_id, analysis):
+def create_pipeline_lead_from_call(sb, call, analysis, analysis_id):
+    """Auto-create a pipeline lead when outcome is meeting_booked or closed."""
+    outcome = analysis.get("outcome")
+    if outcome not in ("meeting_booked", "closed"):
+        return
+
+    phone = call.get("call_from") or call.get("phone")
+    company_name = call.get("company_name")
+
+    # Duplicate detection by phone
+    if phone is not None:
+        existing = sb.table("pipeline_leads").select("id").eq("phone", phone).limit(1).execute()
+        if existing.data:
+            print(f"[pipeline] Skipping duplicate lead -- phone {phone} already exists")
+            return
+
+    # Duplicate detection by company name (case-insensitive)
+    if company_name is not None:
+        existing = sb.table("pipeline_leads").select("id").ilike("company_name", company_name).limit(1).execute()
+        if existing.data:
+            print(f"[pipeline] Skipping duplicate lead -- company '{company_name}' already exists")
+            return
+
+    lead = {
+        "contact_name": call.get("contact_name") or "Unknown",
+        "phone": phone,
+        "company_name": company_name,
+        "source": "sales_engine",
+        "stage": "Lead",
+        "notes": analysis.get("caller_details", {}).get("situation", ""),
+        "call_analysis_id": analysis_id,
+    }
+
+    try:
+        result = sb.table("pipeline_leads").insert(lead).execute()
+        if result.data:
+            lead_id = result.data[0]["id"]
+            sb.table("pipeline_stage_history").insert({
+                "lead_id": lead_id,
+                "previous_stage": None,
+                "new_stage": "Lead",
+                "notes": f"Auto-created from call (outcome: {outcome})",
+            }).execute()
+            print(f"[pipeline] Created lead for {lead['contact_name']} (outcome: {outcome})")
+        else:
+            print(f"[pipeline] Insert returned no data for {lead['contact_name']}")
+    except Exception as e:
+        print(f"[pipeline] Failed to create lead: {e}")
+
+
+def store_analysis(sb, call_id, call, analysis):
     """Store Claude's analysis in Supabase."""
     row = {
         "call_id": call_id,
@@ -87,7 +137,11 @@ def store_analysis(sb, call_id, analysis):
         "key_moments": analysis.get("key_moments", []),
     }
 
-    sb.table("call_analyses").insert(row).execute()
+    result = sb.table("call_analyses").insert(row).execute()
+    analysis_id = result.data[0]["id"] if result.data else None
+
+    # Auto-create pipeline lead for qualifying outcomes
+    create_pipeline_lead_from_call(sb, call, analysis, analysis_id)
 
     # Update sales_calls with analyzed flag + callback tracking
     call_update = {"analyzed": True}
@@ -167,7 +221,7 @@ def main():
         analysis = analyze_call(call, recent, dry_run=not live)
 
         if analysis and live:
-            store_analysis(sb, call["id"], analysis)
+            store_analysis(sb, call["id"], call, analysis)
             outcome = analysis.get("outcome", "?")
             score = analysis.get("score", "?")
             print(f"    -> {outcome} | score: {score}/10")

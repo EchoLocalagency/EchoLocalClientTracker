@@ -53,7 +53,7 @@ def main():
                     analysis = analyze_call(call, recent, dry_run=False)
 
                     if analysis:
-                        store_analysis(sb, call["id"], analysis)
+                        store_analysis(sb, call["id"], call, analysis)
                         outcome = analysis.get("outcome", "?")
                         score = analysis.get("score", "?")
                         priority = analysis.get("callback_priority", "?")
