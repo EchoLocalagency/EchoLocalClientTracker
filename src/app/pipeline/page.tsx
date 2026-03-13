@@ -14,6 +14,14 @@ function daysInStage(lead: PipelineLead): number {
   return Math.floor((Date.now() - new Date(lead.stage_entered_at).getTime()) / 86400000);
 }
 
+function isOverdue(leadId: string, leadStage: PipelineStage, lastContactMap: Record<string, string>): boolean {
+  if (leadStage === 'Churned') return false;
+  const lastTs = lastContactMap[leadId];
+  if (!lastTs) return true; // never contacted = overdue
+  const daysSince = (Date.now() - new Date(lastTs).getTime()) / 86400000;
+  return daysSince >= 7;
+}
+
 export default function PipelinePage() {
   const { profile, loading: authLoading, isAdmin } = useAuth();
 
@@ -324,7 +332,11 @@ export default function PipelinePage() {
                   onMouseLeave={() => setHoveredRow(null)}
                   onClick={() => setSelectedLeadId(lead.id)}
                   style={{
-                    background: hoveredRow === lead.id ? 'rgba(255,255,255,0.02)' : 'transparent',
+                    background: hoveredRow === lead.id
+                      ? 'rgba(255,255,255,0.02)'
+                      : isOverdue(lead.id, lead.stage, lastContact)
+                        ? 'rgba(255, 61, 87, 0.04)'
+                        : 'transparent',
                     cursor: 'pointer',
                   }}
                 >
@@ -363,10 +375,42 @@ export default function PipelinePage() {
                       ? `${checklistProgress[lead.id].done}/${checklistProgress[lead.id].total}`
                       : `0/${STAGE_CHECKLIST_DEFAULTS[lead.stage].length}`}
                   </td>
-                  <td style={{ ...tdStyle, color: 'var(--text-secondary)' }}>
-                    {lastContact[lead.id]
-                      ? new Date(lastContact[lead.id]).toLocaleDateString()
-                      : '--'}
+                  <td style={{ ...tdStyle, color: isOverdue(lead.id, lead.stage, lastContact) && !lastContact[lead.id] ? 'var(--danger)' : 'var(--text-secondary)' }}>
+                    {lastContact[lead.id] ? (
+                      <>
+                        {new Date(lastContact[lead.id]).toLocaleDateString()}
+                        {isOverdue(lead.id, lead.stage, lastContact) && (
+                          <span style={{
+                            fontSize: 10,
+                            fontFamily: 'var(--font-mono)',
+                            fontWeight: 600,
+                            color: 'var(--danger)',
+                            background: 'rgba(255, 61, 87, 0.12)',
+                            padding: '2px 6px',
+                            borderRadius: 4,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                            marginLeft: 8,
+                          }}>OVERDUE</span>
+                        )}
+                      </>
+                    ) : isOverdue(lead.id, lead.stage, lastContact) ? (
+                      <>
+                        No contact
+                        <span style={{
+                          fontSize: 10,
+                          fontFamily: 'var(--font-mono)',
+                          fontWeight: 600,
+                          color: 'var(--danger)',
+                          background: 'rgba(255, 61, 87, 0.12)',
+                          padding: '2px 6px',
+                          borderRadius: 4,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                          marginLeft: 8,
+                        }}>OVERDUE</span>
+                      </>
+                    ) : '--'}
                   </td>
                 </tr>
               ))}
