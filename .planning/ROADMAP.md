@@ -74,7 +74,10 @@ See: milestones/v1.0-ROADMAP.md for full details
   5. A non-admin user authenticated via Supabase cannot read any pipeline table -- RLS policies restrict all pipeline tables to admin users only
   6. When analyze_calls.py produces a "meeting_booked" or "closed" outcome, a pipeline lead is auto-created in the Lead stage with contact info from the call, source set to "sales_engine", and a reference to the call_analysis record
   7. If a lead already exists for the same phone number or company name, no duplicate is created
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 14-01-PLAN.md -- SQL migration, TypeScript types, pipeline constants (DATA-01 through DATA-06)
+- [ ] 14-02-PLAN.md -- Python sales engine integration + run migration (INT-01 through INT-03)
 
 ### Phase 15: Page Shell + Pipeline Table
 **Goal**: Admin navigates to a dedicated /pipeline page and sees all leads in a sortable, filterable table with stage counts, days-in-stage tracking, and inline stage transitions
@@ -86,7 +89,10 @@ See: milestones/v1.0-ROADMAP.md for full details
   3. Admin can filter the table by stage and sort by any column, and the view updates immediately
   4. Admin can change a lead's stage via a dropdown in the table row, which updates the lead record and creates a stage history entry in one operation
   5. Stage summary cards at the top of the page show the count of leads in each of the six stages (Lead, Demo, Proposal, Onboarding, Active, Churned)
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 14-01-PLAN.md -- SQL migration, TypeScript types, pipeline constants (DATA-01 through DATA-06)
+- [ ] 14-02-PLAN.md -- Python sales engine integration + run migration (INT-01 through INT-03)
 
 ### Phase 16: Lead Detail Drawer
 **Goal**: Admin clicks any lead to open a slide-out drawer with the complete lead profile, stage-specific checklist, and communication timeline -- the daily workflow hub for managing each prospect
@@ -97,7 +103,10 @@ See: milestones/v1.0-ROADMAP.md for full details
   2. Admin can edit any lead profile field (name, email, phone, trade, source, notes) inline in the drawer, and changes save to Supabase without closing the drawer
   3. Admin can add a communication log entry from the drawer by selecting type (call/email/text), entering notes, and optionally adjusting the occurred_at timestamp -- the entry appears immediately in the timeline
   4. The drawer shows stage-specific checklist items that the admin can check/uncheck, with completion state persisted per-lead in pipeline_checklist_items
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 14-01-PLAN.md -- SQL migration, TypeScript types, pipeline constants (DATA-01 through DATA-06)
+- [ ] 14-02-PLAN.md -- Python sales engine integration + run migration (INT-01 through INT-03)
 
 ### Phase 17: Pipeline Analytics
 **Goal**: Admin sees pipeline health at a glance -- where leads come from, how fast they move through stages, where they stall, and which prospects need immediate follow-up
@@ -108,7 +117,10 @@ See: milestones/v1.0-ROADMAP.md for full details
   2. Average days per stage is displayed as a metric for each of the six stages, computed from stage history transition timestamps
   3. A source/channel breakdown chart shows where leads originate (referral, cold email, website, etc.) with counts per source
   4. Leads with no communication logged in 7+ days are visually highlighted as overdue in the pipeline table, making stalled prospects immediately obvious
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 14-01-PLAN.md -- SQL migration, TypeScript types, pipeline constants (DATA-01 through DATA-06)
+- [ ] 14-02-PLAN.md -- Python sales engine integration + run migration (INT-01 through INT-03)
 
 ## Progress
 
