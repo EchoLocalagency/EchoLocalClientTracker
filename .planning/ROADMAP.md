@@ -91,8 +91,8 @@ Plans:
   5. Stage summary cards at the top of the page show the count of leads in each of the six stages (Lead, Demo, Proposal, Onboarding, Active, Churned)
 **Plans**: 2 plans
 Plans:
-- [ ] 15-01-PLAN.md -- Sidebar Pipeline link (admin-only, UI-01)
-- [ ] 15-02-PLAN.md -- Pipeline page with stage cards, sortable/filterable table, stage dropdown (UI-02 through UI-05)
+- [x] 15-01-PLAN.md -- Sidebar Pipeline link (admin-only, UI-01)
+- [x] 15-02-PLAN.md -- Pipeline page with stage cards, sortable/filterable table, stage dropdown (UI-02 through UI-05)
 
 ### Phase 16: Lead Detail Drawer
 **Goal**: Admin clicks any lead to open a slide-out drawer with the complete lead profile, stage-specific checklist, and communication timeline -- the daily workflow hub for managing each prospect
@@ -119,8 +119,8 @@ Plans:
   4. Leads with no communication logged in 7+ days are visually highlighted as overdue in the pipeline table, making stalled prospects immediately obvious
 **Plans**: 2 plans
 Plans:
-- [ ] 17-01-PLAN.md -- [to be planned]
-- [ ] 17-02-PLAN.md -- [to be planned]
+- [ ] 17-01-PLAN.md -- Analytics section with conversion funnel, avg days per stage, source breakdown charts (ANAL-01, ANAL-02, ANAL-03)
+- [ ] 17-02-PLAN.md -- Overdue follow-up highlighting in pipeline table (ANAL-04)
 
 ## Progress
 
@@ -145,4 +145,4 @@ Phases 14-17 execute sequentially. Phase 17 can begin after Phase 15 (needs stag
 | 14. Database Foundation | v1.4 | 2/2 | Complete | 2026-03-13 |
 | 15. Page Shell + Pipeline Table | 2/2 | Complete    | 2026-03-13 | - |
 | 16. Lead Detail Drawer | v1.4 | Complete    | 2026-03-13 | 2026-03-13 |
-| 17. Pipeline Analytics | v1.4 | 0/? | Not started | - |
+| 17. Pipeline Analytics | v1.4 | 0/2 | Not started | - |
