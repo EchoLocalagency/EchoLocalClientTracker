@@ -257,3 +257,56 @@ export interface Submission {
   created_at: string;
   updated_at: string;
 }
+
+// Pipeline Tracker types (v1.4)
+
+export type PipelineStage = 'Lead' | 'Demo' | 'Proposal' | 'Onboarding' | 'Active' | 'Churned';
+export type CommType = 'call' | 'email' | 'text';
+export type CommDirection = 'outbound' | 'inbound';
+
+export interface PipelineLead {
+  id: string;
+  contact_name: string;
+  email: string | null;
+  phone: string | null;
+  company_name: string | null;
+  trade: string | null;
+  source: string;
+  channel: string | null;
+  notes: string | null;
+  stage: PipelineStage;
+  stage_entered_at: string;
+  call_analysis_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PipelineStageHistory {
+  id: string;
+  lead_id: string;
+  previous_stage: PipelineStage | null;
+  new_stage: PipelineStage;
+  transitioned_at: string;
+  notes: string | null;
+}
+
+export interface PipelineChecklistItem {
+  id: string;
+  lead_id: string;
+  stage: PipelineStage;
+  item_key: string;
+  item_label: string;
+  completed: boolean;
+  completed_at: string | null;
+  created_at: string;
+}
+
+export interface PipelineComm {
+  id: string;
+  lead_id: string;
+  comm_type: CommType;
+  direction: CommDirection;
+  notes: string | null;
+  occurred_at: string;
+  created_at: string;
+}
