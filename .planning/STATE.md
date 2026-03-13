@@ -8,7 +8,7 @@ progress:
   total_phases: 13
   completed_phases: 9
   total_plans: 22
-  completed_plans: 17
+  completed_plans: 18
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-03-12)
 ## Current Position
 
 Phase: 15 of 17 (Page Shell & Pipeline Table)
-Plan: 1 of 2
-Status: In Progress
-Last activity: 2026-03-13 -- Completed 15-01 (admin-only Pipeline sidebar link)
+Plan: 2 of 2
+Status: Complete
+Last activity: 2026-03-13 -- Completed 15-02 (pipeline page with stage cards, sortable table, inline stage transitions)
 
-Progress: [###░░░░░░░] 30%
+Progress: [####░░░░░░] 40%
 
 ## Performance Metrics
 
@@ -44,6 +44,7 @@ Progress: [###░░░░░░░] 30%
 | 5-7 (v1.1) | 6 | ~19min | ~3.1min |
 | 8-12 (v1.2) | 7 | ~22min | ~3.1min |
 | Phase 15-page-shell-pipeline-table P01 | 1min | 1 tasks | 2 files |
+| Phase 15-page-shell-pipeline-table P02 | 2min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -65,6 +66,7 @@ Recent:
 - SQL migration applied via Supabase MCP (no Supabase CLI configured in this project)
 - Pipeline link placed before Agents in sidebar, purple #A78BFA to distinguish from other engine links
 - isAdmin prop added to Sidebar component for conditional admin-only link rendering
+- Pipeline page: row hover via React state (inline styles can't use :hover), stage sort by workflow order not alpha, checklist denominator from STAGE_CHECKLIST_DEFAULTS when no DB items
 
 ### Pending Todos
 
@@ -77,5 +79,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-13
-Stopped at: Completed 15-01-PLAN.md (admin-only Pipeline sidebar link)
+Stopped at: Completed 15-02-PLAN.md (pipeline page with stage cards, sortable table, inline stage transitions)
 Resume file: None
