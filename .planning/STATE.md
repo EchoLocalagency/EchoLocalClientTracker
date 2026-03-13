@@ -8,7 +8,7 @@ progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 8
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-03-12)
 ## Current Position
 
 Phase: 14 of 17 (Database Foundation)
-Plan: 1 of 2
-Status: In progress
-Last activity: 2026-03-12 -- Completed 14-01 (SQL migration, TypeScript types, pipeline constants)
+Plan: 2 of 2
+Status: Complete
+Last activity: 2026-03-12 -- Completed 14-02 (sales engine auto lead creation + Supabase migration applied)
 
-Progress: [#░░░░░░░░░] 10%
+Progress: [##░░░░░░░░] 20%
 
 ## Performance Metrics
 
@@ -59,6 +59,9 @@ Recent:
 - No drag-and-drop for v1.4 -- dropdown stage selector is faster at 5-15 clients
 - UNIQUE(lead_id, stage, item_key) constraint prevents duplicate checklist items on upsert
 - stage_entered_at column must be updated alongside stage column on every stage change
+- store_analysis() extended to 4-arg signature so call object is available for pipeline lead creation without a second DB fetch
+- Duplicate detection checks phone (exact) first, then company_name (ilike) -- prevents duplicates without blocking re-contacts
+- SQL migration applied via Supabase MCP (no Supabase CLI configured in this project)
 
 ### Pending Todos
 
@@ -71,5 +74,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-12
-Stopped at: Completed 14-01-PLAN.md (database foundation: SQL migration + TypeScript types + pipeline constants)
+Stopped at: Completed 14-02-PLAN.md (sales engine auto lead creation + Supabase migration applied via MCP)
 Resume file: None

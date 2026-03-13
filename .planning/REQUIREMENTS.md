@@ -31,9 +31,9 @@
 
 ### Sales Engine Integration
 
-- [ ] **INT-01**: When a call is analyzed with outcome "meeting_booked" or "closed", a pipeline lead is auto-created in the Lead stage with contact info from the call
-- [ ] **INT-02**: Auto-created leads have source set to "sales_engine" and link back to the originating call_analysis record
-- [ ] **INT-03**: Duplicate detection prevents creating a second lead if one already exists for the same phone number or company name
+- [x] **INT-01**: When a call is analyzed with outcome "meeting_booked" or "closed", a pipeline lead is auto-created in the Lead stage with contact info from the call
+- [x] **INT-02**: Auto-created leads have source set to "sales_engine" and link back to the originating call_analysis record
+- [x] **INT-03**: Duplicate detection prevents creating a second lead if one already exists for the same phone number or company name
 
 ### Analytics
 
@@ -89,9 +89,9 @@
 | ANAL-01 | Phase 17 | Pending |
 | ANAL-02 | Phase 17 | Pending |
 | ANAL-03 | Phase 17 | Pending |
-| INT-01 | Phase 14 | Pending |
-| INT-02 | Phase 14 | Pending |
-| INT-03 | Phase 14 | Pending |
+| INT-01 | Phase 14 | Complete |
+| INT-02 | Phase 14 | Complete |
+| INT-03 | Phase 14 | Complete |
 | ANAL-04 | Phase 17 | Pending |
 
 **Coverage:**
