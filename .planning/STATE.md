@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Client Pipeline Tracker
-status: unknown
-last_updated: "2026-03-13T05:01:04.123Z"
+status: in-progress
+last_updated: "2026-03-13T05:17:50Z"
 progress:
   total_phases: 13
   completed_phases: 10
   total_plans: 22
-  completed_plans: 18
+  completed_plans: 19
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-12)
 
 **Core value:** Track every client from first contact to active/churned so nothing falls through the cracks as the client base grows.
-**Current focus:** Phase 15 -- Page Shell & Pipeline Table
+**Current focus:** Phase 16 -- Lead Detail Drawer
 
 ## Current Position
 
-Phase: 15 of 17 (Page Shell & Pipeline Table)
-Plan: 2 of 2
-Status: Complete
-Last activity: 2026-03-13 -- Completed 15-02 (pipeline page with stage cards, sortable table, inline stage transitions)
+Phase: 16 of 17 (Lead Detail Drawer)
+Plan: 1 of 2
+Status: In Progress
+Last activity: 2026-03-13 -- Completed 16-01 (lead drawer shell, inline profile edit, stage timeline)
 
-Progress: [####░░░░░░] 40%
+Progress: [#####░░░░░] 50%
 
 ## Performance Metrics
 
@@ -45,6 +45,7 @@ Progress: [####░░░░░░] 40%
 | 8-12 (v1.2) | 7 | ~22min | ~3.1min |
 | Phase 15-page-shell-pipeline-table P01 | 1min | 1 tasks | 2 files |
 | Phase 15-page-shell-pipeline-table P02 | 2min | 1 tasks | 1 files |
+| Phase 16-lead-detail-drawer P01 | 2min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -67,6 +68,9 @@ Recent:
 - Pipeline link placed before Agents in sidebar, purple #A78BFA to distinguish from other engine links
 - isAdmin prop added to Sidebar component for conditional admin-only link rendering
 - Pipeline page: row hover via React state (inline styles can't use :hover), stage sort by workflow order not alpha, checklist denominator from STAGE_CHECKLIST_DEFAULTS when no DB items
+- Portal drawer pattern: backdrop + panel via ReactDOM.createPortal, Escape/click-to-close, body scroll lock
+- Inline edit pattern: click field -> input/textarea, blur/Enter saves, optimistic update with revert on error
+- Drawer wired into pipeline page with row click and stopPropagation on stage select
 
 ### Pending Todos
 
@@ -79,5 +83,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-13
-Stopped at: Completed 15-02-PLAN.md (pipeline page with stage cards, sortable table, inline stage transitions)
+Stopped at: Completed 16-01-PLAN.md (lead drawer shell, inline profile edit, stage timeline)
 Resume file: None
