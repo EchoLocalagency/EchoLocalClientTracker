@@ -5,6 +5,8 @@ import ReactDOM from 'react-dom';
 import { supabase } from '@/lib/supabase';
 import { LeadProfile } from './LeadProfile';
 import { StageTimeline } from './StageTimeline';
+import { LeadChecklist } from './LeadChecklist';
+import { CommsLog } from './CommsLog';
 import type { PipelineLead, PipelineStageHistory, PipelineChecklistItem, PipelineComm } from '@/lib/types';
 
 interface LeadDrawerProps {
@@ -140,25 +142,11 @@ export function LeadDrawer({ leadId, onClose, onLeadUpdated }: LeadDrawerProps) 
             {/* Stage Timeline */}
             <StageTimeline history={history} />
 
-            {/* Placeholder: Checklist (plan 16-02) */}
-            <div style={{ marginTop: 24 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>
-                Checklist
-              </div>
-              <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-                Coming soon
-              </div>
-            </div>
+            {/* Checklist */}
+            <LeadChecklist lead={lead} items={checklistItems} setItems={setChecklistItems} />
 
-            {/* Placeholder: Communications (plan 16-02) */}
-            <div style={{ marginTop: 24 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>
-                Communications
-              </div>
-              <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-                Coming soon
-              </div>
-            </div>
+            {/* Communications */}
+            <CommsLog leadId={lead.id} comms={comms} setComms={setComms} />
           </>
         )}
       </div>
