@@ -5,7 +5,8 @@ import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 import { PIPELINE_STAGES, STAGE_CHECKLIST_DEFAULTS } from '@/lib/pipeline-constants';
 import { LeadDrawer } from '@/components/pipeline/LeadDrawer';
-import type { PipelineLead, PipelineStage } from '@/lib/types';
+import PipelineAnalytics from '@/components/pipeline/PipelineAnalytics';
+import type { PipelineLead, PipelineStage, PipelineStageHistory } from '@/lib/types';
 
 type SortField = 'contact_name' | 'stage' | 'trade' | 'source' | 'days_in_stage' | 'checklist' | 'last_contact' | 'created_at';
 
@@ -24,6 +25,7 @@ export default function PipelinePage() {
   const [sortField, setSortField] = useState<SortField>('created_at');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
+  const [stageHistory, setStageHistory] = useState<PipelineStageHistory[]>([]);
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
 
   const handleLeadUpdated = useCallback((updated: PipelineLead) => {
@@ -35,14 +37,16 @@ export default function PipelinePage() {
 
     async function fetchData() {
       setLoading(true);
-      const [leadsRes, checklistRes, commsRes] = await Promise.all([
+      const [leadsRes, checklistRes, commsRes, historyRes] = await Promise.all([
         supabase.from('pipeline_leads').select('*').order('created_at', { ascending: false }),
         supabase.from('pipeline_checklist_items').select('lead_id, completed'),
         supabase.from('pipeline_comms').select('lead_id, occurred_at').order('occurred_at', { ascending: false }),
+        supabase.from('pipeline_stage_history').select('lead_id, previous_stage, new_stage, transitioned_at').order('transitioned_at', { ascending: true }),
       ]);
 
       const fetchedLeads = (leadsRes.data || []) as PipelineLead[];
       setLeads(fetchedLeads);
+      setStageHistory((historyRes.data || []) as PipelineStageHistory[]);
 
       // Process checklist progress
       const progress: Record<string, { done: number; total: number }> = {};
@@ -271,6 +275,9 @@ export default function PipelinePage() {
           ))}
         </select>
       </div>
+
+      {/* Analytics section */}
+      <PipelineAnalytics leads={leads} stageHistory={stageHistory} />
 
       {/* Pipeline table */}
       {loading ? (
