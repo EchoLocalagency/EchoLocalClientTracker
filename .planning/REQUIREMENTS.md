@@ -1,107 +1,94 @@
-# Requirements: Directory Submission & Tracking System (v1.2)
+# Requirements: Client Pipeline Tracker (v1.4)
 
-**Defined:** 2026-03-10
-**Core Value:** Each client gains 20-30 new backlinks from niche directories GHL/Yext misses, tracked and verified automatically.
+**Defined:** 2026-03-12
+**Core Value:** Track every client from first contact to active/churned so nothing falls through the cracks as the client base grows.
 
-## v1.2 Requirements
+## v1.4 Requirements
 
 ### Data Foundation
 
-- [x] **DATA-01**: Client profiles stored in Supabase with canonical NAP, services, descriptions, certifications, and hours -- one source of truth for all form fills
-- [x] **DATA-02**: Directory master list seeded in Supabase from research doc with tier, trade, submission method, CAPTCHA status, DA score, and URL for all 55 directories
-- [x] **DATA-03**: Submission tracking table with UNIQUE(client_id, directory_id) constraint and status workflow: pending / submitted / approved / rejected / verified / skipped
-- [x] **DATA-04**: Pre-existing listing discovery searches each target directory for client business name + phone before any submission to avoid duplicates
-- [x] **DATA-05**: CAPTCHA audit categorizes every directory form URL as no_captcha / simple_captcha / advanced_captcha to determine automation eligibility
+- [ ] **DATA-01**: Admin can create a pipeline lead with contact name, email, phone, trade, source/channel, and notes
+- [ ] **DATA-02**: Every stage transition is logged with timestamp in an append-only history table
+- [ ] **DATA-03**: Each pipeline stage has predefined checklist items that appear for every lead entering that stage
+- [ ] **DATA-04**: Admin can check/uncheck checklist items per lead, with completion stored separately from templates
+- [ ] **DATA-05**: Admin can log communication entries (call, email, text) with notes and timestamp per lead
+- [ ] **DATA-06**: RLS policies restrict pipeline tables to admin users only
 
-### Submission Engine
+### Pipeline UI
 
-- [x] **SUB-01**: Playwright auto-submits client profiles to Tier 3 no-CAPTCHA directories with human-like typing delays and playwright-stealth anti-detection
-- [x] **SUB-02**: Submission rate limiter enforces max 5 submissions per client per day and 8 per client per week as hard caps
-- [x] **SUB-03**: Submission state machine tracks form_loaded / form_filled / post_sent stages so failures after POST never trigger re-submission
-- [x] **SUB-04**: NAP consistency audit runs before each submission to verify form data matches canonical client profile exactly
-- [x] **SUB-05**: Failed submissions store screenshot and error details for debugging, marked as failed (not retried automatically)
+- [ ] **UI-01**: Pipeline page accessible via top-level sidebar link (admin-only)
+- [ ] **UI-02**: Pipeline table view shows all leads with stage, days-in-stage, source, checklist progress, and last contact date
+- [ ] **UI-03**: Table is filterable by stage and sortable by any column
+- [ ] **UI-04**: Admin can move a lead to a different stage via dropdown, which creates a stage history entry
+- [ ] **UI-05**: Stage summary cards at top of page show count per stage
 
-### Verification Loop
+### Lead Detail
 
-- [x] **VER-01**: Brave Search site: query checks each submitted directory for client listing presence after 7 days
-- [x] **VER-02**: Verified listings update submission status to verified with live URL stored
-- [x] **VER-03**: Unverified submissions after 14 days trigger alert to Brian with directory name and client
-- [x] **VER-04**: Submissions unverified after 21 days marked as needs_review for manual investigation
+- [ ] **DETAIL-01**: Clicking a lead opens a slide-out drawer with full profile, stage history timeline, checklist, and comms log
+- [ ] **DETAIL-02**: Admin can edit lead profile fields inline in the drawer
+- [ ] **DETAIL-03**: Admin can add communication log entries from the drawer
+- [ ] **DETAIL-04**: Checklist shows stage-specific items with check/uncheck in the drawer
 
-### Brain Integration
+### Analytics
 
-- [x] **BRAIN-01**: Brain prompt includes directory_summary section showing current coverage per client (X/Y submitted, X/Y verified)
-- [x] **BRAIN-02**: Directory submissions logged to seo_actions table with action_type='directory_submission' for full brain visibility
+- [ ] **ANAL-01**: Conversion funnel showing lead counts progressing through each stage
+- [ ] **ANAL-02**: Average days per stage metric
+- [ ] **ANAL-03**: Source/channel breakdown chart showing where leads come from
+- [ ] **ANAL-04**: Overdue follow-up highlighting for leads with no communication in 7+ days
 
-### Dashboard
+## Previous Milestones (Complete)
 
-- [x] **DASH-01**: Directories tab in dashboard shows per-client directory status grid with color-coded badges (verified=green, submitted=yellow, pending=grey, rejected=red, skipped=muted)
-- [x] **DASH-02**: Tier progress bars show X/Y submitted and X/Y verified per tier per client
-- [x] **DASH-03**: Tier 1/2 directories displayed as actionable recommendation checklist requiring client input (not automated)
-- [x] **DASH-04**: Backlink value score per client calculated as DA-weighted sum of verified directory listings
+- v1.2: Directory Submission & Tracking (20/20 requirements, Phases 8-12)
+- v1.1: Mention Tracking + GEO Dashboard (Phases 5-7)
+- v1.0: GEO Module (26/26 requirements, Phases 1-4)
 
-## v1.1 Requirements (Complete)
+## Future Requirements
 
-All v1.1 requirements shipped. See milestones archive for details.
+### Automation
 
-- INFRA-01, INFRA-02: Brave Search client + usage tracking
-- MENT-01 through MENT-04: Mention tracking + source diversity + competitor AIO
-- DASH-01 through DASH-06 (v1.1): GEO dashboard, citations, budget, snippets
-- DEBT-01 through DEBT-03: Tech debt resolved
-
-## v1.3 Requirements (Deferred)
-
-### Email Verification
-
-- **EMAIL-01**: Confirmation email processing via Gmail API for directories requiring email verification
-- **EMAIL-02**: Automated link-clicking in confirmation emails via Playwright
-
-### Advanced Tracking
-
-- **ADV-01**: Sentiment/review tracking on directory listings
-- **ADV-02**: Competitor directory presence comparison
+- **AUTO-01**: Auto-create pipeline lead from GHL webhook on new contact
+- **AUTO-02**: Auto-log communications from GHL activity feed
+- **AUTO-03**: Email/SMS reminders for overdue follow-ups
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Auto-submit to Tier 1/2 directories | Reputation risk -- requires real business relationships and certifications |
-| CAPTCHA solving services | Adversarial, wasteful on free directory listings |
-| Parallel browser farm | Infrastructure complexity for under 1-hour sequential runtime |
-| Mass submission to DA < 10 directories | Pre-2015 spam pattern, harms rather than helps SEO |
-| Real-time submission status updates | Polling waste; batch verification at 7-day intervals is sufficient |
-| Confirmation email processing | HIGH complexity, defer to v1.3 after seeing which directories require it |
+| Kanban/drag-and-drop board | Table view with dropdowns is faster at 5-15 clients; add later if scale demands |
+| Multi-user access / team CRM | Solo operator; admin-only is sufficient |
+| Deal value / revenue tracking | Brian tracks pipeline progress, not deal amounts |
+| Calendar integration | Overkill for current scale |
+| Email/SMS sending from dashboard | GHL handles communication delivery |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | Phase 8 | Complete |
-| DATA-02 | Phase 8 | Complete |
-| DATA-03 | Phase 8 | Complete |
-| DATA-04 | Phase 8 | Complete |
-| DATA-05 | Phase 8 | Complete |
-| SUB-01 | Phase 9 | Complete |
-| SUB-02 | Phase 9 | Complete |
-| SUB-03 | Phase 9 | Complete |
-| SUB-04 | Phase 9 | Complete |
-| SUB-05 | Phase 9 | Complete |
-| VER-01 | Phase 10 | Complete |
-| VER-02 | Phase 10 | Complete |
-| VER-03 | Phase 10 | Complete |
-| VER-04 | Phase 10 | Complete |
-| BRAIN-01 | Phase 11 | Complete |
-| BRAIN-02 | Phase 11 | Complete |
-| DASH-01 | Phase 12 | Complete |
-| DASH-02 | Phase 12 | Complete |
-| DASH-03 | Phase 12 | Complete |
-| DASH-04 | Phase 12 | Complete |
+| DATA-01 | Pending | Pending |
+| DATA-02 | Pending | Pending |
+| DATA-03 | Pending | Pending |
+| DATA-04 | Pending | Pending |
+| DATA-05 | Pending | Pending |
+| DATA-06 | Pending | Pending |
+| UI-01 | Pending | Pending |
+| UI-02 | Pending | Pending |
+| UI-03 | Pending | Pending |
+| UI-04 | Pending | Pending |
+| UI-05 | Pending | Pending |
+| DETAIL-01 | Pending | Pending |
+| DETAIL-02 | Pending | Pending |
+| DETAIL-03 | Pending | Pending |
+| DETAIL-04 | Pending | Pending |
+| ANAL-01 | Pending | Pending |
+| ANAL-02 | Pending | Pending |
+| ANAL-03 | Pending | Pending |
+| ANAL-04 | Pending | Pending |
 
 **Coverage:**
-- v1.2 requirements: 20 total
-- Mapped to phases: 20
-- Unmapped: 0
+- v1.4 requirements: 19 total
+- Mapped to phases: 0
+- Unmapped: 19
 
 ---
-*Requirements defined: 2026-03-10*
-*Last updated: 2026-03-10 after roadmap creation*
+*Requirements defined: 2026-03-12*
+*Last updated: 2026-03-12 after initial definition*
