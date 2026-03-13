@@ -144,5 +144,5 @@ Phases 14-17 execute sequentially. Phase 17 can begin after Phase 15 (needs stag
 | 13. Full GSC Keyword History | v1.3 | 2/2 | Complete | 2026-03-12 |
 | 14. Database Foundation | v1.4 | 2/2 | Complete | 2026-03-13 |
 | 15. Page Shell + Pipeline Table | 2/2 | Complete    | 2026-03-13 | - |
-| 16. Lead Detail Drawer | v1.4 | 2/2 | Complete | 2026-03-13 |
+| 16. Lead Detail Drawer | v1.4 | Complete    | 2026-03-13 | 2026-03-13 |
 | 17. Pipeline Analytics | v1.4 | 0/? | Not started | - |
