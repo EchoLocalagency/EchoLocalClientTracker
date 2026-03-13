@@ -58,7 +58,7 @@ See: milestones/v1.0-ROADMAP.md for full details
 - [x] **Phase 14: Database Foundation + Sales Engine Integration** - Supabase tables (pipeline_leads, pipeline_stage_history, pipeline_checklist_items, pipeline_comms), TypeScript types, RLS policies, checklist constants, auto-create leads from sales engine "meeting_booked" calls (completed 2026-03-13)
 - [x] **Phase 15: Page Shell + Pipeline Table** - Admin-only /pipeline page, sidebar link, table view with stage/source/days-in-stage columns, filtering, sorting, stage summary cards, stage transition dropdown (completed 2026-03-13)
 - [x] **Phase 16: Lead Detail Drawer** - Slide-out drawer with editable lead profile, stage-specific checklist with check/uncheck, communication log with typed entries (completed 2026-03-13)
-- [ ] **Phase 17: Pipeline Analytics** - Conversion funnel from stage history, average days per stage, source/channel breakdown chart, overdue follow-up highlighting
+- [x] **Phase 17: Pipeline Analytics** - Conversion funnel from stage history, average days per stage, source/channel breakdown chart, overdue follow-up highlighting (completed 2026-03-13)
 
 ## Phase Details
 
@@ -145,4 +145,4 @@ Phases 14-17 execute sequentially. Phase 17 can begin after Phase 15 (needs stag
 | 14. Database Foundation | v1.4 | 2/2 | Complete | 2026-03-13 |
 | 15. Page Shell + Pipeline Table | 2/2 | Complete    | 2026-03-13 | - |
 | 16. Lead Detail Drawer | v1.4 | Complete    | 2026-03-13 | 2026-03-13 |
-| 17. Pipeline Analytics | 1/2 | In Progress|  | - |
+| 17. Pipeline Analytics | 2/2 | Complete   | 2026-03-13 | - |

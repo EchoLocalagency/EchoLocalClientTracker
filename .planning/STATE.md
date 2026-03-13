@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Client Pipeline Tracker
-status: in-progress
-last_updated: "2026-03-13T05:42:00Z"
+status: complete
+last_updated: "2026-03-13T05:45:51Z"
 progress:
   total_phases: 14
-  completed_phases: 11
+  completed_phases: 14
   total_plans: 24
-  completed_plans: 21
+  completed_plans: 24
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-03-12)
 ## Current Position
 
 Phase: 17 of 17 (Pipeline Analytics)
-Plan: 1 of 2
-Status: In Progress
-Last activity: 2026-03-13 -- Completed 17-01 (pipeline analytics with funnel, avg days, source charts)
+Plan: 2 of 2
+Status: Complete
+Last activity: 2026-03-13 -- Completed 17-02 (overdue follow-up highlighting)
 
-Progress: [########░░] 80%
+Progress: [##########] 100%
 
 ## Performance Metrics
 
@@ -48,6 +48,7 @@ Progress: [########░░] 80%
 | Phase 16-lead-detail-drawer P01 | 2min | 2 tasks | 4 files |
 | Phase 16-lead-detail-drawer P02 | 2min | 2 tasks | 3 files |
 | Phase 17-pipeline-analytics P01 | 2min | 1 tasks | 2 files |
+| Phase 17-pipeline-analytics P02 | 1min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,7 @@ Recent:
 - Comms form defaults to outbound direction, timeline sorted descending
 - Funnel derived from stage history (not current stage counts) per research pitfall #6
 - Leads with no history entries included in Lead stage avg days via stage_entered_at fallback
+- isOverdue excludes Churned leads, flags never-contacted as overdue, uses 7-day threshold
 
 ### Pending Todos
 
@@ -89,5 +91,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-13
-Stopped at: Completed 17-01-PLAN.md (pipeline analytics with funnel, avg days, source charts)
+Stopped at: Completed 17-02-PLAN.md (overdue follow-up highlighting) -- v1.4 milestone complete
 Resume file: None
