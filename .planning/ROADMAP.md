@@ -76,8 +76,8 @@ See: milestones/v1.0-ROADMAP.md for full details
   7. If a lead already exists for the same phone number or company name, no duplicate is created
 **Plans**: 2 plans
 Plans:
-- [ ] 14-01-PLAN.md -- SQL migration, TypeScript types, pipeline constants (DATA-01 through DATA-06)
-- [ ] 14-02-PLAN.md -- Python sales engine integration + run migration (INT-01 through INT-03)
+- [x] 14-01-PLAN.md -- SQL migration, TypeScript types, pipeline constants (DATA-01 through DATA-06)
+- [x] 14-02-PLAN.md -- Python sales engine integration + run migration (INT-01 through INT-03)
 
 ### Phase 15: Page Shell + Pipeline Table
 **Goal**: Admin navigates to a dedicated /pipeline page and sees all leads in a sortable, filterable table with stage counts, days-in-stage tracking, and inline stage transitions
@@ -91,8 +91,8 @@ Plans:
   5. Stage summary cards at the top of the page show the count of leads in each of the six stages (Lead, Demo, Proposal, Onboarding, Active, Churned)
 **Plans**: 2 plans
 Plans:
-- [ ] 14-01-PLAN.md -- SQL migration, TypeScript types, pipeline constants (DATA-01 through DATA-06)
-- [ ] 14-02-PLAN.md -- Python sales engine integration + run migration (INT-01 through INT-03)
+- [ ] 15-01-PLAN.md -- Sidebar Pipeline link (admin-only, UI-01)
+- [ ] 15-02-PLAN.md -- Pipeline page with stage cards, sortable/filterable table, stage dropdown (UI-02 through UI-05)
 
 ### Phase 16: Lead Detail Drawer
 **Goal**: Admin clicks any lead to open a slide-out drawer with the complete lead profile, stage-specific checklist, and communication timeline -- the daily workflow hub for managing each prospect
@@ -105,8 +105,8 @@ Plans:
   4. The drawer shows stage-specific checklist items that the admin can check/uncheck, with completion state persisted per-lead in pipeline_checklist_items
 **Plans**: 2 plans
 Plans:
-- [ ] 14-01-PLAN.md -- SQL migration, TypeScript types, pipeline constants (DATA-01 through DATA-06)
-- [ ] 14-02-PLAN.md -- Python sales engine integration + run migration (INT-01 through INT-03)
+- [ ] 16-01-PLAN.md -- [to be planned]
+- [ ] 16-02-PLAN.md -- [to be planned]
 
 ### Phase 17: Pipeline Analytics
 **Goal**: Admin sees pipeline health at a glance -- where leads come from, how fast they move through stages, where they stall, and which prospects need immediate follow-up
@@ -119,8 +119,8 @@ Plans:
   4. Leads with no communication logged in 7+ days are visually highlighted as overdue in the pipeline table, making stalled prospects immediately obvious
 **Plans**: 2 plans
 Plans:
-- [ ] 14-01-PLAN.md -- SQL migration, TypeScript types, pipeline constants (DATA-01 through DATA-06)
-- [ ] 14-02-PLAN.md -- Python sales engine integration + run migration (INT-01 through INT-03)
+- [ ] 17-01-PLAN.md -- [to be planned]
+- [ ] 17-02-PLAN.md -- [to be planned]
 
 ## Progress
 
@@ -142,7 +142,7 @@ Phases 14-17 execute sequentially. Phase 17 can begin after Phase 15 (needs stag
 | 11. Brain Integration | v1.2 | 1/1 | Complete | 2026-03-11 |
 | 12. Directory Dashboard | v1.2 | 1/1 | Complete | 2026-03-11 |
 | 13. Full GSC Keyword History | v1.3 | 2/2 | Complete | 2026-03-12 |
-| 14. Database Foundation | 2/2 | Complete    | 2026-03-13 | - |
-| 15. Page Shell + Pipeline Table | v1.4 | 0/? | Not started | - |
+| 14. Database Foundation | v1.4 | 2/2 | Complete | 2026-03-13 |
+| 15. Page Shell + Pipeline Table | v1.4 | 0/2 | Not started | - |
 | 16. Lead Detail Drawer | v1.4 | 0/? | Not started | - |
 | 17. Pipeline Analytics | v1.4 | 0/? | Not started | - |
