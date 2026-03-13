@@ -9,9 +9,10 @@ interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
   onSignOut?: () => void;
+  isAdmin?: boolean;
 }
 
-export default function Sidebar({ clients, activeClient, onSelectClient, collapsed, onToggle, onSignOut }: SidebarProps) {
+export default function Sidebar({ clients, activeClient, onSelectClient, collapsed, onToggle, onSignOut, isAdmin }: SidebarProps) {
   return (
     <aside
       style={{
@@ -169,6 +170,34 @@ export default function Sidebar({ clients, activeClient, onSelectClient, collaps
 
       {/* Engine links */}
       <div style={{ borderTop: '1px solid var(--border)' }}>
+        {isAdmin && (
+          <a
+            href="/pipeline"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: collapsed ? '12px 0' : '12px 24px',
+              justifyContent: collapsed ? 'center' : 'flex-start',
+              fontSize: 12,
+              fontWeight: 600,
+              fontFamily: 'var(--font-mono)',
+              color: '#A78BFA',
+              textDecoration: 'none',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(167, 139, 250, 0.08)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+            }}
+          >
+            {collapsed ? 'PL' : 'Pipeline \u203A'}
+          </a>
+        )}
         <a
           href="/agents"
           style={{

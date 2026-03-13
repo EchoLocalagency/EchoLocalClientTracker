@@ -540,6 +540,7 @@ export default function Dashboard() {
           collapsed={sidebarCollapsed}
           onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
           onSignOut={async () => { await supabase.auth.signOut(); window.location.href = '/login'; }}
+          isAdmin={isAdmin}
         />
       )}
 
