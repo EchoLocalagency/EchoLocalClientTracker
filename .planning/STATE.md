@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Client Pipeline Tracker
 status: in-progress
-last_updated: "2026-03-13T05:17:50Z"
+last_updated: "2026-03-13T05:22:00Z"
 progress:
   total_phases: 13
-  completed_phases: 10
+  completed_phases: 11
   total_plans: 22
-  completed_plans: 19
+  completed_plans: 20
 ---
 
 # Project State
@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-03-12)
 
 ## Current Position
 
-Phase: 16 of 17 (Lead Detail Drawer)
-Plan: 1 of 2
+Phase: 17 of 17 (Pipeline Analytics)
+Plan: 0 of 2
 Status: In Progress
-Last activity: 2026-03-13 -- Completed 16-01 (lead drawer shell, inline profile edit, stage timeline)
+Last activity: 2026-03-13 -- Completed 16-02 (checklist toggle, comms log, drawer wired into pipeline)
 
-Progress: [#####░░░░░] 50%
+Progress: [######░░░░] 60%
 
 ## Performance Metrics
 
@@ -46,6 +46,7 @@ Progress: [#####░░░░░] 50%
 | Phase 15-page-shell-pipeline-table P01 | 1min | 1 tasks | 2 files |
 | Phase 15-page-shell-pipeline-table P02 | 2min | 1 tasks | 1 files |
 | Phase 16-lead-detail-drawer P01 | 2min | 2 tasks | 4 files |
+| Phase 16-lead-detail-drawer P02 | 2min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -71,6 +72,8 @@ Recent:
 - Portal drawer pattern: backdrop + panel via ReactDOM.createPortal, Escape/click-to-close, body scroll lock
 - Inline edit pattern: click field -> input/textarea, blur/Enter saves, optimistic update with revert on error
 - Drawer wired into pipeline page with row click and stopPropagation on stage select
+- Synthetic IDs for checklist items not yet in DB, replaced on first toggle via upsert
+- Comms form defaults to outbound direction, timeline sorted descending
 
 ### Pending Todos
 
@@ -83,5 +86,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-13
-Stopped at: Completed 16-01-PLAN.md (lead drawer shell, inline profile edit, stage timeline)
+Stopped at: Completed 16-02-PLAN.md (checklist toggle, comms log, drawer integration)
 Resume file: None

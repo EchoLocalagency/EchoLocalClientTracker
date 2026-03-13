@@ -57,7 +57,7 @@ See: milestones/v1.0-ROADMAP.md for full details
 
 - [x] **Phase 14: Database Foundation + Sales Engine Integration** - Supabase tables (pipeline_leads, pipeline_stage_history, pipeline_checklist_items, pipeline_comms), TypeScript types, RLS policies, checklist constants, auto-create leads from sales engine "meeting_booked" calls (completed 2026-03-13)
 - [x] **Phase 15: Page Shell + Pipeline Table** - Admin-only /pipeline page, sidebar link, table view with stage/source/days-in-stage columns, filtering, sorting, stage summary cards, stage transition dropdown (completed 2026-03-13)
-- [ ] **Phase 16: Lead Detail Drawer** - Slide-out drawer with editable lead profile, stage-specific checklist with check/uncheck, communication log with typed entries
+- [x] **Phase 16: Lead Detail Drawer** - Slide-out drawer with editable lead profile, stage-specific checklist with check/uncheck, communication log with typed entries (completed 2026-03-13)
 - [ ] **Phase 17: Pipeline Analytics** - Conversion funnel from stage history, average days per stage, source/channel breakdown chart, overdue follow-up highlighting
 
 ## Phase Details
@@ -105,8 +105,8 @@ Plans:
   4. The drawer shows stage-specific checklist items that the admin can check/uncheck, with completion state persisted per-lead in pipeline_checklist_items
 **Plans**: 2 plans
 Plans:
-- [ ] 16-01-PLAN.md -- Drawer shell, inline-editable profile, stage timeline (DETAIL-01, DETAIL-02)
-- [ ] 16-02-PLAN.md -- Checklist toggle, comms log, wire drawer into pipeline page (DETAIL-03, DETAIL-04)
+- [x] 16-01-PLAN.md -- Drawer shell, inline-editable profile, stage timeline (DETAIL-01, DETAIL-02)
+- [x] 16-02-PLAN.md -- Checklist toggle, comms log, wire drawer into pipeline page (DETAIL-03, DETAIL-04)
 
 ### Phase 17: Pipeline Analytics
 **Goal**: Admin sees pipeline health at a glance -- where leads come from, how fast they move through stages, where they stall, and which prospects need immediate follow-up
@@ -144,5 +144,5 @@ Phases 14-17 execute sequentially. Phase 17 can begin after Phase 15 (needs stag
 | 13. Full GSC Keyword History | v1.3 | 2/2 | Complete | 2026-03-12 |
 | 14. Database Foundation | v1.4 | 2/2 | Complete | 2026-03-13 |
 | 15. Page Shell + Pipeline Table | 2/2 | Complete    | 2026-03-13 | - |
-| 16. Lead Detail Drawer | 1/2 | In Progress|  | - |
+| 16. Lead Detail Drawer | v1.4 | 2/2 | Complete | 2026-03-13 |
 | 17. Pipeline Analytics | v1.4 | 0/? | Not started | - |

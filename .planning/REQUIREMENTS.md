@@ -26,8 +26,8 @@
 
 - [x] **DETAIL-01**: Clicking a lead opens a slide-out drawer with full profile, stage history timeline, checklist, and comms log
 - [x] **DETAIL-02**: Admin can edit lead profile fields inline in the drawer
-- [ ] **DETAIL-03**: Admin can add communication log entries from the drawer
-- [ ] **DETAIL-04**: Checklist shows stage-specific items with check/uncheck in the drawer
+- [x] **DETAIL-03**: Admin can add communication log entries from the drawer
+- [x] **DETAIL-04**: Checklist shows stage-specific items with check/uncheck in the drawer
 
 ### Sales Engine Integration
 
@@ -84,8 +84,8 @@
 | UI-05 | Phase 15 | Complete |
 | DETAIL-01 | Phase 16 | Complete |
 | DETAIL-02 | Phase 16 | Complete |
-| DETAIL-03 | Phase 16 | Pending |
-| DETAIL-04 | Phase 16 | Pending |
+| DETAIL-03 | Phase 16 | Complete |
+| DETAIL-04 | Phase 16 | Complete |
 | ANAL-01 | Phase 17 | Pending |
 | ANAL-02 | Phase 17 | Pending |
 | ANAL-03 | Phase 17 | Pending |
