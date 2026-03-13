@@ -37,9 +37,9 @@
 
 ### Analytics
 
-- [ ] **ANAL-01**: Conversion funnel showing lead counts progressing through each stage
-- [ ] **ANAL-02**: Average days per stage metric
-- [ ] **ANAL-03**: Source/channel breakdown chart showing where leads come from
+- [x] **ANAL-01**: Conversion funnel showing lead counts progressing through each stage
+- [x] **ANAL-02**: Average days per stage metric
+- [x] **ANAL-03**: Source/channel breakdown chart showing where leads come from
 - [ ] **ANAL-04**: Overdue follow-up highlighting for leads with no communication in 7+ days
 
 ## Previous Milestones (Complete)
@@ -86,9 +86,9 @@
 | DETAIL-02 | Phase 16 | Complete |
 | DETAIL-03 | Phase 16 | Complete |
 | DETAIL-04 | Phase 16 | Complete |
-| ANAL-01 | Phase 17 | Pending |
-| ANAL-02 | Phase 17 | Pending |
-| ANAL-03 | Phase 17 | Pending |
+| ANAL-01 | Phase 17 | Complete |
+| ANAL-02 | Phase 17 | Complete |
+| ANAL-03 | Phase 17 | Complete |
 | INT-01 | Phase 14 | Complete |
 | INT-02 | Phase 14 | Complete |
 | INT-03 | Phase 14 | Complete |

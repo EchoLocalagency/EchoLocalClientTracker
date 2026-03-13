@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Client Pipeline Tracker
-status: unknown
-last_updated: "2026-03-13T05:26:14.234Z"
+status: in-progress
+last_updated: "2026-03-13T05:42:00Z"
 progress:
   total_phases: 14
   completed_phases: 11
   total_plans: 24
-  completed_plans: 20
+  completed_plans: 21
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-12)
 
 **Core value:** Track every client from first contact to active/churned so nothing falls through the cracks as the client base grows.
-**Current focus:** Phase 16 -- Lead Detail Drawer
+**Current focus:** Phase 17 -- Pipeline Analytics
 
 ## Current Position
 
 Phase: 17 of 17 (Pipeline Analytics)
-Plan: 0 of 2
+Plan: 1 of 2
 Status: In Progress
-Last activity: 2026-03-13 -- Completed 16-02 (checklist toggle, comms log, drawer wired into pipeline)
+Last activity: 2026-03-13 -- Completed 17-01 (pipeline analytics with funnel, avg days, source charts)
 
-Progress: [######░░░░] 60%
+Progress: [########░░] 80%
 
 ## Performance Metrics
 
@@ -47,6 +47,7 @@ Progress: [######░░░░] 60%
 | Phase 15-page-shell-pipeline-table P02 | 2min | 1 tasks | 1 files |
 | Phase 16-lead-detail-drawer P01 | 2min | 2 tasks | 4 files |
 | Phase 16-lead-detail-drawer P02 | 2min | 2 tasks | 3 files |
+| Phase 17-pipeline-analytics P01 | 2min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,8 @@ Recent:
 - Drawer wired into pipeline page with row click and stopPropagation on stage select
 - Synthetic IDs for checklist items not yet in DB, replaced on first toggle via upsert
 - Comms form defaults to outbound direction, timeline sorted descending
+- Funnel derived from stage history (not current stage counts) per research pitfall #6
+- Leads with no history entries included in Lead stage avg days via stage_entered_at fallback
 
 ### Pending Todos
 
@@ -86,5 +89,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-13
-Stopped at: Completed 16-02-PLAN.md (checklist toggle, comms log, drawer integration)
+Stopped at: Completed 17-01-PLAN.md (pipeline analytics with funnel, avg days, source charts)
 Resume file: None
