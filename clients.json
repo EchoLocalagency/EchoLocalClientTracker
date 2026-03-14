@@ -40,7 +40,8 @@
       "University Heights", "Kensington", "Mission Hills", "Bankers Hill",
       "Golden Hill", "City Heights", "Talmadge", "College Area",
       "La Mesa", "El Cajon", "Santee", "Clairemont",
-      "Pacific Beach", "Ocean Beach", "Point Loma", "Coronado"
+      "Pacific Beach", "Ocean Beach", "Point Loma", "Coronado",
+      "La Jolla", "Del Mar", "Poway", "Escondido", "Miramar", "Chula Vista"
     ],
     "same_as_urls": {
       "gbp": "https://www.google.com/maps?cid=3810638775821930387",
@@ -92,7 +93,10 @@
       "Penasquitos", "Carmel Mountain", "Sabre Springs", "Rancho Penasquitos",
       "Del Sur", "Santaluz", "Black Mountain Ranch", "Mira Mesa",
       "Escondido", "San Marcos", "Vista", "Encinitas",
-      "Carlsbad", "Oceanside", "Fallbrook", "Valley Center"
+      "Carlsbad", "Oceanside", "Fallbrook", "Valley Center",
+      "Del Mar", "Carmel Valley", "Solana Beach", "San Diego",
+      "La Jolla", "Clairemont", "University City", "Tierrasanta",
+      "Mission Valley", "Santee", "El Cajon", "La Mesa", "Lakeside"
     ],
     "same_as_urls": {
       "gbp": "https://www.google.com/maps?cid=5141565760909944493",
@@ -185,6 +189,51 @@
     ],
     "same_as_urls": {
       "gbp": "",
+      "yelp": "",
+      "bbb": "",
+      "facebook": "",
+      "instagram": ""
+    }
+  },
+  {
+    "name": "Tri-City Synthetic Turf",
+    "slug": "tri-city-turf",
+    "ga4_property": "",
+    "ga4_measurement_id": "",
+    "gsc_url": "",
+    "website": "https://tri-cityturf.com/",
+    "github": "https://github.com/EchoLocalagency/TriCityTurf",
+    "phone": "+17606813517",
+    "conversion_events": ["phone_click", "form_submit"],
+    "ghl_token": "",
+    "ghl_location_id": "",
+    "ghl_form_name": "",
+    "gbp_location": "",
+    "website_local_path": "/Users/brianegan/Desktop/Tri City Turf",
+    "drive_folder_id": "1jz_rImhElTWfNNQt34Eh6vhEnTCRYc9Y",
+    "primary_market": "Vista, CA",
+    "target_keywords": [
+      "artificial turf installation vista",
+      "turf installer north county san diego",
+      "putting green installation carlsbad",
+      "pet turf oceanside",
+      "artificial grass escondido",
+      "turf installation san marcos",
+      "synthetic turf encinitas",
+      "turf company north county",
+      "artificial turf del mar",
+      "playground turf vista",
+      "bocce ball court installation",
+      "tri-city turf",
+      "tri city synthetic turf"
+    ],
+    "service_areas": [
+      "Vista", "Oceanside", "Carlsbad", "Encinitas", "Cardiff",
+      "Del Mar", "Rancho Bernardo", "Escondido", "Valley Center",
+      "Fallbrook", "Bonsall", "San Marcos", "La Costa"
+    ],
+    "same_as_urls": {
+      "gbp": "https://www.google.com/maps/search/?api=1&query=Tri-City%20Synthetic%20Turf%20Inc&query_place_id=ChIJJQKl2neK24ARVuG9f3WA7fM",
       "yelp": "",
       "bbb": "",
       "facebook": "",
