@@ -136,16 +136,6 @@ Move on. Do not linger.` },
 12. Confirm meeting details by text immediately after booking.` },
 ];
 
-// ── Demo Flow (from the Bill/SoCal close -- scored 9/10) ──
-
-const DEMO = [
-  { id: 40, title: '1. Lead with their audit', icon: 'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2', content: `Open the screen share showing THEIR Google presence -- GBP, reviews, current rankings. Let the gaps speak for themselves. Do NOT open with a pitch about your system.` },
-  { id: 41, title: '2. Let them talk about pain', icon: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', content: `Bill talked about 4 failed SEO vendors and $1,200 stolen. Brian just listened. Talk ratio on the close was 0.45 -- prospect talked more than half the time. Let them sell themselves on the problem.` },
-  { id: 42, title: '3. Show a client site', icon: 'M18 20V10M12 20V4M6 20v-6', content: `Walk through service pages, area pages, schema, GBP integration. Keep it under 5 minutes. This is proof, not a tour.` },
-  { id: 43, title: '4. Price under their spend', icon: 'M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6', content: `Bill was paying $300/month for a broken setup. Brian offered $200/month for more. No-brainer. Always find out what they're spending first.` },
-  { id: 44, title: '5. Offer ownership', icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', content: `"You keep the site, the content, all of it -- even if you cancel." This neutralized Bill's biggest fear (he'd had a site held hostage before). Ownership contract = trust.` },
-  { id: 45, title: '6. Free first month close', icon: 'M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3', content: `"I do all the work. If it works and you're getting more calls, we talk about a monthly retainer. If it doesn't, you keep the site and we shake hands. Fair?"` },
-];
 
 const A = '#E8FF00';
 
@@ -315,13 +305,6 @@ export default function ScriptPage() {
             ))}
           </div>
 
-          {/* DEMO FLOW */}
-          <SectionLabel label="Demo Flow (from Bill/SoCal close -- 9/10)" />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-            {DEMO.map(item => (
-              <Card key={item.id} item={item} isOpen={openId === item.id} onToggle={() => toggle(item.id)} big />
-            ))}
-          </div>
         </div>
       </div>
     </>
