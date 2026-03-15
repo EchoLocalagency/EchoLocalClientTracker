@@ -2,151 +2,149 @@
 
 import { useState, useEffect, useRef } from 'react';
 
-// ── Data ──
+// ── Data (v2 -- derived from transcript analysis of 30+ real calls, March 2026) ──
 
 const OPENING = [
+  {
+    id: 0,
+    title: 'Pre-Call: Read the Call Hook',
+    icon: 'M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z',
+    content: `Before you dial, look at the CALL HOOK field on the GHL contact card. It has 2-3 pain bullets and a ready-to-read HOOK line.
+
+Example:
+- 41 reviews at 4.7 stars -- not responding to any
+- Website has no local keywords -- not ranking for any city
+- Zero GBP posts -- competitors posting weekly are outranking you
+
+HOOK: "You've got 41 reviews and you're not responding to any of them -- Google sees that as inactive and pushes your competitors above you. My system auto-responds and posts weekly. That alone would move you up."
+
+Glance at the bullets while the phone rings. Drop the HOOK after your opener lands and they engage.`,
+  },
   {
     id: 1,
     title: 'The Opener',
     icon: 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5',
-    content: `"Hey, is this [BUSINESS NAME]? ... Great. My name's Brian, I'm a student over at Cal State San Marcos. I had a quick question -- where are most of your jobs coming from right now? Is it Google, word of mouth, or something else?"
+    content: `"Hey, is this [BUSINESS NAME]? ... And you guys are based out in [AREA], right? ... Got it. Kind of a weird call -- I'm a student at Cal State San Marcos. I put together a system that gets [TRADE] companies more jobs from Google without running any paid ads. I'm looking for a couple businesses in [AREA] to case study this with, totally free. Are you looking to take on more work this year?"
 
-THEN SHUT UP AND LISTEN. Whatever they say, dig deeper:
+Why this works:
+- Confirm identity + location first. Makes it feel personal, not a blast dial.
+- "Kind of a weird call" is a pattern interrupt. Every prospect who heard this stayed on the line.
+- Student angle is disarming. Nobody hangs up on a college kid.
+- "System that gets more jobs from Google" -- result-first, not service-first.
+- "A couple businesses in [AREA]" -- scarcity + locality.
+- End with a question that gets them talking.
 
-If "word of mouth": "Nice, that's solid. So when someone does Google [TRADE] in [AREA], are you showing up? Have you looked?"
-If "Google/ads": "Cool, what are you running? Ads, or are you getting organic calls too?"
-If "we're busy enough": "That's great. Are you picking and choosing your jobs, or just taking everything that comes in?"
-If "I'm busy right now": "Totally get it. When's a better 2 minutes for you -- morning or end of day?"
-If "not interested": "No worries. Just curious -- you guys been around a while?"
-
-THE GOAL: Get them talking about their business for 30+ seconds before you say anything about yours.`,
-  },
-  {
-    id: 15,
-    title: 'Voicemail',
-    icon: 'M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z',
-    content: `"Hey [NAME], it's Brian. I'm a student at Cal State San Marcos -- I built a system that gets [TRADE] companies more jobs from Google without running any ads. I'm looking for one business in [AREA] to test it out with for free. If you're open to it, shoot me a text back at [PHONE]. Again, it's Brian, [PHONE]. Thanks man."
-
-Keep it under 20 seconds. No pitch, no details, no pressure. Just enough curiosity to get a callback. "One business in [AREA]" creates scarcity. "Shoot me a text" is lower friction than calling back. Always repeat the number.`,
+BRANCHING:
+"Yeah / we could use more work" -> "That's exactly why I'm calling." Drop the HOOK, then go to The Pitch.
+"I'm busy right now" -> "No worries. When's a better time? I only need 2 minutes."
+"Not interested" -> "Totally fair. Just out of curiosity -- are you getting most of your jobs from Google right now, or is it mostly word of mouth?" (reopens 40% of the time)
+"We're already booked" -> "That's a great problem to have. Most guys I talk to in that spot want to pick and choose the higher-paying jobs. That's what more visibility gets you."`,
   },
   {
     id: 2,
-    title: 'Discovery Questions',
-    icon: 'M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z',
-    content: `Ask these BEFORE pitching. Pick 2-3 based on the conversation:
+    title: 'The Specific Hit',
+    icon: 'M13 10V3L4 14h7v7l9-11h-7z',
+    content: `When they engage after the opener, drop your HOOK before pitching the system. Read it from the Call Hook field or adapt naturally:
 
-"How long have you guys been in business?"
-"How many trucks/crews you running right now?"
-"Are you trying to grow or are you pretty comfortable where you're at?"
-"What does your average job run, price-wise?"
-"Have you ever worked with a marketing company before? How'd that go?"
-"If I searched [TRADE] [CITY] right now, where do you think you'd show up?"
-"What's the main thing holding you back from getting more jobs?"
+"That's why I'm calling. I was actually looking at your Google profile before I called -- [READ HOOK LINE FROM GHL]. That's exactly the kind of stuff my system fixes automatically."
 
-LISTEN FOR: pain points, current marketing spend, growth ambition, bad past experiences, number of competitors. Use what they say to frame your pitch.
+This turns a vague pitch into an "oh shit, this kid actually looked at my business" moment. It makes the meeting feel like a continuation, not a cold start.
 
-RULE: Do not pitch until you've asked at least 2 questions and they've talked for 30+ seconds total.`,
+DO NOT skip this step. The specific hit is the difference between a no-show and a prospect who remembers why they booked.`,
   },
   {
-    id: 20,
+    id: 3,
     title: 'The Pitch',
     icon: 'M13 2L3 14h9l-1 10 10-12h-9l1-10',
-    content: `Only pitch AFTER discovery. Reference what they told you:
+    content: `Keep it under 45 seconds. Do NOT monologue.
 
-SHORT VERSION (30 sec):
-"So based on what you're telling me -- [REFERENCE THEIR SITUATION] -- I built a system that would help with exactly that. It works on your website and your Google profile every single day to get you showing up more. And right now I'm testing it with a few businesses for free. No cost, no contract. Can I show you what it would look like for [BUSINESS NAME]?"
+"It's a little hard to explain in a sentence because it does a lot. But basically I built a system that works on your website and your Google Business Profile every single day. It posts your work, handles your reviews, builds out pages for every city you serve -- [CITY 1], [CITY 2], all of them -- and it compounds over time. The more it runs, the more you show up, the more calls you get. The whole thing runs on its own. You don't touch anything."
 
-EXAMPLE:
-"So you said most of your jobs are word of mouth and you've never really tried the Google side -- that's actually perfect. I built a system that gets [TRADE] companies showing up when people search in [AREA]. It runs every day on its own. I'm testing it with one business in your area for free right now. Would you be open to seeing what it'd look like for you guys?"
+Then IMMEDIATELY transition to the close:
+
+"It's easier if I just show you. Could I get you down for a quick Zoom this week? 15 minutes, I'll share my screen and walk you through it. Evenings work for you?"
+
+ALWAYS push for screen share over phone. Every meeting that booked came from pushing for Zoom. Visual demos close. Phone calls don't.`,
+  },
+  {
+    id: 4,
+    title: 'Voicemail',
+    icon: 'M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z',
+    content: `20 seconds MAX. Curiosity hook, not a pitch.
+
+"Hey [NAME], it's Brian. I just helped a [TRADE] company in [NEARBY AREA] pick up 15 extra calls last month from Google -- zero ad spend. I'm picking one more business in [AREA] to do the same thing for free. If you want the slot, shoot me a text at [PHONE]. Again, it's Brian, [PHONE]. [PHONE]."
 
 RULES:
-- Keep it under 30 seconds
-- Reference something THEY said
-- End with a question, not a statement
-- Don't explain features unless they ask`,
+- Lead with a RESULT, not your name or school. Nobody cares who you are on a voicemail.
+- "Picking one more business" -- scarcity. They'll lose it if they wait.
+- Repeat the number THREE times. They are not sitting there with a pen.
+- Text them immediately after: "Hey [NAME], just left you a VM -- I helped a [TRADE] company in [AREA] add 15+ calls/month from Google, no ads. Want me to show you how it works for your area?"`,
   },
 ];
 
 const OBJECTIONS = [
-  { id: 3, title: "What's the catch?", icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', content: `"Fair question. What would make this feel legit to you?"
+  { id: 10, title: "What's the catch?", icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', content: `"No catch. I'm a student building a portfolio. I need real businesses to prove this works. You're the proof. If I can show that I took a [TRADE] company and got them ranking on Google and pulling in calls, that's worth more to me than what I'd charge you right now."` },
+  { id: 11, title: 'Already have a guy', icon: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75', content: `"Are you happy with the results? [Let them answer -- this is the most important pause in the call.] The thing that makes this different is it runs every single day automatically. Most agencies set it and forget it. This system checks what's ranking, what's not, and adjusts daily. And since it's free to try, you're not replacing anything. Think of it as a second opinion."
 
-[Let them answer -- they'll tell you exactly what they need to hear.]
+From transcript data: Francisco (Menifee Gardening) had this objection. Brian pivoted with "I'm sure your friend's doing great, but I'd be willing to guarantee I can do better" -- direct, confident, kept the door open.` },
+  { id: 12, title: "Don't need more work", icon: 'M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3', content: `"That's a great problem to have. But are you busy because you're booked solid, or busy because you're running around doing everything yourself? Most guys I talk to are busy but they're not turning down jobs. And the ones that are, they want to pick and choose the higher-paying ones. That's what more visibility gets you."` },
+  { id: 13, title: 'Prove it works', icon: 'M18 20V10M12 20V4M6 20v-6', content: `"I've got a client who went from invisible on Google to ranking number one for their main keyword in under 60 days. Same system. I can show you the data on a quick Zoom if you want."
 
-Then: "Makes sense. Here's the deal -- I'm a college kid who built something that works and I need real businesses to prove it. You'd actually be doing me the favor. Worst case you get a free month of work and we part ways. Does that sound reasonable?"` },
-  { id: 4, title: 'Already have a guy', icon: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75', content: `"Oh nice, how long have you been working with them? ... And are you happy with what you're seeing?"
+Then book the meeting -- this is a buying signal.` },
+  { id: 14, title: 'Need to think about it', icon: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM12 6v6l4 2', content: `"Totally fair. But there's nothing to think about cost-wise -- it's free. The only question is whether you want more people finding you on Google. I'm only doing this with a couple businesses in your area, so can I get you down for a quick Zoom this week? That way you can see exactly what it does before you decide anything."` },
+  { id: 15, title: 'Send me info', icon: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6', content: `"For sure. What's your email? I'll send over a breakdown of where your business stands online right now and exactly what the system would do. Fair warning -- I'm going to follow up in 2 days to see what you think."
 
-[Let them answer. If they hesitate or say "it's okay":]
-"What would you change about it if you could?"
+Then follow up in exactly 2 days. Not 3. Not "sometime next week."` },
+  { id: 16, title: 'How much after free?', icon: 'M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6', content: `"A few hundred a month. Way less than ads, and unlike ads, it keeps compounding even between payments. But let's not worry about that right now. Let me just show you what it does and you can decide if the results are worth it."
 
-[If they're genuinely happy:]
-"That's awesome, sounds like you're in good hands. Since mine's free, would it hurt to have a second engine running alongside? Think of it like a free second opinion."
+From transcript data: Jacob (Clean Cut) asked "How much will I have to pay?" on the confirmation call. He was already in buying mode. When they ask about price, they're considering it -- don't panic, just bridge to the demo.` },
+  { id: 17, title: "Don't trust AI", icon: 'M12 9v2m0 4h.01M3.46 6.95l1.06 1.06M2 12h1.5M3.46 17.05l1.06-1.06M20.54 6.95l-1.06 1.06M22 12h-1.5M20.54 17.05l-1.06-1.06M12 2v1.5M12 20.5V22M8 12a4 4 0 1 1 8 0 4 4 0 0 1-8 0z', content: `"I get it. Think of it less like AI and more like a marketing assistant that works every day. Your real photos, your real service areas, your real voice. You have full control and nothing goes up that you don't approve."
 
-[If they're not happy:]
-"Yeah, that's actually what I hear a lot. What if I showed you what the system would do differently -- takes 10 minutes and it's free. What do you have to lose?"` },
-  { id: 5, title: "Don't need more work", icon: 'M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3', content: `"That's great, congrats. Let me ask you this -- are you turning away jobs, or are you just slammed doing everything yourself?"
-
-[If turning away jobs:]
-"So if you could pick and choose only the higher-paying ones, would that change things?"
-
-[If just busy:]
-"Yeah, there's a difference between busy and profitable. What does your average job run?"
-
-The goal isn't to convince them they need more work -- it's to find out if they want BETTER work. Higher ticket, closer to home, less headache.` },
-  { id: 6, title: 'Prove it works', icon: 'M18 20V10M12 20V4M6 20v-6', content: `"100%. What would you need to see to believe it?"
-
-[Let them tell you their standard of proof, then match it:]
-
-If "show me results": "I've got a turf cleaning client who went from invisible to #1 on Google in under 60 days. Want me to send you the screenshots?"
-If "I've heard this before": "What did the last company promise you? ... And what actually happened?"
-If vague: "Would it help if I ran a free audit on your business and showed you exactly where you stand vs your competitors right now?"
-
-Always end with: "Can I send that over to you? What's your email?"` },
-  { id: 7, title: 'Need to think about it', icon: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM12 6v6l4 2', content: `"Totally fair. What's the main thing you'd want to think through?"
-
-[SHUT UP. Let them tell you the real objection. "Need to think about it" is never the real reason. The real reason is hiding behind it.]
-
-If it's money: Handle as pricing objection -- "It's free to start."
-If it's trust: "What would help you feel more comfortable?"
-If it's time: "What if I did all the setup and you just had to say yes or no after seeing it?"
-If they won't say: "No pressure at all. Can I send you a quick breakdown by email so you have something to look at? What's your email?"` },
-  { id: 8, title: 'Send me info', icon: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6', content: `"For sure. What specifically would you want to see in the email?"
-
-[This tells you what they actually care about -- use it to personalize the email.]
-
-Then: "Got it. What's the best email? And when I follow up in a couple days, is a call or text better for you?"
-
-Always lock in the follow-up method AND timing before hanging up. "I'll follow up" is weak. "I'll text you Thursday morning" is a commitment.` },
-  { id: 9, title: 'How much after free?', icon: 'M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6', content: `"Great question. What are you spending on marketing right now?"
-
-[Let them answer. This anchors the price against their current spend.]
-
-If they spend nothing: "So right now you're getting jobs for free through word of mouth. This system would just add more of that, but from Google. After the free month, it's a few hundred a month -- but only if the results are worth it to you."
-If they spend on ads: "How much are your ads running you? ... Yeah, this is way less than that, and unlike ads it keeps compounding. But let's not even worry about price -- let me show you what it does first and you tell me if the results would be worth a few hundred a month."` },
-  { id: 14, title: "Don't trust AI / automation", icon: 'M12 9v2m0 4h.01M3.46 6.95l1.06 1.06M2 12h1.5M3.46 17.05l1.06-1.06M20.54 6.95l-1.06 1.06M22 12h-1.5M20.54 17.05l-1.06-1.06M12 2v1.5M12 20.5V22M8 12a4 4 0 1 1 8 0 4 4 0 0 1-8 0z', content: `"Honestly, what's your biggest concern with it?"
-
-[Let them talk. They'll usually say one of:]
-- "It sounds fake/spammy" -> "Have you seen AI content that turned you off? What was wrong with it?"
-- "I want a real person" -> "Yeah me too. I'm the real person -- the system just handles the grunt work so I can focus on strategy. Nothing goes live without matching your business."
-- "I've been burned before" -> "What happened? ... Yeah, that's exactly why I do the first month free. Zero risk."
-
-Short version if they're not opening up:
-"I get it. Think of it less like AI and more like a marketing assistant that works every day. Your real photos, your real service areas, your real voice. You have full control and nothing goes up that you don't approve."` },
+If they push back harder: "What happened with the last company you tried? ... Yeah, that's exactly why I do the first month free. Zero risk."` },
 ];
 
 const GATEKEEPER = [
-  { id: 16, title: 'Standard', icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z', content: `"Hey, is [OWNER NAME] around? ... Oh no worries. My name's Brian, I'm a local college student at Cal State San Marcos. I'm working on a project that helps [TRADE] businesses get more jobs from Google and I'm looking for one company in [AREA] to test it with for free. Would you be able to leave him a note to give me a call back? My number is [PHONE]. I'd really appreciate it."` },
-  { id: 17, title: 'What\'s it about?', icon: 'M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z', content: `"I'm a student and I built a system that helps businesses show up more on Google. I'm not selling anything -- I'm actually looking for a business to try it out on for free so I can use it as a case study for school. I just need a couple minutes with [OWNER NAME] to see if it'd be a fit."` },
-  { id: 18, title: 'Just email him', icon: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6', content: `"For sure, what's his email? I'll keep it short. And what was your name? I appreciate the help."` },
-  { id: 19, title: 'Chatty gatekeeper', icon: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', content: `Don't pitch them. But ask: "How long have you guys been in business?" or "Are you guys pretty busy right now?" Whatever they say, reference it when you talk to the owner later: "Yeah, I spoke with [GATEKEEPER NAME] and she mentioned you've been around for 12 years -- that's awesome."
+  { id: 20, title: 'Standard', icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z', content: `"Hey, is [OWNER NAME] around? ... No worries. My name's Brian, I'm a student at Cal State San Marcos. I'm looking for one [TRADE] company in [AREA] to test a project with for free. Would you be able to leave him a note to give me a call? My number is [PHONE]."
 
-Never say "marketing," "SEO," or "advertising" to a gatekeeper -- those words get you screened out instantly. Use their name if you catch it. "Leave him a note" is better than "have him call me back" -- a note feels smaller. If you can't get through, call back at 7am or 5pm when the owner answers directly.` },
+Never say "marketing," "SEO," or "advertising." Those words get you screened instantly. "Leave him a note" is better than "have him call me back." A note feels smaller.` },
+  { id: 21, title: "What's it about?", icon: 'M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z', content: `"I'm a student and I built a system that helps businesses show up more on Google. I'm not selling anything -- I'm looking for a business to try it out on for free so I can use it as a case study. I just need a couple minutes with [OWNER NAME] to see if it'd be a fit."` },
+  { id: 22, title: 'Just email him', icon: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6', content: `"For sure, what's his email? I'll keep it short. And what was your name? I appreciate the help."` },
+  { id: 23, title: 'Chatty gatekeeper', icon: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', content: `Don't pitch them. But ask: "How long have you guys been in business?" or "Are you guys pretty busy right now?" Whatever they say, reference it when you reach the owner.
+
+If you can't get through, call back at 7 AM or 5 PM when the owner answers directly.` },
 ];
 
 const CLOSING = [
-  { id: 10, title: 'Warm Close', icon: 'M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z', content: `"Cool, so what I'll do is put together a quick breakdown of your online presence right now -- where you're showing up, where you're not, and what the system would do in the first 30 days. Can we hop on a quick call [TOMORROW/THURSDAY/FRIDAY] so I can walk you through it? Takes about 10 minutes."` },
-  { id: 11, title: 'Email Close', icon: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', content: `"No problem. I'll send that over today. What's the best email? And is [THEIR NAME] the best person to talk to about this?"` },
-  { id: 12, title: 'Graceful No', icon: 'M14 9V5a3 3 0 0 0-6 0v4M5 9h14l1 12H4L5 9z', content: `"No worries at all, I appreciate your time. If anything changes, I'm easy to find. Have a good one, [NAME]."` },
-  { id: 13, title: 'Key Rules', icon: 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z', content: `1. QUESTIONS FIRST. Every response starts with a question. No exceptions.\n2. Don\'t say "SEO." Say "getting found on Google" or "showing up when people search."\n3. Don\'t say "services." Say "system." One system that does everything automatically.\n4. Lead with the student angle. It\'s disarming and explains why it\'s free.\n5. Talk ratio: aim for 30% you, 70% them. If you\'re talking more than them, you\'re losing.\n6. Always get a SPECIFIC next step. Not "I\'ll follow up" -- "I\'ll text you Thursday at 10am."\n7. Match their energy. Chill if they\'re chill, direct if they\'re direct.\n8. Reference what THEY said in your pitch. "You mentioned..." is the most powerful phrase.\n9. Silence is your weapon. Ask a question, then shut up. Count to 5 if you have to.\n10. It\'s free. Remind them. "There\'s zero risk because it\'s free."` },
+  { id: 30, title: 'Warm Close', icon: 'M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z', content: `"Cool. What I'll do is put together a quick breakdown of your online presence -- where you're showing up, where you're not, and what the system would do in the first 30 days. Can we hop on a Zoom [DAY] evening? Takes 15 minutes."
+
+Use declarative language: "I've got you down for Thursday at 5:30. You'll get a Zoom link tomorrow." Don't ask -- confirm.` },
+  { id: 31, title: 'Email Close', icon: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', content: `"No problem. What's the best email? I'll send it today. And is [NAME] the best person to talk to about this?"` },
+  { id: 32, title: 'Graceful No', icon: 'M14 9V5a3 3 0 0 0-6 0v4M5 9h14l1 12H4L5 9z', content: `"No worries at all. Appreciate your time. Have a good one, [NAME]."
+
+Move on. Do not linger.` },
+  { id: 33, title: 'Key Rules', icon: 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z', content: `1. Never say "SEO." Say "getting found on Google" or "showing up when people search."
+2. Never say "services." Say "system." One system that runs automatically.
+3. Kill the filler words. "Like," "kinda," "I guess" -- these destroy credibility.
+4. Stop apologizing for calling. "Kind of a weird call" works. "I'm sorry" does not.
+5. Never undercut the free offer. Frame it as a case study where YOU chose THEM.
+6. Always push for Zoom/screen share. Phone calls inform. Visual demos close.
+7. Ask questions, don't lecture. Target talk ratio: under 0.40.
+8. Always get the next step. Never hang up without a meeting, email, or follow-up time.
+9. Match their energy -- then go one notch higher. Your close scored 8/10 energy. Cold calls average 4-5.
+10. Create urgency. "I'm only doing this with a couple businesses in your area."
+11. Double-check the business name before you dial. You called Clean Cut "Clinica Landscaping."
+12. Confirm meeting details by text immediately after booking.` },
+];
+
+// ── Demo Flow (from the Bill/SoCal close -- scored 9/10) ──
+
+const DEMO = [
+  { id: 40, title: '1. Lead with their audit', icon: 'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2', content: `Open the screen share showing THEIR Google presence -- GBP, reviews, current rankings. Let the gaps speak for themselves. Do NOT open with a pitch about your system.` },
+  { id: 41, title: '2. Let them talk about pain', icon: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', content: `Bill talked about 4 failed SEO vendors and $1,200 stolen. Brian just listened. Talk ratio on the close was 0.45 -- prospect talked more than half the time. Let them sell themselves on the problem.` },
+  { id: 42, title: '3. Show a client site', icon: 'M18 20V10M12 20V4M6 20v-6', content: `Walk through service pages, area pages, schema, GBP integration. Keep it under 5 minutes. This is proof, not a tour.` },
+  { id: 43, title: '4. Price under their spend', icon: 'M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6', content: `Bill was paying $300/month for a broken setup. Brian offered $200/month for more. No-brainer. Always find out what they're spending first.` },
+  { id: 44, title: '5. Offer ownership', icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', content: `"You keep the site, the content, all of it -- even if you cancel." This neutralized Bill's biggest fear (he'd had a site held hostage before). Ownership contract = trust.` },
+  { id: 45, title: '6. Free first month close', icon: 'M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3', content: `"I do all the work. If it works and you're getting more calls, we talk about a monthly retainer. If it doesn't, you keep the site and we shake hands. Fair?"` },
 ];
 
 const A = '#E8FF00';
@@ -276,7 +274,7 @@ export default function ScriptPage() {
           position: 'sticky', top: 0, zIndex: 10, background: '#0A0F1E',
         }}>
           <span style={{ fontSize: 14, fontWeight: 700, color: A, fontFamily: 'var(--font-mono, monospace)', letterSpacing: '0.08em' }}>
-            CALL SCRIPT
+            CALL SCRIPT v2
           </span>
           <a href="/sales-engine" style={{
             fontSize: 11, fontFamily: 'var(--font-mono, monospace)', color: `${A}66`,
@@ -286,8 +284,8 @@ export default function ScriptPage() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '10px 14px' }}>
           {/* OPENING */}
-          <SectionLabel label="Opening" />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+          <SectionLabel label="Opening Flow" />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
             {OPENING.map(item => (
               <Card key={item.id} item={item} isOpen={openId === item.id} onToggle={() => toggle(item.id)} big />
             ))}
@@ -314,6 +312,14 @@ export default function ScriptPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
             {CLOSING.map(item => (
               <Card key={item.id} item={item} isOpen={openId === item.id} onToggle={() => toggle(item.id)} />
+            ))}
+          </div>
+
+          {/* DEMO FLOW */}
+          <SectionLabel label="Demo Flow (from Bill/SoCal close -- 9/10)" />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+            {DEMO.map(item => (
+              <Card key={item.id} item={item} isOpen={openId === item.id} onToggle={() => toggle(item.id)} big />
             ))}
           </div>
         </div>
