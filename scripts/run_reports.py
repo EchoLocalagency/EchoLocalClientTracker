@@ -117,28 +117,11 @@ def pull_ga4(creds, property_id, start, end):
     ))
     phone_clicks = int(resp_phone.rows[0].metric_values[0].value) if resp_phone.rows else 0
 
-    # Form submit events
-    resp_form = client.run_report(RunReportRequest(
-        property=property_id,
-        date_ranges=[DateRange(start_date=str(start), end_date=str(end))],
-        metrics=[Metric(name="eventCount")],
-        dimension_filter=FilterExpression(
-            filter=Filter(
-                field_name="eventName",
-                string_filter=Filter.StringFilter(
-                    value="form_submit",
-                    match_type=Filter.StringFilter.MatchType.EXACT
-                )
-            )
-        )
-    ))
-    form_submits = int(resp_form.rows[0].metric_values[0].value) if resp_form.rows else 0
-
     return {
         "sessions": sessions,
         "organic": organic,
         "phone_clicks": phone_clicks,
-        "form_submits": form_submits,
+        "form_submits": 0,
     }
 
 # ── GSC ─────────────────────────────────────────────────────────────────
@@ -475,7 +458,7 @@ def run_report(client, creds, today):
         }
         print(f"    Sessions: {ga4_current['sessions']} (last week: {ga4_prev['sessions']})")
         print(f"    Organic:  {ga4_current['organic']} (last week: {ga4_prev['organic']})")
-        print(f"    Phone clicks: {ga4_current['phone_clicks']} | Form submits: {ga4_current['form_submits']}")
+        print(f"    Phone clicks: {ga4_current['phone_clicks']}")
     except Exception as e:
         print(f"    GA4 ERROR (all retries failed): {e}")
         report["error_flags"].append("ga4_failed")
@@ -661,7 +644,7 @@ def run_report(client, creds, today):
             report["flags"].append(f"Search impressions dropped {abs(imp_delta):.0f}%")
 
     if ga["sessions"] > 0:
-        total_conversions = ga["phone_clicks"] + ga["form_submits"]
+        total_conversions = ga["phone_clicks"] + report.get("ghl_form_submits", 0)
         conv_rate = (total_conversions / ga["sessions"]) * 100
         report["conversion_rate"] = round(conv_rate, 1)
     else:
@@ -854,7 +837,7 @@ def print_summary(reports):
         print(f"  Impressions:   {gsc['impressions']:>6}  ({delta_str(gsc['impressions'], gsc['impressions_prev'])})")
         print(f"  Clicks:        {gsc['clicks']:>6}  ({delta_str(gsc['clicks'], gsc['clicks_prev'])})")
         print(f"  Avg Position:  {gsc['avg_position']:>6}")
-        print(f"  Phone Clicks:  {ga['phone_clicks']:>6}  | Form Submits: {ga['form_submits']}")
+        print(f"  Phone Clicks:  {ga['phone_clicks']:>6}  | Form Submits (GHL): {r.get('ghl_form_submits', 0)}")
         print(f"  Conv Rate:     {r.get('conversion_rate', 0):>5.1f}%")
         print(f"  Mobile Score:  {ps['mobile_score']:>6}  | Desktop: {ps['desktop_score']}")
         print(f"  LCP (mobile):  {ps['lcp_mobile']:>10}")

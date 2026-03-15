@@ -497,7 +497,8 @@ export default function Dashboard() {
     loadDirectorySubmissions();
   }, [activeClient]);
 
-  const hasFormTracking = reports.some(r => r.ga4_form_submits != null && r.ga4_form_submits > 0);
+  // GA4 form_submit is false positives from GHL iframe -- real form tracking uses GHL webhook
+  const hasFormTracking = false;
   const sidebarWidth = isAdmin ? (sidebarCollapsed ? 68 : 260) : 0;
 
   if (authLoading) {
