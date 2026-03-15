@@ -241,6 +241,53 @@
     }
   },
   {
+    "name": "SoCal Artificial Turfs",
+    "slug": "socal-artificial-turfs",
+    "ga4_property": "",
+    "ga4_measurement_id": "G-S1RBND2YNV",
+    "gsc_url": "https://socalartificialturfs.com/",
+    "website": "https://socalartificialturfs.com/",
+    "github": "https://github.com/EchoLocalagency/socal-artificial-turfs",
+    "phone": "+19519614248",
+    "conversion_events": ["phone_click"],
+    "ghl_token": "",
+    "ghl_location_id": "",
+    "ghl_form_name": "",
+    "gbp_location": "",
+    "website_local_path": "/Users/brianegan/Desktop/SoCal Artificial Turfs",
+    "drive_folder_id": "",
+    "primary_market": "San Jacinto, CA",
+    "target_keywords": [
+      "artificial turf san jacinto",
+      "artificial turf installation san jacinto",
+      "artificial grass san jacinto",
+      "turf installation inland empire",
+      "artificial turf hemet",
+      "artificial turf menifee",
+      "artificial turf temecula",
+      "artificial turf murrieta",
+      "artificial turf beaumont",
+      "putting green installation san jacinto",
+      "paver installation san jacinto",
+      "pergola installation inland empire",
+      "turf installation riverside county",
+      "socal artificial turfs"
+    ],
+    "service_areas": [
+      "San Jacinto", "Hemet", "Menifee", "Temecula", "Murrieta",
+      "Beaumont", "Banning", "Lake Elsinore", "Winchester", "Wildomar",
+      "Riverside", "Corona", "Palm Springs", "Palm Desert",
+      "San Bernardino", "Moreno Valley", "Perris"
+    ],
+    "same_as_urls": {
+      "gbp": "",
+      "yelp": "",
+      "bbb": "",
+      "facebook": "",
+      "instagram": ""
+    }
+  },
+  {
     "name": "Primal Plates",
     "slug": "primal-plates",
     "ga4_property": "properties/525738042",
