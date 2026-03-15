@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useRef } from 'react';
 
-// ── Data (v2 -- derived from transcript analysis of 30+ real calls, March 2026) ──
+// ── Data (v2) ──
 
 const OPENING = [
   {
     id: 0,
-    title: 'Pre-Call: Read the Call Hook',
-    icon: 'M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z',
+    title: 'Pre-Call: Call Hook',
+    icon: 'M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM2 12C3.7 7.9 7.5 5 12 5s8.3 2.9 9.5 7c-1.2 4-5 7-9.5 7s-8.3-2.9-9.5-7z',
     content: `Look at the CALL HOOK field on the GHL contact card before dialing. Read the HOOK line after your opener lands.
 
 Example:
@@ -16,7 +16,7 @@ Example:
 - Website has no local keywords -- not ranking for any city
 - Zero GBP posts -- competitors posting weekly
 
-HOOK: "You've got 41 reviews and you're not responding to any of them -- Google sees that as inactive and pushes your competitors above you. My system auto-responds and posts weekly. That alone would move you up."`,
+HOOK: "You've got 41 reviews and you're not responding to any of them -- Google sees that as inactive. My system auto-responds and posts weekly. That alone would move you up."`,
   },
   {
     id: 1,
@@ -30,75 +30,70 @@ If not interested: "Totally fair. Just out of curiosity -- are you getting most 
 If booked: "That's a great problem to have. Most guys in that spot want to pick and choose the higher-paying jobs. That's what more visibility gets you."`,
   },
   {
-    id: 2,
-    title: 'The Specific Hit',
-    icon: 'M13 10V3L4 14h7v7l9-11h-7z',
-    content: `"That's why I'm calling. I was actually looking at your Google profile before I called -- [READ HOOK LINE FROM GHL]. That's exactly the kind of stuff my system fixes automatically."`,
-  },
-  {
-    id: 3,
-    title: 'The Pitch',
-    icon: 'M13 2L3 14h9l-1 10 10-12h-9l1-10',
-    content: `"It's a little hard to explain in a sentence because it does a lot. But basically I built a system that works on your website and your Google Business Profile every single day. It posts your work, handles your reviews, builds out pages for every city you serve -- [CITY 1], [CITY 2], all of them -- and it compounds over time. The more it runs, the more you show up, the more calls you get. The whole thing runs on its own. You don't touch anything."
-
-"It's easier if I just show you. Could I get you down for a quick Zoom this week? 15 minutes, I'll share my screen and walk you through it. Evenings work for you?"`,
-  },
-  {
-    id: 4,
+    id: 15,
     title: 'Voicemail',
     icon: 'M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z',
     content: `"Hey [NAME], it's Brian. I just helped a [TRADE] company in [NEARBY AREA] pick up 15 extra calls last month from Google -- zero ad spend. I'm picking one more business in [AREA] to do the same thing for free. If you want the slot, shoot me a text at [PHONE]. Again, it's Brian, [PHONE]. [PHONE]."
 
 Follow-up text immediately after: "Hey [NAME], just left you a VM -- I helped a [TRADE] company in [AREA] add 15+ calls/month from Google, no ads. Want me to show you how it works for your area?"`,
   },
+  {
+    id: 2,
+    title: 'The Specific Hit',
+    icon: 'M13 2L3 14h9l-1 10 10-12h-9l1-10',
+    content: `"That's why I'm calling. I was actually looking at your Google profile before I called -- [READ HOOK LINE FROM GHL]. That's exactly the kind of stuff my system fixes automatically."`,
+  },
+  {
+    id: 20,
+    title: 'The Pitch',
+    icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z',
+    content: `"It's a little hard to explain in a sentence because it does a lot. But basically I built a system that works on your website and your Google Business Profile every single day. It posts your work, handles your reviews, builds out pages for every city you serve -- [CITY 1], [CITY 2], all of them -- and it compounds over time. The more it runs, the more you show up, the more calls you get. The whole thing runs on its own. You don't touch anything."
+
+"It's easier if I just show you. Could I get you down for a quick Zoom this week? 15 minutes, I'll share my screen and walk you through it. Evenings work for you?"`,
+  },
 ];
 
 const OBJECTIONS = [
-  { id: 10, title: "What's the catch?", icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', content: `"No catch. I'm a student building a portfolio. I need real businesses to prove this works. You're the proof. If I can show that I took a [TRADE] company and got them ranking on Google and pulling in calls, that's worth more to me than what I'd charge you right now."` },
-  { id: 11, title: 'Already have a guy', icon: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75', content: `"Are you happy with the results? [Let them answer.] The thing that makes this different is it runs every single day automatically. Most agencies set it and forget it. This system checks what's ranking, what's not, and adjusts daily. And since it's free to try, you're not replacing anything. Think of it as a second opinion."` },
-  { id: 12, title: "Don't need more work", icon: 'M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3', content: `"That's a great problem to have. But are you busy because you're booked solid, or busy because you're running around doing everything yourself? Most guys I talk to are busy but they're not turning down jobs. And the ones that are, they want to pick and choose the higher-paying ones. That's what more visibility gets you."` },
-  { id: 13, title: 'Prove it works', icon: 'M18 20V10M12 20V4M6 20v-6', content: `"I've got a client who went from invisible on Google to ranking number one for their main keyword in under 60 days. Same system. I can show you the data on a quick Zoom if you want."` },
-  { id: 14, title: 'Need to think about it', icon: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM12 6v6l4 2', content: `"Totally fair. But there's nothing to think about cost-wise -- it's free. The only question is whether you want more people finding you on Google. I'm only doing this with a couple businesses in your area, so can I get you down for a quick Zoom this week? That way you can see exactly what it does before you decide anything."` },
-  { id: 15, title: 'Send me info', icon: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6', content: `"For sure. What's your email? I'll send over a breakdown of where your business stands online right now and exactly what the system would do. Fair warning -- I'm going to follow up in 2 days to see what you think."` },
-  { id: 16, title: 'How much after free?', icon: 'M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6', content: `"A few hundred a month. Way less than ads, and unlike ads, it keeps compounding even between payments. But let's not worry about that right now. Let me just show you what it does and you can decide if the results are worth it."` },
-  { id: 17, title: "Don't trust AI", icon: 'M12 9v2m0 4h.01M3.46 6.95l1.06 1.06M2 12h1.5M3.46 17.05l1.06-1.06M20.54 6.95l-1.06 1.06M22 12h-1.5M20.54 17.05l-1.06-1.06M12 2v1.5M12 20.5V22M8 12a4 4 0 1 1 8 0 4 4 0 0 1-8 0z', content: `"I get it. Think of it less like AI and more like a marketing assistant that works every day. Your real photos, your real service areas, your real voice. You have full control and nothing goes up that you don't approve."
+  { id: 3, title: "What's the catch?", icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', content: `"No catch. I'm a student building a portfolio. I need real businesses to prove this works. You're the proof. If I can show that I took a [TRADE] company and got them ranking on Google and pulling in calls, that's worth more to me than what I'd charge you right now."` },
+  { id: 4, title: 'Already have a guy', icon: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75', content: `"Are you happy with the results? [Let them answer.] The thing that makes this different is it runs every single day automatically. Most agencies set it and forget it. This system checks what's ranking, what's not, and adjusts daily. And since it's free to try, you're not replacing anything. Think of it as a second opinion."` },
+  { id: 5, title: "Don't need more work", icon: 'M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3', content: `"That's a great problem to have. But are you busy because you're booked solid, or busy because you're running around doing everything yourself? Most guys I talk to are busy but they're not turning down jobs. And the ones that are, they want to pick and choose the higher-paying ones. That's what more visibility gets you."` },
+  { id: 6, title: 'Prove it works', icon: 'M18 20V10M12 20V4M6 20v-6', content: `"I've got a client who went from invisible on Google to ranking number one for their main keyword in under 60 days. Same system. I can show you the data on a quick Zoom if you want."` },
+  { id: 7, title: 'Need to think about it', icon: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM12 6v6l4 2', content: `"Totally fair. But there's nothing to think about cost-wise -- it's free. The only question is whether you want more people finding you on Google. I'm only doing this with a couple businesses in your area, so can I get you down for a quick Zoom this week? That way you can see exactly what it does before you decide anything."` },
+  { id: 8, title: 'Send me info', icon: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6', content: `"For sure. What's your email? I'll send over a breakdown of where your business stands online right now and exactly what the system would do. Fair warning -- I'm going to follow up in 2 days to see what you think."` },
+  { id: 9, title: 'How much after free?', icon: 'M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6', content: `"A few hundred a month. Way less than ads, and unlike ads, it keeps compounding even between payments. But let's not worry about that right now. Let me just show you what it does and you can decide if the results are worth it."` },
+  { id: 14, title: "Don't trust AI", icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z', content: `"I get it. Think of it less like AI and more like a marketing assistant that works every day. Your real photos, your real service areas, your real voice. You have full control and nothing goes up that you don't approve."
 
 "What happened with the last company you tried? ... Yeah, that's exactly why I do the first month free. Zero risk."` },
 ];
 
 const GATEKEEPER = [
-  { id: 20, title: 'Standard', icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z', content: `"Hey, is [OWNER NAME] around? ... No worries. My name's Brian, I'm a student at Cal State San Marcos. I'm looking for one [TRADE] company in [AREA] to test a project with for free. Would you be able to leave him a note to give me a call? My number is [PHONE]."
-
-Never say "marketing," "SEO," or "advertising." Those words get you screened instantly. "Leave him a note" is better than "have him call me back." A note feels smaller.` },
-  { id: 21, title: "What's it about?", icon: 'M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z', content: `"I'm a student and I built a system that helps businesses show up more on Google. I'm not selling anything -- I'm looking for a business to try it out on for free so I can use it as a case study. I just need a couple minutes with [OWNER NAME] to see if it'd be a fit."` },
-  { id: 22, title: 'Just email him', icon: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6', content: `"For sure, what's his email? I'll keep it short. And what was your name? I appreciate the help."` },
-  { id: 23, title: 'Chatty gatekeeper', icon: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', content: `Don't pitch them. But ask: "How long have you guys been in business?" or "Are you guys pretty busy right now?" Whatever they say, reference it when you reach the owner.
+  { id: 16, title: 'Standard', icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z', content: `"Hey, is [OWNER NAME] around? ... No worries. My name's Brian, I'm a student at Cal State San Marcos. I'm looking for one [TRADE] company in [AREA] to test a project with for free. Would you be able to leave him a note to give me a call? My number is [PHONE]."` },
+  { id: 17, title: "What's it about?", icon: 'M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z', content: `"I'm a student and I built a system that helps businesses show up more on Google. I'm not selling anything -- I'm looking for a business to try it out on for free so I can use it as a case study. I just need a couple minutes with [OWNER NAME] to see if it'd be a fit."` },
+  { id: 18, title: 'Just email him', icon: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6', content: `"For sure, what's his email? I'll keep it short. And what was your name? I appreciate the help."` },
+  { id: 19, title: 'Chatty gatekeeper', icon: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', content: `Don't pitch them. Ask: "How long have you guys been in business?" or "Are you guys pretty busy right now?" Reference it when you reach the owner.
 
 If you can't get through, call back at 7 AM or 5 PM when the owner answers directly.` },
 ];
 
 const CLOSING = [
-  { id: 30, title: 'Warm Close', icon: 'M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z', content: `"Cool. What I'll do is put together a quick breakdown of your online presence -- where you're showing up, where you're not, and what the system would do in the first 30 days. Can we hop on a Zoom [DAY] evening? Takes 15 minutes."
+  { id: 10, title: 'Warm Close', icon: 'M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z', content: `"Cool. What I'll do is put together a quick breakdown of your online presence -- where you're showing up, where you're not, and what the system would do in the first 30 days. Can we hop on a Zoom [DAY] evening? Takes 15 minutes."
 
-Use declarative language: "I've got you down for Thursday at 5:30. You'll get a Zoom link tomorrow." Don't ask -- confirm.` },
-  { id: 31, title: 'Email Close', icon: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', content: `"No problem. What's the best email? I'll send it today. And is [NAME] the best person to talk to about this?"` },
-  { id: 32, title: 'Graceful No', icon: 'M14 9V5a3 3 0 0 0-6 0v4M5 9h14l1 12H4L5 9z', content: `"No worries at all. Appreciate your time. Have a good one, [NAME]."
-
-Move on. Do not linger.` },
-  { id: 33, title: 'Key Rules', icon: 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z', content: `1. Never say "SEO." Say "getting found on Google" or "showing up when people search."
-2. Never say "services." Say "system." One system that runs automatically.
-3. Kill the filler words. "Like," "kinda," "I guess" -- these destroy credibility.
+"I've got you down for Thursday at 5:30. You'll get a Zoom link tomorrow."` },
+  { id: 11, title: 'Email Close', icon: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', content: `"No problem. I'll send that over today. What's the best email? And is [THEIR NAME] the best person to talk to about this?"` },
+  { id: 12, title: 'Graceful No', icon: 'M14 9V5a3 3 0 0 0-6 0v4M5 9h14l1 12H4L5 9z', content: `"No worries at all, I appreciate your time. If anything changes, I'm easy to find. Have a good one, [NAME]."` },
+  { id: 13, title: 'Key Rules', icon: 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z', content: `1. Never say "SEO." Say "getting found on Google."
+2. Never say "services." Say "system."
+3. Kill filler words. No "like," "kinda," "I guess."
 4. Stop apologizing for calling. "Kind of a weird call" works. "I'm sorry" does not.
-5. Never undercut the free offer. Frame it as a case study where YOU chose THEM.
-6. Always push for Zoom/screen share. Phone calls inform. Visual demos close.
-7. Ask questions, don't lecture. Target talk ratio: under 0.40.
-8. Always get the next step. Never hang up without a meeting, email, or follow-up time.
-9. Match their energy -- then go one notch higher. Your close scored 8/10 energy. Cold calls average 4-5.
+5. Frame the free offer as a case study where YOU chose THEM.
+6. Always push for Zoom/screen share.
+7. Target talk ratio: under 0.40.
+8. Always get a specific next step.
+9. Match their energy -- then go one notch higher.
 10. Create urgency. "I'm only doing this with a couple businesses in your area."
-11. Double-check the business name before you dial. You called Clean Cut "Clinica Landscaping."
+11. Double-check the business name before you dial.
 12. Confirm meeting details by text immediately after booking.` },
 ];
-
 
 const A = '#E8FF00';
 
@@ -267,7 +262,6 @@ export default function ScriptPage() {
               <Card key={item.id} item={item} isOpen={openId === item.id} onToggle={() => toggle(item.id)} />
             ))}
           </div>
-
         </div>
       </div>
     </>
