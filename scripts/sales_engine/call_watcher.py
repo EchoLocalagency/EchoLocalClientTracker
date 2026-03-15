@@ -59,6 +59,14 @@ def main():
                         priority = analysis.get("callback_priority", "?")
                         print(f"    -> {outcome} | score: {score}/10 | {priority}")
 
+                        # Demo bridge: auto-book and personalize when meeting is booked
+                        if outcome in ("meeting_booked", "closed"):
+                            try:
+                                from .demo_bridge import run_demo_bridge
+                                run_demo_bridge(call, analysis)
+                            except Exception as e:
+                                print(f"    [demo_bridge] Error: {e}")
+
                         recent.insert(0, analysis)
                         recent = recent[:5]
                     else:
