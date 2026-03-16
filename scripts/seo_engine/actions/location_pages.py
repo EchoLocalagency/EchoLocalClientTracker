@@ -27,6 +27,10 @@ SITE_CONFIG = {
         "domain": "socalartificialturfs.com",
         "template": "location_template_socal.html",
     },
+    "az-turf-cleaning": {
+        "domain": "azturfcleaningllc.com",
+        "template": "location_template_az.html",
+    },
 }
 
 

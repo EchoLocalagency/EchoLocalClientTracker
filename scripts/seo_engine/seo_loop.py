@@ -533,12 +533,13 @@ def _execute_schema_update(action, client, website_path, dry_run):
         qa_pairs = action.get("qa_pairs", [])
         html = inject_faq_schema(html, qa_pairs)
     elif schema_type == "local_business":
-        coords = {"mr-green-turf-clean": (32.9628, -117.0359), "integrity-pro-washers": (32.7157, -117.1611), "socal-artificial-turfs": (33.7839, -116.9581)}
+        coords = {"mr-green-turf-clean": (32.9628, -117.0359), "integrity-pro-washers": (32.7157, -117.1611), "socal-artificial-turfs": (33.7839, -116.9581), "az-turf-cleaning": (33.4152, -111.8315)}
         lat, lng = coords.get(client["slug"], (32.7157, -117.1611))
         addresses = {
             "mr-green-turf-clean": {"addressLocality": "Poway", "addressRegion": "CA"},
             "integrity-pro-washers": {"streetAddress": "2962 Laurel St", "addressLocality": "San Diego", "addressRegion": "CA", "postalCode": "92104"},
             "socal-artificial-turfs": {"addressLocality": "San Jacinto", "addressRegion": "CA", "postalCode": "92582"},
+            "az-turf-cleaning": {"streetAddress": "310 N Guthrie St", "addressLocality": "Mesa", "addressRegion": "AZ", "postalCode": "85203"},
         }
         html = inject_local_business_schema(
             html, client["name"], client.get("website", ""),
@@ -731,6 +732,39 @@ def _seed_clusters(client_id, slug, create_cluster):
                     "Paver vs concrete patio cost comparison",
                     "Best pavers for Inland Empire heat",
                     "How to maintain pavers in desert climate",
+                ],
+            },
+        ],
+        "az-turf-cleaning": [
+            {
+                "name": "Turf Cleaning & Maintenance",
+                "pillar": "services/turf.html",
+                "keywords": ["turf cleaning mesa az", "artificial turf cleaning mesa", "turf maintenance phoenix"],
+                "gaps": [
+                    "How to clean artificial turf in Arizona heat",
+                    "Best turf cleaning schedule for Phoenix metro",
+                    "Pet turf cleaning tips for Arizona homeowners",
+                    "Does Arizona sun damage artificial turf",
+                ],
+            },
+            {
+                "name": "Hardscaping & Pavers",
+                "pillar": "services/hardscaping.html",
+                "keywords": ["paver installation mesa az", "hardscaping mesa", "paver patio chandler"],
+                "gaps": [
+                    "Best pavers for Arizona desert climate",
+                    "Paver vs concrete cost in Mesa AZ",
+                    "How to maintain pavers in extreme heat",
+                ],
+            },
+            {
+                "name": "Phoenix Metro Landscape Guide",
+                "pillar": "service-areas.html",
+                "keywords": ["landscaper mesa az", "landscape remodel mesa", "turf installation tempe"],
+                "gaps": [
+                    "Why Mesa homeowners are switching to artificial turf",
+                    "Complete backyard remodel cost in Phoenix metro",
+                    "Desert landscaping trends in Mesa and Gilbert",
                 ],
             },
         ],

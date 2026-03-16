@@ -32,6 +32,11 @@ SITE_CONFIG = {
         "template": "blog_template_echo_local.html",
         "website_path": "/Users/brianegan/Desktop/Echo Local/Echo Local website",
     },
+    "az-turf-cleaning": {
+        "domain": "azturfcleaningllc.com",
+        "template": "blog_template_az.html",
+        "website_path": "/Users/brianegan/Desktop/AZ Turf Cleaning/AZ Turf Cleaning Website/website",
+    },
 }
 
 
