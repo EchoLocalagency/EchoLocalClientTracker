@@ -45,10 +45,11 @@ WEEKLY_LIMITS = {
     "schema_update": 4,
     "newsjack_post": 1,
     "geo_content_upgrade": 2,
+    "gbp_service_update": 1,
 }
 
 # Clients eligible for the SEO engine
-ELIGIBLE_SLUGS = {"mr-green-turf-clean", "integrity-pro-washers"}
+ELIGIBLE_SLUGS = {"mr-green-turf-clean", "integrity-pro-washers", "socal-artificial-turfs"}
 
 
 def get_client_id(slug, retries=3, delay=10):
@@ -502,6 +503,10 @@ def _execute_action(action, client, website_path, dry_run):
     elif action_type == "schema_update":
         return _execute_schema_update(action, client, website_path, dry_run)
 
+    elif action_type == "gbp_service_update":
+        from .actions.gbp_services import execute_gbp_service_update
+        return execute_gbp_service_update(action, client, dry_run=dry_run)
+
     else:
         print(f"  Unknown action type: {action_type}")
         return {"status": "error", "reason": f"unknown action_type: {action_type}"}
@@ -528,11 +533,12 @@ def _execute_schema_update(action, client, website_path, dry_run):
         qa_pairs = action.get("qa_pairs", [])
         html = inject_faq_schema(html, qa_pairs)
     elif schema_type == "local_business":
-        coords = {"mr-green-turf-clean": (32.9628, -117.0359), "integrity-pro-washers": (32.7157, -117.1611)}
+        coords = {"mr-green-turf-clean": (32.9628, -117.0359), "integrity-pro-washers": (32.7157, -117.1611), "socal-artificial-turfs": (33.7839, -116.9581)}
         lat, lng = coords.get(client["slug"], (32.7157, -117.1611))
         addresses = {
             "mr-green-turf-clean": {"addressLocality": "Poway", "addressRegion": "CA"},
             "integrity-pro-washers": {"streetAddress": "2962 Laurel St", "addressLocality": "San Diego", "addressRegion": "CA", "postalCode": "92104"},
+            "socal-artificial-turfs": {"addressLocality": "San Jacinto", "addressRegion": "CA", "postalCode": "92582"},
         }
         html = inject_local_business_schema(
             html, client["name"], client.get("website", ""),
@@ -692,6 +698,39 @@ def _seed_clusters(client_id, slug, create_cluster):
                     "Why San Diego homeowners choose artificial turf",
                     "San Diego turf maintenance schedule by season",
                     "HOA rules for artificial turf in San Diego",
+                ],
+            },
+        ],
+        "socal-artificial-turfs": [
+            {
+                "name": "Artificial Turf Installation",
+                "pillar": "services/artificial-turf-installation.html",
+                "keywords": ["artificial turf installation inland empire", "artificial turf san jacinto", "turf installation hemet"],
+                "gaps": [
+                    "How much does artificial turf cost in the Inland Empire",
+                    "How long does artificial turf last in desert heat",
+                    "Best artificial turf for Inland Empire yards",
+                    "Artificial turf vs natural grass water savings",
+                ],
+            },
+            {
+                "name": "Pet Turf Guide",
+                "pillar": "services/pet-friendly-turf.html",
+                "keywords": ["pet turf inland empire", "dog turf installation", "pet-friendly artificial grass"],
+                "gaps": [
+                    "Best artificial turf for dogs in hot climates",
+                    "How to clean pet turf in the Inland Empire",
+                    "Pet turf drainage options for desert yards",
+                ],
+            },
+            {
+                "name": "Hardscaping & Pavers",
+                "pillar": "services/paver-patios-driveways.html",
+                "keywords": ["pavers inland empire", "paver installation san jacinto", "hardscaping temecula"],
+                "gaps": [
+                    "Paver vs concrete patio cost comparison",
+                    "Best pavers for Inland Empire heat",
+                    "How to maintain pavers in desert climate",
                 ],
             },
         ],

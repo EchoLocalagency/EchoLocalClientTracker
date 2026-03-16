@@ -1,0 +1,9 @@
+{
+  "client": "socal-artificial-turfs",
+  "url": "https://socalartificialturfs.com/",
+  "date": "2026-03-16",
+  "status": "quota_exceeded_429",
+  "note": "PageSpeed API daily quota hit. Re-run tomorrow to capture baseline.",
+  "mobile": {},
+  "desktop": {}
+}

@@ -23,6 +23,10 @@ SITE_CONFIG = {
         "domain": "integrityprowashers.com",
         "template": "location_template_integrity.html",
     },
+    "socal-artificial-turfs": {
+        "domain": "socalartificialturfs.com",
+        "template": "location_template_socal.html",
+    },
 }
 
 
