@@ -43,6 +43,7 @@ GHL_HEADERS = {
 
 # Custom field IDs
 FIELD_DEMO_TEXT = "4ylSuWZSwJXAEtqREf9l"
+FIELD_DEMO_URGENCY = "Gs9mWzb35aBXbUzBYukk"
 FIELD_DEMO_DATETIME = "kV3ADo7Uheoa3CtaIgrF"
 FIELD_CALL_HOOK = "CGGf5d400kbkBe3sxBmf"
 FIELD_REVIEW_COUNT = "qCunuXALsjDMwoHIbVLA"
@@ -267,6 +268,96 @@ Write the follow-up text. Return ONLY the text message, nothing else. No quotes 
         return None
 
 
+def generate_urgency_text(contact, call_data, competitor_intel, personalized_text):
+    """Generate a next-day urgency text that hits a DIFFERENT pain point than the first text."""
+    contact_name = (contact.get("firstName") or
+                    contact.get("contactName", "").split()[0] or "there")
+    company = contact.get("companyName", "your business")
+    city = contact.get("city", "your area")
+
+    fields = {f["id"]: f.get("value", "") for f in contact.get("customFields", [])}
+    review_count = fields.get(FIELD_REVIEW_COUNT, "")
+    notes = fields.get(FIELD_ADDITIONAL_NOTES, "")
+
+    no_website = "WEBSITE: None" in notes or "Status: none" in notes
+    no_responses = "Owner responds: no" in notes
+    no_posts = "Active posts: no" in notes
+    no_local_kw = "Local keywords: no" in notes
+
+    competitor_context = ""
+    if competitor_intel:
+        comp_name = competitor_intel.get("name", "")
+        comp_reviews = competitor_intel.get("reviews")
+        if comp_name and comp_reviews:
+            competitor_context = f"Top competitor: {comp_name} with {comp_reviews} Google reviews."
+
+    demo_day = call_data.get("demo_day", "our call")
+
+    prompt = f"""You are Brian Egan. You're 22, student at Cal State San Marcos, you run Echo Local. You sent a prospect a personalized text yesterday after booking a demo. Now you need to send a NEXT DAY follow up that creates urgency.
+
+RULES FOR YOUR VOICE:
+- Super casual and laid back. Like texting a friend about business.
+- Short sentences. No fluff.
+- NEVER use dashes or em dashes. Use periods or commas instead.
+- NEVER use exclamation marks.
+- Never use corporate speak.
+- Never use "leverage" or "optimize" or "utilize."
+- 2-3 sentences max.
+
+URGENCY APPROACH (use ONE of these, whichever fits best):
+- Slot scarcity: you're only taking on 2 more businesses this month
+- Results timeline: the system takes 30 days to show results, sooner they start the sooner the phone rings
+
+CRITICAL RULE: You already sent this text yesterday, so DO NOT repeat the same pain points:
+"{personalized_text}"
+
+Hit a DIFFERENT specific finding about their business. If the first text was about reviews, talk about their website or GBP posts. If it was about rankings, talk about reviews.
+
+PROSPECT INFO:
+- Name: {contact_name}
+- Business: {company}
+- City: {city}
+- Reviews: {review_count}
+- No website: {no_website}
+- Not responding to reviews: {no_responses}
+- No GBP posts: {no_posts}
+- No local keywords on site: {no_local_kw}
+- {competitor_context}
+- Meeting scheduled for: {demo_day}
+
+Write the urgency text. Return ONLY the text message, nothing else. No quotes."""
+
+    try:
+        env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
+        result = subprocess.run(
+            ["claude", "-p", prompt, "--output-format", "json",
+             "--disable-slash-commands", "--setting-sources", ""],
+            capture_output=True, text=True, timeout=60,
+            cwd="/tmp", env=env,
+        )
+        if result.returncode != 0:
+            return None
+
+        outer = json.loads(result.stdout)
+        text = outer.get("result", "").strip()
+
+        if text.startswith("```"):
+            text = text.split("```")[1].strip()
+        if text.startswith('"') and text.endswith('"'):
+            text = text[1:-1]
+
+        ai_tells = ["--", "!", "leverage", "optimize", "utilize", "reach out",
+                     "hope this finds", "Best regards", "Looking forward"]
+        for tell in ai_tells:
+            text = text.replace(tell, "")
+
+        return text.strip()
+
+    except Exception as e:
+        print(f"  [demo_bridge] urgency text error: {e}")
+        return None
+
+
 def book_ghl_appointment(contact_id, contact, demo_dt):
     """Book an appointment on the Demo Call calendar in GHL."""
     start = demo_dt.strftime("%Y-%m-%dT%H:%M:%S-07:00")
@@ -307,10 +398,11 @@ def book_ghl_appointment(contact_id, contact, demo_dt):
         return None
 
 
-def update_contact_fields(contact_id, demo_text, demo_dt):
-    """Write the personalized text and demo datetime to GHL custom fields."""
+def update_contact_fields(contact_id, demo_text, urgency_text, demo_dt):
+    """Write the personalized text, urgency text, and demo datetime to GHL custom fields."""
     custom_fields = [
         {"id": FIELD_DEMO_TEXT, "value": demo_text or ""},
+        {"id": FIELD_DEMO_URGENCY, "value": urgency_text or ""},
         {"id": FIELD_DEMO_DATETIME, "value": demo_dt.strftime("%Y-%m-%d %I:%M %p") if demo_dt else ""},
     ]
 
@@ -436,8 +528,19 @@ def run_demo_bridge(call_data, analysis):
                      f"{company_name or 'your business'} on Google. "
                      f"Found a few things I want to show you {demo_day}. Talk then")
 
+    # 5b. Generate urgency text (hits a different pain point)
+    urgency_text = generate_urgency_text(contact, call_context, competitor, demo_text)
+    if urgency_text:
+        print(f"  [demo_bridge] Urgency text: {urgency_text[:100]}...")
+    else:
+        # Fallback to generic urgency
+        urgency_text = (f"Hey {contact.get('firstName', 'man')}, just a heads up "
+                        f"I'm only taking on 2 more businesses this month so wanted "
+                        f"to make sure you're still locked in for {demo_day}. "
+                        f"Looking forward to showing you what I found")
+
     # 6. Write custom fields
-    ok = update_contact_fields(contact_id, demo_text, demo_dt)
+    ok = update_contact_fields(contact_id, demo_text, urgency_text, demo_dt)
     print(f"  [demo_bridge] Custom fields: {'OK' if ok else 'FAILED'}")
 
     # 7. Tag contact to trigger GHL workflow
