@@ -49,7 +49,7 @@ WEEKLY_LIMITS = {
 }
 
 # Clients eligible for the SEO engine
-ELIGIBLE_SLUGS = {"mr-green-turf-clean", "integrity-pro-washers", "socal-artificial-turfs"}
+ELIGIBLE_SLUGS = {"mr-green-turf-clean", "integrity-pro-washers", "socal-artificial-turfs", "az-turf-cleaning"}
 
 
 def get_client_id(slug, retries=3, delay=10):
