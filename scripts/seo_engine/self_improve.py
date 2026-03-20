@@ -194,6 +194,27 @@ def main():
         client_tuning = generate_tuning(slug, patterns, keyword_insights)
 
         if client_tuning:
+            # Merge: preserve manual overrides and suppression reasons
+            existing = tuning.get(slug, {})
+            manual = existing.get("manual_overrides", {})
+            manual_suppressed = set(manual.get("suppressed_action_types", []))
+
+            # Union auto-detected + manual suppressions
+            auto_suppressed = set(client_tuning.get("suppressed_action_types", []))
+            client_tuning["suppressed_action_types"] = sorted(auto_suppressed | manual_suppressed)
+
+            # Preserve manual_overrides section (self_improve never touches it)
+            client_tuning["manual_overrides"] = manual
+
+            # Preserve manually set suppression reasons
+            if existing.get("_suppression_reason"):
+                client_tuning["_suppression_reason"] = existing["_suppression_reason"]
+
+            # Merge learned rules: keep manual rules, append new auto rules
+            manual_rules = manual.get("learned_rules", [])
+            auto_rules = client_tuning.get("learned_rules", [])
+            client_tuning["learned_rules"] = manual_rules + [r for r in auto_rules if r not in manual_rules]
+
             tuning[slug] = client_tuning
             updated = True
             print(f"  {slug}: tuning updated ({len(client_tuning['action_type_rankings'])} ranked types, "
