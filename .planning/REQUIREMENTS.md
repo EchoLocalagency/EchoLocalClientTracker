@@ -52,13 +52,13 @@
 - [x] **HARD-03**: When all brain-recommended actions are suppressed, engine retries once with explicit available-type guidance
 - [x] **HARD-04**: SoCal blog/index.html exists and SoCal is in blog_engine.py SITE_CONFIG
 - [x] **HARD-05**: Brain prompt includes bottom-5 GEO-scored pages with missing factors listed
-- [ ] **HARD-06**: Review velocity tracked daily in reports, surfaced to brain with warning when <1/week
+- [x] **HARD-06**: Review velocity tracked daily in reports, surfaced to brain with warning when <1/week
 - [x] **HARD-07**: Impact scores use per-action-type formulas (content: position+impressions+clicks, GBP: GBP metrics, photo: views)
 
 ### Data Signals
-- [ ] **HARD-08**: Competitor top-3 positions stored per keyword snapshot
-- [ ] **HARD-09**: Competitor position changes >3 places surfaced as alerts in brain prompt
-- [ ] **HARD-10**: Content cluster health scored against GSC data, underperformers flagged to brain
+- [x] **HARD-08**: Competitor top-3 positions stored per keyword snapshot
+- [x] **HARD-09**: Competitor position changes >3 places surfaced as alerts in brain prompt
+- [x] **HARD-10**: Content cluster health scored against GSC data, underperformers flagged to brain
 
 ### Content Quality
 - [x] **HARD-11**: Location pages with >70% trigram similarity to existing pages rejected before writing
