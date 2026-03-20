@@ -84,6 +84,19 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
         prompt += f"  GBP: {gbp.get('total_impressions', 0)} impressions (maps: {gbp.get('maps_impressions', 0)}, search: {gbp.get('search_impressions', 0)}) | {gbp.get('website_clicks', 0)} website clicks, {gbp.get('call_clicks', 0)} calls\n"
     prompt += "\n"
 
+    # ── Section 2b: Review health ──
+    reviews = performance_data.get("reviews", {})
+    if reviews and reviews.get("total_count") is not None:
+        total = reviews["total_count"]
+        rating = reviews.get("average_rating", 0)
+        velocity = reviews.get("weekly_velocity")
+        vel_str = f"{velocity:.1f} reviews/week" if velocity is not None else "no history yet"
+        prompt += f"REVIEW HEALTH:\n"
+        prompt += f"  Total reviews: {total} | Rating: {rating} | Weekly velocity: {vel_str}\n"
+        if velocity is not None and velocity < 1:
+            prompt += f"  WARNING: Review velocity below 1/week -- reviews are the #1 local ranking factor. Prioritize review generation.\n"
+        prompt += "\n"
+
     # ── Section 3: Target keyword rankings (merged GSC organic + SERP actual) ──
     if keyword_rankings:
         # Build SERP lookup from research data to fill gaps in GSC data

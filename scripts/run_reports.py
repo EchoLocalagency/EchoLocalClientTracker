@@ -348,6 +348,58 @@ def pull_gbp_keywords(creds, location_id, year, month):
     return []
 
 
+# ── GBP Reviews ───────────────────────────────────────────────────────
+
+GBP_ACCOUNT = "accounts/103427270792992498498"
+
+def pull_gbp_reviews(creds, location_id):
+    """Pull review count and average rating from GBP reviews API."""
+    from google.auth.transport.requests import Request as AuthRequest
+    creds_copy = creds
+    if not creds_copy.valid:
+        creds_copy.refresh(AuthRequest())
+
+    url = f"https://mybusiness.googleapis.com/v4/{GBP_ACCOUNT}/{location_id}/reviews?pageSize=1"
+    headers = {"Authorization": f"Bearer {creds_copy.token}"}
+    resp = requests.get(url, headers=headers, timeout=30)
+    if resp.status_code != 200:
+        raise Exception(f"GBP reviews API: {resp.status_code} - {resp.text[:200]}")
+
+    data = resp.json()
+    total_count = int(data.get("totalReviewCount", 0))
+    average_rating = float(data.get("averageRating", 0))
+    return {"total_count": total_count, "average_rating": average_rating}
+
+
+def compute_review_velocity(slug, current_count):
+    """Compute weekly review velocity by checking reports from 7 days ago.
+
+    Returns reviews/week as a float, or None if no historical data.
+    """
+    reports_dir = REPORTS_DIR / slug
+    if not reports_dir.exists():
+        return None
+
+    target_date = date.today() - timedelta(days=7)
+    # Try exact date first, then nearby dates (up to 3 days either way)
+    for offset in range(4):
+        for d in [target_date - timedelta(days=offset), target_date + timedelta(days=offset)]:
+            report_file = reports_dir / f"{d}.json"
+            if report_file.exists():
+                try:
+                    with open(report_file) as f:
+                        old_report = json.load(f)
+                    old_reviews = old_report.get("reviews", {})
+                    old_count = old_reviews.get("total_count")
+                    if old_count is not None:
+                        days_diff = (date.today() - d).days
+                        if days_diff > 0:
+                            return round((current_count - old_count) / days_diff * 7, 1)
+                except (json.JSONDecodeError, OSError):
+                    continue
+    return None
+
+
 # ── GHL Form Submissions ───────────────────────────────────────────────
 
 def pull_ghl_forms(ghl_token, location_id, form_name, start, end):
@@ -401,6 +453,50 @@ def pull_ghl_forms(ghl_token, location_id, form_name, start, end):
         page += 1
 
     return len(all_submissions)
+
+
+# ── Netlify Form Submissions ──────────────────────────────────────────
+
+NETLIFY_TOKEN = "nfc_fQdUvhdJXbQzxtYAsRW1fuh4g41eKKvD4565"
+
+def pull_netlify_forms(site_id, form_name, start, end):
+    """Pull form submission count from Netlify Forms API for a date range."""
+    headers = {"Authorization": f"Bearer {NETLIFY_TOKEN}"}
+
+    # Get forms to find the right form ID
+    forms_resp = requests.get(
+        f"https://api.netlify.com/api/v1/sites/{site_id}/forms",
+        headers=headers, timeout=30,
+    )
+    if forms_resp.status_code != 200:
+        raise Exception(f"Netlify forms list failed: {forms_resp.status_code}")
+
+    forms = forms_resp.json()
+    form_id = None
+    for form in forms:
+        if form.get("name", "").lower() == form_name.lower():
+            form_id = form["id"]
+            break
+
+    if not form_id:
+        raise Exception(f"Netlify form '{form_name}' not found on site {site_id}")
+
+    # Get submissions and filter by date range
+    subs_resp = requests.get(
+        f"https://api.netlify.com/api/v1/forms/{form_id}/submissions",
+        headers=headers, timeout=30,
+    )
+    if subs_resp.status_code != 200:
+        raise Exception(f"Netlify submissions failed: {subs_resp.status_code}")
+
+    submissions = subs_resp.json()
+    count = 0
+    for sub in submissions:
+        created = sub.get("created_at", "")[:10]
+        if start <= created <= end:
+            count += 1
+
+    return count
 
 
 # ── Main Pipeline ───────────────────────────────────────────────────────
@@ -565,6 +661,29 @@ def run_report(client, creds, today):
             report["ghl_form_submits"] = 0
             report["ghl_form_submits_prev"] = 0
 
+    # ── Netlify Form Submissions ──
+    if client.get("netlify_site_id") and not client.get("ghl_token"):
+        print(f"  Pulling Netlify form submissions...")
+        try:
+            form_name = client.get("netlify_form_name", "contact")
+            netlify_current = _retry(
+                lambda: pull_netlify_forms(
+                    client["netlify_site_id"], form_name, period_start, period_end),
+                "Netlify", retries=2, backoff=5)
+            netlify_prev = _retry(
+                lambda: pull_netlify_forms(
+                    client["netlify_site_id"], form_name, prev_start, prev_end),
+                "Netlify-prev", retries=2, backoff=5)
+            report["ghl_form_submits"] = netlify_current
+            report["ghl_form_submits_prev"] = netlify_prev
+            report["ga4"]["form_submits"] = netlify_current
+            report["ga4"]["form_submits_prev"] = netlify_prev
+            print(f"    Form submits: {netlify_current} (last week: {netlify_prev})")
+        except Exception as e:
+            print(f"    Netlify forms ERROR: {e}")
+            report["ghl_form_submits"] = 0
+            report["ghl_form_submits_prev"] = 0
+
     # ── GBP (Google Business Profile) ──
     if client.get("gbp_location"):
         print(f"  Pulling GBP metrics...")
@@ -616,9 +735,27 @@ def run_report(client, creds, today):
         except Exception as e:
             print(f"    GBP Keywords ERROR: {e}")
             report["gbp_keywords"] = []
+        # GBP Reviews (count + rating + velocity)
+        print(f"  Pulling GBP reviews...")
+        try:
+            review_data = _retry(
+                lambda: pull_gbp_reviews(creds, client["gbp_location"]),
+                "GBP reviews", retries=2, backoff=5)
+            velocity = compute_review_velocity(slug, review_data["total_count"])
+            report["reviews"] = {
+                "total_count": review_data["total_count"],
+                "average_rating": review_data["average_rating"],
+                "weekly_velocity": velocity,
+            }
+            vel_str = f"{velocity:.1f}/week" if velocity is not None else "no history"
+            print(f"    Reviews: {review_data['total_count']} | Rating: {review_data['average_rating']} | Velocity: {vel_str}")
+        except Exception as e:
+            print(f"    GBP Reviews ERROR: {e}")
+            report["reviews"] = {"total_count": None, "average_rating": None, "weekly_velocity": None}
     else:
         report["gbp"] = None
         report["gbp_keywords"] = []
+        report["reviews"] = {"total_count": None, "average_rating": None, "weekly_velocity": None}
 
     # ── Analysis ──
     report["flags"] = []
@@ -713,6 +850,13 @@ def push_to_supabase(report):
         "psi_tbt_desktop": ps["tbt_desktop"],
         "error_flags": report.get("error_flags", []),
     }
+
+    # Add review data if available
+    reviews = report.get("reviews", {})
+    if reviews.get("total_count") is not None:
+        report_row["review_total_count"] = reviews["total_count"]
+        report_row["review_average_rating"] = reviews["average_rating"]
+        report_row["review_weekly_velocity"] = reviews.get("weekly_velocity")
 
     gbp = report.get("gbp")
     if gbp:
@@ -869,7 +1013,11 @@ def main():
     for client in clients:
         report = run_report(client, creds, today)
         save_local(report)
-        push_to_supabase(report)
+        try:
+            push_to_supabase(report)
+        except Exception as e:
+            print(f"  !! Supabase push FAILED for {report['slug']}: {e}")
+            print(f"     Local JSON saved. Will retry on next run.")
         all_reports.append(report)
 
     print_summary(all_reports)
