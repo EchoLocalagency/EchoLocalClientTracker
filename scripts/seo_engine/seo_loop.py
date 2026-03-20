@@ -37,7 +37,7 @@ CLIENTS_FILE = BASE_DIR / "clients.json"
 # - schema_update: 2->4 (no velocity penalty, accuracy is all that matters)
 # - newsjack_post: shares cap with blog_post (total content <= 3/week)
 WEEKLY_LIMITS = {
-    "gbp_post": 3,
+    "gbp_post": 2,
     "blog_post": 2,
     "page_edit": 2,
     "location_page": 2,
@@ -47,6 +47,24 @@ WEEKLY_LIMITS = {
     "geo_content_upgrade": 2,
     "gbp_service_update": 1,
 }
+
+# Monthly rate limits (tracked over 30 days, not weekly)
+MONTHLY_LIMITS = {
+    "gbp_description_update": 1,
+    "gbp_categories_update": 1,
+}
+
+# All GBP action types (used for inter-action throttling)
+GBP_ACTION_TYPES = {
+    "gbp_post", "gbp_photo", "gbp_service_update",
+    "gbp_description_update", "gbp_categories_update",
+}
+
+# Max GBP actions per run (daily). Bulk GBP changes in a single day
+# trigger Google's automated fraud detection and can cause "permanently
+# closed" or suspension flags. SoCal Artificial Turfs was flagged on
+# 2026-03-18 after 5 GBP actions in one run. Keep this at 2.
+MAX_GBP_ACTIONS_PER_RUN = 2
 
 # Clients eligible for the SEO engine
 ELIGIBLE_SLUGS = {"mr-green-turf-clean", "integrity-pro-washers", "socal-artificial-turfs", "az-turf-cleaning"}
@@ -79,7 +97,7 @@ def run_client(client, dry_run=True):
     from .outcome_logger import (
         log_action, get_pending_followups, record_followup,
         get_action_history, get_outcome_patterns,
-        get_week_action_counts, get_recent_keywords,
+        get_week_action_counts, get_month_action_counts, get_recent_keywords,
     )
     from .research.research_runner import run_research, load_research_cache, run_fast_research
 
@@ -223,6 +241,7 @@ def run_client(client, dry_run=True):
     action_history = get_action_history(client_id)
     outcome_patterns = get_outcome_patterns(client_id)
     week_counts = get_week_action_counts(client_id)
+    month_counts = get_month_action_counts(client_id)
     recent_keywords = get_recent_keywords(client_id)
 
     keyword_rankings = perf_data.get("target_keyword_rankings", [])
@@ -316,11 +335,33 @@ def run_client(client, dry_run=True):
         if areas_dir.exists():
             existing_area_pages = [f.stem for f in areas_dir.glob("*.html")]
 
+    # GBP state (description, categories, services) for brain context
+    gbp_state = {}
+    location_id = client.get("gbp_location", "")
+    if location_id:
+        try:
+            from .actions.gbp_services import get_current_services
+            from .actions.gbp_description import get_current_description
+            from .actions.gbp_categories import get_current_categories
+            gbp_desc = get_current_description(location_id)
+            gbp_cats = get_current_categories(location_id)
+            gbp_svcs = get_current_services(location_id)
+            gbp_state = {
+                "description": gbp_desc or "",
+                "categories": gbp_cats or {},
+                "services": gbp_svcs.get("serviceItems", []) if gbp_svcs else [],
+            }
+            print(f"  Loaded GBP state: desc={len(gbp_state['description'])} chars, {len(gbp_state.get('categories', {}).get('additional', []))+1} categories")
+        except Exception as e:
+            print(f"  GBP state fetch failed (non-fatal): {e}")
+
     # Directory submission coverage for brain context
     directory_summary = None
     try:
         from .outcome_logger import get_directory_summary
-        directory_summary = get_directory_summary(client_id)
+        from .submission_engine import CLIENT_TRADE_MAP
+        client_trades = CLIENT_TRADE_MAP.get(slug, [])
+        directory_summary = get_directory_summary(client_id, client_trades=client_trades)
         ds_sub = directory_summary.get("submitted", 0)
         ds_total = directory_summary.get("total_eligible", 0)
         print(f"  Directory coverage: {ds_sub}/{ds_total} submitted")
@@ -338,6 +379,7 @@ def run_client(client, dry_run=True):
         outcome_patterns=outcome_patterns,
         recent_keywords=recent_keywords,
         week_counts=week_counts,
+        month_counts=month_counts,
         research_data=research_data,
         photo_manifest=photo_manifest,
         schema_audit=schema_audit,
@@ -352,6 +394,7 @@ def run_client(client, dry_run=True):
         serp_features=serp_features_data,
         paa_gaps=paa_gaps,
         directory_summary=directory_summary,
+        gbp_state=gbp_state,
         dry_run=dry_run,
     )
 
@@ -376,16 +419,47 @@ def run_client(client, dry_run=True):
         except (json.JSONDecodeError, OSError):
             pass
 
+    # Load suppressed action types (hard block -- brain guidance alone is not enough)
+    suppressed_types = set()
+    if tuning_file.exists():
+        try:
+            tuning_data = json.loads(tuning_file.read_text())
+            suppressed_types = set(tuning_data.get(slug, {}).get("suppressed_action_types", []))
+        except (json.JSONDecodeError, OSError):
+            pass
+
+    gbp_actions_this_run = 0
+
     for action in sorted(actions, key=lambda a: a.get("priority", 5)):
         action_type = action.get("action_type", "")
 
-        # Enforce rate limits (with tuning overrides applied)
-        used = week_counts.get(action_type, 0)
-        limit = effective_limits.get(action_type, 0)
-        if used >= limit:
-            print(f"  SKIPPED {action_type}: weekly limit reached ({used}/{limit})")
-            execution_log.append({"action_type": action_type, "status": "rate_limited"})
+        # Hard-block suppressed action types
+        if action_type in suppressed_types:
+            print(f"  BLOCKED {action_type}: suppressed via engine_tuning.json")
+            execution_log.append({"action_type": action_type, "status": "suppressed"})
             continue
+
+        # Daily GBP cap: max 2 GBP actions per run to avoid Google flagging
+        if action_type in GBP_ACTION_TYPES and gbp_actions_this_run >= MAX_GBP_ACTIONS_PER_RUN:
+            print(f"  SKIPPED {action_type}: daily GBP cap reached ({gbp_actions_this_run}/{MAX_GBP_ACTIONS_PER_RUN})")
+            execution_log.append({"action_type": action_type, "status": "daily_gbp_cap"})
+            continue
+
+        # Enforce rate limits: weekly for most types, monthly for description/categories
+        if action_type in MONTHLY_LIMITS:
+            used = month_counts.get(action_type, 0)
+            limit = MONTHLY_LIMITS[action_type]
+            if used >= limit:
+                print(f"  SKIPPED {action_type}: monthly limit reached ({used}/{limit})")
+                execution_log.append({"action_type": action_type, "status": "rate_limited"})
+                continue
+        else:
+            used = week_counts.get(action_type, 0)
+            limit = effective_limits.get(action_type, 0)
+            if used >= limit:
+                print(f"  SKIPPED {action_type}: weekly limit reached ({used}/{limit})")
+                execution_log.append({"action_type": action_type, "status": "rate_limited"})
+                continue
 
         # Execute
         try:
@@ -394,6 +468,11 @@ def run_client(client, dry_run=True):
             print(f"  ACTION CRASHED ({action_type}): {e}")
             result = {"status": "error", "reason": str(e)}
         execution_log.append({"action_type": action_type, "result": result})
+
+        # GBP throttle: small delay between consecutive GBP API calls
+        if action_type in GBP_ACTION_TYPES:
+            gbp_actions_this_run += 1
+            time.sleep(2)
 
         # Log action
         if result.get("status") not in ("blocked", "error"):
@@ -420,8 +499,11 @@ def run_client(client, dry_run=True):
             # Post-action hooks
             _run_post_action_hooks(action, client, website_path, client_id, dry_run)
 
-            # Update week counts for rate limiting within this run
-            week_counts[action_type] = week_counts.get(action_type, 0) + 1
+            # Update counts for rate limiting within this run
+            if action_type in MONTHLY_LIMITS:
+                month_counts[action_type] = month_counts.get(action_type, 0) + 1
+            else:
+                week_counts[action_type] = week_counts.get(action_type, 0) + 1
 
     # Print summary
     print(f"\n  [7/7] Summary:")
@@ -506,6 +588,14 @@ def _execute_action(action, client, website_path, dry_run):
     elif action_type == "gbp_service_update":
         from .actions.gbp_services import execute_gbp_service_update
         return execute_gbp_service_update(action, client, dry_run=dry_run)
+
+    elif action_type == "gbp_description_update":
+        from .actions.gbp_description import execute_gbp_description_update
+        return execute_gbp_description_update(action, client, dry_run=dry_run)
+
+    elif action_type == "gbp_categories_update":
+        from .actions.gbp_categories import execute_gbp_categories_update
+        return execute_gbp_categories_update(action, client, dry_run=dry_run)
 
     else:
         print(f"  Unknown action type: {action_type}")
