@@ -34,6 +34,44 @@ SITE_CONFIG = {
 }
 
 
+def _check_duplicate_content(website_path, new_content, threshold=0.7):
+    """Check if new location page is too similar to existing area pages.
+
+    Uses word trigram Jaccard similarity. Returns (is_duplicate, most_similar_page, similarity).
+    """
+    def get_trigrams(text):
+        # Strip HTML, lowercase, split into words
+        words = re.sub(r'<[^>]+>', ' ', text).lower().split()
+        return set(zip(words, words[1:], words[2:]))
+
+    new_trigrams = get_trigrams(new_content)
+    if not new_trigrams:
+        return False, None, 0.0
+
+    areas_dir = Path(website_path) / "areas"
+    if not areas_dir.exists():
+        return False, None, 0.0
+
+    max_sim = 0.0
+    most_similar = None
+
+    for existing in areas_dir.glob("*.html"):
+        existing_text = existing.read_text()
+        existing_trigrams = get_trigrams(existing_text)
+        if not existing_trigrams:
+            continue
+
+        intersection = len(new_trigrams & existing_trigrams)
+        union = len(new_trigrams | existing_trigrams)
+        similarity = intersection / union if union > 0 else 0.0
+
+        if similarity > max_sim:
+            max_sim = similarity
+            most_similar = existing.name
+
+    return max_sim > threshold, most_similar, max_sim
+
+
 def create_location_page(city, slug, title, meta_description, body_content,
                          website_path, action_id=None, dry_run=True,
                          client_slug=None):
@@ -79,6 +117,12 @@ def create_location_page(city, slug, title, meta_description, body_content,
     html = html.replace("{{og_title}}", og_title)
     html = html.replace("{{city}}", city)
     html = html.replace("{{body_content}}", body_content)
+
+    # Check for duplicate content before writing
+    is_dup, most_similar, sim = _check_duplicate_content(website_path, html)
+    if is_dup:
+        print(f"  [location_pages] REJECTED: {slug} is {sim:.0%} similar to {most_similar} -- tell brain to make it more unique")
+        return {"status": "rejected_duplicate", "similar_to": most_similar, "similarity": sim}
 
     # Write page
     page_path = areas_dir / f"{slug}.html"

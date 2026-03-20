@@ -539,6 +539,13 @@ def run_client(client, dry_run=True):
         except Exception as e:
             print(f"  ACTION CRASHED ({action_type}): {e}")
             result = {"status": "error", "reason": str(e)}
+
+        # Log rejected duplicates so the brain knows on next run
+        if result.get("status") == "rejected_duplicate":
+            similar_to = result.get("similar_to", "unknown")
+            similarity = result.get("similarity", 0)
+            print(f"  [duplicate] Location page rejected: {similarity:.0%} similar to {similar_to}")
+
         execution_log.append({"action_type": action_type, "result": result})
 
         # GBP throttle: small delay between consecutive GBP API calls
