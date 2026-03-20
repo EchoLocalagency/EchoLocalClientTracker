@@ -8,7 +8,7 @@ progress:
   total_phases: 18
   completed_phases: 17
   total_plans: 31
-  completed_plans: 27
+  completed_plans: 28
 ---
 
 # Project State
@@ -23,9 +23,9 @@ See: .planning/PROJECT.md (updated 2026-03-12)
 ## Current Position
 
 Phase: 18 of 18 (SEO Engine Hardening)
-Plan: 1 of 5
+Plan: 3 of 5
 Status: In Progress
-Last activity: 2026-03-20 -- Completed 18-01 (self-improve merge safety)
+Last activity: 2026-03-20 -- Completed 18-03 (GEO brain integration + impact score per action type)
 
 Progress: [##########] 100%
 
@@ -50,6 +50,7 @@ Progress: [##########] 100%
 | Phase 17-pipeline-analytics P01 | 2min | 1 tasks | 2 files |
 | Phase 17-pipeline-analytics P02 | 1min | 1 tasks | 1 files |
 | Phase 18-seo-engine-hardening P01 | 2min | 2 tasks | 3 files |
+| Phase 18-seo-engine-hardening P03 | 2min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,8 @@ Recent:
 - isOverdue excludes Churned leads, flags never-contacted as overdue, uses 7-day threshold
 - manual_overrides is a protected sub-object in engine_tuning.json that self_improve never writes to
 - Suppressions union-merged (manual + auto) so both sources always apply; brain re-merges at load time as safety net
+- GEO bottom-5 added as section 9c in brain prompt for gap prioritization
+- Impact scoring branches on action_type: content (pos+imp+clicks), GBP (gbp_imp+calls), photo (views), fallback
 
 ### Pending Todos
 
@@ -94,5 +97,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-20
-Stopped at: Completed 18-01-PLAN.md (self-improve merge safety + engine tuning schema)
+Stopped at: Completed 18-03-PLAN.md (GEO brain integration + impact score per action type)
 Resume file: None
