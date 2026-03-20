@@ -61,15 +61,15 @@
 - [ ] **HARD-10**: Content cluster health scored against GSC data, underperformers flagged to brain
 
 ### Content Quality
-- [ ] **HARD-11**: Location pages with >70% trigram similarity to existing pages rejected before writing
-- [ ] **HARD-12**: Image alt text validated (missing/empty/too-short flagged as warnings)
+- [x] **HARD-11**: Location pages with >70% trigram similarity to existing pages rejected before writing
+- [x] **HARD-12**: Image alt text validated (missing/empty/too-short flagged as warnings)
 
 ### Operational Reliability
 - [x] **HARD-13**: Blog_engine.py SITE_CONFIG includes SoCal with correct domain and template
 - [x] **HARD-14**: geo_scorer.py freshness check uses dynamic current year (no hardcoded 2025/2026)
-- [ ] **HARD-15**: Sitemap lastmod updated when page_optimizer or geo_upgrade edits a page
-- [ ] **HARD-16**: DNS pre-flight check in seo_loop.py with cache flush and retry
-- [ ] **HARD-17**: Launchd plist has PYTHONUNBUFFERED=1 for real-time log output
+- [x] **HARD-15**: Sitemap lastmod updated when page_optimizer or geo_upgrade edits a page
+- [x] **HARD-16**: DNS pre-flight check in seo_loop.py with cache flush and retry
+- [x] **HARD-17**: Launchd plist has PYTHONUNBUFFERED=1 for real-time log output
 
 ## Previous Milestones (Complete)
 

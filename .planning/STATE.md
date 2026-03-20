@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Client Pipeline Tracker
-status: unknown
-last_updated: "2026-03-20T21:32:09.364Z"
+status: complete
+last_updated: "2026-03-20T21:38:00Z"
 progress:
   total_phases: 16
-  completed_phases: 12
+  completed_phases: 16
   total_plans: 31
-  completed_plans: 25
+  completed_plans: 31
 ---
 
 # Project State
@@ -23,9 +23,9 @@ See: .planning/PROJECT.md (updated 2026-03-12)
 ## Current Position
 
 Phase: 18 of 18 (SEO Engine Hardening)
-Plan: 3 of 5
-Status: In Progress
-Last activity: 2026-03-20 -- Completed 18-03 (GEO brain integration + impact score per action type)
+Plan: 5 of 5
+Status: Complete
+Last activity: 2026-03-20 -- Completed 18-05 (Location page dedup + sitemap lastmod + DNS preflight + misc fixes)
 
 Progress: [##########] 100%
 
@@ -52,6 +52,7 @@ Progress: [##########] 100%
 | Phase 18-seo-engine-hardening P01 | 2min | 2 tasks | 3 files |
 | Phase 18-seo-engine-hardening P03 | 2min | 3 tasks | 3 files |
 | Phase 18 P02 | 7min | 3 tasks | 6 files |
+| Phase 18-seo-engine-hardening P05 | 3min | 6 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,9 @@ Recent:
 - Impact scoring branches on action_type: content (pos+imp+clicks), GBP (gbp_imp+calls), photo (views), fallback
 - [Phase 18]: Brain retry on full suppression: pre-filter actions, retry once with available_types hint
 - [Phase 18]: SoCal blog engine: SITE_CONFIG entry + custom template + blog index with existing posts
+- [Phase 18]: Trigram Jaccard at 0.7 threshold for location page duplicate detection
+- [Phase 18]: Image alt text issues as warnings, not blocking rejections
+- [Phase 18]: Homepage internal link cap = 1 (vs 3 for other pages)
 
 ### Pending Todos
 
@@ -100,5 +104,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-20
-Stopped at: Completed 18-03-PLAN.md (GEO brain integration + impact score per action type)
+Stopped at: Completed 18-05-PLAN.md (Location page dedup + sitemap lastmod + DNS preflight + misc fixes) -- Phase 18 COMPLETE
 Resume file: None
