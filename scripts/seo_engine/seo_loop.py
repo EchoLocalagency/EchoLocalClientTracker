@@ -371,6 +371,16 @@ def run_client(client, dry_run=True):
     except Exception as e:
         print(f"  Directory summary failed (non-fatal): {e}")
 
+    # Competitor position alerts from keyword tracker
+    competitor_alerts = []
+    try:
+        from .keyword_tracker import get_competitor_alerts
+        competitor_alerts = get_competitor_alerts(client_id)
+        if competitor_alerts:
+            print(f"  Competitor alerts: {len(competitor_alerts)} significant movements detected")
+    except Exception as e:
+        print(f"  Competitor alerts failed (non-fatal): {e}")
+
     actions = call_brain(
         client_config=client,
         performance_data=perf_data,
@@ -398,6 +408,7 @@ def run_client(client, dry_run=True):
         paa_gaps=paa_gaps,
         directory_summary=directory_summary,
         gbp_state=gbp_state,
+        competitor_alerts=competitor_alerts,
         dry_run=dry_run,
     )
 
@@ -495,6 +506,7 @@ def run_client(client, dry_run=True):
                 paa_gaps=paa_gaps,
                 directory_summary=directory_summary,
                 gbp_state=gbp_state,
+                competitor_alerts=competitor_alerts,
                 dry_run=dry_run,
                 retry_hint=available_types,
                 suppressed_hint=list(suppressed_types) + list(set(blocked_types) - set(available_types)),

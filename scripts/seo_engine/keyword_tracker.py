@@ -8,8 +8,9 @@ Usage:
     Called from seo_loop.py on research days (Wed/Sat).
 """
 
+import json
 import os
-from datetime import date
+from datetime import date, timedelta
 
 from dotenv import load_dotenv
 from supabase import create_client
@@ -89,13 +90,26 @@ def check_all_tracked_keywords(client_config: dict, client_id: str):
         # Find client position in organic results
         position = None
         serp_url = None
+        competitor_positions = []
         organic = serp_data.get("organic_results", [])
         for result in organic:
             url = result.get("link", "")
             if url_matches_client(url, client_website):
                 position = result.get("position")
                 serp_url = url
-                break
+            else:
+                # Track top 3 non-client competitor domains
+                if len(competitor_positions) < 3:
+                    try:
+                        from urllib.parse import urlparse
+                        domain = urlparse(url).netloc.lower().lstrip("www.")
+                    except Exception:
+                        domain = url
+                    competitor_positions.append({
+                        "domain": domain,
+                        "position": result.get("position"),
+                        "url": url,
+                    })
 
         # Check map pack
         in_map_pack = False
@@ -132,6 +146,7 @@ def check_all_tracked_keywords(client_config: dict, client_id: str):
             "has_ai_overview": has_ai_overview,
             "client_cited_in_aio": client_cited_in_aio,
             "serp_url": serp_url,
+            "competitor_positions": competitor_positions if competitor_positions else None,
         }
 
         # Upsert into keyword_snapshots
@@ -147,3 +162,105 @@ def check_all_tracked_keywords(client_config: dict, client_id: str):
 
     print(f"  [kw-tracker] Done: {len(results)}/{len(keywords)} checked")
     return results
+
+
+def get_competitor_alerts(client_id: str, min_gain: int = 3):
+    """Detect significant competitor position changes between last 2 SerpAPI snapshots.
+
+    Compares competitor_positions JSONB between the two most recent snapshots
+    for each keyword. Returns alerts where a competitor gained min_gain+ positions.
+
+    Args:
+        client_id: Supabase client UUID.
+        min_gain: Minimum position gain to trigger an alert (default 3).
+
+    Returns:
+        List of alert dicts: [{"keyword": ..., "domain": ..., "old_pos": ..., "new_pos": ..., "gained": ...}]
+    """
+    sb = _get_supabase()
+    alerts = []
+
+    # Get the two most recent SerpAPI check dates for this client
+    dates_resp = (
+        sb.table("keyword_snapshots")
+        .select("checked_at")
+        .eq("client_id", client_id)
+        .eq("source", "serpapi")
+        .order("checked_at", desc=True)
+        .limit(200)
+        .execute()
+    )
+    if not dates_resp.data:
+        return []
+
+    # Get unique dates
+    unique_dates = sorted(set(r["checked_at"] for r in dates_resp.data), reverse=True)
+    if len(unique_dates) < 2:
+        return []
+
+    current_date = unique_dates[0]
+    previous_date = unique_dates[1]
+
+    # Fetch snapshots for both dates
+    current_resp = (
+        sb.table("keyword_snapshots")
+        .select("keyword, competitor_positions")
+        .eq("client_id", client_id)
+        .eq("source", "serpapi")
+        .eq("checked_at", current_date)
+        .execute()
+    )
+    previous_resp = (
+        sb.table("keyword_snapshots")
+        .select("keyword, competitor_positions")
+        .eq("client_id", client_id)
+        .eq("source", "serpapi")
+        .eq("checked_at", previous_date)
+        .execute()
+    )
+
+    # Build lookup: keyword -> {domain: position} for previous
+    prev_lookup = {}
+    for snap in (previous_resp.data or []):
+        comps = snap.get("competitor_positions")
+        if not comps:
+            continue
+        if isinstance(comps, str):
+            try:
+                comps = json.loads(comps)
+            except (json.JSONDecodeError, TypeError):
+                continue
+        kw = snap["keyword"]
+        prev_lookup[kw] = {c["domain"]: c["position"] for c in comps if c.get("domain") and c.get("position")}
+
+    # Compare current vs previous
+    for snap in (current_resp.data or []):
+        comps = snap.get("competitor_positions")
+        if not comps:
+            continue
+        if isinstance(comps, str):
+            try:
+                comps = json.loads(comps)
+            except (json.JSONDecodeError, TypeError):
+                continue
+        kw = snap["keyword"]
+        prev_positions = prev_lookup.get(kw, {})
+
+        for comp in comps:
+            domain = comp.get("domain")
+            new_pos = comp.get("position")
+            if not domain or not new_pos:
+                continue
+            old_pos = prev_positions.get(domain)
+            if old_pos is not None and old_pos - new_pos >= min_gain:
+                alerts.append({
+                    "keyword": kw,
+                    "domain": domain,
+                    "old_pos": old_pos,
+                    "new_pos": new_pos,
+                    "gained": old_pos - new_pos,
+                })
+
+    # Sort by biggest gain
+    alerts.sort(key=lambda a: a["gained"], reverse=True)
+    return alerts

@@ -53,7 +53,8 @@ def _build_prompt(client_config, performance_data, keyword_rankings,
                   existing_area_pages=None, keyword_opportunities=None,
                   aeo_opportunities=None, geo_scores=None,
                   serp_features=None, paa_gaps=None,
-                  directory_summary=None, gbp_state=None):
+                  directory_summary=None, gbp_state=None,
+                  competitor_alerts=None, cluster_health=None):
     """Build the full prompt string for Claude."""
 
     name = client_config["name"]
@@ -96,6 +97,13 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
         if velocity is not None and velocity < 1:
             prompt += f"  WARNING: Review velocity below 1/week -- reviews are the #1 local ranking factor. Prioritize review generation.\n"
         prompt += "\n"
+
+    # ── Section 2c: Competitor alerts ──
+    if competitor_alerts:
+        prompt += "COMPETITOR ALERTS (significant position changes since last check):\n"
+        for alert in competitor_alerts[:10]:
+            prompt += f"  \"{alert['keyword']}\": {alert['domain']} moved from pos {alert['old_pos']} to pos {alert['new_pos']} (gained {alert['gained']})\n"
+        prompt += "  Monitor these -- competitors gaining ground may require defensive content or optimization.\n\n"
 
     # ── Section 3: Target keyword rankings (merged GSC organic + SERP actual) ──
     if keyword_rankings:
@@ -652,7 +660,8 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
                aeo_opportunities=None, geo_scores=None,
                serp_features=None, paa_gaps=None,
                directory_summary=None, gbp_state=None, dry_run=True,
-               retry_hint=None, suppressed_hint=None):
+               retry_hint=None, suppressed_hint=None,
+               competitor_alerts=None, cluster_health=None):
     """Build prompt, call claude -p, parse response, return actions.
 
     Args:
@@ -668,6 +677,7 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
         service_areas, existing_area_pages, keyword_opportunities,
         aeo_opportunities, geo_scores, serp_features, paa_gaps,
         directory_summary, gbp_state,
+        competitor_alerts=competitor_alerts, cluster_health=cluster_health,
     )
 
     # Inject retry guidance if this is a retry call after full suppression
