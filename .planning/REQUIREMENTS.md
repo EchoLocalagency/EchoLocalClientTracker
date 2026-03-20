@@ -49,8 +49,8 @@
 - [x] **HARD-02**: engine_tuning.json has a `manual_overrides` section per client that self_improve never modifies
 
 ### Brain Intelligence
-- [ ] **HARD-03**: When all brain-recommended actions are suppressed, engine retries once with explicit available-type guidance
-- [ ] **HARD-04**: SoCal blog/index.html exists and SoCal is in blog_engine.py SITE_CONFIG
+- [x] **HARD-03**: When all brain-recommended actions are suppressed, engine retries once with explicit available-type guidance
+- [x] **HARD-04**: SoCal blog/index.html exists and SoCal is in blog_engine.py SITE_CONFIG
 - [x] **HARD-05**: Brain prompt includes bottom-5 GEO-scored pages with missing factors listed
 - [ ] **HARD-06**: Review velocity tracked daily in reports, surfaced to brain with warning when <1/week
 - [x] **HARD-07**: Impact scores use per-action-type formulas (content: position+impressions+clicks, GBP: GBP metrics, photo: views)
@@ -65,7 +65,7 @@
 - [ ] **HARD-12**: Image alt text validated (missing/empty/too-short flagged as warnings)
 
 ### Operational Reliability
-- [ ] **HARD-13**: Blog_engine.py SITE_CONFIG includes SoCal with correct domain and template
+- [x] **HARD-13**: Blog_engine.py SITE_CONFIG includes SoCal with correct domain and template
 - [x] **HARD-14**: geo_scorer.py freshness check uses dynamic current year (no hardcoded 2025/2026)
 - [ ] **HARD-15**: Sitemap lastmod updated when page_optimizer or geo_upgrade edits a page
 - [ ] **HARD-16**: DNS pre-flight check in seo_loop.py with cache flush and retry

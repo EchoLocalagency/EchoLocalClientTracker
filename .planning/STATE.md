@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.5
-milestone_name: SEO Engine Hardening
-status: in_progress
-last_updated: "2026-03-20"
+milestone: v1.4
+milestone_name: Client Pipeline Tracker
+status: unknown
+last_updated: "2026-03-20T21:32:09.364Z"
 progress:
-  total_phases: 18
-  completed_phases: 17
+  total_phases: 16
+  completed_phases: 12
   total_plans: 31
-  completed_plans: 28
+  completed_plans: 25
 ---
 
 # Project State
@@ -51,6 +51,7 @@ Progress: [##########] 100%
 | Phase 17-pipeline-analytics P02 | 1min | 1 tasks | 1 files |
 | Phase 18-seo-engine-hardening P01 | 2min | 2 tasks | 3 files |
 | Phase 18-seo-engine-hardening P03 | 2min | 3 tasks | 3 files |
+| Phase 18 P02 | 7min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,8 @@ Recent:
 - Suppressions union-merged (manual + auto) so both sources always apply; brain re-merges at load time as safety net
 - GEO bottom-5 added as section 9c in brain prompt for gap prioritization
 - Impact scoring branches on action_type: content (pos+imp+clicks), GBP (gbp_imp+calls), photo (views), fallback
+- [Phase 18]: Brain retry on full suppression: pre-filter actions, retry once with available_types hint
+- [Phase 18]: SoCal blog engine: SITE_CONFIG entry + custom template + blog index with existing posts
 
 ### Pending Todos
 
