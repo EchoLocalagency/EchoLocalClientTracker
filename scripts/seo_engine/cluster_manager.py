@@ -7,7 +7,7 @@ Brain uses this to plan blog posts as part of topical silos.
 """
 
 import os
-from datetime import datetime
+from datetime import datetime, timedelta, date
 
 from dotenv import load_dotenv
 from supabase import create_client
@@ -162,6 +162,96 @@ def suggest_cluster_gaps(client_id):
 
     gaps.sort(key=lambda x: x["gap_count"], reverse=True)
     return gaps
+
+
+def score_cluster_health(client_id):
+    """Score each cluster's performance using GSC query data from the last 7 days.
+
+    For each cluster, matches target_keywords against gsc_queries to sum
+    weekly impressions and clicks. Assigns a health status:
+      - healthy: 5+ posts AND 100+ weekly impressions
+      - growing: 3-4 posts AND 50+ weekly impressions
+      - underperforming: 5+ posts AND <50 weekly impressions
+      - nascent: <3 posts (too early to judge)
+
+    Updates the cluster's health field in Supabase.
+
+    Returns:
+        List of dicts with cluster_name, health, post_count, weekly_impressions,
+        weekly_clicks for brain context.
+    """
+    sb = _get_sb()
+    clusters = get_clusters(client_id)
+    if not clusters:
+        return []
+
+    # Get GSC queries from last 7 days for this client
+    week_ago = (date.today() - timedelta(days=7)).isoformat()
+    gsc_resp = (
+        sb.table("gsc_queries")
+        .select("query, impressions, clicks")
+        .eq("client_id", client_id)
+        .gte("run_date", week_ago)
+        .execute()
+    )
+    gsc_rows = gsc_resp.data or []
+
+    # Build a lookup: lowercase query -> {impressions, clicks} (summed over the week)
+    query_totals = {}
+    for row in gsc_rows:
+        q = row["query"].lower()
+        if q not in query_totals:
+            query_totals[q] = {"impressions": 0, "clicks": 0}
+        query_totals[q]["impressions"] += row.get("impressions", 0)
+        query_totals[q]["clicks"] += row.get("clicks", 0)
+
+    results = []
+    for cluster in clusters:
+        post_count = cluster.get("supporting_count", 0)
+        target_kws = [kw.lower() for kw in (cluster.get("target_keywords") or [])]
+
+        # Sum GSC metrics for keywords matching this cluster
+        weekly_impressions = 0
+        weekly_clicks = 0
+        for kw in target_kws:
+            # Partial match: any GSC query containing the target keyword
+            for q, metrics in query_totals.items():
+                if kw in q or q in kw:
+                    weekly_impressions += metrics["impressions"]
+                    weekly_clicks += metrics["clicks"]
+
+        # Determine health status
+        if post_count < 3:
+            health = "nascent"
+        elif post_count >= 5 and weekly_impressions >= 100:
+            health = "healthy"
+        elif 3 <= post_count <= 4 and weekly_impressions >= 50:
+            health = "growing"
+        elif post_count >= 5 and weekly_impressions < 50:
+            health = "underperforming"
+        elif post_count >= 3 and weekly_impressions >= 50:
+            health = "growing"
+        else:
+            health = "nascent"
+
+        # Update cluster health in Supabase
+        try:
+            sb.table("seo_content_clusters").update({
+                "health": health,
+                "updated_at": datetime.utcnow().isoformat(),
+            }).eq("id", cluster["id"]).execute()
+        except Exception as e:
+            print(f"  [cluster_manager] Health update failed for {cluster['cluster_name']}: {e}")
+
+        results.append({
+            "cluster_name": cluster["cluster_name"],
+            "health": health,
+            "post_count": post_count,
+            "weekly_impressions": weekly_impressions,
+            "weekly_clicks": weekly_clicks,
+        })
+
+    return results
 
 
 def auto_update_cluster_after_post(client_id, post_path, target_keywords):

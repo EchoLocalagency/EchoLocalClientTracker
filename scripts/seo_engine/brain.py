@@ -394,6 +394,25 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
                 char_count += len(line)
             prompt += "  Complete one cluster to 80% authority before starting the next. Focus beats breadth.\n\n"
 
+    # ── Section 14b2: Cluster health (GSC-backed performance) ──
+    if cluster_health:
+        underperforming = [ch for ch in cluster_health if ch["health"] == "underperforming"]
+        if underperforming:
+            prompt += "CLUSTER HEALTH:\n"
+            for ch in underperforming:
+                prompt += (
+                    f"  \"{ch['cluster_name']}\" ({ch['post_count']} posts): "
+                    f"UNDERPERFORMING -- {ch['weekly_impressions']} weekly impressions\n"
+                    f"    Consider: different angle, more specific long-tail keywords, or deprecate cluster\n"
+                )
+            prompt += "\n"
+        # Also show healthy/growing for context if there are underperformers
+        healthy = [ch for ch in cluster_health if ch["health"] in ("healthy", "growing")]
+        if healthy and underperforming:
+            for ch in healthy:
+                prompt += f"  \"{ch['cluster_name']}\" ({ch['post_count']} posts): {ch['health'].upper()} -- {ch['weekly_impressions']} weekly impressions\n"
+            prompt += "\n"
+
     # ── Section 14c: PAA content gaps ──
     if paa_gaps:
         prompt += "PAA CONTENT GAPS (questions searchers ask that the site doesn't answer):\n"

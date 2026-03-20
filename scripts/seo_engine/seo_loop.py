@@ -293,14 +293,20 @@ def run_client(client, dry_run=True):
     # Content clusters (auto-seed if none exist)
     clusters = []
     cluster_gaps = []
+    cluster_health_data = []
     try:
-        from .cluster_manager import get_clusters, suggest_cluster_gaps, create_cluster
+        from .cluster_manager import get_clusters, suggest_cluster_gaps, create_cluster, score_cluster_health
         clusters = get_clusters(client_id)
         if not clusters:
             print(f"  No clusters found. Seeding initial clusters...")
             _seed_clusters(client_id, slug, create_cluster)
             clusters = get_clusters(client_id)
         cluster_gaps = suggest_cluster_gaps(client_id)
+        # Score cluster health against GSC data
+        cluster_health_data = score_cluster_health(client_id)
+        underperf = [ch for ch in cluster_health_data if ch["health"] == "underperforming"]
+        if underperf:
+            print(f"  Cluster health: {len(underperf)} underperforming cluster(s)")
     except Exception as e:
         print(f"  Cluster load failed (non-fatal): {e}")
 
@@ -409,6 +415,7 @@ def run_client(client, dry_run=True):
         directory_summary=directory_summary,
         gbp_state=gbp_state,
         competitor_alerts=competitor_alerts,
+        cluster_health=cluster_health_data,
         dry_run=dry_run,
     )
 
@@ -507,6 +514,7 @@ def run_client(client, dry_run=True):
                 directory_summary=directory_summary,
                 gbp_state=gbp_state,
                 competitor_alerts=competitor_alerts,
+                cluster_health=cluster_health_data,
                 dry_run=dry_run,
                 retry_hint=available_types,
                 suppressed_hint=list(suppressed_types) + list(set(blocked_types) - set(available_types)),
