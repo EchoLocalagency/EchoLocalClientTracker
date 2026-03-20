@@ -246,6 +246,15 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
                 prompt += f"    - \"{ki['theme']}\" responds best to: {', '.join(ki['best_action_types'])}\n"
         prompt += "\n"
 
+    # ── Section 9c: GEO citation-readiness gaps (bottom 5) ──
+    if geo_scores:
+        low_scores = sorted(geo_scores, key=lambda x: x.get("score", 0))[:5]
+        prompt += "LOW GEO CITATION-READINESS PAGES (prioritize improvements):\n"
+        for gs in low_scores:
+            missing = [k for k, v in (gs.get("factors") or {}).items() if v == 0]
+            prompt += f"  {gs.get('page_path', '?')}: score {gs.get('score', 0)}/5, missing: {', '.join(missing) if missing else 'none'}\n"
+        prompt += "\n"
+
     # ── Section 10: Rate limits remaining ──
     from .seo_loop import WEEKLY_LIMITS
     limits = dict(WEEKLY_LIMITS)
