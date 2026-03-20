@@ -120,9 +120,13 @@ def record_followup(followup_id, measured_data):
 
 
 def compute_impact_score(action_id):
-    """Compute impact score from baseline vs 28d measurements.
+    """Compute impact score based on action type's natural metrics.
 
-    Score = weighted combination of position improvement + impression growth.
+    Content actions: position + impressions + clicks
+    GBP actions: GBP-specific impressions + calls/direction requests
+    Photo actions: engagement (views)
+    Fallback: original position + impressions formula
+
     Positive = good. Negative = action hurt or had no effect.
     """
     sb = _get_sb()
@@ -132,23 +136,67 @@ def compute_impact_score(action_id):
 
     action = resp.data[0]
     fu_28d = action.get("followup_28d") or {}
-
-    baseline_pos = action.get("baseline_position")
-    baseline_imp = action.get("baseline_impressions") or 0
-    measured_pos = fu_28d.get("position")
-    measured_imp = fu_28d.get("impressions") or 0
+    action_type = action.get("action_type", "")
 
     score = 0.0
 
-    # Position improvement (lower is better, so baseline - measured = positive if improved)
-    if baseline_pos and measured_pos:
-        pos_delta = baseline_pos - measured_pos
-        score += pos_delta * 2.0  # Weight position heavily
+    # Content actions: position + impressions + clicks
+    if action_type in ("blog_post", "newsjack_post", "aeo_blog_post", "page_edit",
+                        "location_page", "geo_content_upgrade", "schema_update"):
+        baseline_pos = action.get("baseline_position")
+        measured_pos = fu_28d.get("position")
+        if baseline_pos and measured_pos:
+            score += (baseline_pos - measured_pos) * 2.0
+        elif measured_pos and not baseline_pos:
+            # Went from not-ranking to ranking
+            score += (100 - measured_pos) * 0.5
 
-    # Impression growth
-    if baseline_imp > 0 and measured_imp > 0:
-        imp_growth = (measured_imp - baseline_imp) / baseline_imp
-        score += imp_growth * 10.0
+        baseline_imp = action.get("baseline_impressions") or 0
+        measured_imp = fu_28d.get("impressions") or 0
+        if baseline_imp > 0:
+            score += ((measured_imp - baseline_imp) / baseline_imp) * 10.0
+        elif measured_imp > 0:
+            score += min(measured_imp * 0.1, 10.0)  # New impressions from zero
+
+        # Click growth bonus
+        baseline_clicks = action.get("baseline_clicks") or 0
+        measured_clicks = fu_28d.get("clicks") or 0
+        if baseline_clicks > 0:
+            score += ((measured_clicks - baseline_clicks) / baseline_clicks) * 5.0
+        elif measured_clicks > 0:
+            score += min(measured_clicks * 0.5, 5.0)
+
+    # GBP actions: GBP-specific metrics
+    elif action_type in ("gbp_post", "gbp_description_update", "gbp_service_update",
+                          "gbp_categories_update"):
+        baseline_gbp = action.get("baseline_gbp_impressions") or 0
+        measured_gbp = fu_28d.get("gbp_impressions") or 0
+        if baseline_gbp > 0:
+            score += ((measured_gbp - baseline_gbp) / baseline_gbp) * 15.0
+        elif measured_gbp > 0:
+            score += min(measured_gbp * 0.05, 10.0)
+
+        # GBP calls/direction requests if available
+        measured_calls = fu_28d.get("gbp_calls") or 0
+        baseline_calls = fu_28d.get("baseline_gbp_calls") or 0
+        if measured_calls > baseline_calls:
+            score += (measured_calls - baseline_calls) * 3.0
+
+    # Photo actions: engagement metrics
+    elif action_type == "gbp_photo":
+        views = fu_28d.get("photo_views") or 0
+        score += min(views * 0.1, 10.0)
+
+    # Fallback for unknown types
+    else:
+        baseline_pos = action.get("baseline_position")
+        measured_pos = fu_28d.get("position")
+        if baseline_pos and measured_pos:
+            score += (baseline_pos - measured_pos) * 2.0
+        baseline_imp = action.get("baseline_impressions") or 0
+        measured_imp = fu_28d.get("impressions") or 0
+        if baseline_imp > 0:
+            score += ((measured_imp - baseline_imp) / baseline_imp) * 10.0
 
     sb.table("seo_actions").update({
         "impact_score": round(score, 2)
@@ -165,12 +213,12 @@ def get_directory_summary(client_id, client_trades=None):
     try:
         sb = _get_sb()
 
-        # Submitted count (includes submitted, approved, verified)
+        # Submitted count (includes submitted, approved, verified, existing_needs_review)
         sub_resp = (
             sb.table("submissions")
             .select("id", count="exact")
             .eq("client_id", client_id)
-            .in_("status", ["submitted", "approved", "verified"])
+            .in_("status", ["submitted", "approved", "verified", "existing_needs_review"])
             .execute()
         )
         submitted = sub_resp.count or 0
@@ -293,6 +341,26 @@ def get_week_action_counts(client_id):
         .eq("client_id", client_id)
         .gte("action_date", str(monday))
         .lte("action_date", str(sunday))
+        .execute()
+    )
+
+    counts = {}
+    for row in (resp.data or []):
+        t = row["action_type"]
+        counts[t] = counts.get(t, 0) + 1
+    return counts
+
+
+def get_month_action_counts(client_id):
+    """Count actions in the last 30 days for monthly rate limiting."""
+    sb = _get_sb()
+    cutoff = str(date.today() - timedelta(days=30))
+
+    resp = (
+        sb.table("seo_actions")
+        .select("action_type")
+        .eq("client_id", client_id)
+        .gte("action_date", cutoff)
         .execute()
     )
 
