@@ -223,6 +223,30 @@ def check_answer_capsule(html):
     return len(issues) == 0, issues
 
 
+def check_image_alt_texts(html, target_keywords=None):
+    """Check that images have descriptive alt text, optionally containing target keywords.
+
+    Returns (issues_list). Empty = all good.
+    """
+    issues = []
+    images = re.findall(r'<img[^>]*>', html, re.IGNORECASE)
+
+    for img in images:
+        # Check for alt attribute
+        alt_match = re.search(r'alt=["\']([^"\']*)["\']', img, re.IGNORECASE)
+        src_match = re.search(r'src=["\']([^"\']*)["\']', img, re.IGNORECASE)
+        src = src_match.group(1) if src_match else "unknown"
+
+        if not alt_match:
+            issues.append(f"Image missing alt text: {src}")
+        elif not alt_match.group(1).strip():
+            issues.append(f"Image has empty alt text: {src}")
+        elif len(alt_match.group(1)) < 10:
+            issues.append(f"Image alt text too short ({len(alt_match.group(1))} chars): {src}")
+
+    return issues
+
+
 def validate_content(text, content_type):
     """Run all validations. Returns (cleaned_text, issues).
 
@@ -257,6 +281,12 @@ def validate_content(text, content_type):
         _, signal_issues = check_experience_signals(cleaned)
         issues.extend(signal_issues)
 
+    # Check image alt texts (warnings, non-blocking)
+    if content_type in ("blog_post", "location_page", "newsjack_post"):
+        alt_issues = check_image_alt_texts(cleaned)
+        for issue in alt_issues:
+            print(f"  [content_validator] WARNING: {issue}")
+
     return cleaned, issues
 
 
@@ -267,6 +297,69 @@ def validate_title(title):
     if slop_patterns:
         issues.append(f"AI slop title pattern: {', '.join(slop_patterns)}")
     return title, issues
+
+
+def validate_gbp_post(text):
+    """Validate GBP post text doesn't contain phone numbers or URLs.
+
+    Google rejects posts with phone numbers or URLs in the text body -- use CTA buttons only.
+
+    Args:
+        text: The GBP post text
+
+    Returns:
+        (cleaned_text, issues) -- issues is a list of strings
+    """
+    issues = []
+
+    # Check for URLs
+    if re.search(r"https?://|www\.", text, re.IGNORECASE):
+        issues.append("GBP post contains URL (use cta_url instead)")
+
+    # Check for phone numbers
+    phone_patterns = [
+        r"\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}",
+        r"\+1\d{10}",
+    ]
+    for pattern in phone_patterns:
+        if re.search(pattern, text):
+            issues.append("GBP post contains phone number (Google rejects these in post text)")
+            break
+
+    return text, issues
+
+
+def validate_gbp_description(text):
+    """Validate GBP business description text.
+
+    Args:
+        text: The business description
+
+    Returns:
+        (cleaned_text, issues) -- issues is a list of strings
+    """
+    issues = []
+
+    if len(text) > 750:
+        text = text[:750]
+        issues.append("Description truncated to 750 chars")
+
+    if re.search(r"https?://|www\.", text, re.IGNORECASE):
+        issues.append("Description contains URL (not allowed)")
+
+    phone_patterns = [
+        r"\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}",
+        r"\+1\d{10}",
+    ]
+    for pattern in phone_patterns:
+        if re.search(pattern, text):
+            issues.append("Description contains phone number (not allowed)")
+            break
+
+    if re.search(r"\$\d+|% off|free estimate|discount|coupon|promo", text, re.IGNORECASE):
+        issues.append("Description contains prices or promotions (not allowed)")
+
+    return text, issues
 
 
 def clean_content(text):
