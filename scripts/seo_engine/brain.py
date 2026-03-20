@@ -15,19 +15,31 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from .content_validator import validate_content, validate_title
+from .content_validator import validate_content, validate_title, validate_gbp_post, validate_gbp_description
 from .outcome_logger import log_brain_decision
 
 TUNING_FILE = Path("/Users/brianegan/EchoLocalClientTracker/scripts/seo_engine/engine_tuning.json")
 
 
 def _load_tuning(slug):
-    """Load tuning config for a client. Returns dict or None."""
+    """Load tuning config for a client. Returns dict or None.
+
+    Merges manual_overrides.suppressed_action_types into the top-level
+    suppressed list so the brain always sees both manual and auto suppressions.
+    """
     if not TUNING_FILE.exists():
         return None
     try:
         data = json.loads(TUNING_FILE.read_text())
-        return data.get(slug)
+        entry = data.get(slug)
+        if not entry:
+            return None
+        # Ensure manual override suppressions are always present in top-level list
+        manual = entry.get("manual_overrides", {})
+        manual_suppressed = set(manual.get("suppressed_action_types", []))
+        current_suppressed = set(entry.get("suppressed_action_types", []))
+        entry["suppressed_action_types"] = sorted(current_suppressed | manual_suppressed)
+        return entry
     except (json.JSONDecodeError, OSError):
         return None
 
@@ -35,13 +47,13 @@ def _load_tuning(slug):
 def _build_prompt(client_config, performance_data, keyword_rankings,
                   gbp_keywords, gsc_queries, page_inventory,
                   action_history, outcome_patterns, recent_keywords,
-                  week_counts, research_data=None, photo_manifest=None,
-                  schema_audit=None, clusters=None, cluster_gaps=None,
-                  gbp_candidates=None, service_areas=None,
+                  week_counts, month_counts=None, research_data=None,
+                  photo_manifest=None, schema_audit=None, clusters=None,
+                  cluster_gaps=None, gbp_candidates=None, service_areas=None,
                   existing_area_pages=None, keyword_opportunities=None,
                   aeo_opportunities=None, geo_scores=None,
                   serp_features=None, paa_gaps=None,
-                  directory_summary=None):
+                  directory_summary=None, gbp_state=None):
     """Build the full prompt string for Claude."""
 
     name = client_config["name"]
@@ -226,7 +238,7 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
                 prompt += f"    - {rule}\n"
         suppressed = tuning.get("suppressed_action_types", [])
         if suppressed:
-            prompt += f"  Suppressed types (avoid unless strong reasoning): {', '.join(suppressed)}\n"
+            prompt += f"  BLOCKED action types (DO NOT recommend -- they will be rejected and waste your action budget): {', '.join(suppressed)}\n"
         kw_insights = tuning.get("keyword_insights", [])
         if kw_insights:
             prompt += "  Keyword insights:\n"
@@ -242,8 +254,15 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
         for k, v in tuning.get("rate_limit_overrides", {}).items():
             if k in limits and v > limits[k]:
                 limits[k] = v
+    # Zero out suppressed types so brain doesn't see them as available
+    suppressed_types = set()
+    if tuning:
+        suppressed_types = set(tuning.get("suppressed_action_types", []))
     prompt += "WEEKLY RATE LIMITS (remaining this week):\n"
     for action_type, max_count in limits.items():
+        if action_type in suppressed_types:
+            prompt += f"  {action_type}: BLOCKED (suppressed)\n"
+            continue
         used = week_counts.get(action_type, 0)
         remaining = max(0, max_count - used)
         prompt += f"  {action_type}: {remaining} remaining (used {used}/{max_count})\n"
@@ -402,6 +421,49 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
             prompt += geo_section
             prompt += "\n"
 
+    # ── Section 19b: Current GBP state ──
+    if gbp_state:
+        prompt += "CURRENT GBP STATE:\n"
+        desc = gbp_state.get("description", "")
+        if desc:
+            prompt += f"  Description ({len(desc)} chars): {desc[:200]}{'...' if len(desc) > 200 else ''}\n"
+        else:
+            prompt += "  Description: (empty -- consider gbp_description_update)\n"
+
+        cats = gbp_state.get("categories", {})
+        if cats:
+            primary = cats.get("primary", "unknown")
+            additional = cats.get("additional", [])
+            prompt += f"  Primary category: {primary}\n"
+            if additional:
+                prompt += f"  Additional categories: {', '.join(additional)}\n"
+            else:
+                prompt += "  Additional categories: (none -- consider gbp_categories_update)\n"
+
+        services = gbp_state.get("services", [])
+        if services:
+            prompt += f"  Services: {len(services)} listed\n"
+            for svc in services[:5]:
+                label = svc.get("freeFormServiceItem", {}).get("label", {})
+                svc_name = label.get("displayName", "?")
+                svc_desc = label.get("description", "")
+                prompt += f"    - {svc_name}: {svc_desc[:60]}{'...' if len(svc_desc) > 60 else ''}\n"
+            if len(services) > 5:
+                prompt += f"    ... and {len(services) - 5} more\n"
+        else:
+            prompt += "  Services: (none listed)\n"
+        prompt += "\n"
+
+    # ── Section 19c: Monthly rate limits ──
+    if month_counts is not None:
+        from .seo_loop import MONTHLY_LIMITS
+        prompt += "MONTHLY RATE LIMITS (remaining this month):\n"
+        for action_type, max_count in MONTHLY_LIMITS.items():
+            used = (month_counts or {}).get(action_type, 0)
+            remaining = max(0, max_count - used)
+            prompt += f"  {action_type}: {remaining} remaining (used {used}/{max_count})\n"
+        prompt += "\n"
+
     # ── Section 19: Directory coverage ──
     if directory_summary:
         submitted = directory_summary.get("submitted", 0)
@@ -416,7 +478,7 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
     prompt += """RULES (follow exactly):
 1. Return ONLY a JSON array of action objects. No other text.
 2. Each action must have: action_type, target_keywords (array), priority (1-5, 1=highest), reasoning (1 sentence), and type-specific content fields.
-3. Action types: gbp_post, blog_post, page_edit, location_page, gbp_photo, schema_update, newsjack_post, geo_content_upgrade, gbp_service_update (NOTE: gbp_qanda is DISCONTINUED -- Google killed Q&A in Dec 2025. Do NOT generate gbp_qanda actions.)
+3. Action types: gbp_post, blog_post, page_edit, location_page, gbp_photo, schema_update, newsjack_post, geo_content_upgrade, gbp_service_update, gbp_description_update, gbp_categories_update (NOTE: gbp_qanda is DISCONTINUED -- Google killed Q&A in Dec 2025. Do NOT generate gbp_qanda actions.)
 4. CONTENT VOICE: You are writing as the business owner/operator, not a marketing agency. Write in first person plural ("we", "our crew"). Reference specific neighborhoods, streets, landmarks. Include technical details (PSI, square footage, materials, time durations). State opinions directly ("We stopped using X because..."). Start with specific observations or job details, never with questions or cliches.
 4a. BANNED WORDS (never use): delve, tapestry, realm, beacon, testament, landscape (metaphorical), paradigm, synergy, framework, nuanced, multifaceted, comprehensive, robust, seamless, cutting-edge, transformative, innovative, pivotal, intricate, holistic, bespoke, scalable, unprecedented, intuitive, tailored, streamlined, best-in-class, world-class, groundbreaking, revolutionary, game-changing, supercharge, captivating, fascinating, meticulous, vibrant, proactive, thrilled, moreover, furthermore, additionally, consequently, subsequently, indeed, certainly, arguably, essentially, fundamentally, significantly, notably.
 4b. BANNED PHRASES (never use): "in today's [anything]", "ever-evolving", "in an era of", "when it comes to", "it's important to note", "it is worth mentioning", "first and foremost", "at the end of the day", "in conclusion", "in summary", "in essence", "let's dive in", "let's explore", "have you ever wondered", "imagine a world", "picture this", "unlock the potential", "unleash the power", "pave the way", "at the forefront", "push the boundaries", "embark on a journey", "I hope this helps", "feel free to reach out", "don't hesitate to", "here's the thing".
@@ -459,6 +521,9 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
 38. gbp_service_update: update GBP services list with keyword-optimized descriptions. Must include a "services" array where each item has "service_name" (display name) and "description" (max 300 chars, keyword-optimized). Rate limit: 1/week. Use this to ensure GBP services match target keywords with optimized descriptions. Only propose when services are missing or have generic descriptions.
 39. HIGHEST ROI RULE: When a striking-distance page (position 3-20) also has a low GEO score (0-2), prioritize a geo_content_upgrade for that page ABOVE all other action types. These pages already rank but aren't citation-ready -- fixing them is the single highest-ROI action.
 39. CITATION-READY BLOG POSTS: Every blog_post body_content MUST include: (a) answer capsule (40-60 words, class="answer-capsule") as first element after first H2, (b) at least one comparison table for any "vs" topic, (c) at least 3 stat-dense data points (numbers, costs, measurements), (d) question-format H2 headings where the topic is a question, (e) "Last updated: {current month and year}" visible near top, (f) short scannable paragraphs (max 3 sentences each).
+40. GBP COMPLIANCE (all GBP actions): GBP post text must NEVER contain phone numbers or URLs -- use cta_url for links. GBP service descriptions: max 300 chars, no phone numbers, no URLs, no prices. GBP service names: max 58 chars, no keyword stuffing. GBP description updates: max 750 chars, no URLs, no phone numbers, no prices/promotions. Violations get the action blocked.
+41. gbp_description_update: rewrite the GBP business description. Must include a 'description' field (max 750 chars). First ~250 chars display prominently -- lead with core services and location. No URLs, phone numbers, prices, or promotions. No keyword stuffing. Only propose when CURRENT GBP STATE shows the description is generic, missing services, or poorly optimized. Rate limit: 1/month. Check MONTHLY RATE LIMITS before proposing.
+42. gbp_categories_update: update GBP categories. Must include 'additional_categories' array of category gcids to ADD. Optionally include 'primary_category' gcid to change primary (use sparingly -- changing primary is high-risk). Google says "choose the fewest categories" -- only add categories that describe what the business IS, not what it HAS. Max 10 total. Rate limit: 1/month. Only propose when CURRENT GBP STATE shows categories are clearly missing or wrong. Check MONTHLY RATE LIMITS before proposing.
 
 OUTPUT FORMAT:
 [
@@ -535,6 +600,20 @@ OUTPUT FORMAT:
       {"type": "stats_injection", "target_section": "Why Clean Your Turf", "content": "<p>Our Poway crews cleaned 127 turf yards last year. Average bacterial reduction after treatment: 99.2%. Surface temperature drop after deodorizing rinse: 15-20 degrees.</p>"},
       {"type": "freshness_update", "content": "<p class=\"last-updated\">Last updated: March 2026</p>"}
     ]
+  },
+  {
+    "action_type": "gbp_description_update",
+    "target_keywords": ["turf cleaning poway", "artificial turf cleaning san diego"],
+    "priority": 3,
+    "reasoning": "Current description is generic and doesn't mention key services or service areas.",
+    "description": "Mr. Green Turf Clean provides professional artificial turf cleaning, sanitizing, and maintenance across San Diego County. Our crews use 180-degree steam treatment and enzyme-based deodorizers to eliminate bacteria, pet waste, and allergens from synthetic grass. Serving Poway, Rancho Bernardo, Escondido, and surrounding neighborhoods since 2019."
+  },
+  {
+    "action_type": "gbp_categories_update",
+    "target_keywords": ["pressure washing san diego"],
+    "priority": 4,
+    "reasoning": "Missing secondary categories for roof cleaning and solar panel cleaning services.",
+    "additional_categories": ["gcid:roof_cleaning_service", "gcid:solar_panel_cleaning_service"]
   }
 ]
 """
@@ -544,23 +623,23 @@ OUTPUT FORMAT:
 
 def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
                gsc_queries, page_inventory, action_history, outcome_patterns,
-               recent_keywords, week_counts, research_data=None,
+               recent_keywords, week_counts, month_counts=None, research_data=None,
                photo_manifest=None, schema_audit=None, clusters=None,
                cluster_gaps=None, gbp_candidates=None, service_areas=None,
                existing_area_pages=None, keyword_opportunities=None,
                aeo_opportunities=None, geo_scores=None,
                serp_features=None, paa_gaps=None,
-               directory_summary=None, dry_run=True):
+               directory_summary=None, gbp_state=None, dry_run=True):
     """Build prompt, call claude -p, parse response, return actions."""
 
     prompt = _build_prompt(
         client_config, performance_data, keyword_rankings, gbp_keywords,
         gsc_queries, page_inventory, action_history, outcome_patterns,
-        recent_keywords, week_counts, research_data, photo_manifest,
+        recent_keywords, week_counts, month_counts, research_data, photo_manifest,
         schema_audit, clusters, cluster_gaps, gbp_candidates,
         service_areas, existing_area_pages, keyword_opportunities,
         aeo_opportunities, geo_scores, serp_features, paa_gaps,
-        directory_summary,
+        directory_summary, gbp_state,
     )
 
     print(f"  [brain] Prompt built ({len(prompt)} chars). Calling Claude...")
@@ -588,7 +667,11 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
         )
 
         if result.returncode != 0:
-            print(f"  [brain] Claude CLI error: {result.stderr[:200]}")
+            stderr_msg = result.stderr.strip() or "(empty stderr)"
+            stdout_msg = result.stdout.strip()[:300] or "(empty stdout)"
+            print(f"  [brain] Claude CLI error (exit code {result.returncode}):")
+            print(f"    stderr: {stderr_msg[:300]}")
+            print(f"    stdout: {stdout_msg}")
             return []
 
         raw_response = result.stdout.strip()
@@ -791,6 +874,21 @@ def _validate_action(action):
             cleaned, field_issues = validate_content(text, vtype)
             action[field] = cleaned
             issues.extend(field_issues)
+
+    # GBP post text: reject phone numbers and URLs
+    if action_type == "gbp_post":
+        summary = action.get("summary", "")
+        if summary:
+            _, gbp_issues = validate_gbp_post(summary)
+            issues.extend(gbp_issues)
+
+    # GBP description: validate against Google policies
+    if action_type == "gbp_description_update":
+        desc = action.get("description", "")
+        if desc:
+            cleaned_desc, desc_issues = validate_gbp_description(desc)
+            action["description"] = cleaned_desc
+            issues.extend(desc_issues)
 
     # Validate titles for content types that have them
     if action_type in ("blog_post", "newsjack_post", "location_page"):

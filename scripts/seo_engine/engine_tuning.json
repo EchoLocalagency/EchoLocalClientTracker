@@ -1,14 +1,58 @@
 {
-  "_note": "gbp_photo suppressed 2026-03-06: Google GBP Media API v4 returning 404/500 errors. All uploads failing. Suppress until API stabilizes. Re-enable by removing suppressed_action_types entries.",
+  "_note": "gbp_photo suppression removed 2026-03-07: Photos now working via pre-staged Supabase sourceUrl method. 3/3 uploads succeeded. The v4 direct bytes upload may still be broken but sourceUrl bypasses it entirely.",
+  "_note_categories": "gbp_categories_update suppressed globally 2026-03-19: API returns 400 INVALID_ARGUMENT on categories.primary_category for both Mr Green and AZ Turf. Brain sends gcid values Google rejects. Suppress until gcid validation is fixed or API format investigated.",
   "mr-green-turf-clean": {
-    "suppressed_action_types": ["gbp_photo"],
+    "manual_overrides": {
+      "suppressed_action_types": ["gbp_categories_update"],
+      "learned_rules": [
+        "gbp_photo works reliably when photos are pre-staged in Supabase storage (sourceUrl method). Direct bytes upload to GBP v4 is unreliable."
+      ],
+      "_reason": "gbp_categories_update: API returns 400 INVALID_ARGUMENT (2026-03-19)"
+    },
+    "suppressed_action_types": ["gbp_categories_update"],
+    "rate_limit_overrides": {},
+    "action_type_rankings": [],
+    "learned_rules": [
+      "gbp_photo works reliably when photos are pre-staged in Supabase storage (sourceUrl method). Direct bytes upload to GBP v4 is unreliable."
+    ],
+    "keyword_insights": []
+  },
+  "integrity-pro-washers": {
+    "manual_overrides": {
+      "suppressed_action_types": ["gbp_post", "gbp_photo", "gbp_service_update", "gbp_description_update", "gbp_categories_update"],
+      "learned_rules": [
+        "gbp_photo works reliably when photos are pre-staged in Supabase storage (sourceUrl method). Direct bytes upload to GBP v4 is unreliable."
+      ],
+      "_reason": "Post-suspension recovery. GBP was suspended ~Mar 6 (wrong-brand post). Reinstated but impressions flatlined. Pausing all GBP API activity for 2 weeks to let trust recover. Re-evaluate after 2026-03-31."
+    },
+    "suppressed_action_types": ["gbp_post", "gbp_photo", "gbp_service_update", "gbp_description_update", "gbp_categories_update"],
+    "_suppression_reason": "Post-suspension recovery. GBP was suspended ~Mar 6 (wrong-brand post). Reinstated but impressions flatlined. Pausing all GBP API activity for 2 weeks to let trust recover. Re-evaluate after 2026-03-31.",
+    "rate_limit_overrides": {},
+    "action_type_rankings": [],
+    "learned_rules": [
+      "gbp_photo works reliably when photos are pre-staged in Supabase storage (sourceUrl method). Direct bytes upload to GBP v4 is unreliable."
+    ],
+    "keyword_insights": []
+  },
+  "az-turf-cleaning": {
+    "manual_overrides": {
+      "suppressed_action_types": ["gbp_categories_update"],
+      "learned_rules": [],
+      "_reason": "gbp_categories_update: API returns 400 INVALID_ARGUMENT (2026-03-19)"
+    },
+    "suppressed_action_types": ["gbp_categories_update"],
     "rate_limit_overrides": {},
     "action_type_rankings": [],
     "learned_rules": [],
     "keyword_insights": []
   },
-  "integrity-pro-washers": {
-    "suppressed_action_types": ["gbp_photo"],
+  "socal-artificial-turfs": {
+    "manual_overrides": {
+      "suppressed_action_types": ["gbp_categories_update"],
+      "learned_rules": [],
+      "_reason": "gbp_categories_update: API returns 400 INVALID_ARGUMENT (2026-03-19)"
+    },
+    "suppressed_action_types": ["gbp_categories_update"],
     "rate_limit_overrides": {},
     "action_type_rankings": [],
     "learned_rules": [],
