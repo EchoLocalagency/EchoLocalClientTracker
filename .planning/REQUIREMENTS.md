@@ -42,6 +42,35 @@
 - [x] **ANAL-03**: Source/channel breakdown chart showing where leads come from
 - [x] **ANAL-04**: Overdue follow-up highlighting for leads with no communication in 7+ days
 
+## v1.5 Requirements: SEO Engine Hardening
+
+### Self-Improve Safety
+- [x] **HARD-01**: self_improve.py merges learned patterns into existing tuning without overwriting manual suppressions
+- [x] **HARD-02**: engine_tuning.json has a `manual_overrides` section per client that self_improve never modifies
+
+### Brain Intelligence
+- [ ] **HARD-03**: When all brain-recommended actions are suppressed, engine retries once with explicit available-type guidance
+- [ ] **HARD-04**: SoCal blog/index.html exists and SoCal is in blog_engine.py SITE_CONFIG
+- [ ] **HARD-05**: Brain prompt includes bottom-5 GEO-scored pages with missing factors listed
+- [ ] **HARD-06**: Review velocity tracked daily in reports, surfaced to brain with warning when <1/week
+- [ ] **HARD-07**: Impact scores use per-action-type formulas (content: position+impressions+clicks, GBP: GBP metrics, photo: views)
+
+### Data Signals
+- [ ] **HARD-08**: Competitor top-3 positions stored per keyword snapshot
+- [ ] **HARD-09**: Competitor position changes >3 places surfaced as alerts in brain prompt
+- [ ] **HARD-10**: Content cluster health scored against GSC data, underperformers flagged to brain
+
+### Content Quality
+- [ ] **HARD-11**: Location pages with >70% trigram similarity to existing pages rejected before writing
+- [ ] **HARD-12**: Image alt text validated (missing/empty/too-short flagged as warnings)
+
+### Operational Reliability
+- [ ] **HARD-13**: Blog_engine.py SITE_CONFIG includes SoCal with correct domain and template
+- [ ] **HARD-14**: geo_scorer.py freshness check uses dynamic current year (no hardcoded 2025/2026)
+- [ ] **HARD-15**: Sitemap lastmod updated when page_optimizer or geo_upgrade edits a page
+- [ ] **HARD-16**: DNS pre-flight check in seo_loop.py with cache flush and retry
+- [ ] **HARD-17**: Launchd plist has PYTHONUNBUFFERED=1 for real-time log output
+
 ## Previous Milestones (Complete)
 
 - v1.3: GSC Keyword History (Phase 13)

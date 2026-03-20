@@ -10,7 +10,8 @@ Add Generative Engine Optimization to the existing SEO engine. v1.0 built the da
 - v1.1 **Mention Tracking + GEO Dashboard** -- Phases 5-7 (shipped 2026-03-11)
 - v1.2 **Directory Submission & Tracking** -- Phases 8-12 (shipped 2026-03-11)
 - v1.3 **GSC Keyword History** -- Phase 13 (shipped 2026-03-12)
-- v1.4 **Client Pipeline Tracker** -- Phases 14-17 (in progress)
+- v1.4 **Client Pipeline Tracker** -- Phases 14-17 (shipped 2026-03-13)
+- v1.5 **SEO Engine Hardening** -- Phase 18 (in progress)
 
 ## Phases
 
@@ -119,8 +120,29 @@ Plans:
   4. Leads with no communication logged in 7+ days are visually highlighted as overdue in the pipeline table, making stalled prospects immediately obvious
 **Plans**: 2 plans
 Plans:
-- [ ] 17-01-PLAN.md -- Analytics section with conversion funnel, avg days per stage, source breakdown charts (ANAL-01, ANAL-02, ANAL-03)
-- [ ] 17-02-PLAN.md -- Overdue follow-up highlighting in pipeline table (ANAL-04)
+- [x] 17-01-PLAN.md -- Analytics section with conversion funnel, avg days per stage, source breakdown charts (ANAL-01, ANAL-02, ANAL-03)
+- [x] 17-02-PLAN.md -- Overdue follow-up highlighting in pipeline table (ANAL-04)
+
+### Phase 18: SEO Engine Hardening
+**Goal**: Fix all issues identified in the SEO engine audit -- protect manual tuning, prevent wasted brain cycles, add missing data signals (reviews, competitors, cluster health), harden content quality gates, and fix operational reliability issues
+**Depends on**: Phase 17 (v1.4 complete)
+**Requirements**: HARD-01 through HARD-17
+**Success Criteria** (what must be TRUE):
+  1. Self-improve merges learned patterns without overwriting manual suppressions or learned rules
+  2. When all brain actions are suppressed, engine retries once with available action types
+  3. Brain prompt includes bottom-5 GEO scores, review velocity, competitor alerts, and cluster health
+  4. Impact scores use action-type-specific formulas (content vs GBP vs photos)
+  5. Location pages with >70% similarity to existing pages are rejected
+  6. Sitemap lastmod updated when pages are edited
+  7. DNS pre-flight prevents startup crashes from macOS DNS cache issues
+  8. SoCal has blog infrastructure (SITE_CONFIG + blog/index.html)
+**Plans**: 5 plans in 2 waves
+Plans:
+- [x] 18-01-PLAN.md -- Self-improve merge safety + engine tuning schema (HARD-01, HARD-02) [Wave 1]
+- [ ] 18-02-PLAN.md -- Brain retry on full suppression + SoCal blog config (HARD-03, HARD-04, HARD-13) [Wave 1]
+- [ ] 18-03-PLAN.md -- GEO brain integration + impact score per action type (HARD-05, HARD-07, HARD-14) [Wave 1]
+- [ ] 18-04-PLAN.md -- Review tracking + competitor positions + cluster health (HARD-06, HARD-08, HARD-09, HARD-10) [Wave 2]
+- [ ] 18-05-PLAN.md -- Location page dedup + sitemap lastmod + DNS preflight + misc fixes (HARD-11, HARD-12, HARD-15, HARD-16, HARD-17) [Wave 2]
 
 ## Progress
 
@@ -146,3 +168,4 @@ Phases 14-17 execute sequentially. Phase 17 can begin after Phase 15 (needs stag
 | 15. Page Shell + Pipeline Table | 2/2 | Complete    | 2026-03-13 | - |
 | 16. Lead Detail Drawer | v1.4 | Complete    | 2026-03-13 | 2026-03-13 |
 | 17. Pipeline Analytics | 2/2 | Complete    | 2026-03-13 | - |
+| 18. SEO Engine Hardening | v1.5 | 1/5 | In Progress | - |

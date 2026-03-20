@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.4
-milestone_name: Client Pipeline Tracker
-status: unknown
-last_updated: "2026-03-13T05:48:41.682Z"
+milestone: v1.5
+milestone_name: SEO Engine Hardening
+status: in_progress
+last_updated: "2026-03-20"
 progress:
-  total_phases: 15
-  completed_phases: 12
-  total_plans: 26
-  completed_plans: 22
+  total_phases: 18
+  completed_phases: 17
+  total_plans: 31
+  completed_plans: 27
 ---
 
 # Project State
@@ -17,15 +17,15 @@ progress:
 
 See: .planning/PROJECT.md (updated 2026-03-12)
 
-**Core value:** Track every client from first contact to active/churned so nothing falls through the cracks as the client base grows.
-**Current focus:** Phase 17 -- Pipeline Analytics
+**Core value:** Fix all issues identified in the SEO engine audit -- protect manual tuning, prevent wasted brain cycles, add missing data signals, harden content quality gates.
+**Current focus:** Phase 18 -- SEO Engine Hardening
 
 ## Current Position
 
-Phase: 17 of 17 (Pipeline Analytics)
-Plan: 2 of 2
-Status: Complete
-Last activity: 2026-03-13 -- Completed 17-02 (overdue follow-up highlighting)
+Phase: 18 of 18 (SEO Engine Hardening)
+Plan: 1 of 5
+Status: In Progress
+Last activity: 2026-03-20 -- Completed 18-01 (self-improve merge safety)
 
 Progress: [##########] 100%
 
@@ -49,6 +49,7 @@ Progress: [##########] 100%
 | Phase 16-lead-detail-drawer P02 | 2min | 2 tasks | 3 files |
 | Phase 17-pipeline-analytics P01 | 2min | 1 tasks | 2 files |
 | Phase 17-pipeline-analytics P02 | 1min | 1 tasks | 1 files |
+| Phase 18-seo-engine-hardening P01 | 2min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,8 @@ Recent:
 - Funnel derived from stage history (not current stage counts) per research pitfall #6
 - Leads with no history entries included in Lead stage avg days via stage_entered_at fallback
 - isOverdue excludes Churned leads, flags never-contacted as overdue, uses 7-day threshold
+- manual_overrides is a protected sub-object in engine_tuning.json that self_improve never writes to
+- Suppressions union-merged (manual + auto) so both sources always apply; brain re-merges at load time as safety net
 
 ### Pending Todos
 
@@ -90,6 +93,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-13
-Stopped at: Completed 17-02-PLAN.md (overdue follow-up highlighting) -- v1.4 milestone complete
+Last session: 2026-03-20
+Stopped at: Completed 18-01-PLAN.md (self-improve merge safety + engine tuning schema)
 Resume file: None
