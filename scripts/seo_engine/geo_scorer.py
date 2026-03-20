@@ -186,8 +186,10 @@ def _check_headings(soup) -> int:
 def _check_freshness(soup, html: str) -> int:
     """Check for freshness signals: recent year or 'updated'/'last modified' text."""
     text = soup.get_text()
-    # Check for 2025 or 2026 in text
-    if re.search(r'(?:2025|2026)', text):
+    # Check for current or previous year in text (dynamic, no hardcoded years)
+    from datetime import date as _date
+    current_year = _date.today().year
+    if re.search(rf'(?:{current_year - 1}|{current_year})', text):
         return 1
     # Check for "updated", "last modified", or "published" patterns with a date
     if re.search(r'(?:updated|last\s+modified|published)\s*:?\s*\w+\s+\d', text, re.I):
