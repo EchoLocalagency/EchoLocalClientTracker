@@ -638,8 +638,14 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
                existing_area_pages=None, keyword_opportunities=None,
                aeo_opportunities=None, geo_scores=None,
                serp_features=None, paa_gaps=None,
-               directory_summary=None, gbp_state=None, dry_run=True):
-    """Build prompt, call claude -p, parse response, return actions."""
+               directory_summary=None, gbp_state=None, dry_run=True,
+               retry_hint=None, suppressed_hint=None):
+    """Build prompt, call claude -p, parse response, return actions.
+
+    Args:
+        retry_hint: List of available action types (used on retry after full suppression).
+        suppressed_hint: List of suppressed action types to explicitly exclude.
+    """
 
     prompt = _build_prompt(
         client_config, performance_data, keyword_rankings, gbp_keywords,
@@ -650,6 +656,15 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
         aeo_opportunities, geo_scores, serp_features, paa_gaps,
         directory_summary, gbp_state,
     )
+
+    # Inject retry guidance if this is a retry call after full suppression
+    if retry_hint and suppressed_hint:
+        retry_section = (
+            f"\n\nRETRY: Your previous recommendations were all blocked by suppression rules.\n"
+            f"Available action types for this client: {', '.join(retry_hint)}\n"
+            f"You MUST choose from these types only. Do NOT recommend: {', '.join(suppressed_hint)}\n"
+        )
+        prompt += retry_section
 
     print(f"  [brain] Prompt built ({len(prompt)} chars). Calling Claude...")
 

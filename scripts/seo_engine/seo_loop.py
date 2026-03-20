@@ -430,6 +430,78 @@ def run_client(client, dry_run=True):
 
     gbp_actions_this_run = 0
 
+    # ── Pre-filter: check if ALL actions would be suppressed/rate-limited ──
+    # If so, retry the brain once with explicit guidance about available types
+    raw_brain_actions = list(actions)
+    approved_any = False
+    for action in raw_brain_actions:
+        action_type = action.get("action_type", "")
+        if action_type in suppressed_types:
+            continue
+        if action_type in GBP_ACTION_TYPES and gbp_actions_this_run >= MAX_GBP_ACTIONS_PER_RUN:
+            continue
+        if action_type in MONTHLY_LIMITS:
+            if month_counts.get(action_type, 0) >= MONTHLY_LIMITS[action_type]:
+                continue
+        elif week_counts.get(action_type, 0) >= effective_limits.get(action_type, 0):
+            continue
+        approved_any = True
+        break
+
+    if not approved_any and raw_brain_actions:
+        # All actions were suppressed/rate-limited -- retry once with available types
+        all_limit_types = set(WEEKLY_LIMITS.keys()) | set(MONTHLY_LIMITS.keys())
+        available_types = []
+        for t in all_limit_types:
+            if t in suppressed_types:
+                continue
+            if t in MONTHLY_LIMITS:
+                if month_counts.get(t, 0) >= MONTHLY_LIMITS[t]:
+                    continue
+            elif week_counts.get(t, 0) >= effective_limits.get(t, 0):
+                continue
+            available_types.append(t)
+
+        blocked_types = [a.get("action_type", "") for a in raw_brain_actions]
+        if available_types:
+            print(f"  [retry] All {len(raw_brain_actions)} actions suppressed/rate-limited. Retrying with available types: {available_types}")
+            actions = call_brain(
+                client_config=client,
+                performance_data=perf_data,
+                keyword_rankings=keyword_rankings,
+                gbp_keywords=gbp_keywords,
+                gsc_queries=gsc_queries,
+                page_inventory=page_inventory,
+                action_history=action_history,
+                outcome_patterns=outcome_patterns,
+                recent_keywords=recent_keywords,
+                week_counts=week_counts,
+                month_counts=month_counts,
+                research_data=research_data,
+                photo_manifest=photo_manifest,
+                schema_audit=schema_audit,
+                clusters=clusters,
+                cluster_gaps=cluster_gaps,
+                gbp_candidates=gbp_candidates,
+                service_areas=service_areas,
+                existing_area_pages=existing_area_pages,
+                keyword_opportunities=keyword_opportunities,
+                aeo_opportunities=aeo_opportunities,
+                geo_scores=geo_scores_data,
+                serp_features=serp_features_data,
+                paa_gaps=paa_gaps,
+                directory_summary=directory_summary,
+                gbp_state=gbp_state,
+                dry_run=dry_run,
+                retry_hint=available_types,
+                suppressed_hint=list(suppressed_types) + list(set(blocked_types) - set(available_types)),
+            )
+            if not actions:
+                print(f"  [retry] Brain returned no actions on retry")
+                actions = []
+        else:
+            print(f"  [retry] All {len(raw_brain_actions)} actions suppressed but NO available types remain. Skipping retry.")
+
     for action in sorted(actions, key=lambda a: a.get("priority", 5)):
         action_type = action.get("action_type", "")
 
