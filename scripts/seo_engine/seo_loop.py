@@ -13,10 +13,13 @@ Usage:
 
 import argparse
 import json
+import socket
+import subprocess
 import sys
 import time
 from datetime import date
 from pathlib import Path
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 from supabase import create_client
@@ -1025,8 +1028,33 @@ def _get_content_summary(action):
     return action.get("reasoning", "")[:500]
 
 
+def _dns_preflight():
+    """Verify Supabase hostname resolves. Flush DNS cache if needed."""
+    supabase_url = os.getenv("SUPABASE_URL", "")
+    hostname = urlparse(supabase_url).hostname
+    if not hostname:
+        return
+
+    for attempt in range(3):
+        try:
+            socket.getaddrinfo(hostname, 443)
+            return  # Success
+        except socket.gaierror:
+            if attempt == 0:
+                print(f"  [preflight] DNS resolution failed for {hostname}, flushing cache...")
+                subprocess.run(["dscacheutil", "-flushcache"], capture_output=True)
+                time.sleep(2)
+            elif attempt == 1:
+                print(f"  [preflight] Retry {attempt + 1}...")
+                time.sleep(5)
+
+    print(f"  [preflight] WARNING: DNS still failing after 3 attempts. Proceeding anyway.")
+
+
 def main(client_slug=None, dry_run=True):
     """Main entry point."""
+    _dns_preflight()
+
     print(f"SEO Engine Loop - {date.today()}")
     print(f"Mode: {'DRY RUN' if dry_run else 'LIVE'}")
 
