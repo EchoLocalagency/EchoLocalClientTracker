@@ -7,6 +7,7 @@ Stores original content for rollback.
 
 import re
 import subprocess
+from datetime import date
 from pathlib import Path
 
 
@@ -82,6 +83,9 @@ def optimize_page(website_path, filename, edits, action_id=None, dry_run=True):
     file_path.write_text(content)
     print(f"  [page_optimizer] Applied {len(applied)} edits to {filename}")
 
+    # Update sitemap lastmod for this page
+    _update_sitemap_lastmod(website_path, filename)
+
     # Git commit + push
     commit_sha = _git_commit_push(
         website_path,
@@ -91,6 +95,25 @@ def optimize_page(website_path, filename, edits, action_id=None, dry_run=True):
     result["commit_sha"] = commit_sha
 
     return result
+
+
+def _update_sitemap_lastmod(website_path, page_path):
+    """Update lastmod for an existing page in sitemap.xml."""
+    sitemap = Path(website_path) / "sitemap.xml"
+    if not sitemap.exists():
+        return
+
+    content = sitemap.read_text()
+    page_url_fragment = page_path.replace("\\", "/")
+
+    today = str(date.today())
+    # Find the <url> block containing this page and update its lastmod
+    pattern = rf'(<loc>[^<]*{re.escape(page_url_fragment)}[^<]*</loc>\s*<lastmod>)\d{{4}}-\d{{2}}-\d{{2}}(</lastmod>)'
+    new_content = re.sub(pattern, rf'\g<1>{today}\2', content)
+
+    if new_content != content:
+        sitemap.write_text(new_content)
+        print(f"  [page_optimizer] Updated sitemap lastmod for {page_path}")
 
 
 def _git_commit_push(website_path, message, action_id=None):

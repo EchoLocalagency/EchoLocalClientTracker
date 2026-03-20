@@ -9,6 +9,7 @@ using string-level insertion for HTML fidelity.
 import os
 import re
 import subprocess
+from datetime import date
 from pathlib import Path
 
 from bs4 import BeautifulSoup
@@ -73,6 +74,7 @@ def execute_geo_upgrade(website_path, filename, upgrades, dry_run=True):
 
     if not dry_run:
         filepath.write_text(html)
+        _update_sitemap_lastmod(website_path, filename)
         commit_sha = _git_commit_push(
             website_path,
             f"[SEO-AUTO] GEO content upgrade: {filename}",
@@ -193,6 +195,24 @@ def _find_heading_close_position(html, heading_text):
     if match:
         return match.end()
     return None
+
+
+def _update_sitemap_lastmod(website_path, page_path):
+    """Update lastmod for an existing page in sitemap.xml."""
+    sitemap = Path(website_path) / "sitemap.xml"
+    if not sitemap.exists():
+        return
+
+    content = sitemap.read_text()
+    page_url_fragment = page_path.replace("\\", "/")
+
+    today = str(date.today())
+    pattern = rf'(<loc>[^<]*{re.escape(page_url_fragment)}[^<]*</loc>\s*<lastmod>)\d{{4}}-\d{{2}}-\d{{2}}(</lastmod>)'
+    new_content = re.sub(pattern, rf'\g<1>{today}\2', content)
+
+    if new_content != content:
+        sitemap.write_text(new_content)
+        print(f"  [geo-upgrade] Updated sitemap lastmod for {page_path}")
 
 
 def _git_commit_push(website_path, message):
