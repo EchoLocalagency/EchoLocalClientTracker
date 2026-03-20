@@ -41,10 +41,6 @@ def find_link_opportunities(website_path, target_url, keywords):
         if rel_path == target_url or rel_path.replace("\\", "/") == target_url:
             continue
 
-        # Skip index.html (homepage off-limits)
-        if html_file.name == "index.html" and html_file.parent == website_path:
-            continue
-
         content = html_file.read_text()
 
         # Check if page already links to target
@@ -106,16 +102,17 @@ def inject_links(website_path, target_url, keywords, max_per_page=3,
         if rel_path == target_url or rel_path.replace("\\", "/") == target_url:
             continue
 
-        # Skip index.html (homepage off-limits)
-        if html_file.name == "index.html" and html_file.parent == website_path:
-            continue
+        # Allow homepage but with lower cap (1 link max)
+        is_homepage = html_file.name == "index.html" and html_file.parent == website_path
+        homepage_cap = 1
+        max_for_page = homepage_cap if is_homepage else max_per_page
 
         content = html_file.read_text()
         original_content = content
         page_injected = 0
 
         for kw in keywords:
-            if page_injected >= max_per_page or total_injected >= max_per_run:
+            if page_injected >= max_for_page or total_injected >= max_per_run:
                 break
 
             # Build the link HTML
