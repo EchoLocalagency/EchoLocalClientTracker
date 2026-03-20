@@ -37,6 +37,11 @@ SITE_CONFIG = {
         "template": "blog_template_az.html",
         "website_path": "/Users/brianegan/Desktop/AZ Turf Cleaning/AZ Turf Cleaning Website/website",
     },
+    "socal-artificial-turfs": {
+        "domain": "socalartificialturfs.com",
+        "template": "blog_template_socal.html",
+        "website_path": "/Users/brianegan/Desktop/SoCal Artificial Turfs",
+    },
 }
 
 
