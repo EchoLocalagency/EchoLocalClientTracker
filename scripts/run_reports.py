@@ -253,12 +253,14 @@ def pull_pagespeed(url, retries=2, backoff=10):
         lcp = audits.get("largest-contentful-paint", {}).get("displayValue", "")
         cls = audits.get("cumulative-layout-shift", {}).get("displayValue", "")
         tbt = audits.get("total-blocking-time", {}).get("displayValue", "")
+        inp = audits.get("interaction-to-next-paint", {}).get("numericValue")
 
         results[strategy] = {
             "score": score,
             "lcp": lcp,
             "cls": cls,
             "tbt": tbt,
+            "inp": inp,  # in milliseconds, good < 200ms
         }
 
     return results
@@ -626,14 +628,20 @@ def run_report(client, creds, today):
             "cls_desktop": psi["desktop"]["cls"],
             "tbt_mobile": psi["mobile"]["tbt"],
             "tbt_desktop": psi["desktop"]["tbt"],
+            "inp_mobile": psi["mobile"].get("inp"),
+            "inp_desktop": psi["desktop"].get("inp"),
         }
         print(f"    Mobile: {psi['mobile']['score']} | Desktop: {psi['desktop']['score']}")
         print(f"    LCP (mobile): {psi['mobile']['lcp']} | CLS: {psi['mobile']['cls']}")
+        inp_mobile = psi["mobile"].get("inp")
+        if inp_mobile:
+            print(f"    INP (mobile): {inp_mobile:.0f}ms {'(GOOD)' if inp_mobile <= 200 else '(NEEDS IMPROVEMENT)' if inp_mobile <= 500 else '(POOR)'}")
     except Exception as e:
         print(f"    PageSpeed ERROR: {e}")
         report["error_flags"].append("psi_failed")
         report["pagespeed"] = {"mobile_score": 0, "desktop_score": 0, "lcp_mobile": "", "lcp_desktop": "",
-                               "cls_mobile": "", "cls_desktop": "", "tbt_mobile": "", "tbt_desktop": ""}
+                               "cls_mobile": "", "cls_desktop": "", "tbt_mobile": "", "tbt_desktop": "",
+                               "inp_mobile": None, "inp_desktop": None}
 
     # ── GHL Form Submissions ──
     if client.get("ghl_token"):
@@ -770,6 +778,10 @@ def run_report(client, creds, today):
     if lcp_val > 4:
         report["flags"].append(f"Mobile LCP is {ps['lcp_mobile']} — above 4s threshold")
 
+    inp_mobile = ps.get("inp_mobile")
+    if inp_mobile and inp_mobile > 200:
+        report["flags"].append(f"INP (mobile) is {inp_mobile:.0f}ms — above 200ms threshold (Core Web Vital)")
+
     if ga["organic_prev"] > 0:
         organic_delta = ((ga["organic"] - ga["organic_prev"]) / ga["organic_prev"]) * 100
         if organic_delta < -20:
@@ -851,6 +863,13 @@ def push_to_supabase(report):
         "error_flags": report.get("error_flags", []),
     }
 
+    # Add INP (Core Web Vital) if collected
+    # Requires: ALTER TABLE reports ADD COLUMN IF NOT EXISTS psi_inp_mobile REAL;
+    #           ALTER TABLE reports ADD COLUMN IF NOT EXISTS psi_inp_desktop REAL;
+    if ps.get("inp_mobile") is not None or ps.get("inp_desktop") is not None:
+        report_row["psi_inp_mobile"] = ps.get("inp_mobile")
+        report_row["psi_inp_desktop"] = ps.get("inp_desktop")
+
     # Add review data if available
     reviews = report.get("reviews", {})
     if reviews.get("total_count") is not None:
@@ -875,10 +894,23 @@ def push_to_supabase(report):
             "gbp_direction_requests_prev": gbp["direction_requests_prev"],
         })
 
-    resp = sb.table("reports").upsert(
-        report_row,
-        on_conflict="client_id,run_date"
-    ).execute()
+    try:
+        resp = sb.table("reports").upsert(
+            report_row,
+            on_conflict="client_id,run_date"
+        ).execute()
+    except Exception as e:
+        # If INP columns don't exist yet, retry without them
+        if "psi_inp" in str(e):
+            print(f"  Supabase: INP columns not yet added -- run migration: scripts/seo_engine/migrations/add_inp_columns.sql")
+            report_row.pop("psi_inp_mobile", None)
+            report_row.pop("psi_inp_desktop", None)
+            resp = sb.table("reports").upsert(
+                report_row,
+                on_conflict="client_id,run_date"
+            ).execute()
+        else:
+            raise
 
     if resp.data:
         report_id = resp.data[0]["id"]
