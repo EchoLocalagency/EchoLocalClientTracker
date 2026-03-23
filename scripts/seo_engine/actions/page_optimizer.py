@@ -66,6 +66,15 @@ def optimize_page(website_path, filename, edits, action_id=None, dry_run=True):
         print(f"  [page_optimizer] No edits applied to {filename}")
         return {"status": "no_changes", "failed": failed}
 
+    # Update visible "Last updated" date if present
+    today = str(date.today())
+    last_updated_pattern = r'(Last updated:\s*)\d{4}-\d{2}-\d{2}'
+    content = re.sub(last_updated_pattern, rf'\g<1>{today}', content)
+
+    # Update dateModified in BlogPosting JSON-LD if present
+    date_modified_pattern = r'("dateModified":\s*")\d{4}-\d{2}-\d{2}(")'
+    content = re.sub(date_modified_pattern, rf'\g<1>{today}\2', content)
+
     result = {
         "status": "applied" if not dry_run else "dry_run",
         "file_path": str(file_path),
