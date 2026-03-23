@@ -33,14 +33,14 @@ CLIENTS_FILE = BASE_DIR / "clients.json"
 # Weekly rate limits (hard-coded, not relying on the brain)
 # Updated 2026-03-02: tuned after SEO frequency audit
 # - blog_post: 3->2 (SpamBrain tracks URL creation velocity on small sites)
-# - gbp_post: 5->3 (diminishing returns past 3/week, avoids spam signal)
+# - gbp_post: 5->3->2->3 (bumped back to 3 for March 2026 core update emphasis on regular posting)
 # - gbp_qanda: REMOVED (Google killed Q&A feature Dec 2025)
 # - gbp_photo: 5->3 (no penalty risk but no benefit past 3)
 # - location_page: 2->1 (doorway page penalties actively enforced)
 # - schema_update: 2->4 (no velocity penalty, accuracy is all that matters)
 # - newsjack_post: shares cap with blog_post (total content <= 3/week)
 WEEKLY_LIMITS = {
-    "gbp_post": 2,
+    "gbp_post": 3,  # bumped from 2 -- March 2026 core update rewards regular posting
     "blog_post": 2,
     "page_edit": 2,
     "location_page": 2,
