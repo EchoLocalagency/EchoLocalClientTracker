@@ -1,16 +1,17 @@
 """
 GEO Scorer - Citation-Readiness Analysis
 ==========================================
-Scores client pages for GEO citation-readiness on a 0-5 binary checklist.
+Scores client pages for GEO citation-readiness on a 0-6 binary checklist.
 Reads local HTML files (zero API cost). Stores daily scores in Supabase
 for trend tracking. Brain integration deferred to Phase 3.
 
 Factors (each 0 or 1):
-  1. answer_block    -- Concise paragraph (30-80 words) in first 10 paragraphs
-  2. stats_density   -- 2+ stat-like patterns (percentages, years, ratings)
-  3. schema_present  -- Has JSON-LD schema block
-  4. heading_structure -- 3+ H2 tags
-  5. freshness_signal -- 2025/2026 in text, or "updated"/"last modified" patterns
+  1. answer_block       -- Concise paragraph (30-80 words) in first 10 paragraphs
+  2. stats_density      -- 2+ stat-like patterns (percentages, years, ratings)
+  3. schema_present     -- Has JSON-LD schema block
+  4. heading_structure  -- 3+ H2 tags
+  5. freshness_signal   -- 2025/2026 in text, or "updated"/"last modified" patterns
+  6. entity_completeness -- Organization/LocalBusiness schema with sameAs links
 
 Usage:
     from scripts.seo_engine.geo_scorer import score_page, score_all_pages
@@ -44,7 +45,7 @@ EXCLUDE_PATTERNS = [
 
 
 def score_page(html: str) -> dict:
-    """Score a page for GEO citation-readiness (0-5 binary checklist).
+    """Score a page for GEO citation-readiness (0-6 binary checklist).
 
     Args:
         html: Raw HTML string of the page.
@@ -59,6 +60,7 @@ def score_page(html: str) -> dict:
         "schema_present": _check_schema(html),
         "heading_structure": _check_headings(soup),
         "freshness_signal": _check_freshness(soup, html),
+        "entity_completeness": _check_entity_signals(soup, html),
     }
     score = sum(factors.values())
     return {"score": score, "factors": factors}
@@ -193,5 +195,16 @@ def _check_freshness(soup, html: str) -> int:
         return 1
     # Check for "updated", "last modified", or "published" patterns with a date
     if re.search(r'(?:updated|last\s+modified|published)\s*:?\s*\w+\s+\d', text, re.I):
+        return 1
+    return 0
+
+
+def _check_entity_signals(soup, html: str) -> int:
+    """Check for entity consistency signals: Organization/LocalBusiness schema with sameAs."""
+    # Check for Organization or LocalBusiness schema with sameAs array
+    if re.search(r'"sameAs"\s*:\s*\[', html):
+        return 1
+    # Check for consistent business name in schema (Organization or LocalBusiness type present)
+    if re.search(r'"@type"\s*:\s*"(Organization|LocalBusiness)"', html):
         return 1
     return 0

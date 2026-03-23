@@ -150,7 +150,7 @@ def format_geo_section(geo_scores: list, serp_features: list,
 
     # -- GEO Citation-Readiness Scores --
     if geo_scores:
-        header = "\nGEO CITATION-READINESS SCORES (page | score/5 | missing factors):\n"
+        header = "\nGEO CITATION-READINESS SCORES (page | score/6 | missing factors):\n"
         lines.append(header)
         current_len += len(header)
 
@@ -167,7 +167,7 @@ def format_geo_section(geo_scores: list, serp_features: list,
             missing_str = ", ".join(missing) if missing else "all present"
             path = page.get("page_path", "?")[:30]
             score = page.get("score", 0)
-            line = f"  {path:<30} {score}/5  missing: {missing_str}\n"
+            line = f"  {path:<30} {score}/6  missing: {missing_str}\n"
 
             if current_len + len(line) > char_budget - 300:
                 break

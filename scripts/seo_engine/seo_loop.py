@@ -138,7 +138,7 @@ def run_client(client, dry_run=True):
         geo_results = score_all_pages(client)
         if geo_results:
             avg_score = sum(r["score"] for r in geo_results) / len(geo_results)
-            print(f"  Scored {len(geo_results)} pages (avg GEO score: {avg_score:.1f}/5)")
+            print(f"  Scored {len(geo_results)} pages (avg GEO score: {avg_score:.1f}/6)")
         else:
             print(f"  No HTML pages found for GEO scoring")
     except Exception as e:

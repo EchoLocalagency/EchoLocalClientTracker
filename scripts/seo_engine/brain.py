@@ -273,7 +273,7 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
         prompt += "LOW GEO CITATION-READINESS PAGES (prioritize improvements):\n"
         for gs in low_scores:
             missing = [k for k, v in (gs.get("factors") or {}).items() if v == 0]
-            prompt += f"  {gs.get('page_path', '?')}: score {gs.get('score', 0)}/5, missing: {', '.join(missing) if missing else 'none'}\n"
+            prompt += f"  {gs.get('page_path', '?')}: score {gs.get('score', 0)}/6, missing: {', '.join(missing) if missing else 'none'}\n"
         prompt += "\n"
 
     # ── Section 10: Rate limits remaining ──
@@ -646,7 +646,7 @@ OUTPUT FORMAT:
     "action_type": "geo_content_upgrade",
     "target_keywords": ["turf cleaning poway"],
     "priority": 1,
-    "reasoning": "Striking distance at position 6 with GEO score 1/5 -- highest ROI upgrade.",
+    "reasoning": "Striking distance at position 6 with GEO score 1/6 -- highest ROI upgrade.",
     "filename": "services.html",
     "upgrades": [
       {"type": "answer_block", "after_heading": "Professional Turf Cleaning", "content": "<p class=\"answer-capsule\">Professional turf cleaning in Poway removes bacteria, pet waste, and allergens from synthetic grass using 180-degree steam treatment. Most 500 sq ft yards take 45 minutes and cost $150-250 depending on infill type and debris level.</p>"},
