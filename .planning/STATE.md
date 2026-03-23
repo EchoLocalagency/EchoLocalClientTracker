@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Client Pipeline Tracker
-status: complete
-last_updated: "2026-03-20T21:38:00Z"
+status: in-progress
+last_updated: "2026-03-23T19:11:00Z"
 progress:
-  total_phases: 16
-  completed_phases: 16
-  total_plans: 31
-  completed_plans: 31
+  total_phases: 19
+  completed_phases: 18
+  total_plans: 34
+  completed_plans: 32
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-12)
 
 **Core value:** Fix all issues identified in the SEO engine audit -- protect manual tuning, prevent wasted brain cycles, add missing data signals, harden content quality gates.
-**Current focus:** Phase 18 -- SEO Engine Hardening
+**Current focus:** Phase 19 -- Core Update Adaptation
 
 ## Current Position
 
-Phase: 18 of 18 (SEO Engine Hardening)
-Plan: 4 of 5
+Phase: 19 of 19 (Core Update Adaptation)
+Plan: 1 of 3 (completed)
 Status: In Progress
-Last activity: 2026-03-20 -- Completed 18-04 (Review tracking + competitor positions + cluster health)
+Last activity: 2026-03-23 -- Completed 19-01 (Schema Expansion + Visible Freshness)
 
-Progress: [#########-] 90%
+Progress: [#########-] 94%
 
 ## Performance Metrics
 
@@ -54,6 +54,7 @@ Progress: [#########-] 90%
 | Phase 18 P02 | 7min | 3 tasks | 6 files |
 | Phase 18-seo-engine-hardening P04 | 3min | 3 tasks | 5 files |
 | Phase 18-seo-engine-hardening P05 | 3min | 6 tasks | 7 files |
+| Phase 19-core-update-adaptation P01 | 2min | 4 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -94,6 +95,8 @@ Recent:
 - [Phase 18]: Trigram Jaccard at 0.7 threshold for location page duplicate detection
 - [Phase 18]: Image alt text issues as warnings, not blocking rejections
 - [Phase 18]: Homepage internal link cap = 1 (vs 3 for other pages)
+- [Phase 19-01]: HowTo detection: OL first, Step N H3 fallback; BreadcrumbList uses path-based detection
+- [Phase 19-01]: Blog templates already had Last updated placeholder; page_optimizer refreshes date on edits
 
 ### Pending Todos
 
@@ -105,6 +108,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-20
-Stopped at: Completed 18-04-PLAN.md (Review tracking + competitor positions + cluster health)
+Last session: 2026-03-23
+Stopped at: Completed 19-01-PLAN.md (Schema Expansion + Visible Freshness)
 Resume file: None

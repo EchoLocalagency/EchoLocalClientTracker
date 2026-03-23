@@ -11,7 +11,8 @@ Add Generative Engine Optimization to the existing SEO engine. v1.0 built the da
 - v1.2 **Directory Submission & Tracking** -- Phases 8-12 (shipped 2026-03-11)
 - v1.3 **GSC Keyword History** -- Phase 13 (shipped 2026-03-12)
 - v1.4 **Client Pipeline Tracker** -- Phases 14-17 (shipped 2026-03-13)
-- v1.5 **SEO Engine Hardening** -- Phase 18 (in progress)
+- v1.5 **SEO Engine Hardening** -- Phase 18 (shipped 2026-03-20)
+- v1.6 **March 2026 Core Update Adaptation** -- Phase 19 (in progress)
 
 ## Phases
 
@@ -139,10 +140,29 @@ Plans:
 **Plans**: 5 plans in 2 waves
 Plans:
 - [x] 18-01-PLAN.md -- Self-improve merge safety + engine tuning schema (HARD-01, HARD-02) [Wave 1]
-- [ ] 18-02-PLAN.md -- Brain retry on full suppression + SoCal blog config (HARD-03, HARD-04, HARD-13) [Wave 1]
-- [ ] 18-03-PLAN.md -- GEO brain integration + impact score per action type (HARD-05, HARD-07, HARD-14) [Wave 1]
-- [ ] 18-04-PLAN.md -- Review tracking + competitor positions + cluster health (HARD-06, HARD-08, HARD-09, HARD-10) [Wave 2]
-- [ ] 18-05-PLAN.md -- Location page dedup + sitemap lastmod + DNS preflight + misc fixes (HARD-11, HARD-12, HARD-15, HARD-16, HARD-17) [Wave 2]
+- [x] 18-02-PLAN.md -- Brain retry on full suppression + SoCal blog config (HARD-03, HARD-04, HARD-13) [Wave 1]
+- [x] 18-03-PLAN.md -- GEO brain integration + impact score per action type (HARD-05, HARD-07, HARD-14) [Wave 1]
+- [x] 18-04-PLAN.md -- Review tracking + competitor positions + cluster health (HARD-06, HARD-08, HARD-09, HARD-10) [Wave 2]
+- [x] 18-05-PLAN.md -- Location page dedup + sitemap lastmod + DNS preflight + misc fixes (HARD-11, HARD-12, HARD-15, HARD-16, HARD-17) [Wave 2]
+
+### Phase 19: March 2026 Core Update Adaptation
+**Goal**: Adapt the SEO engine to the March 2026 Google Core Update -- add missing schema types (HowTo, BreadcrumbList), track INP, audit GBP completeness, enforce entity consistency, increase GBP posting frequency, and add visible freshness signals
+**Depends on**: Phase 18 (v1.5 complete)
+**Requirements**: CORE-01 through CORE-10
+**Success Criteria** (what must be TRUE):
+  1. HowTo schema auto-detected and injected on step-by-step content
+  2. BreadcrumbList schema on all pages with correct hierarchy
+  3. Visible "Last updated" date on all blog posts and location pages
+  4. INP tracked as Core Web Vital in daily reports
+  5. GBP completeness issues surfaced to brain
+  6. GBP post limit increased to 3/week
+  7. Entity consistency rules in brain prompt
+  8. GEO scorer includes entity completeness (6-point scale)
+**Plans**: 3 plans in 1 wave (all parallel)
+Plans:
+- [ ] 19-01-PLAN.md -- Schema expansion (HowTo, BreadcrumbList) + visible freshness (CORE-01 through CORE-04) [Wave 1]
+- [ ] 19-02-PLAN.md -- INP tracking + GBP completeness audit + post limit bump (CORE-05 through CORE-07) [Wave 1]
+- [ ] 19-03-PLAN.md -- Entity consistency + brain update rules + GEO scorer update (CORE-08 through CORE-10) [Wave 1]
 
 ## Progress
 
@@ -169,3 +189,4 @@ Phases 14-17 execute sequentially. Phase 17 can begin after Phase 15 (needs stag
 | 16. Lead Detail Drawer | v1.4 | Complete    | 2026-03-13 | 2026-03-13 |
 | 17. Pipeline Analytics | 2/2 | Complete    | 2026-03-13 | - |
 | 18. SEO Engine Hardening | 5/5 | Complete   | 2026-03-20 | - |
+| 19. Core Update Adaptation | 2/3 | In Progress|  | - |

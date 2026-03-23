@@ -71,6 +71,24 @@
 - [x] **HARD-16**: DNS pre-flight check in seo_loop.py with cache flush and retry
 - [x] **HARD-17**: Launchd plist has PYTHONUNBUFFERED=1 for real-time log output
 
+## v1.6 Requirements: March 2026 Core Update Adaptation
+
+### Schema & Freshness
+- [x] **CORE-01**: HowTo schema auto-detected on step-by-step content and injected as valid JSON-LD
+- [x] **CORE-02**: BreadcrumbList schema injected on all pages with correct Home > Section > Page hierarchy
+- [x] **CORE-03**: Visible "Last updated: [date]" on all blog post templates
+- [x] **CORE-04**: Visible "Last updated: [date]" on all location page templates
+
+### Core Web Vitals & GBP
+- [ ] **CORE-05**: INP (Interaction to Next Paint) tracked in daily PageSpeed reports with red flag > 200ms
+- [ ] **CORE-06**: GBP completeness audit checks hours, description length, service count, photo count and surfaces issues to brain
+- [ ] **CORE-07**: GBP post weekly limit increased from 2 to 3
+
+### Entity & Brain Rules
+- [ ] **CORE-08**: AZ Turf and SoCal have real sameAs profile URLs in clients.json
+- [ ] **CORE-09**: Brain rules updated for review quality, entity consistency, AI Overview priority, posting frequency
+- [ ] **CORE-10**: GEO scorer includes entity_completeness factor (0-6 scale)
+
 ## Previous Milestones (Complete)
 
 - v1.3: GSC Keyword History (Phase 13)
