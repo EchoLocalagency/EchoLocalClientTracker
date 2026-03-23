@@ -154,16 +154,18 @@
   {
     "name": "AZ Turf Cleaning",
     "slug": "az-turf-cleaning",
-    "ga4_property": "",
+    "ga4_property": "properties/528641254",
     "ga4_measurement_id": "G-T7NY4MHGBJ",
     "gsc_url": "https://azturfcleaningllc.com/",
     "website": "https://www.azturfcleaningllc.com/",
     "github": "https://github.com/EchoLocalagency/AZTurfCleaning",
     "phone": "+16025356804",
     "conversion_events": ["phone_click", "form_submit"],
-    "ghl_token": "pit-b2e24466-c05e-455b-b7ec-0bfd99c2586d",
+    "ghl_token": "",
     "ghl_location_id": "qF1vkKgRkI9FxWt02caQ",
     "ghl_form_name": "",
+    "netlify_site_id": "f0c9b1dd-f466-4f50-9113-8e36666b6c39",
+    "netlify_form_name": "contact",
     "gbp_location": "locations/12070345971854326869",
     "website_local_path": "/Users/brianegan/Desktop/AZ Turf Cleaning/AZ Turf Cleaning Website/website",
     "drive_folder_id": "1f1x4V67CHxPyx5V0To5zHUPIXVeqeemv",
@@ -188,10 +190,10 @@
       "Apache Junction", "San Tan", "Fountain Hills"
     ],
     "same_as_urls": {
-      "gbp": "",
+      "gbp": "https://www.google.com/maps?cid=12070345971854326869",
       "yelp": "",
       "bbb": "",
-      "facebook": "",
+      "facebook": "https://www.facebook.com/azturfcleaningllc/",
       "instagram": ""
     }
   },
@@ -249,10 +251,12 @@
     "website": "https://socalartificialturfs.com/",
     "github": "https://github.com/EchoLocalagency/socal-artificial-turfs",
     "phone": "+19519614248",
-    "conversion_events": ["phone_click"],
+    "conversion_events": ["phone_click", "form_submit"],
     "ghl_token": "",
     "ghl_location_id": "",
     "ghl_form_name": "",
+    "netlify_site_id": "ba11bdcb-e4cd-4185-8372-f80f7e2bffad",
+    "netlify_form_name": "contact",
     "gbp_location": "locations/6006908830770383579",
     "website_local_path": "/Users/brianegan/Desktop/SoCal Artificial Turfs",
     "drive_folder_id": "",
@@ -280,11 +284,11 @@
       "San Bernardino", "Moreno Valley", "Perris"
     ],
     "same_as_urls": {
-      "gbp": "",
+      "gbp": "https://www.google.com/maps?cid=6006908830770383579",
       "yelp": "",
       "bbb": "",
-      "facebook": "",
-      "instagram": ""
+      "facebook": "https://www.facebook.com/socalartificialturfs/",
+      "instagram": "https://www.instagram.com/socalartificialturfs/"
     }
   },
   {
