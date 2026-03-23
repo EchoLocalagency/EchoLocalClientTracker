@@ -54,6 +54,7 @@ def _build_prompt(client_config, performance_data, keyword_rankings,
                   aeo_opportunities=None, geo_scores=None,
                   serp_features=None, paa_gaps=None,
                   directory_summary=None, gbp_state=None,
+                  gbp_completeness_issues=None,
                   competitor_alerts=None, cluster_health=None):
     """Build the full prompt string for Claude."""
 
@@ -503,6 +504,13 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
             prompt += "  Services: (none listed)\n"
         prompt += "\n"
 
+    # ── Section 19b2: GBP completeness issues ──
+    if gbp_completeness_issues:
+        prompt += "GBP COMPLETENESS ISSUES (fix these to improve local ranking):\n"
+        for issue in gbp_completeness_issues:
+            prompt += f"  - {issue}\n"
+        prompt += "  Prioritize fixing these gaps -- incomplete GBP profiles rank lower in local results.\n\n"
+
     # ── Section 19c: Monthly rate limits ──
     if month_counts is not None:
         from .seo_loop import MONTHLY_LIMITS
@@ -682,7 +690,8 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
                existing_area_pages=None, keyword_opportunities=None,
                aeo_opportunities=None, geo_scores=None,
                serp_features=None, paa_gaps=None,
-               directory_summary=None, gbp_state=None, dry_run=True,
+               directory_summary=None, gbp_state=None,
+               gbp_completeness_issues=None, dry_run=True,
                retry_hint=None, suppressed_hint=None,
                competitor_alerts=None, cluster_health=None):
     """Build prompt, call claude -p, parse response, return actions.
@@ -690,6 +699,7 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
     Args:
         retry_hint: List of available action types (used on retry after full suppression).
         suppressed_hint: List of suppressed action types to explicitly exclude.
+        gbp_completeness_issues: List of GBP profile gaps found by audit.
     """
 
     prompt = _build_prompt(
@@ -700,6 +710,7 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
         service_areas, existing_area_pages, keyword_opportunities,
         aeo_opportunities, geo_scores, serp_features, paa_gaps,
         directory_summary, gbp_state,
+        gbp_completeness_issues=gbp_completeness_issues,
         competitor_alerts=competitor_alerts, cluster_health=cluster_health,
     )
 

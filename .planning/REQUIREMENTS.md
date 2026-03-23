@@ -85,9 +85,9 @@
 - [ ] **CORE-07**: GBP post weekly limit increased from 2 to 3
 
 ### Entity & Brain Rules
-- [ ] **CORE-08**: AZ Turf and SoCal have real sameAs profile URLs in clients.json
-- [ ] **CORE-09**: Brain rules updated for review quality, entity consistency, AI Overview priority, posting frequency
-- [ ] **CORE-10**: GEO scorer includes entity_completeness factor (0-6 scale)
+- [x] **CORE-08**: AZ Turf and SoCal have real sameAs profile URLs in clients.json
+- [x] **CORE-09**: Brain rules updated for review quality, entity consistency, AI Overview priority, posting frequency
+- [x] **CORE-10**: GEO scorer includes entity_completeness factor (0-6 scale)
 
 ## Previous Milestones (Complete)
 

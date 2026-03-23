@@ -8,7 +8,7 @@ progress:
   total_phases: 19
   completed_phases: 18
   total_plans: 34
-  completed_plans: 32
+  completed_plans: 34
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-03-12)
 ## Current Position
 
 Phase: 19 of 19 (Core Update Adaptation)
-Plan: 1 of 3 (completed)
+Plan: 3 of 3 (completed)
 Status: In Progress
-Last activity: 2026-03-23 -- Completed 19-01 (Schema Expansion + Visible Freshness)
+Last activity: 2026-03-23 -- Completed 19-03 (Entity Consistency + Brain Update Rules)
 
-Progress: [#########-] 94%
+Progress: [##########] 100%
 
 ## Performance Metrics
 
@@ -55,6 +55,7 @@ Progress: [#########-] 94%
 | Phase 18-seo-engine-hardening P04 | 3min | 3 tasks | 5 files |
 | Phase 18-seo-engine-hardening P05 | 3min | 6 tasks | 7 files |
 | Phase 19-core-update-adaptation P01 | 2min | 4 tasks | 7 files |
+| Phase 19-core-update-adaptation P03 | 4min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -97,6 +98,9 @@ Recent:
 - [Phase 18]: Homepage internal link cap = 1 (vs 3 for other pages)
 - [Phase 19-01]: HowTo detection: OL first, Step N H3 fallback; BreadcrumbList uses path-based detection
 - [Phase 19-01]: Blog templates already had Last updated placeholder; page_optimizer refreshes date on edits
+- [Phase 19-03]: Only add verified sameAs URLs -- curl-checked before adding to clients.json
+- [Phase 19-03]: Entity completeness checks sameAs array first, falls back to schema type presence
+- [Phase 19-03]: GEO score max updated from 5 to 6 across all references
 
 ### Pending Todos
 
@@ -109,5 +113,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-23
-Stopped at: Completed 19-01-PLAN.md (Schema Expansion + Visible Freshness)
+Stopped at: Completed 19-03-PLAN.md (Entity Consistency + Brain Update Rules)
 Resume file: None

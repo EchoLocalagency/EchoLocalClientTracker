@@ -93,6 +93,35 @@ def get_client_id(slug, retries=3, delay=10):
                 raise
 
 
+def _audit_gbp_completeness(gbp_state):
+    """Check GBP profile for missing fields that affect ranking."""
+    issues = []
+
+    if not gbp_state:
+        return issues
+
+    desc = gbp_state.get("description", "")
+    if len(desc) < 250:
+        issues.append(f"GBP description too short ({len(desc)} chars, recommend 500+)")
+
+    # Check hours (from GBP API response)
+    hours = gbp_state.get("regularHours")
+    if not hours:
+        issues.append("GBP business hours not set (ranking factor)")
+
+    # Check service count
+    services = gbp_state.get("services", [])
+    if len(services) < 3:
+        issues.append(f"Only {len(services)} GBP services listed (recommend 5+)")
+
+    # Check photos count
+    photo_count = gbp_state.get("photo_count", 0)
+    if photo_count < 10:
+        issues.append(f"Only {photo_count} GBP photos (recommend 10+)")
+
+    return issues
+
+
 def run_client(client, dry_run=True):
     """Run the full SEO loop for one client."""
     from .data_collector import collect_performance_data, scan_page_inventory, load_latest_report
@@ -364,6 +393,13 @@ def run_client(client, dry_run=True):
         except Exception as e:
             print(f"  GBP state fetch failed (non-fatal): {e}")
 
+    # GBP completeness audit
+    gbp_completeness_issues = _audit_gbp_completeness(gbp_state)
+    if gbp_completeness_issues:
+        print(f"  GBP completeness issues: {len(gbp_completeness_issues)}")
+        for issue in gbp_completeness_issues:
+            print(f"    - {issue}")
+
     # Directory submission coverage for brain context
     directory_summary = None
     try:
@@ -414,6 +450,7 @@ def run_client(client, dry_run=True):
         paa_gaps=paa_gaps,
         directory_summary=directory_summary,
         gbp_state=gbp_state,
+        gbp_completeness_issues=gbp_completeness_issues,
         competitor_alerts=competitor_alerts,
         cluster_health=cluster_health_data,
         dry_run=dry_run,
@@ -513,6 +550,7 @@ def run_client(client, dry_run=True):
                 paa_gaps=paa_gaps,
                 directory_summary=directory_summary,
                 gbp_state=gbp_state,
+                gbp_completeness_issues=gbp_completeness_issues,
                 competitor_alerts=competitor_alerts,
                 cluster_health=cluster_health_data,
                 dry_run=dry_run,
