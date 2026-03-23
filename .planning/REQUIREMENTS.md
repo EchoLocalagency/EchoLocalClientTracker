@@ -80,9 +80,9 @@
 - [x] **CORE-04**: Visible "Last updated: [date]" on all location page templates
 
 ### Core Web Vitals & GBP
-- [ ] **CORE-05**: INP (Interaction to Next Paint) tracked in daily PageSpeed reports with red flag > 200ms
-- [ ] **CORE-06**: GBP completeness audit checks hours, description length, service count, photo count and surfaces issues to brain
-- [ ] **CORE-07**: GBP post weekly limit increased from 2 to 3
+- [x] **CORE-05**: INP (Interaction to Next Paint) tracked in daily PageSpeed reports with red flag > 200ms
+- [x] **CORE-06**: GBP completeness audit checks hours, description length, service count, photo count and surfaces issues to brain
+- [x] **CORE-07**: GBP post weekly limit increased from 2 to 3
 
 ### Entity & Brain Rules
 - [x] **CORE-08**: AZ Turf and SoCal have real sameAs profile URLs in clients.json

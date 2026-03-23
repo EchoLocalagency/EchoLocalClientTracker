@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-03-12)
 Phase: 19 of 19 (Core Update Adaptation)
 Plan: 3 of 3 (completed)
 Status: In Progress
-Last activity: 2026-03-23 -- Completed 19-03 (Entity Consistency + Brain Update Rules)
+Last activity: 2026-03-23 -- Completed 19-02 (INP Tracking + GBP Completeness Audit + Post Limit Bump)
 
 Progress: [##########] 100%
 
@@ -55,6 +55,7 @@ Progress: [##########] 100%
 | Phase 18-seo-engine-hardening P04 | 3min | 3 tasks | 5 files |
 | Phase 18-seo-engine-hardening P05 | 3min | 6 tasks | 7 files |
 | Phase 19-core-update-adaptation P01 | 2min | 4 tasks | 7 files |
+| Phase 19-core-update-adaptation P02 | 7min | 3 tasks | 4 files |
 | Phase 19-core-update-adaptation P03 | 4min | 3 tasks | 5 files |
 
 ## Accumulated Context
@@ -101,6 +102,8 @@ Recent:
 - [Phase 19-03]: Only add verified sameAs URLs -- curl-checked before adding to clients.json
 - [Phase 19-03]: Entity completeness checks sameAs array first, falls back to schema type presence
 - [Phase 19-03]: GEO score max updated from 5 to 6 across all references
+- [Phase 19-02]: INP Supabase columns via migration SQL -- graceful fallback in upsert code
+- [Phase 19-02]: GBP post limit bumped from 2 to 3 for March 2026 core update
 
 ### Pending Todos
 
@@ -113,5 +116,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-23
-Stopped at: Completed 19-03-PLAN.md (Entity Consistency + Brain Update Rules)
+Stopped at: Completed 19-02-PLAN.md (INP Tracking + GBP Completeness Audit + Post Limit Bump)
 Resume file: None
