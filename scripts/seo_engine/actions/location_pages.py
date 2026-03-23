@@ -26,6 +26,7 @@ SITE_CONFIG = {
     "socal-artificial-turfs": {
         "domain": "socalartificialturfs.com",
         "template": "location_template_socal.html",
+        "areas_subdir": "locations",
     },
     "az-turf-cleaning": {
         "domain": "azturfcleaningllc.com",
@@ -34,7 +35,7 @@ SITE_CONFIG = {
 }
 
 
-def _check_duplicate_content(website_path, new_content, threshold=0.7):
+def _check_duplicate_content(website_path, new_content, threshold=0.7, areas_subdir="areas"):
     """Check if new location page is too similar to existing area pages.
 
     Uses word trigram Jaccard similarity. Returns (is_duplicate, most_similar_page, similarity).
@@ -48,7 +49,7 @@ def _check_duplicate_content(website_path, new_content, threshold=0.7):
     if not new_trigrams:
         return False, None, 0.0
 
-    areas_dir = Path(website_path) / "areas"
+    areas_dir = Path(website_path) / areas_subdir
     if not areas_dir.exists():
         return False, None, 0.0
 
@@ -91,16 +92,17 @@ def create_location_page(city, slug, title, meta_description, body_content,
     Returns:
         dict with file_path and commit_sha (if live)
     """
-    # Sanitize slug: brain sometimes includes path prefixes like "areas/"
-    slug = slug.replace("areas/", "").replace(".html", "").strip("/")
+    # Sanitize slug: brain sometimes includes path prefixes like "areas/" or "locations/"
+    slug = slug.replace("areas/", "").replace("locations/", "").replace(".html", "").strip("/")
 
     website_path = Path(website_path)
-    areas_dir = website_path / "areas"
-    areas_dir.mkdir(exist_ok=True)
 
     # Resolve site config
     config = SITE_CONFIG.get(client_slug, {}) if client_slug else {}
     domain = config.get("domain", "mrgreenturfclean.com")
+    areas_subdir = config.get("areas_subdir", "areas")
+    areas_dir = website_path / areas_subdir
+    areas_dir.mkdir(exist_ok=True)
     template_name = config.get("template", "location_template.html")
 
     # Load template
@@ -116,10 +118,11 @@ def create_location_page(city, slug, title, meta_description, body_content,
     html = html.replace("{{canonical_url}}", canonical_url)
     html = html.replace("{{og_title}}", og_title)
     html = html.replace("{{city}}", city)
+    html = html.replace("{{publish_date}}", publish_date)
     html = html.replace("{{body_content}}", body_content)
 
     # Check for duplicate content before writing
-    is_dup, most_similar, sim = _check_duplicate_content(website_path, html)
+    is_dup, most_similar, sim = _check_duplicate_content(website_path, html, areas_subdir=areas_subdir)
     if is_dup:
         print(f"  [location_pages] REJECTED: {slug} is {sim:.0%} similar to {most_similar} -- tell brain to make it more unique")
         return {"status": "rejected_duplicate", "similar_to": most_similar, "similarity": sim}
