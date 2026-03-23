@@ -264,6 +264,169 @@ def inject_person_schema(html, name, url, job_title, description):
     return _inject_json_ld(html, schema)
 
 
+def inject_howto_schema(html):
+    """Inject HowTo schema when step-by-step content is detected.
+
+    Detects ordered lists with 3+ items or H3 headings matching "Step N" patterns.
+    Extracts cost, supply, and tool information when present.
+
+    Returns:
+        Modified HTML string, or original if HowTo schema already exists or no steps found
+    """
+    if _has_schema_type(html, "HowTo"):
+        return html
+
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(html, "html.parser")
+    steps = []
+
+    # Strategy 1: Ordered lists with 3+ items
+    for ol in soup.find_all("ol"):
+        items = ol.find_all("li", recursive=False)
+        if len(items) >= 3:
+            for i, li in enumerate(items, 1):
+                text = li.get_text(strip=True)
+                if text:
+                    steps.append({"name": f"Step {i}", "text": text})
+            break  # Use first qualifying OL
+
+    # Strategy 2: H3s with "Step N" pattern (only if no OL steps found)
+    if not steps:
+        step_pattern = re.compile(r'^step\s+\d+', re.IGNORECASE)
+        h3s = soup.find_all("h3")
+        step_h3s = [h3 for h3 in h3s if step_pattern.match(h3.get_text(strip=True))]
+        if len(step_h3s) >= 3:
+            for h3 in step_h3s:
+                name = h3.get_text(strip=True)
+                # Collect text from next sibling paragraphs
+                text_parts = []
+                for sibling in h3.find_next_siblings():
+                    if sibling.name in ("h2", "h3"):
+                        break
+                    if sibling.name == "p":
+                        p_text = sibling.get_text(strip=True)
+                        if p_text:
+                            text_parts.append(p_text)
+                        if len(text_parts) >= 2:
+                            break
+                steps.append({
+                    "name": name,
+                    "text": " ".join(text_parts) if text_parts else name,
+                })
+
+    if not steps:
+        return html
+
+    # Extract page title from H1
+    h1 = soup.find("h1")
+    howto_name = h1.get_text(strip=True) if h1 else "How-To Guide"
+
+    schema = {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": howto_name,
+        "step": [
+            {
+                "@type": "HowToStep",
+                "name": step["name"],
+                "text": step["text"],
+            }
+            for step in steps
+        ],
+    }
+
+    # Detect estimated cost (dollar amounts in page text)
+    body_text = soup.get_text()
+    cost_match = re.search(r'\$(\d+(?:,\d{3})*(?:\.\d{2})?)', body_text)
+    if cost_match:
+        schema["estimatedCost"] = {
+            "@type": "MonetaryAmount",
+            "currency": "USD",
+            "value": cost_match.group(1).replace(",", ""),
+        }
+
+    # Detect supplies and tools from list items near keywords
+    supply_pattern = re.compile(r'(supplies?|materials?|you.ll need|what you need)', re.IGNORECASE)
+    tool_pattern = re.compile(r'(tools?|equipment)', re.IGNORECASE)
+
+    for heading in soup.find_all(["h2", "h3"]):
+        heading_text = heading.get_text(strip=True)
+        next_list = heading.find_next_sibling("ul")
+        if not next_list:
+            continue
+        items = [li.get_text(strip=True) for li in next_list.find_all("li") if li.get_text(strip=True)]
+        if not items:
+            continue
+
+        if supply_pattern.search(heading_text):
+            schema["supply"] = [
+                {"@type": "HowToSupply", "name": item} for item in items
+            ]
+        elif tool_pattern.search(heading_text):
+            schema["tool"] = [
+                {"@type": "HowToTool", "name": item} for item in items
+            ]
+
+    return _inject_json_ld(html, schema)
+
+
+def inject_breadcrumb_schema(html, page_path, client_domain):
+    """Inject BreadcrumbList schema based on page path.
+
+    Generates breadcrumbs:
+      - Home > Blog > {Post Title} (for blog posts)
+      - Home > Areas > {City Name} (for location pages)
+      - Home > {Page Title} (for other pages)
+
+    Args:
+        html: Full HTML string
+        page_path: Relative path within website (e.g. "blog/my-post.html")
+        client_domain: Domain for URLs (e.g. "mrgreenturfclean.com")
+
+    Returns:
+        Modified HTML string, or original if BreadcrumbList already exists
+    """
+    if _has_schema_type(html, "BreadcrumbList"):
+        return html
+
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(html, "html.parser")
+    h1 = soup.find("h1")
+    page_title = h1.get_text(strip=True) if h1 else "Page"
+
+    base_url = f"https://{client_domain}"
+    path_lower = page_path.lower().replace("\\", "/")
+
+    items = [{"name": "Home", "url": f"{base_url}/"}]
+
+    if "blog/" in path_lower:
+        items.append({"name": "Blog", "url": f"{base_url}/blog/"})
+        items.append({"name": page_title, "url": f"{base_url}/{page_path}"})
+    elif "areas/" in path_lower or "locations/" in path_lower:
+        items.append({"name": "Service Areas", "url": f"{base_url}/service-areas.html"})
+        items.append({"name": page_title, "url": f"{base_url}/{page_path}"})
+    else:
+        items.append({"name": page_title, "url": f"{base_url}/{page_path}"})
+
+    schema = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": i + 1,
+                "name": item["name"],
+                "item": item["url"],
+            }
+            for i, item in enumerate(items)
+        ],
+    }
+
+    return _inject_json_ld(html, schema)
+
+
 def inject_organization_schema(html, name, url, phone, same_as_urls=None):
     """Inject Organization schema with sameAs links into HTML.
 
@@ -458,5 +621,18 @@ def inject_schemas_for_page(html, page_path, client_config):
         )
         if html != before:
             injected.append("LocalBusiness")
+
+    # HowTo schema on pages with step-by-step content
+    before = html
+    html = inject_howto_schema(html)
+    if html != before:
+        injected.append("HowTo")
+
+    # BreadcrumbList schema on all pages
+    domain = url.replace("https://", "").replace("http://", "").rstrip("/")
+    before = html
+    html = inject_breadcrumb_schema(html, page_path, domain)
+    if html != before:
+        injected.append("BreadcrumbList")
 
     return html, injected
