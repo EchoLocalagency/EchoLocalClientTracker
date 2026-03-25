@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { SeoAction, SeoBrainDecision, SeoEngineSubTab, TrackedKeyword, KeywordSnapshot } from '@/lib/types';
+import { SeoAction, SeoBrainDecision, SeoEngineSubTab, TrackedKeyword, KeywordSnapshot, GscQuery } from '@/lib/types';
 import ActionFeed from '@/components/seo-engine/ActionFeed';
 import BrainDecisions from '@/components/seo-engine/BrainDecisions';
 import KeywordTracker from '@/components/seo-engine/KeywordTracker';
@@ -12,6 +12,8 @@ interface SeoEngineTabProps {
   decisions: SeoBrainDecision[];
   trackedKeywords: TrackedKeyword[];
   keywordSnapshots: KeywordSnapshot[];
+  gscHistory: GscQuery[];
+  clientName?: string;
 }
 
 const subTabs: { id: SeoEngineSubTab; label: string }[] = [
@@ -21,7 +23,7 @@ const subTabs: { id: SeoEngineSubTab; label: string }[] = [
   { id: 'outcome-patterns', label: 'Outcome Patterns' },
 ];
 
-export default function SeoEngineTab({ actions, decisions, trackedKeywords, keywordSnapshots }: SeoEngineTabProps) {
+export default function SeoEngineTab({ actions, decisions, trackedKeywords, keywordSnapshots, gscHistory, clientName }: SeoEngineTabProps) {
   const [activeSubTab, setActiveSubTab] = useState<SeoEngineSubTab>('action-feed');
 
   return (
@@ -65,7 +67,7 @@ export default function SeoEngineTab({ actions, decisions, trackedKeywords, keyw
       {/* Sub-tab content */}
       {activeSubTab === 'action-feed' && <ActionFeed actions={actions} />}
       {activeSubTab === 'brain-decisions' && <BrainDecisions decisions={decisions} />}
-      {activeSubTab === 'keyword-tracker' && <KeywordTracker actions={actions} trackedKeywords={trackedKeywords} keywordSnapshots={keywordSnapshots} />}
+      {activeSubTab === 'keyword-tracker' && <KeywordTracker actions={actions} trackedKeywords={trackedKeywords} keywordSnapshots={keywordSnapshots} gscHistory={gscHistory} clientName={clientName} />}
       {activeSubTab === 'outcome-patterns' && <OutcomePatterns actions={actions} />}
     </div>
   );
