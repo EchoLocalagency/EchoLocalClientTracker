@@ -618,7 +618,7 @@ export default function Dashboard() {
                 <GbpTab reports={filteredReports} latestReport={latestReport} gbpKeywords={gbpKeywords} />
               )}
               {activeTab === 'seo-engine' && isAdmin && (
-                <SeoEngineTab actions={seoActions} decisions={brainDecisions} />
+                <SeoEngineTab actions={seoActions} decisions={brainDecisions} trackedKeywords={trackedKeywords} keywordSnapshots={keywordSnapshots} />
               )}
               {activeTab === 'geo' && isAdmin && (
                 <GeoTab
