@@ -235,11 +235,16 @@ export default function Dashboard() {
     }
 
     async function loadGscHistory() {
+      const ninetyDaysAgo = new Date();
+      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
       const { data, error } = await supabase
         .from('gsc_queries')
         .select('id, report_id, client_id, run_date, query, impressions, clicks, position')
         .eq('client_id', activeClient!.id)
-        .order('run_date', { ascending: true });
+        .gte('run_date', ninetyDaysAgo.toISOString().slice(0, 10))
+        .order('run_date', { ascending: true })
+        .limit(10000);
 
       if (error) {
         console.error('GSC history fetch error:', error);
