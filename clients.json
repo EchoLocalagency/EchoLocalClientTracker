@@ -8,7 +8,10 @@
     "website": "https://integrityprowashers.com/",
     "github": "https://github.com/EchoLocalagency/IntegrityProWashing",
     "phone": "+16198874442",
-    "conversion_events": ["phone_click", "form_submit"],
+    "conversion_events": [
+      "phone_click",
+      "form_submit"
+    ],
     "ghl_token": "pit-89db996b-2e9b-48a8-bf3d-458eae1b1dd4",
     "ghl_location_id": "KwsH04X22oBXm8Ugdqb8",
     "ghl_form_name": "website form",
@@ -36,12 +39,32 @@
       "window washing san diego"
     ],
     "service_areas": [
-      "North Park", "Hillcrest", "South Park", "Normal Heights",
-      "University Heights", "Kensington", "Mission Hills", "Bankers Hill",
-      "Golden Hill", "City Heights", "Talmadge", "College Area",
-      "La Mesa", "El Cajon", "Santee", "Clairemont",
-      "Pacific Beach", "Ocean Beach", "Point Loma", "Coronado",
-      "La Jolla", "Del Mar", "Poway", "Escondido", "Miramar", "Chula Vista"
+      "North Park",
+      "Hillcrest",
+      "South Park",
+      "Normal Heights",
+      "University Heights",
+      "Kensington",
+      "Mission Hills",
+      "Bankers Hill",
+      "Golden Hill",
+      "City Heights",
+      "Talmadge",
+      "College Area",
+      "La Mesa",
+      "El Cajon",
+      "Santee",
+      "Clairemont",
+      "Pacific Beach",
+      "Ocean Beach",
+      "Point Loma",
+      "Coronado",
+      "La Jolla",
+      "Del Mar",
+      "Poway",
+      "Escondido",
+      "Miramar",
+      "Chula Vista"
     ],
     "same_as_urls": {
       "gbp": "https://www.google.com/maps?cid=3810638775821930387",
@@ -60,7 +83,10 @@
     "website": "https://mrgreenturfclean.com/",
     "github": "https://github.com/EchoLocalagency/MrGreenTurfClean",
     "phone": "+18587035676",
-    "conversion_events": ["phone_click", "form_submit"],
+    "conversion_events": [
+      "phone_click",
+      "form_submit"
+    ],
     "ghl_token": "pit-fb1003e4-66c8-4354-80e7-a8c4355d76e5",
     "ghl_location_id": "3m3jhkEz2xInUprxbRzX",
     "ghl_form_name": "website form",
@@ -89,14 +115,39 @@
       "mr green turf"
     ],
     "service_areas": [
-      "Poway", "Rancho Bernardo", "4S Ranch", "Scripps Ranch",
-      "Penasquitos", "Carmel Mountain", "Sabre Springs", "Rancho Penasquitos",
-      "Del Sur", "Santaluz", "Black Mountain Ranch", "Mira Mesa",
-      "Escondido", "San Marcos", "Vista", "Encinitas",
-      "Carlsbad", "Oceanside", "Fallbrook", "Valley Center",
-      "Del Mar", "Carmel Valley", "Solana Beach", "San Diego",
-      "La Jolla", "Clairemont", "University City", "Tierrasanta",
-      "Mission Valley", "Santee", "El Cajon", "La Mesa", "Lakeside"
+      "Poway",
+      "Rancho Bernardo",
+      "4S Ranch",
+      "Scripps Ranch",
+      "Penasquitos",
+      "Carmel Mountain",
+      "Sabre Springs",
+      "Rancho Penasquitos",
+      "Del Sur",
+      "Santaluz",
+      "Black Mountain Ranch",
+      "Mira Mesa",
+      "Escondido",
+      "San Marcos",
+      "Vista",
+      "Encinitas",
+      "Carlsbad",
+      "Oceanside",
+      "Fallbrook",
+      "Valley Center",
+      "Del Mar",
+      "Carmel Valley",
+      "Solana Beach",
+      "San Diego",
+      "La Jolla",
+      "Clairemont",
+      "University City",
+      "Tierrasanta",
+      "Mission Valley",
+      "Santee",
+      "El Cajon",
+      "La Mesa",
+      "Lakeside"
     ],
     "same_as_urls": {
       "gbp": "https://www.google.com/maps?cid=5141565760909944493",
@@ -116,7 +167,10 @@
     "website": "https://echolocalagency.com/",
     "github": "https://github.com/EchoLocalagency/Echo-local-website",
     "phone": "+18313327837",
-    "conversion_events": ["phone_click", "form_submit"],
+    "conversion_events": [
+      "phone_click",
+      "form_submit"
+    ],
     "ghl_token": "",
     "ghl_location_id": "",
     "ghl_form_name": "",
@@ -139,9 +193,20 @@
       "automated SEO for contractors"
     ],
     "service_areas": [
-      "Oceanside", "Carlsbad", "Encinitas", "San Marcos", "Vista",
-      "Escondido", "San Diego", "Chula Vista", "El Cajon", "La Mesa",
-      "Poway", "Temecula", "Murrieta", "Fallbrook"
+      "Oceanside",
+      "Carlsbad",
+      "Encinitas",
+      "San Marcos",
+      "Vista",
+      "Escondido",
+      "San Diego",
+      "Chula Vista",
+      "El Cajon",
+      "La Mesa",
+      "Poway",
+      "Temecula",
+      "Murrieta",
+      "Fallbrook"
     ],
     "same_as_urls": {
       "gbp": "",
@@ -160,7 +225,10 @@
     "website": "https://www.azturfcleaningllc.com/",
     "github": "https://github.com/EchoLocalagency/AZTurfCleaning",
     "phone": "+16025356804",
-    "conversion_events": ["phone_click", "form_submit"],
+    "conversion_events": [
+      "phone_click",
+      "form_submit"
+    ],
     "ghl_token": "",
     "ghl_location_id": "qF1vkKgRkI9FxWt02caQ",
     "ghl_form_name": "",
@@ -186,8 +254,14 @@
       "az turf cleaning"
     ],
     "service_areas": [
-      "Mesa", "Tempe", "Scottsdale", "Chandler", "Gilbert",
-      "Apache Junction", "San Tan", "Fountain Hills"
+      "Mesa",
+      "Tempe",
+      "Scottsdale",
+      "Chandler",
+      "Gilbert",
+      "Apache Junction",
+      "San Tan",
+      "Fountain Hills"
     ],
     "same_as_urls": {
       "gbp": "https://www.google.com/maps?cid=12070345971854326869",
@@ -206,7 +280,10 @@
     "website": "https://tri-cityturf.com/",
     "github": "https://github.com/EchoLocalagency/TriCityTurf",
     "phone": "+17606813517",
-    "conversion_events": ["phone_click", "form_submit"],
+    "conversion_events": [
+      "phone_click",
+      "form_submit"
+    ],
     "ghl_token": "",
     "ghl_location_id": "",
     "ghl_form_name": "",
@@ -230,9 +307,19 @@
       "tri city synthetic turf"
     ],
     "service_areas": [
-      "Vista", "Oceanside", "Carlsbad", "Encinitas", "Cardiff",
-      "Del Mar", "Rancho Bernardo", "Escondido", "Valley Center",
-      "Fallbrook", "Bonsall", "San Marcos", "La Costa"
+      "Vista",
+      "Oceanside",
+      "Carlsbad",
+      "Encinitas",
+      "Cardiff",
+      "Del Mar",
+      "Rancho Bernardo",
+      "Escondido",
+      "Valley Center",
+      "Fallbrook",
+      "Bonsall",
+      "San Marcos",
+      "La Costa"
     ],
     "same_as_urls": {
       "gbp": "https://www.google.com/maps/search/?api=1&query=Tri-City%20Synthetic%20Turf%20Inc&query_place_id=ChIJJQKl2neK24ARVuG9f3WA7fM",
@@ -251,7 +338,10 @@
     "website": "https://socalartificialturfs.com/",
     "github": "https://github.com/EchoLocalagency/socal-artificial-turfs",
     "phone": "+19519614248",
-    "conversion_events": ["phone_click", "form_submit"],
+    "conversion_events": [
+      "phone_click",
+      "form_submit"
+    ],
     "ghl_token": "",
     "ghl_location_id": "",
     "ghl_form_name": "",
@@ -278,10 +368,23 @@
       "socal artificial turfs"
     ],
     "service_areas": [
-      "San Jacinto", "Hemet", "Menifee", "Temecula", "Murrieta",
-      "Beaumont", "Banning", "Lake Elsinore", "Winchester", "Wildomar",
-      "Riverside", "Corona", "Palm Springs", "Palm Desert",
-      "San Bernardino", "Moreno Valley", "Perris"
+      "San Jacinto",
+      "Hemet",
+      "Menifee",
+      "Temecula",
+      "Murrieta",
+      "Beaumont",
+      "Banning",
+      "Lake Elsinore",
+      "Winchester",
+      "Wildomar",
+      "Riverside",
+      "Corona",
+      "Palm Springs",
+      "Palm Desert",
+      "San Bernardino",
+      "Moreno Valley",
+      "Perris"
     ],
     "same_as_urls": {
       "gbp": "https://www.google.com/maps?cid=6006908830770383579",
@@ -292,18 +395,63 @@
     }
   },
   {
-    "name": "Primal Plates",
-    "slug": "primal-plates",
-    "ga4_property": "properties/525738042",
-    "ga4_measurement_id": "G-M679XN6BL5",
-    "ga4_stream_id": "13660979674",
-    "gsc_url": "https://primal-plates.com/",
-    "website": "https://primal-plates.com/",
-    "github": "https://github.com/EchoLocalagency/PrimalPlates",
-    "phone": "",
-    "conversion_events": ["form_submit"],
+    "name": "Arcadian Landscape",
+    "slug": "arcadian-landscape",
+    "ga4_property": "",
+    "ga4_measurement_id": "",
+    "gsc_url": "https://arcadianlandscape.com/",
+    "website": "https://arcadianlandscape.com/",
+    "github": "https://github.com/EchoLocalagency/arcadian-landscape",
+    "phone": "+18586179038",
+    "conversion_events": [
+      "phone_click",
+      "form_submit"
+    ],
     "ghl_token": "",
     "ghl_location_id": "",
-    "ghl_form_name": ""
+    "ghl_form_name": "",
+    "netlify_site_id": "",
+    "netlify_form_name": "contact",
+    "gbp_location": "",
+    "website_local_path": "/Users/brianegan/Desktop/Arcadian Landscape/website",
+    "drive_folder_id": "",
+    "primary_market": "San Diego, CA",
+    "target_keywords": [
+      "san diego landscape design",
+      "san diego landscape construction",
+      "san diego landscape contractor",
+      "north county landscape design",
+      "la jolla landscaping",
+      "encinitas landscaping",
+      "carlsbad landscaping",
+      "del mar landscaping",
+      "rancho santa fe landscaping",
+      "san diego hardscape",
+      "san diego paver installation",
+      "san diego bbq island installation",
+      "san diego water features",
+      "san diego landscape lighting",
+      "san diego irrigation",
+      "san diego artificial grass"
+    ],
+    "service_areas": [
+      "San Diego",
+      "La Jolla",
+      "Encinitas",
+      "Carlsbad",
+      "Del Mar",
+      "Rancho Santa Fe",
+      "Carmel Valley",
+      "Solana Beach",
+      "Cardiff by the Sea",
+      "North County San Diego"
+    ],
+    "same_as_urls": {
+      "gbp": "",
+      "yelp": "",
+      "bbb": "",
+      "facebook": "",
+      "instagram": ""
+    }
   }
 ]
