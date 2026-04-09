@@ -23,6 +23,8 @@ ACTIVE_SLUGS = [
     "mr-green-turf-clean",
     "echo-local",
     "az-turf-cleaning",
+    "socal-artificial-turfs",
+    "arcadian-landscape",
 ]
 
 # Map same_as_urls keys to directory domains for submission matching
@@ -92,6 +94,41 @@ CLIENT_SERVICES = {
         "trades": ["turf", "landscaping", "home_services"],
         "description": "Full-service turf cleaning, installation, and landscaping company in Mesa, AZ. We handle artificial turf cleaning, turf installation, paver installation, pergolas, and complete landscape remodels for residential and commercial properties.",
         "short_description": "Mesa AZ turf cleaning, installation, and landscaping services.",
+    },
+    "socal-artificial-turfs": {
+        "services": [
+            "Artificial Turf Installation",
+            "Synthetic Grass Installation",
+            "Putting Green Installation",
+            "Paver Installation",
+            "Pergola Installation",
+            "Landscape Design",
+            "Pet Turf Installation",
+            "Playground Turf Installation",
+        ],
+        "trades": ["turf", "landscaping", "home_services"],
+        "description": "SoCal Artificial Turfs provides professional artificial turf installation, paver installation, and landscape design services in San Jacinto and the Inland Empire. Serving residential and commercial properties with putting greens, pet turf, pergolas, and complete outdoor living solutions.",
+        "short_description": "San Jacinto artificial turf installation and landscaping experts.",
+    },
+    "arcadian-landscape": {
+        "services": [
+            "Landscape Design",
+            "Landscape Construction",
+            "Landscape Renovation",
+            "Hardscape",
+            "Paver Installation",
+            "BBQ Island Installation",
+            "Water Features",
+            "Landscape Lighting",
+            "Irrigation",
+            "Artificial Grass Installation",
+            "Patios & Decks",
+            "Commercial Planting",
+            "New Construction Landscaping",
+        ],
+        "trades": ["landscaping", "home_services"],
+        "description": "Arcadian Landscape provides premium landscape design and construction in San Diego and North County. Over 10 years of experience, BBB A+ rated. Specializing in hardscape, water features, BBQ islands, landscape lighting, irrigation, and artificial grass installation.",
+        "short_description": "San Diego landscape design, construction, and hardscape experts.",
     },
     "echo-local": {
         "services": [
