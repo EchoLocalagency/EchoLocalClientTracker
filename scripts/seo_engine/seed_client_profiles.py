@@ -25,6 +25,7 @@ ACTIVE_SLUGS = [
     "az-turf-cleaning",
     "socal-artificial-turfs",
     "arcadian-landscape",
+    "top-tier-custom-floors",
 ]
 
 # Map same_as_urls keys to directory domains for submission matching
@@ -109,6 +110,21 @@ CLIENT_SERVICES = {
         "trades": ["turf", "landscaping", "home_services"],
         "description": "SoCal Artificial Turfs provides professional artificial turf installation, paver installation, and landscape design services in San Jacinto and the Inland Empire. Serving residential and commercial properties with putting greens, pet turf, pergolas, and complete outdoor living solutions.",
         "short_description": "San Jacinto artificial turf installation and landscaping experts.",
+    },
+    "top-tier-custom-floors": {
+        "services": [
+            "Hardwood Flooring Installation",
+            "Herringbone Pattern Flooring",
+            "Metallic Epoxy Floors",
+            "Polished Concrete",
+            "Floor Sanding & Refinishing",
+            "Stair Installation",
+            "Laminate & Vinyl Flooring",
+            "Custom Pattern Flooring",
+        ],
+        "trades": ["flooring", "home_services"],
+        "description": "Top Tier Custom Floors provides premium custom flooring installation in San Diego County and North Orange County. Specializing in hardwood, herringbone, metallic epoxy, polished concrete, and stair installation.",
+        "short_description": "Custom flooring installation in San Diego and Orange County.",
     },
     "arcadian-landscape": {
         "services": [

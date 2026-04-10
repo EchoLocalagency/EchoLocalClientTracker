@@ -453,5 +453,72 @@
       "facebook": "",
       "instagram": ""
     }
+  },
+  {
+    "name": "Top Tier Custom Floors",
+    "slug": "top-tier-custom-floors",
+    "ga4_property": "",
+    "ga4_measurement_id": "G-XXL853YB8G",
+    "gsc_url": "https://toptierfloors.com/",
+    "website": "https://toptierfloors.com/",
+    "github": "https://github.com/EchoLocalagency/top-tier-custom-floors",
+    "phone": "+16193854947",
+    "conversion_events": [
+      "phone_click",
+      "form_submit"
+    ],
+    "ghl_token": "",
+    "ghl_location_id": "",
+    "ghl_form_name": "",
+    "netlify_site_id": "",
+    "netlify_form_name": "contact",
+    "gbp_location": "",
+    "website_local_path": "/Users/brianegan/Desktop/Top Tier Custom Floors/website",
+    "drive_folder_id": "",
+    "primary_market": "Valley Center, CA",
+    "target_keywords": [
+      "custom flooring san diego",
+      "hardwood flooring san diego",
+      "herringbone flooring san diego",
+      "metallic epoxy floors san diego",
+      "stair installation san diego",
+      "floor sanding refinishing san diego",
+      "polished concrete san diego",
+      "laminate flooring san diego",
+      "flooring installation valley center",
+      "flooring installation escondido",
+      "flooring installation rancho santa fe",
+      "flooring installation carlsbad",
+      "top tier custom floors"
+    ],
+    "service_areas": [
+      "Valley Center",
+      "Escondido",
+      "San Diego",
+      "Rancho Santa Fe",
+      "Del Mar",
+      "La Jolla",
+      "Carlsbad",
+      "Encinitas",
+      "Oceanside",
+      "Poway",
+      "Rancho Bernardo",
+      "San Marcos",
+      "Vista",
+      "Fallbrook",
+      "Temecula",
+      "Irvine",
+      "Dana Point",
+      "Laguna Niguel",
+      "Mission Viejo",
+      "San Clemente"
+    ],
+    "same_as_urls": {
+      "gbp": "",
+      "yelp": "",
+      "bbb": "",
+      "facebook": "https://www.facebook.com/toptierfloors",
+      "instagram": "https://www.instagram.com/top_tier_custom_floors/"
+    }
   }
 ]
