@@ -237,21 +237,35 @@ export default function Dashboard() {
     async function loadGscHistory() {
       const ninetyDaysAgo = new Date();
       ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+      const cutoff = ninetyDaysAgo.toISOString().slice(0, 10);
 
-      const { data, error } = await supabase
-        .from('gsc_queries')
-        .select('id, report_id, client_id, run_date, query, impressions, clicks, position')
-        .eq('client_id', activeClient!.id)
-        .gte('run_date', ninetyDaysAgo.toISOString().slice(0, 10))
-        .order('run_date', { ascending: true })
-        .limit(10000);
+      // Supabase caps each request at 1000 rows; paginate with .range() for clients
+      // that have more than 1000 GSC rows in the last 90 days (Arcadian, Mr Green).
+      const PAGE_SIZE = 1000;
+      const MAX_PAGES = 20;
+      const all: GscQuery[] = [];
 
-      if (error) {
-        console.error('GSC history fetch error:', error);
-        setGscHistory([]);
-      } else {
-        setGscHistory(data || []);
+      for (let page = 0; page < MAX_PAGES; page++) {
+        const from = page * PAGE_SIZE;
+        const to = from + PAGE_SIZE - 1;
+        const { data, error } = await supabase
+          .from('gsc_queries')
+          .select('id, report_id, client_id, run_date, query, impressions, clicks, position')
+          .eq('client_id', activeClient!.id)
+          .gte('run_date', cutoff)
+          .order('run_date', { ascending: true })
+          .range(from, to);
+
+        if (error) {
+          console.error('GSC history fetch error:', error);
+          setGscHistory([]);
+          return;
+        }
+        if (!data || data.length === 0) break;
+        all.push(...data);
+        if (data.length < PAGE_SIZE) break;
       }
+      setGscHistory(all);
     }
 
     loadQueries();
