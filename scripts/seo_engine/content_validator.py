@@ -247,12 +247,67 @@ def check_image_alt_texts(html, target_keywords=None):
     return issues
 
 
-def validate_content(text, content_type):
+# All client domains -- used to detect cross-client contamination
+CLIENT_DOMAINS = {
+    "mr-green-turf-clean": "mrgreenturfclean.com",
+    "integrity-pro-washers": "integrityprowashers.com",
+    "socal-artificial-turfs": "socalartificialturfs.com",
+    "az-turf-cleaning": "azturfcleaningllc.com",
+    "echo-local": "echolocalagency.com",
+}
+
+CLIENT_NAMES = {
+    "mr-green-turf-clean": ["mr green turf clean", "mr. green turf clean", "mrgreenturfclean", "james peck", "jamespeck"],
+    "integrity-pro-washers": ["integrity pro washers", "integrity pro", "integrityprowashers", "josh schauert"],
+    "socal-artificial-turfs": ["socal artificial turfs", "socalartificialturfs"],
+    "az-turf-cleaning": ["az turf cleaning", "azturfcleaning"],
+    "echo-local": ["echo local", "echolocal"],
+}
+
+
+def check_cross_client_contamination(text, target_client_slug):
+    """Check if content intended for one client contains references to another client.
+
+    This catches the template reuse bug where blog posts or location pages
+    generated for one client accidentally contain another client's domain,
+    canonical URL, author name, or business name.
+
+    Returns list of issues. Empty = clean.
+    """
+    issues = []
+    lower = text.lower()
+
+    for slug, domain in CLIENT_DOMAINS.items():
+        if slug == target_client_slug:
+            continue
+        if domain.lower() in lower:
+            issues.append(f"CROSS-CLIENT: Found '{domain}' in content meant for {target_client_slug}")
+
+    for slug, names in CLIENT_NAMES.items():
+        if slug == target_client_slug:
+            continue
+        for name in names:
+            if name in lower:
+                issues.append(f"CROSS-CLIENT: Found '{name}' in content meant for {target_client_slug}")
+                break
+
+    return issues
+
+
+def validate_content(text, content_type, client_slug=None):
     """Run all validations. Returns (cleaned_text, issues).
 
     Issues is a list of strings. If empty, content is good to publish.
     """
     issues = []
+
+    # Cross-client contamination check (CRITICAL -- blocks publishing)
+    if client_slug:
+        cross_issues = check_cross_client_contamination(text, client_slug)
+        if cross_issues:
+            issues.extend(cross_issues)
+            # This is critical enough to return immediately -- don't publish contaminated content
+            return text, issues
 
     # Strip em dashes
     cleaned = strip_em_dashes(text)
@@ -300,9 +355,13 @@ def validate_title(title):
 
 
 def validate_gbp_post(text):
-    """Validate GBP post text doesn't contain phone numbers or URLs.
+    """Validate GBP post text doesn't contain phone numbers, URLs, or review solicitation.
 
     Google rejects posts with phone numbers or URLs in the text body -- use CTA buttons only.
+    Review solicitation in posts violates GBP policy and can trigger suspension.
+    Arcadian was suspended 2026-05-16 after a post ended with: "we would appreciate a Google
+    review with the area mentioned" -- which also violated the rule against requesting specific
+    review content.
 
     Args:
         text: The GBP post text
@@ -324,6 +383,21 @@ def validate_gbp_post(text):
     for pattern in phone_patterns:
         if re.search(pattern, text):
             issues.append("GBP post contains phone number (Google rejects these in post text)")
+            break
+
+    # Check for review solicitation -- GBP posts cannot be used to ask for reviews,
+    # and asking for specific review content (e.g. "mention the area") is a separate violation
+    review_patterns = [
+        r"(leave|write|drop|post|give)\s+(us\s+)?(a\s+)?(google\s+)?(review|rating|star)",
+        r"google\s+review",
+        r"appreciate\s+a\s+review",
+        r"(we('d| would))\s+appreciate",
+        r"review\s+(us|our\s+business|our\s+work|our\s+service)",
+        r"(share|post)\s+(your\s+)?(experience|feedback)\s+on\s+google",
+    ]
+    for pattern in review_patterns:
+        if re.search(pattern, text, re.IGNORECASE):
+            issues.append("GBP post contains review solicitation (not allowed in posts -- violates GBP policy and can trigger suspension)")
             break
 
     return text, issues

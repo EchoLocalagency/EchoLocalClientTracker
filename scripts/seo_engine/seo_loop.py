@@ -54,13 +54,15 @@ WEEKLY_LIMITS = {
 # Monthly rate limits (tracked over 30 days, not weekly)
 MONTHLY_LIMITS = {
     "gbp_description_update": 1,
-    "gbp_categories_update": 1,
+    # gbp_categories_update: PERMANENTLY DISABLED -- Brian's order 2026-03-23
+    # "gbp_categories_update": 0,
 }
 
 # All GBP action types (used for inter-action throttling)
 GBP_ACTION_TYPES = {
     "gbp_post", "gbp_photo", "gbp_service_update",
-    "gbp_description_update", "gbp_categories_update",
+    "gbp_description_update",
+    # "gbp_categories_update" -- PERMANENTLY DISABLED
 }
 
 # Max GBP actions per run (daily). Bulk GBP changes in a single day
@@ -69,8 +71,14 @@ GBP_ACTION_TYPES = {
 # 2026-03-18 after 5 GBP actions in one run. Keep this at 2.
 MAX_GBP_ACTIONS_PER_RUN = 2
 
+# Max GBP posts (text posts) per run. Separate from the broader GBP action
+# cap because multiple posts in one day look like automated spam to Google.
+# Arcadian was suspended 2026-05-16 after the engine published 2-3 posts/day.
+MAX_GBP_POSTS_PER_RUN = 1
+
 # Clients eligible for the SEO engine
-ELIGIBLE_SLUGS = {"mr-green-turf-clean", "integrity-pro-washers", "socal-artificial-turfs", "az-turf-cleaning"}
+ELIGIBLE_SLUGS = {"mr-green-turf-clean", "integrity-pro-washers", "socal-artificial-turfs", "arcadian-landscape", "top-tier-custom-floors"}
+# az-turf-cleaning removed 2026-04-30: client did not move forward after free trial.
 
 
 def get_client_id(slug, retries=3, delay=10):
@@ -487,6 +495,7 @@ def run_client(client, dry_run=True):
             pass
 
     gbp_actions_this_run = 0
+    gbp_posts_this_run = 0
 
     # ── Pre-filter: check if ALL actions would be suppressed/rate-limited ──
     # If so, retry the brain once with explicit guidance about available types
@@ -497,6 +506,8 @@ def run_client(client, dry_run=True):
         if action_type in suppressed_types:
             continue
         if action_type in GBP_ACTION_TYPES and gbp_actions_this_run >= MAX_GBP_ACTIONS_PER_RUN:
+            continue
+        if action_type == "gbp_post" and gbp_posts_this_run >= MAX_GBP_POSTS_PER_RUN:
             continue
         if action_type in MONTHLY_LIMITS:
             if month_counts.get(action_type, 0) >= MONTHLY_LIMITS[action_type]:
@@ -578,6 +589,13 @@ def run_client(client, dry_run=True):
             execution_log.append({"action_type": action_type, "status": "daily_gbp_cap"})
             continue
 
+        # Post-specific cap: max 1 gbp_post per run -- multiple text posts per day
+        # look like automated spam to Google and contributed to Arcadian suspension 2026-05-16
+        if action_type == "gbp_post" and gbp_posts_this_run >= MAX_GBP_POSTS_PER_RUN:
+            print(f"  SKIPPED gbp_post: per-run post cap reached ({gbp_posts_this_run}/{MAX_GBP_POSTS_PER_RUN})")
+            execution_log.append({"action_type": action_type, "status": "daily_post_cap"})
+            continue
+
         # Enforce rate limits: weekly for most types, monthly for description/categories
         if action_type in MONTHLY_LIMITS:
             used = month_counts.get(action_type, 0)
@@ -612,6 +630,8 @@ def run_client(client, dry_run=True):
         # GBP throttle: small delay between consecutive GBP API calls
         if action_type in GBP_ACTION_TYPES:
             gbp_actions_this_run += 1
+            if action_type == "gbp_post":
+                gbp_posts_this_run += 1
             time.sleep(2)
 
         # Log action
@@ -734,8 +754,9 @@ def _execute_action(action, client, website_path, dry_run):
         return execute_gbp_description_update(action, client, dry_run=dry_run)
 
     elif action_type == "gbp_categories_update":
-        from .actions.gbp_categories import execute_gbp_categories_update
-        return execute_gbp_categories_update(action, client, dry_run=dry_run)
+        # PERMANENTLY DISABLED -- Brian's order 2026-03-23
+        print(f"  [BLOCKED] gbp_categories_update is permanently disabled")
+        return {"status": "blocked", "reason": "permanently disabled"}
 
     else:
         print(f"  Unknown action type: {action_type}")
