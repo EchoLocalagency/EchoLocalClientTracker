@@ -402,61 +402,6 @@ def compute_review_velocity(slug, current_count):
     return None
 
 
-# ── GHL Form Submissions ───────────────────────────────────────────────
-
-def pull_ghl_forms(ghl_token, location_id, form_name, start, end):
-    headers = {
-        "Authorization": f"Bearer {ghl_token}",
-        "Version": "2021-07-28",
-    }
-
-    # Get forms list to find the form ID
-    forms_resp = requests.get(
-        f"https://services.leadconnectorhq.com/forms/?locationId={location_id}",
-        headers=headers, timeout=30,
-    )
-    if forms_resp.status_code == 401:
-        raise Exception(f"GHL TOKEN EXPIRED or INVALID for location {location_id} -- regenerate in GHL dashboard and update clients.json")
-    if forms_resp.status_code != 200:
-        raise Exception(f"Forms list failed: {forms_resp.status_code}")
-
-    forms = forms_resp.json().get("forms", [])
-    form_id = None
-    for form in forms:
-        if form.get("name", "").lower() == form_name.lower():
-            form_id = form["id"]
-            break
-
-    if not form_id:
-        raise Exception(f"Form '{form_name}' not found in location {location_id}")
-
-    # Get submissions for that form
-    all_submissions = []
-    page = 1
-    while True:
-        subs_resp = requests.get(
-            f"https://services.leadconnectorhq.com/forms/submissions"
-            f"?locationId={location_id}&formId={form_id}&page={page}&limit=100"
-            f"&startAt={start}T00:00:00Z&endAt={end}T23:59:59Z",
-            headers=headers, timeout=30,
-        )
-        if subs_resp.status_code != 200:
-            break
-
-        data = subs_resp.json()
-        subs = data.get("submissions", [])
-        if not subs:
-            break
-
-        all_submissions.extend(subs)
-        meta = data.get("meta", {})
-        if page >= meta.get("total", 1) // 100 + 1:
-            break
-        page += 1
-
-    return len(all_submissions)
-
-
 # ── Netlify Form Submissions ──────────────────────────────────────────
 
 NETLIFY_TOKEN = "nfc_fQdUvhdJXbQzxtYAsRW1fuh4g41eKKvD4565"
@@ -643,34 +588,10 @@ def run_report(client, creds, today):
                                "cls_mobile": "", "cls_desktop": "", "tbt_mobile": "", "tbt_desktop": "",
                                "inp_mobile": None, "inp_desktop": None}
 
-    # ── GHL Form Submissions ──
-    if client.get("ghl_token"):
-        print(f"  Pulling GHL form submissions...")
-        try:
-            ghl_current = _retry(
-                lambda: pull_ghl_forms(
-                    client["ghl_token"], client["ghl_location_id"],
-                    client["ghl_form_name"], period_start, period_end),
-                "GHL", retries=2, backoff=5)
-            ghl_prev = _retry(
-                lambda: pull_ghl_forms(
-                    client["ghl_token"], client["ghl_location_id"],
-                    client["ghl_form_name"], prev_start, prev_end),
-                "GHL-prev", retries=2, backoff=5)
-            report["ghl_form_submits"] = ghl_current
-            report["ghl_form_submits_prev"] = ghl_prev
-            # Override GA4 form submits with GHL data (source of truth)
-            report["ga4"]["form_submits"] = ghl_current
-            report["ga4"]["form_submits_prev"] = ghl_prev
-            print(f"    Form submits: {ghl_current} (last week: {ghl_prev})")
-        except Exception as e:
-            print(f"    GHL ERROR (all retries failed): {e}")
-            report["error_flags"].append("ghl_failed")
-            report["ghl_form_submits"] = 0
-            report["ghl_form_submits_prev"] = 0
-
     # ── Netlify Form Submissions ──
-    if client.get("netlify_site_id") and not client.get("ghl_token"):
+    # GHL form pull was retired 2026-05-28 with the agency-tier downgrade.
+    # All clients now serve forms via native Netlify Forms.
+    if client.get("netlify_site_id"):
         print(f"  Pulling Netlify form submissions...")
         try:
             form_name = client.get("netlify_form_name", "contact")
@@ -1013,7 +934,7 @@ def print_summary(reports):
         print(f"  Impressions:   {gsc['impressions']:>6}  ({delta_str(gsc['impressions'], gsc['impressions_prev'])})")
         print(f"  Clicks:        {gsc['clicks']:>6}  ({delta_str(gsc['clicks'], gsc['clicks_prev'])})")
         print(f"  Avg Position:  {gsc['avg_position']:>6}")
-        print(f"  Phone Clicks:  {ga['phone_clicks']:>6}  | Form Submits (GHL): {r.get('ghl_form_submits', 0)}")
+        print(f"  Phone Clicks:  {ga['phone_clicks']:>6}  | Form Submits: {r.get('ghl_form_submits', 0)}")
         print(f"  Conv Rate:     {r.get('conversion_rate', 0):>5.1f}%")
         print(f"  Mobile Score:  {ps['mobile_score']:>6}  | Desktop: {ps['desktop_score']}")
         print(f"  LCP (mobile):  {ps['lcp_mobile']:>10}")

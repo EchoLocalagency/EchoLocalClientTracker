@@ -54,9 +54,11 @@ gmail_token.json
 # temp/runtime
 supabase/.temp/
 deno.lock
-scripts/campaign_tag_log.json
 reports/last_*_prompt.txt
 reports/last_*_response.txt
+
+# pre-downgrade GHL exports (contain client PII — keep local only)
+/data/
 
 # submission engine screenshots
 screenshots/*.png

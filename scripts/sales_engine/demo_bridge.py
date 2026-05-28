@@ -29,11 +29,11 @@ load_dotenv()
 
 # ── Config ──
 
-GHL_TOKEN = "pit-c0736cdd-df6d-4285-9afa-b372861415e3"
-GHL_LOCATION_ID = "1QUBKRg2rCS9K1lZFSI7"
-GHL_CALENDAR_ID = "gSUeKUqVgBB0b3wXxA9W"
-BRAVE_API_KEY = "BSA1ma1biQtoz8HPJBKnBLaCcBgw5U2"
-MEET_LINK = "https://meet.google.com/waq-feyi-nfp"
+GHL_TOKEN = os.environ["GHL_TOKEN"]
+GHL_LOCATION_ID = os.environ["GHL_LOCATION_ID"]
+GHL_CALENDAR_ID = os.environ["GHL_CALENDAR_ID"]
+BRAVE_API_KEY = os.environ["BRAVE_API_KEY"]
+MEET_LINK = os.environ["GHL_MEET_LINK"]
 
 GHL_HEADERS = {
     "Authorization": f"Bearer {GHL_TOKEN}",
@@ -474,35 +474,42 @@ def run_demo_bridge(call_data, analysis):
     """Run the full demo bridge flow for a meeting_booked call.
 
     Called from call_watcher.py after a call is analyzed with outcome=meeting_booked.
+    Generates personalized follow-up texts and writes them to GHL custom fields.
+    Brian books meetings manually in GHL -- this only handles text generation + tagging.
     """
+    import sys
+
     contact_name = call_data.get("contact_name", "Unknown")
     company_name = call_data.get("company_name", "")
     phone = call_data.get("call_from") or call_data.get("phone", "")
     transcript = call_data.get("call_transcript", "")
 
-    print(f"\n  [demo_bridge] Starting for {contact_name} ({company_name})")
+    print(f"\n  [demo_bridge] Starting for {contact_name} ({company_name})", flush=True)
 
     # 1. Find the GHL contact
-    contact_id, contact = get_ghl_contact(phone, company_name)
-    if not contact_id:
-        print(f"  [demo_bridge] Contact not found in GHL for {phone} / {company_name}")
+    try:
+        contact_id, contact = get_ghl_contact(phone, company_name)
+    except Exception as e:
+        print(f"  [demo_bridge] GHL lookup failed: {e}", flush=True)
         return False
 
-    # 2. Parse demo date/time
+    if not contact_id:
+        print(f"  [demo_bridge] Contact not found in GHL for {phone} / {company_name}", flush=True)
+        return False
+
+    print(f"  [demo_bridge] Found GHL contact: {contact_id}", flush=True)
+
+    # 2. Parse demo date/time (for text personalization only, not booking)
     caller_details = analysis.get("caller_details", {})
     demo_dt = parse_demo_datetime(caller_details, transcript)
     if demo_dt:
         demo_day = demo_dt.strftime("%A")
-        print(f"  [demo_bridge] Parsed demo time: {demo_dt.strftime('%A %B %d at %I:%M %p')}")
+        print(f"  [demo_bridge] Parsed demo time: {demo_dt.strftime('%A %B %d at %I:%M %p')}", flush=True)
     else:
         demo_day = "our call"
-        print(f"  [demo_bridge] Could not parse demo time, skipping appointment booking")
+        print(f"  [demo_bridge] Could not parse demo time from transcript", flush=True)
 
-    # 3. Book the GHL appointment
-    if demo_dt:
-        book_ghl_appointment(contact_id, contact, demo_dt)
-
-    # 4. Get competitor intel
+    # 3. Get competitor intel
     city = contact.get("city", "")
     trade = "turf cleaning"  # default, could pull from custom fields
     fields = {f["id"]: f.get("value", "") for f in contact.get("customFields", [])}
@@ -514,37 +521,44 @@ def run_demo_bridge(call_data, analysis):
     if competitor:
         comp_reviews = get_competitor_reviews(competitor["name"], city)
         competitor["reviews"] = comp_reviews
-        print(f"  [demo_bridge] Competitor: {competitor['name']} ({comp_reviews or '?'} reviews)")
+        print(f"  [demo_bridge] Competitor: {competitor['name']} ({comp_reviews or '?'} reviews)", flush=True)
+    else:
+        print(f"  [demo_bridge] No competitor found for {trade} {city}", flush=True)
 
-    # 5. Generate personalized text
+    # 4. Generate personalized text
     call_context = {**call_data, "demo_day": demo_day}
     demo_text = generate_personalized_text(contact, call_context, competitor)
     if demo_text:
-        print(f"  [demo_bridge] Generated text: {demo_text[:100]}...")
+        print(f"  [demo_bridge] Generated text: {demo_text[:100]}...", flush=True)
     else:
-        print(f"  [demo_bridge] Text generation failed, using fallback")
-        review_count = fields.get(FIELD_REVIEW_COUNT, "")
+        print(f"  [demo_bridge] Text generation failed, using fallback", flush=True)
         demo_text = (f"Hey {contact.get('firstName', 'man')}, was looking into "
                      f"{company_name or 'your business'} on Google. "
                      f"Found a few things I want to show you {demo_day}. Talk then")
 
-    # 5b. Generate urgency text (hits a different pain point)
+    # 4b. Generate urgency text (hits a different pain point)
     urgency_text = generate_urgency_text(contact, call_context, competitor, demo_text)
     if urgency_text:
-        print(f"  [demo_bridge] Urgency text: {urgency_text[:100]}...")
+        print(f"  [demo_bridge] Urgency text: {urgency_text[:100]}...", flush=True)
     else:
-        # Fallback to generic urgency
         urgency_text = (f"Hey {contact.get('firstName', 'man')}, just a heads up "
                         f"I'm only taking on 2 more businesses this month so wanted "
                         f"to make sure you're still locked in for {demo_day}. "
                         f"Looking forward to showing you what I found")
 
-    # 6. Write custom fields
-    ok = update_contact_fields(contact_id, demo_text, urgency_text, demo_dt)
-    print(f"  [demo_bridge] Custom fields: {'OK' if ok else 'FAILED'}")
+    # 5. Write custom fields
+    try:
+        ok = update_contact_fields(contact_id, demo_text, urgency_text, demo_dt)
+        print(f"  [demo_bridge] Custom fields: {'OK' if ok else 'FAILED'}", flush=True)
+    except Exception as e:
+        print(f"  [demo_bridge] Custom fields error: {e}", flush=True)
 
-    # 7. Tag contact to trigger GHL workflow
-    tagged = tag_contact(contact_id, "demo-booked")
-    print(f"  [demo_bridge] Tag demo-booked: {'OK' if tagged else 'FAILED'}")
+    # 6. Tag contact to trigger GHL workflow
+    try:
+        tagged = tag_contact(contact_id, "demo-booked")
+        print(f"  [demo_bridge] Tag demo-booked: {'OK' if tagged else 'FAILED'}", flush=True)
+    except Exception as e:
+        print(f"  [demo_bridge] Tag error: {e}", flush=True)
 
+    print(f"  [demo_bridge] Complete for {contact_name}", flush=True)
     return True

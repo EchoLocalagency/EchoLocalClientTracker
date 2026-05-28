@@ -7,10 +7,11 @@ const supabase = createClient(
 );
 
 // Map GHL location IDs to client slugs
-const LOCATION_MAP: Record<string, string> = {
-  'KwsH04X22oBXm8Ugdqb8': 'integrity-pro-washers',
-  '3m3jhkEz2xInUprxbRzX': 'mr-green-turf-clean',
-};
+// All client GHL sub-accounts were retired in the 2026-05-28 agency-tier
+// downgrade. This map is intentionally empty; the webhook now 400s any
+// inbound payload until a new mapping is added. Keep the file as a stub
+// so the route remains addressable if a future client wants GHL again.
+const LOCATION_MAP: Record<string, string> = {};
 
 export async function POST(req: NextRequest) {
   try {
