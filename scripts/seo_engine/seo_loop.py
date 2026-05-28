@@ -77,8 +77,10 @@ MAX_GBP_ACTIONS_PER_RUN = 2
 MAX_GBP_POSTS_PER_RUN = 1
 
 # Clients eligible for the SEO engine
-ELIGIBLE_SLUGS = {"mr-green-turf-clean", "integrity-pro-washers", "socal-artificial-turfs", "arcadian-landscape", "top-tier-custom-floors"}
+ELIGIBLE_SLUGS = {"mr-green-turf-clean", "integrity-pro-washers", "socal-artificial-turfs", "arcadian-landscape", "echo-local"}
 # az-turf-cleaning removed 2026-04-30: client did not move forward after free trial.
+# top-tier-custom-floors removed 2026-05-28: client declined trial.
+# echo-local added 2026-05-28: agency's own site, run the engine on it too.
 
 
 def get_client_id(slug, retries=3, delay=10):
