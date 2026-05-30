@@ -77,10 +77,12 @@ MAX_GBP_ACTIONS_PER_RUN = 2
 MAX_GBP_POSTS_PER_RUN = 1
 
 # Clients eligible for the SEO engine
-ELIGIBLE_SLUGS = {"mr-green-turf-clean", "integrity-pro-washers", "socal-artificial-turfs", "arcadian-landscape", "echo-local"}
+ELIGIBLE_SLUGS = {"mr-green-turf-clean", "integrity-pro-washers", "socal-artificial-turfs", "arcadian-landscape"}
 # az-turf-cleaning removed 2026-04-30: client did not move forward after free trial.
 # top-tier-custom-floors removed 2026-05-28: client declined trial.
-# echo-local added 2026-05-28: agency's own site, run the engine on it too.
+# echo-local removed 2026-05-30: agency's own site is handled by scripts.agency_engine.agency_loop
+# (which has agency-appropriate brain prompts). Main engine fabricated a fake "Vista HVAC client"
+# case study post on 2026-05-30 because home-service brain logic doesn't apply to an SEO agency.
 
 
 def get_client_id(slug, retries=3, delay=10):
