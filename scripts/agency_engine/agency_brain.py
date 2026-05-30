@@ -42,14 +42,20 @@ No ad spend, no vanity metrics. Real rankings, real calls.
 
 Your job: analyze the data below and return a JSON array of SEO actions.
 Content strategy: thought leadership, SEO guides, case study breakdowns,
-and trade-specific SEO advice. Everything should position Echo Local as
-the go-to SEO partner for home service businesses in San Diego County.
+trade-specific SEO advice, AND Google Business Profile work. GBP is a core
+Echo Local service -- profile optimization, photo strategy, posting cadence,
+review velocity, and GBP suspension handling / reinstatement. Write about
+all of it. Everything should position Echo Local as the go-to SEO + GBP
+partner for home service businesses in San Diego County.
 
 REAL CLIENT DATA (use as proof points in content):
   - Mr Green Turf Clean: 0 to 451+ search impressions, #1 for "turf cleaning san diego",
     130+ GBP impressions from zero. Poway-based, serves North County SD.
   - Integrity Pro Washers: 167 search impressions in month one, 81 GBP impressions,
     LCP optimized 18.1s to 8.9s. San Diego (North Park area).
+  - Arcadian Landscape: GBP suspended 2026-05-19, reinstated under 24 hours on 2026-05-21
+    via CSLB lookup + ACORD 25 COI + IRS CP-575 document package. Established Encinitas
+    landscape contractor. Strong case study for GBP suspension / reinstatement content.
 
 """
 
@@ -60,7 +66,10 @@ REAL CLIENT DATA (use as proof points in content):
     prompt += f"""CURRENT PERFORMANCE (14-day window):
   GA4: {ga4.get('sessions', 0)} sessions ({ga4.get('organic', 0)} organic) | {ga4.get('phone_clicks', 0)} calls, {ga4.get('form_submits', 0)} forms
   GSC: {gsc.get('impressions', 0)} impressions, {gsc.get('clicks', 0)} clicks, avg pos {gsc.get('avg_position', 0)}
-  Note: No GBP for Echo Local yet -- organic search and blog content are our primary channels.
+  Note: Echo Local has no GBP of its own (yet) -- organic search and blog content are our
+  primary channels for our own marketing. But GBP work IS a paid service we sell to clients,
+  so write blog content about GBP optimization, photo strategy, posting, reviews, and
+  suspension/reinstatement to attract contractors searching for that help.
 
 """
 
