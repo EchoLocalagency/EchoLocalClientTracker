@@ -136,6 +136,7 @@ def run(dry_run=True):
         print(f"  No pending follow-ups")
 
     website_path = client.get("website_local_path", "")
+    week_counts = get_week_action_counts(client_id)
 
     # -- Step 3.5: Backlink outreach cycle --
     print(f"\n  [3.5/6] Backlink outreach...")
@@ -167,7 +168,6 @@ def run(dry_run=True):
     print(f"\n  [4/6] Calling the agency brain...")
     action_history = get_action_history(client_id)
     outcome_patterns = get_outcome_patterns(client_id)
-    week_counts = get_week_action_counts(client_id)
     recent_keywords = get_recent_keywords(client_id)
 
     keyword_rankings = perf_data.get("target_keyword_rankings", [])
