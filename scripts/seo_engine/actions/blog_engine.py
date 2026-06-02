@@ -42,6 +42,16 @@ SITE_CONFIG = {
         "template": "blog_template_socal.html",
         "website_path": "/Users/brianegan/Desktop/SoCal Artificial Turfs",
     },
+    "arcadian-landscape": {
+        "domain": "arcadianlandscape.com",
+        "template": "blog_template.html",
+        "website_path": "/Users/brianegan/Desktop/Arcadian Landscape/website",
+    },
+    "top-tier-custom-floors": {
+        "domain": "toptierfloors.com",
+        "template": "blog_template.html",
+        "website_path": "/Users/brianegan/Desktop/Top Tier Custom Floors/website",
+    },
 }
 
 
@@ -65,7 +75,9 @@ def generate_blog_post(title, slug, meta_description, body_content,
     """
     # Resolve site config
     config = SITE_CONFIG.get(client_slug, {}) if client_slug else {}
-    domain = config.get("domain", "mrgreenturfclean.com")
+    domain = config.get("domain")
+    if not domain:
+        raise ValueError(f"No domain found for client_slug '{client_slug}'. Check SITE_CONFIG.")
     template_name = config.get("template", "blog_template.html")
 
     if website_path:
@@ -124,7 +136,7 @@ def generate_blog_post(title, slug, meta_description, body_content,
     return result
 
 
-def _update_sitemap(website_path, slug, publish_date, domain="mrgreenturfclean.com"):
+def _update_sitemap(website_path, slug, publish_date, domain):
     """Append blog post URL to sitemap.xml."""
     sitemap_path = website_path / "sitemap.xml"
     if not sitemap_path.exists():
@@ -159,8 +171,22 @@ def _update_blog_index(website_path, title, slug, description, publish_date):
 
     content = index_path.read_text()
 
-    # Create post card
-    card_html = f"""
+    # Create post card. Echo Local's site has a dark theme but does NOT define
+    # the --clr-primary-dark / --clr-accent-gold / --space-md vars that other
+    # client templates assume, so it needs a different markup pattern with
+    # inline hex fallbacks. Client sites (Mr Green, IP, etc.) DO define those
+    # vars and rely on the original `card card--with-image` markup to fit their
+    # branded look. Branch on path so each site renders correctly.
+    is_echo_local = "Echo-local-website" in str(website_path)
+    if is_echo_local:
+        card_html = f"""
+                <a href="{slug}.html" class="blog-card" style="background: var(--clr-card-bg, #131B2E); border-radius: 12px; padding: 2rem; text-decoration: none; transition: transform 0.2s; display: block;">
+                  <p style="color: var(--clr-text-secondary, #94A3B8); font-size: 0.8rem; margin-bottom: 0.5rem;">{publish_date}</p>
+                  <h3 style="color: var(--clr-text-primary, #F1F5F9); margin-bottom: 0.75rem;">{title}</h3>
+                  <p style="color: var(--clr-text-secondary, #94A3B8); font-size: 0.9rem;">{description}</p>
+                </a>"""
+    else:
+        card_html = f"""
                 <article class="card card--with-image fade-in">
                     <div class="card__content" style="padding: var(--space-md);">
                         <p style="color: var(--clr-accent-gold); font-size: 0.85rem; margin-bottom: 0.5rem;">{publish_date}</p>
