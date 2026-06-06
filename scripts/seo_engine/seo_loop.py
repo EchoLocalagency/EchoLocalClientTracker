@@ -90,6 +90,21 @@ GBP_ACTION_COOLDOWN_DAYS = {
     "gbp_categories_update": 14,
 }
 
+# Per-client GBP freeze. While a client is in this dict and today <= the date,
+# the engine skips ALL gbp_* action types for that client (posts, photos,
+# description, services). Used after a visibility cliff to give Google's
+# quality filter time to relax. Website-side actions (blog, page_edit,
+# schema_update, location_page, geo_content_upgrade) still run.
+#
+# Mr Green added 2026-06-06 after impressions collapsed 94% on 2026-06-01,
+# ~5 days after the engine fired two bulk "Updated 8 services" writes on
+# 2026-05-27 plus 12 GBP mutations across a 7-day window. Freeze through
+# 2026-06-13 -- same hands-off recovery cadence that worked for Arcadian.
+from datetime import date as _date
+GBP_FROZEN_UNTIL = {
+    "mr-green-turf-clean": _date(2026, 6, 13),
+}
+
 # Clients eligible for the SEO engine
 ELIGIBLE_SLUGS = {"mr-green-turf-clean", "integrity-pro-washers", "socal-artificial-turfs", "arcadian-landscape", "ecosystem-landscaping"}
 # ecosystem-landscaping added 2026-06-01: paying client since 2026-05-11. Coronado/Point Loma
@@ -563,6 +578,13 @@ def run_client(client, dry_run=True):
     gbp_actions_this_run = 0
     gbp_posts_this_run = 0
 
+    # Per-client GBP freeze (post-cliff recovery -- see GBP_FROZEN_UNTIL).
+    # If frozen, all gbp_* actions are suppressed for the rest of this run.
+    freeze_until = GBP_FROZEN_UNTIL.get(slug)
+    gbp_frozen = bool(freeze_until and date.today() <= freeze_until)
+    if gbp_frozen:
+        print(f"  [GBP FREEZE] {slug} GBP actions frozen until {freeze_until} (post-cliff recovery)")
+
     # ── Pre-filter: check if ALL actions would be suppressed/rate-limited ──
     # If so, retry the brain once with explicit guidance about available types
     raw_brain_actions = list(actions)
@@ -570,6 +592,8 @@ def run_client(client, dry_run=True):
     for action in raw_brain_actions:
         action_type = action.get("action_type", "")
         if action_type in suppressed_types:
+            continue
+        if gbp_frozen and action_type in GBP_ACTION_TYPES:
             continue
         if action_type in GBP_ACTION_TYPES and gbp_actions_this_run >= MAX_GBP_ACTIONS_PER_RUN:
             continue
@@ -591,6 +615,8 @@ def run_client(client, dry_run=True):
         available_types = []
         for t in all_limit_types:
             if t in suppressed_types:
+                continue
+            if gbp_frozen and t in GBP_ACTION_TYPES:
                 continue
             if _cooldown_block_reason(t, last_action_dates):
                 continue
@@ -652,6 +678,16 @@ def run_client(client, dry_run=True):
         if action_type in suppressed_types:
             print(f"  BLOCKED {action_type}: suppressed via engine_tuning.json")
             execution_log.append({"action_type": action_type, "status": "suppressed"})
+            continue
+
+        # Per-client GBP freeze. If the slug is in GBP_FROZEN_UNTIL and today
+        # is on or before the expiry date, skip ALL gbp_* action types so
+        # Google's algorithmic visibility filter can relax. Website actions
+        # still run.
+        freeze_until = GBP_FROZEN_UNTIL.get(slug)
+        if freeze_until and date.today() <= freeze_until and action_type in GBP_ACTION_TYPES:
+            print(f"  SKIPPED {action_type}: GBP frozen for {slug} until {freeze_until} (post-cliff recovery)")
+            execution_log.append({"action_type": action_type, "status": "gbp_frozen"})
             continue
 
         # Daily GBP cap: max 2 GBP actions per run to avoid Google flagging
