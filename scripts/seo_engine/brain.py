@@ -55,7 +55,8 @@ def _build_prompt(client_config, performance_data, keyword_rankings,
                   serp_features=None, paa_gaps=None,
                   directory_summary=None, gbp_state=None,
                   gbp_completeness_issues=None,
-                  competitor_alerts=None, cluster_health=None):
+                  competitor_alerts=None, cluster_health=None,
+                  last_action_dates=None):
     """Build the full prompt string for Claude."""
 
     name = client_config["name"]
@@ -72,6 +73,58 @@ Today: {date.today()}
 Your job: analyze the data below and return a JSON array of SEO actions to take this cycle.
 
 """
+
+    # ── Section 1b: Business truth file (anti-fabrication) ──
+    # Hard guardrail. The engine has historically invented stats, equipment lists,
+    # founding years, headcounts, and process claims (see Mr Green 2026-05-02 sweep
+    # and feedback_seo_engine_fabrication.md). Any client with a `business_facts`
+    # block in clients.json gets that block injected here as a non-negotiable
+    # source of truth. Content_validator.validate_content also enforces the
+    # do_not_claim list at publish time.
+    facts = client_config.get("business_facts") or {}
+    if facts:
+        prompt += "BUSINESS TRUTH FILE (THESE ARE THE ONLY FACTS YOU MAY USE):\n"
+        scalar_keys = [
+            ("owner_name", "Owner"),
+            ("owner_background", "Owner background"),
+            ("operations_contact", "Operations contact"),
+            ("founded_gbp_open_date", "Founded / GBP open date"),
+            ("years_in_local_market", "Years in market"),
+            ("team_size", "Team size"),
+            ("license", "License"),
+            ("license_status", "License status"),
+            ("phone", "Phone"),
+            ("email", "Email"),
+            ("service_address_visibility", "Address visibility"),
+            ("service_area_business_type", "GBP business type"),
+            ("gbp_primary_category", "GBP primary category"),
+            ("hours", "Hours"),
+            ("voice_and_positioning", "Voice and positioning"),
+        ]
+        for key, label in scalar_keys:
+            val = facts.get(key)
+            if val:
+                prompt += f"  {label}: {val}\n"
+
+        list_keys = [
+            ("real_services_offered", "Real services offered (do NOT invent others)"),
+            ("real_service_areas", "Real service areas"),
+            ("verified_portfolio_properties", "Verified portfolio properties (reference these in content)"),
+            ("experience_signal_safe_facts", "Safe experience signals you may reference"),
+        ]
+        for key, label in list_keys:
+            items = facts.get(key) or []
+            if items:
+                prompt += f"  {label}:\n"
+                for item in items:
+                    prompt += f"    - {item}\n"
+
+        dont = facts.get("do_not_claim") or []
+        if dont:
+            prompt += "  DO NOT CLAIM (hard block -- validator will reject and rollback any content containing these):\n"
+            for item in dont:
+                prompt += f"    - {item}\n"
+        prompt += "  RULE: If a useful fact is not in this block, OMIT IT. Do not infer, estimate, or fabricate.\n\n"
 
     # ── Section 2: Performance snapshot ──
     ga4 = performance_data.get("ga4", {})
@@ -521,6 +574,34 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
             prompt += f"  {action_type}: {remaining} remaining (used {used}/{max_count})\n"
         prompt += "\n"
 
+    # ── Section 19c2: Structural GBP cooldowns (suspension-safety) ──
+    # Surface per-action-type cooldowns so the brain doesn't waste budget
+    # proposing actions the executor will block. Added 2026-06-01 after
+    # Arcadian's bulk-edit reinstatement.
+    from .seo_loop import GBP_ACTION_COOLDOWN_DAYS
+    if GBP_ACTION_COOLDOWN_DAYS:
+        from datetime import date as _date
+        today_local = _date.today()
+        cd_lines = []
+        for at, days in GBP_ACTION_COOLDOWN_DAYS.items():
+            last = (last_action_dates or {}).get(at)
+            if not last:
+                cd_lines.append(f"  {at}: cooldown {days}d, no recent run -- available")
+                continue
+            elapsed = (today_local - last).days
+            if elapsed < days:
+                remaining_days = days - elapsed
+                cd_lines.append(
+                    f"  {at}: BLOCKED for {remaining_days} more day(s) (last run {elapsed}d ago, cooldown {days}d)"
+                )
+            else:
+                cd_lines.append(f"  {at}: available (last run {elapsed}d ago, cooldown {days}d)")
+        if cd_lines:
+            prompt += "STRUCTURAL GBP COOLDOWNS (suspension-safety -- bulk-write detection):\n"
+            prompt += "\n".join(cd_lines) + "\n"
+            prompt += "  Bulk GBP edits look like a bot. Structural edits MUST space out across days.\n"
+            prompt += "  If an action is BLOCKED here, do not propose it -- it will be rejected.\n\n"
+
     # ── Section 19: Directory coverage ──
     if directory_summary:
         submitted = directory_summary.get("submitted", 0)
@@ -535,7 +616,7 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
     prompt += """RULES (follow exactly):
 1. Return ONLY a JSON array of action objects. No other text.
 2. Each action must have: action_type, target_keywords (array), priority (1-5, 1=highest), reasoning (1 sentence), and type-specific content fields.
-3. Action types: gbp_post, blog_post, page_edit, location_page, gbp_photo, schema_update, newsjack_post, geo_content_upgrade, gbp_service_update, gbp_description_update, gbp_categories_update (NOTE: gbp_qanda is DISCONTINUED -- Google killed Q&A in Dec 2025. Do NOT generate gbp_qanda actions.)
+3. Action types: gbp_post, blog_post, page_edit, location_page, gbp_photo, schema_update, newsjack_post, geo_content_upgrade, gbp_description_update (NOTE: gbp_qanda is DISCONTINUED -- Google killed Q&A in Dec 2025. Do NOT generate gbp_qanda actions. gbp_service_update is PERMANENTLY DISABLED 2026-06-06 -- do not generate it; the executor will block it. gbp_categories_update is also disabled.)
 4. CONTENT VOICE: You are writing as the business owner/operator, not a marketing agency. Write in first person plural ("we", "our crew"). Reference specific neighborhoods, streets, landmarks. Include technical details (PSI, square footage, materials, time durations). State opinions directly ("We stopped using X because..."). Start with specific observations or job details, never with questions or cliches.
 4a. BANNED WORDS (never use): delve, tapestry, realm, beacon, testament, landscape (metaphorical), paradigm, synergy, framework, nuanced, multifaceted, comprehensive, robust, seamless, cutting-edge, transformative, innovative, pivotal, intricate, holistic, bespoke, scalable, unprecedented, intuitive, tailored, streamlined, best-in-class, world-class, groundbreaking, revolutionary, game-changing, supercharge, captivating, fascinating, meticulous, vibrant, proactive, thrilled, moreover, furthermore, additionally, consequently, subsequently, indeed, certainly, arguably, essentially, fundamentally, significantly, notably.
 4b. BANNED PHRASES (never use): "in today's [anything]", "ever-evolving", "in an era of", "when it comes to", "it's important to note", "it is worth mentioning", "first and foremost", "at the end of the day", "in conclusion", "in summary", "in essence", "let's dive in", "let's explore", "have you ever wondered", "imagine a world", "picture this", "unlock the potential", "unleash the power", "pave the way", "at the forefront", "push the boundaries", "embark on a journey", "I hope this helps", "feel free to reach out", "don't hesitate to", "here's the thing".
@@ -575,12 +656,12 @@ Your job: analyze the data below and return a JSON array of SEO actions to take 
 36. NO OVERLAPPING BLOG POSTS: Never generate two blog posts in the same cycle that cover substantially the same topic, even if they come from different content clusters. Example: "Pressure Washing vs Soft Washing" and "What is Soft Washing" overlap too much. Pick the stronger angle and save the other for a future cycle.
 34. OPTIMIZE BEFORE YOU CREATE: If STRIKING DISTANCE PAGES are listed above, you MUST prioritize page_edit actions to improve those pages BEFORE proposing any new blog_post. Position 1 gets 2x the CTR of position 2, and 10x position 10. Moving an existing page from position 8 to position 3 is faster and higher-ROI than writing new content from scratch. Add better headings, expand thin sections, improve internal links, add schema, and update dates.
 37. geo_content_upgrade: a new action type for retrofitting existing pages with citation-ready structure. Must include: filename, target_keywords, reasoning, and an upgrades array. Each upgrade has type (answer_block, stats_injection, freshness_update), and type-specific fields: answer_block needs after_heading + content (40-60 word HTML paragraph with class="answer-capsule"); stats_injection needs target_section + content; freshness_update needs content. Max 2 per week.
-38. gbp_service_update: update GBP services list with keyword-optimized descriptions. Must include a "services" array where each item has "service_name" (display name) and "description" (max 300 chars, keyword-optimized). Rate limit: 1/week. Use this to ensure GBP services match target keywords with optimized descriptions. Only propose when services are missing or have generic descriptions.
+38. gbp_service_update: PERMANENTLY DISABLED 2026-06-06. Do NOT generate this action type. Mr Green GBP impressions collapsed ~94% (17/day -> 0-1/day) starting 2026-06-01 after two bulk service writes on 2026-05-27. Service mutations are the highest-risk structural edit and are no longer worth the recurring quality-filter risk. The executor will block these.
 39. HIGHEST ROI RULE: When a striking-distance page (position 3-20) also has a low GEO score (0-2), prioritize a geo_content_upgrade for that page ABOVE all other action types. These pages already rank but aren't citation-ready -- fixing them is the single highest-ROI action.
 39. CITATION-READY BLOG POSTS: Every blog_post body_content MUST include: (a) answer capsule (40-60 words, class="answer-capsule") as first element after first H2, (b) at least one comparison table for any "vs" topic, (c) at least 3 stat-dense data points (numbers, costs, measurements), (d) question-format H2 headings where the topic is a question, (e) "Last updated: {current month and year}" visible near top, (f) short scannable paragraphs (max 3 sentences each).
 40. GBP COMPLIANCE (all GBP actions): GBP post text must NEVER contain phone numbers or URLs -- use cta_url for links. GBP service descriptions: max 300 chars, no phone numbers, no URLs, no prices. GBP service names: max 58 chars, no keyword stuffing. GBP description updates: max 750 chars, no URLs, no phone numbers, no prices/promotions. Violations get the action blocked.
 41. gbp_description_update: rewrite the GBP business description. Must include a 'description' field (max 750 chars). First ~250 chars display prominently -- lead with core services and location. No URLs, phone numbers, prices, or promotions. No keyword stuffing. Only propose when CURRENT GBP STATE shows the description is generic, missing services, or poorly optimized. Rate limit: 1/month. Check MONTHLY RATE LIMITS before proposing.
-42. gbp_categories_update: update GBP categories. Must include 'additional_categories' array of category gcids to ADD. Optionally include 'primary_category' gcid to change primary (use sparingly -- changing primary is high-risk). Google says "choose the fewest categories" -- only add categories that describe what the business IS, not what it HAS. Max 10 total. Rate limit: 1/month. Only propose when CURRENT GBP STATE shows categories are clearly missing or wrong. Check MONTHLY RATE LIMITS before proposing.
+42. gbp_categories_update: update GBP categories ONE mutation at a time. SUSPENSION-SAFETY RULE: either propose a single 'primary_category' swap OR exactly one entry in 'additional_categories' -- never both, and never multiple secondaries in one action. Replacing the whole additional_categories list in one call is a bulk-write pattern and will be blocked. Google says "choose the fewest categories" -- only add categories that describe what the business IS, not what it HAS. Max 10 total across the listing. Rate limit: 1/month, plus a 14-day cooldown. Only propose when CURRENT GBP STATE shows a category is clearly missing or wrong. NOTE: This action type is currently globally suppressed because the gcid endpoint returns 400 INVALID_ARGUMENT -- check BLOCKED action types before proposing.
 43. REVIEW QUALITY RULE: Google now parses review text for specific service mentions, location references, and authentic experiences. 12 detailed reviews beat 50 generic ratings. When creating content, include CTAs that prompt customers to mention the specific service and their neighborhood in their review. Example: "If we helped clean your turf in [area], we'd love to hear about it on Google."
 44. ENTITY CONSISTENCY RULE: Google ranks based on entities (brand, person, location), not just keywords. Every piece of content should reinforce the client's entity: use the full business name naturally, reference service areas consistently, and link to the GBP profile where appropriate.
 45. AI OVERVIEW PRIORITY: Structured data (schema), GBP completeness, and E-E-A-T are the top 3 factors for AI Overview inclusion. Proximity does NOT matter in AI Overviews -- only relevance and authority. Prioritize schema_update and geo_content_upgrade actions for pages targeting question-based queries.
@@ -673,8 +754,16 @@ OUTPUT FORMAT:
     "action_type": "gbp_categories_update",
     "target_keywords": ["pressure washing san diego"],
     "priority": 4,
-    "reasoning": "Missing secondary categories for roof cleaning and solar panel cleaning services.",
-    "additional_categories": ["gcid:roof_cleaning_service", "gcid:solar_panel_cleaning_service"]
+    "reasoning": "Missing the roof cleaning secondary category. Queueing solar panel cleaning as a separate action next month.",
+    "additional_categories": ["gcid:roof_cleaning_service"]
+  },
+  {
+    "action_type": "gbp_service_update",
+    "target_keywords": ["lawn care coronado"],
+    "priority": 2,
+    "reasoning": "Existing GBP service 'Lawn Care' has a generic description. Rewriting ONLY this service this run -- the other 10 will be queued one per cycle.",
+    "service_name": "Lawn Care",
+    "description": "Hand-tended weekly lawn care for Coronado properties. Mow, edge, blow. Salt-air-resilient turf grasses. Owner walks every property."
   }
 ]
 """
@@ -693,13 +782,15 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
                directory_summary=None, gbp_state=None,
                gbp_completeness_issues=None, dry_run=True,
                retry_hint=None, suppressed_hint=None,
-               competitor_alerts=None, cluster_health=None):
+               competitor_alerts=None, cluster_health=None,
+               last_action_dates=None):
     """Build prompt, call claude -p, parse response, return actions.
 
     Args:
         retry_hint: List of available action types (used on retry after full suppression).
         suppressed_hint: List of suppressed action types to explicitly exclude.
         gbp_completeness_issues: List of GBP profile gaps found by audit.
+        last_action_dates: dict {action_type: date} for cooldown awareness.
     """
 
     prompt = _build_prompt(
@@ -712,6 +803,7 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
         directory_summary, gbp_state,
         gbp_completeness_issues=gbp_completeness_issues,
         competitor_alerts=competitor_alerts, cluster_health=cluster_health,
+        last_action_dates=last_action_dates,
     )
 
     # Inject retry guidance if this is a retry call after full suppression
@@ -780,15 +872,17 @@ def call_brain(client_config, performance_data, keyword_rankings, gbp_keywords,
         actions = []
 
     # Validate content in each action -- retry once if issues found
+    slug = client_config.get("slug")
+    business_facts = client_config.get("business_facts")
     validated_actions = []
     for action in actions:
-        action, issues = _validate_action(action)
+        action, issues = _validate_action(action, client_slug=slug, business_facts=business_facts)
         if issues and action.get("action_type") in ("blog_post", "newsjack_post", "location_page"):
             print(f"  [brain] Validation issues for {action.get('action_type', '?')}: {', '.join(issues)}")
             print(f"  [brain] Requesting rewrite...")
             fixed = _rewrite_action(action, issues, client_config)
             if fixed:
-                fixed, retry_issues = _validate_action(fixed)
+                fixed, retry_issues = _validate_action(fixed, client_slug=slug, business_facts=business_facts)
                 if retry_issues:
                     print(f"  [brain] Rewrite still has issues: {', '.join(retry_issues)} -- DROPPING action")
                     continue
@@ -932,8 +1026,14 @@ def _parse_actions(response_text):
     return None
 
 
-def _validate_action(action):
-    """Validate and clean content fields in an action."""
+def _validate_action(action, client_slug=None, business_facts=None):
+    """Validate and clean content fields in an action.
+
+    client_slug: passes through to cross-client contamination checker.
+    business_facts: passes through to fabrication checker. Hard-blocks
+    content that claims unsupported founding years, BBB ratings, fake
+    crew sizes, invented stats, etc.
+    """
     issues = []
     action_type = action.get("action_type", "")
 
@@ -952,7 +1052,9 @@ def _validate_action(action):
     for field, vtype in content_fields.get(action_type, []):
         text = action.get(field, "")
         if text:
-            cleaned, field_issues = validate_content(text, vtype)
+            cleaned, field_issues = validate_content(
+                text, vtype, client_slug=client_slug, business_facts=business_facts,
+            )
             action[field] = cleaned
             issues.extend(field_issues)
 

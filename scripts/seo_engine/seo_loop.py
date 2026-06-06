@@ -76,8 +76,25 @@ MAX_GBP_ACTIONS_PER_RUN = 2
 # Arcadian was suspended 2026-05-16 after the engine published 2-3 posts/day.
 MAX_GBP_POSTS_PER_RUN = 1
 
+# Per-action-type cooldowns (minimum days between two consecutive actions of
+# the same type for the same client). Suspension-safety rule, 2026-06-01:
+# spacing out structural GBP edits makes the engine's cadence look like a
+# human owner cleaning up the profile over weeks instead of a bot blasting
+# changes in a single sitting. Arcadian was reinstated 2026-05-21 after a
+# bulk-edit-style suspension. Service rewrites are the highest-risk structural
+# change because each one is a profile mutation that Google's review system
+# logs.
+GBP_ACTION_COOLDOWN_DAYS = {
+    "gbp_service_update": 2,
+    "gbp_description_update": 14,
+    "gbp_categories_update": 14,
+}
+
 # Clients eligible for the SEO engine
-ELIGIBLE_SLUGS = {"mr-green-turf-clean", "integrity-pro-washers", "socal-artificial-turfs", "arcadian-landscape"}
+ELIGIBLE_SLUGS = {"mr-green-turf-clean", "integrity-pro-washers", "socal-artificial-turfs", "arcadian-landscape", "ecosystem-landscaping"}
+# ecosystem-landscaping added 2026-06-01: paying client since 2026-05-11. Coronado/Point Loma
+# landscape designer Samuel Fortes + Manuela. CSLB #1152146. Truth file in clients.json
+# business_facts block to prevent the SEO engine fabrication pattern (see feedback_seo_engine_fabrication.md).
 # az-turf-cleaning removed 2026-04-30: client did not move forward after free trial.
 # top-tier-custom-floors removed 2026-05-28: client declined trial.
 # echo-local removed 2026-05-30: agency's own site is handled by scripts.agency_engine.agency_loop
@@ -103,6 +120,45 @@ def get_client_id(slug, retries=3, delay=10):
             else:
                 print(f"  [FATAL] Supabase connection failed after {retries} attempts: {e}")
                 raise
+
+
+def _compute_last_action_dates(action_history):
+    """Return {action_type: date_obj} for the most recent action of each type.
+
+    Used to enforce GBP_ACTION_COOLDOWN_DAYS in the executor and to inform
+    the brain so it can avoid proposing cooldown-blocked actions.
+    """
+    from datetime import datetime
+    last = {}
+    for a in (action_history or []):
+        t = a.get("action_type")
+        d_raw = a.get("action_date")
+        if not t or not d_raw:
+            continue
+        try:
+            d = datetime.strptime(d_raw[:10], "%Y-%m-%d").date()
+        except ValueError:
+            continue
+        if t not in last or d > last[t]:
+            last[t] = d
+    return last
+
+
+def _cooldown_block_reason(action_type, last_action_dates):
+    """If action_type is under cooldown, return a human-readable reason string. Else None."""
+    cooldown = GBP_ACTION_COOLDOWN_DAYS.get(action_type)
+    if not cooldown:
+        return None
+    last = (last_action_dates or {}).get(action_type)
+    if not last:
+        return None
+    days_since = (date.today() - last).days
+    if days_since < cooldown:
+        return (
+            f"cooldown active: last {action_type} was {days_since} day(s) ago, "
+            f"need {cooldown} day(s) between calls (suspension-safety)"
+        )
+    return None
 
 
 def _audit_gbp_completeness(gbp_state):
@@ -288,6 +344,11 @@ def run_client(client, dry_run=True):
     month_counts = get_month_action_counts(client_id)
     recent_keywords = get_recent_keywords(client_id)
 
+    # Per-action-type last-run dates (for cooldown enforcement on structural
+    # GBP edits). Computed from action_history; the brain also gets these
+    # so it can avoid proposing actions that will be cooldown-blocked.
+    last_action_dates = _compute_last_action_dates(action_history)
+
     keyword_rankings = perf_data.get("target_keyword_rankings", [])
     gsc_queries = perf_data.get("gsc", {}).get("top_queries", [])
     gbp_keywords = perf_data.get("gbp_keywords", [])
@@ -465,6 +526,7 @@ def run_client(client, dry_run=True):
         gbp_completeness_issues=gbp_completeness_issues,
         competitor_alerts=competitor_alerts,
         cluster_health=cluster_health_data,
+        last_action_dates=last_action_dates,
         dry_run=dry_run,
     )
 
@@ -513,6 +575,8 @@ def run_client(client, dry_run=True):
             continue
         if action_type == "gbp_post" and gbp_posts_this_run >= MAX_GBP_POSTS_PER_RUN:
             continue
+        if _cooldown_block_reason(action_type, last_action_dates):
+            continue
         if action_type in MONTHLY_LIMITS:
             if month_counts.get(action_type, 0) >= MONTHLY_LIMITS[action_type]:
                 continue
@@ -527,6 +591,8 @@ def run_client(client, dry_run=True):
         available_types = []
         for t in all_limit_types:
             if t in suppressed_types:
+                continue
+            if _cooldown_block_reason(t, last_action_dates):
                 continue
             if t in MONTHLY_LIMITS:
                 if month_counts.get(t, 0) >= MONTHLY_LIMITS[t]:
@@ -568,6 +634,7 @@ def run_client(client, dry_run=True):
                 gbp_completeness_issues=gbp_completeness_issues,
                 competitor_alerts=competitor_alerts,
                 cluster_health=cluster_health_data,
+                last_action_dates=last_action_dates,
                 dry_run=dry_run,
                 retry_hint=available_types,
                 suppressed_hint=list(suppressed_types) + list(set(blocked_types) - set(available_types)),
@@ -598,6 +665,16 @@ def run_client(client, dry_run=True):
         if action_type == "gbp_post" and gbp_posts_this_run >= MAX_GBP_POSTS_PER_RUN:
             print(f"  SKIPPED gbp_post: per-run post cap reached ({gbp_posts_this_run}/{MAX_GBP_POSTS_PER_RUN})")
             execution_log.append({"action_type": action_type, "status": "daily_post_cap"})
+            continue
+
+        # Per-action-type cooldown for structural GBP edits. Bulk edits and
+        # back-to-back rewrites are a GBP suspension signal (Arcadian 2026-05-21).
+        # Service rewrites must space out across multiple days to look like a
+        # human owner cleaning up the profile, not a script.
+        cd_reason = _cooldown_block_reason(action_type, last_action_dates)
+        if cd_reason:
+            print(f"  SKIPPED {action_type}: {cd_reason}")
+            execution_log.append({"action_type": action_type, "status": "cooldown"})
             continue
 
         # Enforce rate limits: weekly for most types, monthly for description/categories
@@ -668,6 +745,11 @@ def run_client(client, dry_run=True):
                 month_counts[action_type] = month_counts.get(action_type, 0) + 1
             else:
                 week_counts[action_type] = week_counts.get(action_type, 0) + 1
+
+            # Stamp last-action-date so a second cooldown-bound action of the
+            # same type in this same run gets blocked by the cooldown check.
+            if action_type in GBP_ACTION_COOLDOWN_DAYS:
+                last_action_dates[action_type] = date.today()
 
     # Print summary
     print(f"\n  [7/7] Summary:")
@@ -750,8 +832,15 @@ def _execute_action(action, client, website_path, dry_run):
         return _execute_schema_update(action, client, website_path, dry_run)
 
     elif action_type == "gbp_service_update":
-        from .actions.gbp_services import execute_gbp_service_update
-        return execute_gbp_service_update(action, client, dry_run=dry_run)
+        # PERMANENTLY DISABLED -- Brian's order 2026-06-06
+        # Mr Green GBP impressions collapsed from ~17/day to 0-1/day starting
+        # 2026-06-01, ~5 days after two bulk "Updated 8 services" writes on
+        # 2026-05-27. Profile is not suspended (verification COMPLETED, posts
+        # going live, new reviews still posting) but visibility was suppressed.
+        # Service mutations are the highest-risk structural edit and the
+        # benefit does not justify the recurring quality-filter risk.
+        print(f"  [BLOCKED] gbp_service_update is permanently disabled")
+        return {"status": "blocked", "reason": "permanently disabled"}
 
     elif action_type == "gbp_description_update":
         from .actions.gbp_description import execute_gbp_description_update
