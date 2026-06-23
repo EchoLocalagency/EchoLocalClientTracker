@@ -574,7 +574,8 @@
         "specific employee names other than Evan Weisman",
         "case studies of specific clients without confirming with Evan first"
       ]
-    }
+    },
+    "founded_year": 2013
   },
   {
     "name": "Ecosystem Landscaping & Design",
@@ -713,7 +714,8 @@
         "Many Coronado HOAs and design review boards have plant palette and hedge-height expectations",
         "Drought-tolerant design lets Coronado homes stay green without abusing the metered water rates"
       ]
-    }
+    },
+    "founded_year": 2017
   },
   {
     "name": "Top Tier Custom Floors",
@@ -777,6 +779,97 @@
       "bbb": "",
       "facebook": "https://www.facebook.com/toptierfloors",
       "instagram": "https://www.instagram.com/top_tier_custom_floors/"
+    }
+  },
+  {
+    "name": "Georgia Adams Psychic (TBD final brand)",
+    "slug": "georgia-psychic",
+    "ga4_property": "",
+    "ga4_measurement_id": "",
+    "gsc_url": "https://psychicexperiencesd.com/",
+    "website": "https://psychicexperiencesd.com/",
+    "github": "",
+    "phone": "+17602960539",
+    "conversion_events": [
+      "phone_click",
+      "form_submit"
+    ],
+    "netlify_site_id": "",
+    "netlify_form_name": "contact",
+    "gbp_location": "",
+    "gbp_status": "PENDING_BUILD",
+    "gbp_notes": "Old FL listing (locations/7100831301308441318) is SUSPENDED at Oakland Park, FL. Per 2026-06-04 plan, we build a NEW SD listing from scratch. FL listing left as-is (Brian has manager access). New SD GBP will be SAB config, no public address, using EIN doc.",
+    "website_local_path": "",
+    "drive_folder_id": "1KKT9mxyouulkesdbaZmSYuqfYFehdPmm",
+    "drive_folder_url": "https://drive.google.com/drive/folders/1KKT9mxyouulkesdbaZmSYuqfYFehdPmm",
+    "primary_market": "San Diego, CA (specific cities TBD)",
+    "target_keywords": [],
+    "service_areas": [],
+    "same_as_urls": {
+      "gbp": "",
+      "yelp": "",
+      "bbb": "",
+      "facebook": "",
+      "instagram": ""
+    },
+    "onboarding": {
+      "status": "onboarding",
+      "onboarded_date": "2026-06-05",
+      "first_inbound_paid_ads_close": true,
+      "source": "Google Ads \u2014 SEO campaign, GBP Help ad group, search 'how do i fix my google business profile' (2026-06-03)",
+      "package": "$349/mo SEO system, no setup fee (payment starts when site is live + signed off)",
+      "ein_on_file": true,
+      "ein_doc_path": "data/clients/georgia/ein-cp575.pdf",
+      "ein_caveat": "Registered as HOUSEHOLD EMPLOYER instead of SOLE PROPRIETOR \u2014 usable for GBP, needs IRS correction for tax filing. Mention to her after build is moving.",
+      "homework_email_sent": "2026-06-05",
+      "explainer_doc_sent": true,
+      "awaiting_from_client": [
+        "services + prices list",
+        "service area cities/zips",
+        "hours",
+        "photos (Drive folder)",
+        "style preferences"
+      ]
+    },
+    "business_facts": {
+      "_note": "TRUTH FILE for Georgia Adams Psychic. SKELETON \u2014 fill in when Georgia replies to onboarding questionnaire. The brain must stay within facts. Do not invent.",
+      "owner_name": "Georgia Adams",
+      "owner_background": "TBD \u2014 confirm during onboarding call",
+      "operations_contact": "Georgia handles ops herself (solo practitioner)",
+      "founded_gbp_open_date": "TBD (EIN start date Sept 2025)",
+      "years_in_local_market": "TBD (had Oakland Park FL business before SD)",
+      "team_size": "Solo",
+      "license": "",
+      "license_status": "",
+      "phone": "760-296-0539",
+      "email": "georgiapeach310@gmail.com",
+      "service_address_visibility": "Service-area business (no public street address). EIN address: 3927 Twiggs St, San Diego CA 92110.",
+      "service_area_business_type": "CUSTOMER_AND_BUSINESS_LOCATION",
+      "gbp_primary_category": "Psychic",
+      "hours": "TBD",
+      "real_services_offered": [
+        "Palm Reading ($60)",
+        "Tarot Card Reading ($90)",
+        "Psychic Reading ($125)",
+        "Combination Reading ($180)",
+        "Relationship Reading ($180)",
+        "Past Life Reading ($500)",
+        "Chakra Balancing",
+        "Spiritual Cleansing",
+        "Meditation Classes",
+        "Psychic Development",
+        "Event services"
+      ],
+      "real_service_areas": [],
+      "voice_and_positioning": "TBD \u2014 confirm tone preference during onboarding",
+      "do_not_claim": [
+        "specific number of past clients (we don't have a verified figure)",
+        "any guarantee of psychic accuracy or outcome",
+        "any claim that readings predict the future with certainty (legal/policy risk)",
+        "any award, ranking, 'voted best' claim",
+        "specific testimonials unless provided and approved by Georgia",
+        "years in business beyond what EIN start date shows (Sept 2025)"
+      ]
     }
   }
 ]
