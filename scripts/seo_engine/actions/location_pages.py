@@ -7,9 +7,13 @@ Supports multiple client sites via SITE_CONFIG.
 """
 
 import re
+import sys
 import subprocess
 from datetime import date
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from identity import assert_no_cross_contamination
 
 TEMPLATE_DIR = Path(__file__).resolve().parent.parent / "templates"
 
@@ -31,6 +35,14 @@ SITE_CONFIG = {
     "az-turf-cleaning": {
         "domain": "azturfcleaningllc.com",
         "template": "location_template_az.html",
+    },
+    "arcadian-landscape": {
+        "domain": "arcadianlandscape.com",
+        "template": "location_template.html",
+    },
+    "top-tier-custom-floors": {
+        "domain": "toptierfloors.com",
+        "template": "location_template.html",
     },
 }
 
@@ -99,7 +111,9 @@ def create_location_page(city, slug, title, meta_description, body_content,
 
     # Resolve site config
     config = SITE_CONFIG.get(client_slug, {}) if client_slug else {}
-    domain = config.get("domain", "mrgreenturfclean.com")
+    domain = config.get("domain")
+    if not domain:
+        raise ValueError(f"No domain found for client_slug '{client_slug}'. Check SITE_CONFIG.")
     areas_subdir = config.get("areas_subdir", "areas")
     areas_dir = website_path / areas_subdir
     areas_dir.mkdir(exist_ok=True)
@@ -110,7 +124,7 @@ def create_location_page(city, slug, title, meta_description, body_content,
     template = template_path.read_text()
 
     publish_date = str(date.today())
-    canonical_url = f"https://{domain}/areas/{slug}.html"
+    canonical_url = f"https://{domain}/{areas_subdir}/{slug}.html"
     og_title = title.split("|")[0].strip() if "|" in title else title
 
     html = template.replace("{{title}}", title)
@@ -127,16 +141,23 @@ def create_location_page(city, slug, title, meta_description, body_content,
         print(f"  [location_pages] REJECTED: {slug} is {sim:.0%} similar to {most_similar} -- tell brain to make it more unique")
         return {"status": "rejected_duplicate", "similar_to": most_similar, "similarity": sim}
 
+    # Cross-client identity guard: block any page carrying another client's
+    # brand/GA (or missing its own) BEFORE it is written. location_template.html
+    # is still Mr Green-branded, so this fails loud for arcadian/top-tier until
+    # their location templates are converted to the injection model -- which is
+    # correct: never leak, even if it means blocking generation.
+    assert_no_cross_contamination(html, client_slug, where=f"{areas_subdir}/{slug}.html")
+
     # Write page
     page_path = areas_dir / f"{slug}.html"
     page_path.write_text(html)
-    print(f"  [location_pages] Written: {page_path}")
+    print(f"  [location_pages] Written (guarded): {page_path}")
 
     # Update sitemap
-    _update_sitemap(website_path, slug, publish_date, domain)
+    _update_sitemap(website_path, slug, publish_date, domain, areas_subdir)
 
     # Auto-inject link into service-areas.html
-    _update_service_areas_page(website_path, city, slug)
+    _update_service_areas_page(website_path, city, slug, areas_subdir)
 
     # Inject schema markup
     try:
@@ -165,7 +186,7 @@ def create_location_page(city, slug, title, meta_description, body_content,
     return result
 
 
-def _update_sitemap(website_path, slug, publish_date, domain="mrgreenturfclean.com"):
+def _update_sitemap(website_path, slug, publish_date, domain, areas_subdir="areas"):
     """Append location page URL to sitemap.xml."""
     sitemap_path = website_path / "sitemap.xml"
     if not sitemap_path.exists():
@@ -175,13 +196,13 @@ def _update_sitemap(website_path, slug, publish_date, domain="mrgreenturfclean.c
     new_entry = f"""
     <!-- Location: {slug} -->
     <url>
-        <loc>https://{domain}/areas/{slug}.html</loc>
+        <loc>https://{domain}/{areas_subdir}/{slug}.html</loc>
         <lastmod>{publish_date}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>"""
 
-    if f"areas/{slug}.html" in content:
+    if f"{areas_subdir}/{slug}.html" in content:
         return
 
     content = content.replace("</urlset>", f"{new_entry}\n</urlset>")
@@ -189,7 +210,7 @@ def _update_sitemap(website_path, slug, publish_date, domain="mrgreenturfclean.c
     print(f"  [location_pages] Sitemap updated")
 
 
-def _update_service_areas_page(website_path, city, slug):
+def _update_service_areas_page(website_path, city, slug, areas_subdir="areas"):
     """Auto-inject a link to the new area page into service-areas.html."""
     sa_path = website_path / "service-areas.html"
     if not sa_path.exists():
@@ -197,12 +218,12 @@ def _update_service_areas_page(website_path, city, slug):
 
     content = sa_path.read_text()
 
-    # Check if already linked
-    if f"areas/{slug}.html" in content:
+    # Check if already linked (check both possible path patterns)
+    if f"{areas_subdir}/{slug}" in content:
         return
 
     # Look for a list of area links (common patterns)
-    link_html = f'<li><a href="areas/{slug}.html">{city}</a></li>'
+    link_html = f'<li><a href="{areas_subdir}/{slug}.html">{city}</a></li>'
 
     # Try to insert before the closing </ul> that contains area links
     # Look for a marker or the last area link

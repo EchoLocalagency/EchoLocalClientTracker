@@ -9,9 +9,15 @@ Supports multiple client sites via SITE_CONFIG.
 
 import os
 import re
+import sys
 import subprocess
 from datetime import date
 from pathlib import Path
+
+# leak-proof renderer + cross-client guard live one dir up
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+import blog_renderer
+from identity import assert_no_cross_contamination
 
 TEMPLATE_DIR = Path(__file__).resolve().parent.parent / "templates"
 
@@ -46,6 +52,11 @@ SITE_CONFIG = {
         "domain": "arcadianlandscape.com",
         "template": "blog_template.html",
         "website_path": "/Users/brianegan/Desktop/Arcadian Landscape/website",
+    },
+    "ecosystem-landscaping": {
+        "domain": "ecosystemlands.com",
+        "template": "blog_template_ecosystem.html",
+        "website_path": "/Users/brianegan/Desktop/Ecosystem Lands/website",
     },
     "top-tier-custom-floors": {
         "domain": "toptierfloors.com",
@@ -90,27 +101,31 @@ def generate_blog_post(title, slug, meta_description, body_content,
     blog_dir = website_path / "blog"
     blog_dir.mkdir(exist_ok=True)
 
-    # Load template
-    template_path = TEMPLATE_DIR / template_name
-    template = template_path.read_text()
-
-    # Fill placeholders
     publish_date = str(date.today())
-    canonical_url = f"https://{domain}/blog/{slug}.html"
-    breadcrumb_title = title.split("|")[0].strip() if "|" in title else title
 
-    html = template.replace("{{title}}", title)
-    html = html.replace("{{meta_description}}", meta_description)
-    html = html.replace("{{canonical_url}}", canonical_url)
-    html = html.replace("{{og_title}}", title)
-    html = html.replace("{{breadcrumb_title}}", breadcrumb_title)
-    html = html.replace("{{body_content}}", body_content)
-    html = html.replace("{{publish_date}}", publish_date)
+    # Render via the leak-proof renderer: identity comes from clients.json
+    # (keyed to client_slug) and chrome is read from THIS client's own homepage.
+    # No per-client template file is used, so another client's identity can never
+    # enter the output. render_post() runs the cross-contamination guard before
+    # returning, raising CrossContaminationError if anything is off.
+    if not client_slug:
+        raise ValueError("client_slug is required (identity is keyed to it)")
+    homepage_html = (website_path / "index.html").read_text(errors="ignore")
+    html = blog_renderer.render_post(
+        slug=slug,
+        title=title.split("|")[0].strip() if "|" in title else title,
+        meta_description=meta_description,
+        body_content=body_content,
+        publish_date=publish_date,
+        homepage_html=homepage_html,
+        client_slug=client_slug,
+    )
+    canonical_url = f"https://{domain}/blog/{slug}.html"
 
     # Write blog post
     post_path = blog_dir / f"{slug}.html"
     post_path.write_text(html)
-    print(f"  [blog_engine] Written: {post_path}")
+    print(f"  [blog_engine] Written (guarded): {post_path}")
 
     # Update sitemap
     _update_sitemap(website_path, slug, publish_date, domain)

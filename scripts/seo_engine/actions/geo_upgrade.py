@@ -8,8 +8,13 @@ using string-level insertion for HTML fidelity.
 
 import os
 import re
+import sys
 import subprocess
 from datetime import date
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from identity import assert_no_cross_contamination, slug_for_path
 from pathlib import Path
 
 from bs4 import BeautifulSoup
@@ -44,6 +49,10 @@ def execute_geo_upgrade(website_path, filename, upgrades, dry_run=True):
 
     for upgrade in upgrades:
         upgrade_type = upgrade.get("type", "")
+        # Alias: geo_scorer calls the factor "stats_density"; brain sometimes
+        # echoes that name in upgrades. Normalize to the action type.
+        if upgrade_type == "stats_density":
+            upgrade_type = "stats_injection"
         try:
             if upgrade_type == "answer_block":
                 html, ok = _apply_answer_block(html, upgrade)
@@ -73,6 +82,9 @@ def execute_geo_upgrade(website_path, filename, upgrades, dry_run=True):
         }
 
     if not dry_run:
+        _slug = slug_for_path(website_path)
+        if _slug:
+            assert_no_cross_contamination(html, _slug, where=filename, require_own=False)
         filepath.write_text(html)
         _update_sitemap_lastmod(website_path, filename)
         commit_sha = _git_commit_push(

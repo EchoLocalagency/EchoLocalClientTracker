@@ -6,9 +6,13 @@ Stores original content for rollback.
 """
 
 import re
+import sys
 import subprocess
 from datetime import date
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from identity import assert_no_cross_contamination, slug_for_path
 
 
 # Pages that are off-limits to the optimizer
@@ -87,6 +91,11 @@ def optimize_page(website_path, filename, edits, action_id=None, dry_run=True):
     if dry_run:
         print(f"  [page_optimizer] DRY RUN - {len(applied)} edits validated for {filename}")
         return result
+
+    # Guard: an in-place edit must not introduce another client's identity.
+    _slug = slug_for_path(website_path)
+    if _slug:
+        assert_no_cross_contamination(content, _slug, where=filename, require_own=False)
 
     # Write the updated file
     file_path.write_text(content)
