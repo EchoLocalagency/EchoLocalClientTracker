@@ -14,6 +14,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from identity import assert_no_cross_contamination
+import location_renderer
 
 TEMPLATE_DIR = Path(__file__).resolve().parent.parent / "templates"
 
@@ -117,23 +118,21 @@ def create_location_page(city, slug, title, meta_description, body_content,
     areas_subdir = config.get("areas_subdir", "areas")
     areas_dir = website_path / areas_subdir
     areas_dir.mkdir(exist_ok=True)
-    template_name = config.get("template", "location_template.html")
-
-    # Load template
-    template_path = TEMPLATE_DIR / template_name
-    template = template_path.read_text()
-
     publish_date = str(date.today())
     canonical_url = f"https://{domain}/{areas_subdir}/{slug}.html"
-    og_title = title.split("|")[0].strip() if "|" in title else title
 
-    html = template.replace("{{title}}", title)
-    html = html.replace("{{meta_description}}", meta_description)
-    html = html.replace("{{canonical_url}}", canonical_url)
-    html = html.replace("{{og_title}}", og_title)
-    html = html.replace("{{city}}", city)
-    html = html.replace("{{publish_date}}", publish_date)
-    html = html.replace("{{body_content}}", body_content)
+    # Render via the leak-proof location renderer: identity from clients.json
+    # (keyed to client_slug) + chrome from this client's own homepage. No shared
+    # template file, so neither another client's identity NOR service type can
+    # leak. Guard runs inside render_location_page.
+    if not client_slug:
+        raise ValueError("client_slug is required (identity is keyed to it)")
+    homepage_html = (website_path / "index.html").read_text(errors="ignore")
+    html = location_renderer.render_location_page(
+        city=city, slug=slug, title=title, meta_description=meta_description,
+        body_content=body_content, publish_date=publish_date,
+        homepage_html=homepage_html, client_slug=client_slug, areas_subdir=areas_subdir,
+    )
 
     # Check for duplicate content before writing
     is_dup, most_similar, sim = _check_duplicate_content(website_path, html, areas_subdir=areas_subdir)
