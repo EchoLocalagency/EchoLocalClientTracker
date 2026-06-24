@@ -782,13 +782,13 @@
     }
   },
   {
-    "name": "Georgia Adams Psychic (TBD final brand)",
+    "name": "Psychic Experience",
     "slug": "georgia-psychic",
-    "ga4_property": "",
-    "ga4_measurement_id": "",
+    "ga4_property": "properties/543118056",
+    "ga4_measurement_id": "G-BEYTH5X88Q",
     "gsc_url": "https://psychicexperiencesd.com/",
     "website": "https://psychicexperiencesd.com/",
-    "github": "",
+    "github": "https://github.com/EchoLocalagency/psychic-experience",
     "phone": "+17602960539",
     "conversion_events": [
       "phone_click",
@@ -796,15 +796,36 @@
     ],
     "netlify_site_id": "",
     "netlify_form_name": "contact",
-    "gbp_location": "",
-    "gbp_status": "PENDING_BUILD",
+    "gbp_location": "locations/16203294916953355002",
+    "gbp_status": "LIVE",
     "gbp_notes": "Old FL listing (locations/7100831301308441318) is SUSPENDED at Oakland Park, FL. Per 2026-06-04 plan, we build a NEW SD listing from scratch. FL listing left as-is (Brian has manager access). New SD GBP will be SAB config, no public address, using EIN doc.",
-    "website_local_path": "",
+    "website_local_path": "/Users/brianegan/Desktop/psychic-experience",
     "drive_folder_id": "1KKT9mxyouulkesdbaZmSYuqfYFehdPmm",
     "drive_folder_url": "https://drive.google.com/drive/folders/1KKT9mxyouulkesdbaZmSYuqfYFehdPmm",
-    "primary_market": "San Diego, CA (specific cities TBD)",
-    "target_keywords": [],
-    "service_areas": [],
+    "primary_market": "San Diego, CA",
+    "target_keywords": [
+      "psychic san diego",
+      "psychic reading san diego",
+      "tarot reading san diego",
+      "palm reading san diego",
+      "tarot card reading near me",
+      "psychic near me",
+      "spiritual reading san diego",
+      "psychic old town san diego"
+    ],
+    "service_areas": [
+      "Old Town",
+      "Mission Hills",
+      "Hillcrest",
+      "Pacific Beach",
+      "La Jolla",
+      "North Park",
+      "Ocean Beach",
+      "Chula Vista",
+      "Coronado",
+      "Encinitas",
+      "San Diego"
+    ],
     "same_as_urls": {
       "gbp": "",
       "yelp": "",
@@ -836,17 +857,17 @@
       "owner_name": "Georgia Adams",
       "owner_background": "TBD \u2014 confirm during onboarding call",
       "operations_contact": "Georgia handles ops herself (solo practitioner)",
-      "founded_gbp_open_date": "TBD (EIN start date Sept 2025)",
+      "founded_gbp_open_date": "EIN start 09-2025 (GBP openingDate not set)",
       "years_in_local_market": "TBD (had Oakland Park FL business before SD)",
       "team_size": "Solo",
       "license": "",
       "license_status": "",
       "phone": "760-296-0539",
       "email": "georgiapeach310@gmail.com",
-      "service_address_visibility": "Service-area business (no public street address). EIN address: 3927 Twiggs St, San Diego CA 92110.",
+      "service_address_visibility": "STOREFRONT - public address shown. Customers visit 3927 Twiggs St, San Diego CA 92110-2844.",
       "service_area_business_type": "CUSTOMER_AND_BUSINESS_LOCATION",
       "gbp_primary_category": "Psychic",
-      "hours": "TBD",
+      "hours": "Daily 9:00am - 9:00pm",
       "real_services_offered": [
         "Palm Reading ($60)",
         "Tarot Card Reading ($90)",
@@ -870,6 +891,14 @@
         "specific testimonials unless provided and approved by Georgia",
         "years in business beyond what EIN start date shows (Sept 2025)"
       ]
-    }
+    },
+    "address": {
+      "line1": "3927 Twiggs St",
+      "city": "San Diego",
+      "state": "CA",
+      "postcode": "92110",
+      "country": "USA"
+    },
+    "founded_year": 2025
   }
 ]
