@@ -88,8 +88,16 @@ def _build_head(head_inner, identity, title, meta_description, canonical_url):
         h += f'\n    <link rel="canonical" href="{canonical_url}">'
     h = re.sub(r'(<meta\s+property=["\']og:url["\']\s+content=["\']).*?(["\'])',
                lambda m: m.group(1) + canonical_url + m.group(2), h, flags=re.S | re.I)
-    h = re.sub(r'(<meta\s+property=["\']og:title["\']\s+content=["\']).*?(["\'])',
-               lambda m: m.group(1) + title + m.group(2), h, flags=re.S | re.I)
+    # og:title + twitter:title: replace the WHOLE tag with a clean double-quoted
+    # version (apostrophe-safe) and add twitter:title if the homepage chrome
+    # lacked one -- otherwise posts inherit the homepage's social title.
+    h = re.sub(r'<meta\s+property=["\']og:title["\'][^>]*>',
+               f'<meta property="og:title" content="{title}">', h, flags=re.I)
+    if re.search(r'<meta\s+name=["\']twitter:title["\']', h, re.I):
+        h = re.sub(r'<meta\s+name=["\']twitter:title["\'][^>]*>',
+                   f'<meta name="twitter:title" content="{title}">', h, flags=re.I)
+    else:
+        h += f'\n    <meta name="twitter:title" content="{title}">'
     # guarantee own GA id present (homepage head should already carry it)
     if identity["ga_id"] not in h:
         h += (f'\n    <script async src="https://www.googletagmanager.com/gtag/js?id={identity["ga_id"]}"></script>'
