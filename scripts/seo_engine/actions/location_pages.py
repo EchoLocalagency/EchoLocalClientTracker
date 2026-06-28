@@ -45,6 +45,10 @@ SITE_CONFIG = {
         "domain": "toptierfloors.com",
         "template": "location_template.html",
     },
+    "georgia-psychic": {
+        "domain": "psychicexperiencesd.com",
+        "template": "location_template.html",  # vestigial; renderer uses homepage chrome + clients.json identity
+    },
 }
 
 
@@ -132,6 +136,7 @@ def create_location_page(city, slug, title, meta_description, body_content,
         city=city, slug=slug, title=title, meta_description=meta_description,
         body_content=body_content, publish_date=publish_date,
         homepage_html=homepage_html, client_slug=client_slug, areas_subdir=areas_subdir,
+        website_path=website_path,
     )
 
     # Check for duplicate content before writing

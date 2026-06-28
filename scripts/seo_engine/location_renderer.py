@@ -13,12 +13,13 @@ The page H1, title, and schema are derived from the brain-supplied title/meta
 import json
 
 from identity import client_identity, assert_no_cross_contamination
-from blog_renderer import extract_chrome, _build_head
+from blog_renderer import (extract_chrome, _build_head, repair_body,
+                           _mr_green_image_repair)
 
 
 def render_location_page(city, slug, title, meta_description, body_content,
                          publish_date, homepage_html, client_slug,
-                         areas_subdir="areas"):
+                         areas_subdir="areas", website_path=None):
     """Render a location/area landing page. Returns guarded HTML."""
     ident = client_identity(client_slug)
     og_title = title.split("|")[0].strip() if "|" in title else title
@@ -26,6 +27,12 @@ def render_location_page(city, slug, title, meta_description, body_content,
 
     head_inner, nav, foot = extract_chrome(homepage_html)
     head = _build_head(head_inner, ident, og_title, meta_description, canonical_url)
+
+    # Resolve plain-relative body refs against /<areas_subdir>/ first, then /,
+    # dropping anything that doesn't exist on disk. Same defense as blog posts.
+    image_repair = _mr_green_image_repair if client_slug == "mr-green-turf-clean" else None
+    body_content = repair_body(body_content, f"/{areas_subdir}", website_path,
+                               image_repair=image_repair)
 
     # Generic, brand-correct local schema (no hardcoded service type)
     schema = {

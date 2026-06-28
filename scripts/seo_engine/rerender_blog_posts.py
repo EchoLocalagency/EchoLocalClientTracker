@@ -115,7 +115,7 @@ def run_client(slug):
         ok, _ = scan_file(p, slug)
         if ok:
             continue  # already clean, leave it
-        html = blog_renderer.render_post(slug_p, title, desc, body, date, homepage, slug)
+        html = blog_renderer.render_post(slug_p, title, desc, body, date, homepage, slug, website_path=Path(repo))
         Path(p).write_text(html, encoding="utf-8")
         fixed.append(slug_p)
 

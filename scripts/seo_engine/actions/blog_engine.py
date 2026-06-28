@@ -63,6 +63,11 @@ SITE_CONFIG = {
         "template": "blog_template.html",
         "website_path": "/Users/brianegan/Desktop/Top Tier Custom Floors/website",
     },
+    "georgia-psychic": {
+        "domain": "psychicexperiencesd.com",
+        "template": "blog_template.html",  # vestigial; renderer uses homepage chrome + clients.json identity
+        "website_path": "/Users/brianegan/Desktop/psychic-experience",
+    },
 }
 
 
@@ -119,6 +124,7 @@ def generate_blog_post(title, slug, meta_description, body_content,
         publish_date=publish_date,
         homepage_html=homepage_html,
         client_slug=client_slug,
+        website_path=website_path,
     )
     canonical_url = f"https://{domain}/blog/{slug}.html"
 
